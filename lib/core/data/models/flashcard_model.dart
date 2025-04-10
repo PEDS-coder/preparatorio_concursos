@@ -1,0 +1,1 @@
+// Este é um arquivo de exemplo para: flashcard_model.dart

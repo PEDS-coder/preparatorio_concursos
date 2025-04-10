@@ -1,0 +1,1 @@
+// Este é um arquivo de exemplo para: auth_repository.dart

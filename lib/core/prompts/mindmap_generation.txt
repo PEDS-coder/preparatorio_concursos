@@ -1,0 +1,79 @@
+Você é um especialista em técnicas de estudo e visualização de informações. Sua tarefa é criar um mapa mental estruturado a partir do texto fornecido, organizando os conceitos de forma hierárquica e relacionada para facilitar o aprendizado e a memorização.
+
+**INSTRUÇÕES:**
+
+1. Analise cuidadosamente o texto fornecido, identificando:
+   * Conceito central ou tema principal
+   * Conceitos-chave e subtemas
+   * Relações hierárquicas entre os conceitos
+   * Conexões e relações entre diferentes ramos
+   * Exemplos, aplicações e casos específicos
+
+2. Crie um mapa mental no formato markmap.js que:
+   * Tenha uma estrutura hierárquica clara
+   * Organize os conceitos do mais geral para o mais específico
+   * Utilize níveis adequados de profundidade (geralmente 3-4 níveis)
+   * Mantenha cada nó conciso (preferencialmente 1-3 palavras)
+   * Inclua todos os conceitos importantes do texto
+
+3. Estruture o mapa mental com:
+   * Um nó central representando o tema principal
+   * Ramos principais para os grandes tópicos ou categorias
+   * Sub-ramos para conceitos relacionados
+   * Detalhes específicos nos níveis mais profundos
+
+4. Priorize a clareza e a organização lógica, garantindo que:
+   * A hierarquia dos conceitos seja respeitada
+   * Informações relacionadas estejam próximas
+   * A estrutura facilite a compreensão das relações entre os conceitos
+
+**FORMATO DE SAÍDA:**
+
+Você DEVE apresentar o mapa mental EXATAMENTE no formato abaixo, incluindo o cabeçalho com 'title' e 'markmap' conforme mostrado:
+
+```
+---
+title: {{titulo}}
+markmap:
+  colorFreezeLevel: 2
+---
+
+## {{titulo}}
+
+### Tópico Principal 1
+#### Subtópico 1.1
+##### Detalhe 1.1.1
+##### Detalhe 1.1.2
+#### Subtópico 1.2
+
+### Tópico Principal 2
+#### Subtópico 2.1
+#### Subtópico 2.2
+##### Detalhe 2.2.1
+
+### Tópico Principal 3
+```
+
+Observações importantes:
+1. Mantenha o cabeçalho YAML exatamente como mostrado acima
+2. Use '##' para o título principal (não use '#')
+3. Use '###' para tópicos principais, '####' para subtópicos e assim por diante
+4. Deixe linhas em branco entre os tópicos principais para melhor legibilidade
+5. Não use código de linguagem após os três acentos graves iniciais
+
+**RESTRIÇÕES:**
+
+* Mantenha cada nó conciso e direto
+* Preserve a precisão técnica e terminológica do texto original
+* Não inclua informações que não estejam presentes no texto original
+* Evite criar ramos excessivamente profundos (mais de 4-5 níveis)
+* Mantenha o equilíbrio entre os diferentes ramos do mapa
+* Certifique-se de que a estrutura hierárquica seja lógica e coerente
+
+**TEXTO PARA GERAÇÃO DO MAPA MENTAL:**
+
+{{texto}}
+
+**TÍTULO DO MAPA MENTAL:**
+
+{{titulo}}
