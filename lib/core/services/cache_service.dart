@@ -16,15 +16,15 @@ class CacheService {
   // Inicializar o serviço de cache
   Future<void> init() async {
     if (_initialized) return;
-    
+
     try {
       final appDir = await getApplicationDocumentsDirectory();
       _cacheDir = Directory('${appDir.path}/analysis_cache');
-      
+
       if (!await _cacheDir!.exists()) {
         await _cacheDir!.create(recursive: true);
       }
-      
+
       _initialized = true;
       debugPrint('CacheService inicializado: ${_cacheDir!.path}');
     } catch (e) {
@@ -43,18 +43,18 @@ class CacheService {
   Future<bool> saveToCache(String prompt, List<int> pdfBytes, String result) async {
     if (!_initialized) await init();
     if (_cacheDir == null) return false;
-    
+
     try {
       final cacheKey = _generateCacheKey(prompt, pdfBytes);
       final cacheFile = File('${_cacheDir!.path}/$cacheKey.json');
-      
+
       // Criar um objeto com metadados e resultado
       final cacheData = {
         'timestamp': DateTime.now().toIso8601String(),
         'prompt': prompt,
         'result': result,
       };
-      
+
       await cacheFile.writeAsString(jsonEncode(cacheData));
       debugPrint('Resultado salvo no cache: ${cacheFile.path}');
       return true;
@@ -68,18 +68,18 @@ class CacheService {
   Future<String?> getFromCache(String prompt, List<int> pdfBytes) async {
     if (!_initialized) await init();
     if (_cacheDir == null) return null;
-    
+
     try {
       final cacheKey = _generateCacheKey(prompt, pdfBytes);
       final cacheFile = File('${_cacheDir!.path}/$cacheKey.json');
-      
+
       if (await cacheFile.exists()) {
         final cacheData = jsonDecode(await cacheFile.readAsString());
         debugPrint('Resultado recuperado do cache: ${cacheFile.path}');
         debugPrint('Data do cache: ${cacheData['timestamp']}');
         return cacheData['result'];
       }
-      
+
       return null;
     } catch (e) {
       debugPrint('Erro ao recuperar do cache: $e');
@@ -91,7 +91,7 @@ class CacheService {
   Future<bool> hasCache(String prompt, List<int> pdfBytes) async {
     if (!_initialized) await init();
     if (_cacheDir == null) return false;
-    
+
     try {
       final cacheKey = _generateCacheKey(prompt, pdfBytes);
       final cacheFile = File('${_cacheDir!.path}/$cacheKey.json');
@@ -106,11 +106,21 @@ class CacheService {
   Future<bool> clearCache() async {
     if (!_initialized) await init();
     if (_cacheDir == null) return false;
-    
+
     try {
       if (await _cacheDir!.exists()) {
-        await _cacheDir!.delete(recursive: true);
-        await _cacheDir!.create(recursive: true);
+        // Em vez de excluir o diretório inteiro, vamos excluir cada arquivo individualmente
+        final files = await _cacheDir!.list().toList();
+        for (var file in files) {
+          try {
+            if (file is File) {
+              await file.delete();
+              debugPrint('Arquivo ${file.path} excluído com sucesso');
+            }
+          } catch (e) {
+            debugPrint('Erro ao excluir arquivo ${file.path}: $e');
+          }
+        }
         debugPrint('Cache limpo com sucesso!');
         return true;
       }
@@ -125,7 +135,7 @@ class CacheService {
   Future<List<String>> listCacheFiles() async {
     if (!_initialized) await init();
     if (_cacheDir == null) return [];
-    
+
     try {
       final files = await _cacheDir!.list().toList();
       return files.map((file) => file.path).toList();
