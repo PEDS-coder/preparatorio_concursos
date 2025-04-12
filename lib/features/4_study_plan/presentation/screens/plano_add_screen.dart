@@ -194,15 +194,32 @@ class _PlanoAddScreenState extends State<PlanoAddScreen> {
         // Carregar materias do edital para o formulário
         final materias = <MateriaProficiencia>[];
 
-        for (final cargo in edital.dadosExtraidos.cargos) {
-          for (final materia in cargo.conteudoProgramatico) {
-            // Verificar se a matéria já existe na lista
-            if (!materias.any((m) => m.nomeMateria == materia.nome)) {
-              materias.add(MateriaProficiencia(
-                nomeMateria: materia.nome,
-                nivelProficiencia: 3, // Nível médio como padrão
-              ));
-            }
+        // Encontrar o cargo selecionado ou usar o primeiro
+        final String cargoSelecionado = widget.cargoIds != null && widget.cargoIds!.isNotEmpty
+            ? widget.cargoIds!.first
+            : edital.dadosExtraidos.cargos.isNotEmpty
+                ? edital.dadosExtraidos.cargos.first.nome
+                : '';
+
+        // Buscar o cargo pelo nome
+        final cargo = edital.dadosExtraidos.cargos.firstWhere(
+          (cargo) => cargo.nome == cargoSelecionado,
+          orElse: () => edital.dadosExtraidos.cargos.isNotEmpty
+              ? edital.dadosExtraidos.cargos.first
+              : Cargo(nome: 'Não encontrado', conteudoProgramatico: []),
+        );
+
+        // Filtrar matérias genéricas
+        for (final materia in cargo.conteudoProgramatico) {
+          // Não ignorar matérias com nomes genéricos para exibir todos os conhecimentos
+          // Incluir todas as matérias, tanto básicas quanto específicas
+
+          // Verificar se a matéria já existe na lista
+          if (!materias.any((m) => m.nomeMateria == materia.nome)) {
+            materias.add(MateriaProficiencia(
+              nomeMateria: materia.nome,
+              nivelProficiencia: 3, // Nível médio como padrão
+            ));
           }
         }
 
@@ -270,12 +287,40 @@ class _PlanoAddScreenState extends State<PlanoAddScreen> {
               ? edital.dadosExtraidos.cargos.first.nome
               : 'Geral';
 
-      // Gerar plano de estudo
+      // Obter o conteúdo programático do cargo selecionado
+      Map<String, dynamic> conteudoProgramatico = {};
+      for (final cargo in edital.dadosExtraidos.cargos) {
+        if (cargo.nome == cargoSelecionado) {
+          // Criar estrutura de conteúdo programático com informações adicionais
+          final List<Map<String, dynamic>> materias = [];
+          for (final materia in cargo.conteudoProgramatico) {
+            materias.add({
+              'nome': materia.nome,
+              'tipo': materia.tipo,
+              'peso_maior': materia.pesoMaior ?? false,
+              'criterio_desempate': materia.criterioDesempate ?? false,
+              'numero_questoes': materia.numeroQuestoes,
+              'topicos': materia.topicos,
+            });
+          }
+          conteudoProgramatico = {
+            'cargo': cargo.nome,
+            'conteudo_programatico': materias,
+          };
+          break;
+        }
+      }
+
+      // Gerar plano de estudo com ciclos
       final planoEstudo = await editalAnalyzer.gerarPlanoEstudo(
         edital.textoCompleto,
         cargoSelecionado,
         _dataInicio,
         _dataFim,
+        horariosEspecificos: _horasSelecionadasPorDia,
+        materiasProficiencia: _materiasProficiencia.map((m) => m.toMap()).toList(),
+        ferramentasEstudo: _ferramentasSelecionadas,
+        conteudoProgramatico: conteudoProgramatico,
       );
 
       // Atualizar estado com o plano gerado
@@ -298,16 +343,18 @@ class _PlanoAddScreenState extends State<PlanoAddScreen> {
         }
       }
 
-      // Atualizar horas semanais com base no plano gerado
-      final Map<String, int> novasHoras = {
-        'segunda': 2,
-        'terca': 2,
-        'quarta': 2,
-        'quinta': 2,
-        'sexta': 2,
-        'sabado': 4,
-        'domingo': 0,
-      };
+      // Usar as horas configuradas pelo usuário
+      final Map<String, int> novasHoras = Map.from(_horasSemanais);
+
+      // Verificar se há horários específicos configurados
+      bool temHorariosEspecificos = false;
+      _horasSelecionadasPorDia.forEach((dia, horas) {
+        if (horas.isNotEmpty) {
+          temHorariosEspecificos = true;
+        }
+      });
+
+      // Informação sobre horas semanais será adicionada aos metadados mais tarde
 
       if (planoEstudo.containsKey('cronogramaSemanal')) {
         final Map<String, dynamic> cronograma = planoEstudo['cronogramaSemanal'];
@@ -342,14 +389,83 @@ class _PlanoAddScreenState extends State<PlanoAddScreen> {
           _ferramentasSelecionadas = ['videoaulas', 'pdfs', 'questoes'];
         }
 
-        // Criar lista de recompensas padrão
-        final List<RecompensaConfig> recompensas = [
-          RecompensaConfig(tipoRecompensa: 'diaria', descricaoRecompensa: 'Pausa para café'),
-          RecompensaConfig(tipoRecompensa: 'semanal', descricaoRecompensa: 'Assistir um episódio de série'),
-          RecompensaConfig(tipoRecompensa: 'mensal', descricaoRecompensa: 'Dia de folga nos estudos'),
-        ];
+        // Usar as recompensas configuradas pelo usuário
+        final List<RecompensaConfig> recompensas = [];
 
-        // Criar o plano de estudo
+        // Adicionar recompensas selecionadas das predefinidas
+        for (final recompensa in _recompensasConfig) {
+          recompensas.add(recompensa);
+        }
+
+        // Adicionar recompensas personalizadas
+        List<Map<String, String>> recompensasPersonalizadasList = [];
+        for (final recompensa in _recompensasPersonalizadas) {
+          recompensas.add(RecompensaConfig(
+            tipoRecompensa: recompensa['tipo'],
+            descricaoRecompensa: recompensa['nome'],
+          ));
+
+          // Adicionar à lista para metadados
+          recompensasPersonalizadasList.add({
+            'tipo': recompensa['tipo'],
+            'descricao': recompensa['nome'],
+          });
+        }
+
+        // Adicionar recompensas personalizadas aos metadados
+        Map<String, dynamic> dadosAdicionais = {
+          'recompensas': recompensasPersonalizadasList,
+          'horasSemanaisTotal': _horasSemanais.values.fold<int>(0, (sum, hours) => sum + hours),
+        };
+
+        // Se não houver recompensas configuradas, usar padrões
+        if (recompensas.isEmpty) {
+          recompensas.addAll([
+            RecompensaConfig(tipoRecompensa: 'diaria', descricaoRecompensa: 'Pausa para café'),
+            RecompensaConfig(tipoRecompensa: 'semanal', descricaoRecompensa: 'Assistir um episódio de série'),
+            RecompensaConfig(tipoRecompensa: 'mensal', descricaoRecompensa: 'Dia de folga nos estudos'),
+          ]);
+        }
+
+        // Obter dados adicionais do edital
+        final dadosEdital = edital.dadosExtraidos;
+
+        // Adicionar dados do edital aos dados adicionais
+        dadosAdicionais['titulo'] = dadosEdital.titulo ?? 'Não informado';
+        dadosAdicionais['orgao'] = dadosEdital.orgao ?? 'Não informado';
+        dadosAdicionais['banca'] = dadosEdital.banca ?? 'Não informado';
+        dadosAdicionais['dataProva'] = dadosEdital.dataProva ?? 'Não informado';
+        dadosAdicionais['valorInscricao'] = dadosEdital.valorTaxa ?? 0.0;
+
+        // Log detalhado dos dados transferidos para o plano
+        debugPrint('\nVERIFICAÇÃO DE DADOS TRANSFERIDOS PARA O PLANO:');
+        debugPrint('  Título: ${dadosAdicionais['titulo']}');
+        debugPrint('  Órgão: ${dadosAdicionais['orgao']}');
+        debugPrint('  Banca: ${dadosAdicionais['banca']}');
+        debugPrint('  Data da Prova: ${dadosAdicionais['dataProva']}');
+        debugPrint('  Valor Inscrição: ${dadosAdicionais['valorInscricao']}');
+
+        // Verificar dados sobre cotas nos dados originais do edital
+        if (edital.dadosOriginais != null) {
+          if (edital.dadosOriginais!.containsKey('cotas')) {
+            debugPrint('  Cotas: ${edital.dadosOriginais!['cotas']}');
+            dadosAdicionais['cotas'] = edital.dadosOriginais!['cotas'];
+          } else if (edital.dadosOriginais!.containsKey('percentual_cotas')) {
+            debugPrint('  Cotas: ${edital.dadosOriginais!['percentual_cotas']}');
+            dadosAdicionais['cotas'] = edital.dadosOriginais!['percentual_cotas'];
+          } else if (edital.dadosOriginais!.containsKey('reserva_vagas')) {
+            debugPrint('  Cotas: ${edital.dadosOriginais!['reserva_vagas']}');
+            dadosAdicionais['cotas'] = edital.dadosOriginais!['reserva_vagas'];
+          } else {
+            debugPrint('  Cotas: NÃO ENCONTRADAS NOS DADOS ORIGINAIS');
+            dadosAdicionais['cotas'] = 'Verificar no edital';
+          }
+        } else {
+          debugPrint('  Dados originais do edital não disponíveis');
+          dadosAdicionais['cotas'] = 'Verificar no edital';
+        }
+
+        // Criar o plano de estudo com dados completos
         final plano = await planoService.criarPlanoEstudo(
           usuario.id,
           widget.editalId!,
@@ -360,6 +476,8 @@ class _PlanoAddScreenState extends State<PlanoAddScreen> {
           _ferramentasSelecionadas,
           novasMaterias.isEmpty ? _materiasProficiencia : novasMaterias,
           recompensas,
+          horariosEspecificos: _horasSelecionadasPorDia,
+          dadosAdicionais: dadosAdicionais,
         );
 
         setState(() {
@@ -467,6 +585,7 @@ class _PlanoAddScreenState extends State<PlanoAddScreen> {
           _ferramentasSelecionadas,
           _materiasProficiencia,
           _recompensasConfig,
+          horariosEspecificos: _horasSelecionadasPorDia,
         );
 
         // Registrar atividade de gamificação
@@ -813,6 +932,17 @@ class _PlanoAddScreenState extends State<PlanoAddScreen> {
     );
   }
 
+  // Mapa para armazenar as horas selecionadas para cada dia
+  Map<String, List<int>> _horasSelecionadasPorDia = {
+    'segunda': [],
+    'terca': [],
+    'quarta': [],
+    'quinta': [],
+    'sexta': [],
+    'sabado': [],
+    'domingo': [],
+  };
+
   Widget _buildHorasSemanaisSelector() {
     return Column(
       children: [
@@ -826,32 +956,45 @@ class _PlanoAddScreenState extends State<PlanoAddScreen> {
           {'dia': 'domingo', 'nome': 'Domingo'},
         ])
           Padding(
-            padding: EdgeInsets.only(bottom: 8),
-            child: Row(
+            padding: EdgeInsets.only(bottom: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  flex: 2,
-                  child: Text(entry['nome']!),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      entry['nome']!,
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      '${_horasSemanais[entry['dia']]} horas selecionadas',
+                      style: TextStyle(color: Colors.grey.shade600),
+                    ),
+                  ],
                 ),
-                Expanded(
-                  flex: 3,
-                  child: Slider(
-                    value: _horasSemanais[entry['dia']!]!.toDouble(),
-                    min: 0,
-                    max: 8,
-                    divisions: 8,
-                    label: '${_horasSemanais[entry['dia']]} horas',
-                    onChanged: (value) {
-                      setState(() {
-                        _horasSemanais[entry['dia']!] = value.toInt();
-                      });
-                    },
+                SizedBox(height: 8),
+                InkWell(
+                  onTap: () => _mostrarSeletorHoras(entry['dia']!, entry['nome']!),
+                  child: Container(
+                    padding: EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey.shade300),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.access_time, color: AppTheme.primaryColor),
+                        SizedBox(width: 8),
+                        Expanded(
+                          child: _horasSelecionadasPorDia[entry['dia']]!.isEmpty
+                              ? Text('Clique para selecionar horários', style: TextStyle(color: Colors.grey))
+                              : Text(_formatarHorasSelecionadas(_horasSelecionadasPorDia[entry['dia']]!)),
+                        ),
+                        Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+                      ],
+                    ),
                   ),
-                ),
-                SizedBox(width: 8),
-                Text(
-                  '${_horasSemanais[entry['dia']]} h',
-                  style: TextStyle(fontWeight: FontWeight.bold),
                 ),
               ],
             ),
@@ -1032,6 +1175,112 @@ class _PlanoAddScreenState extends State<PlanoAddScreen> {
       case 5: return 'Especialista';
       default: return 'Intermediário';
     }
+  }
+
+  // Formatar as horas selecionadas para exibição
+  String _formatarHorasSelecionadas(List<int> horas) {
+    if (horas.isEmpty) return 'Nenhum horário selecionado';
+
+    // Ordenar as horas
+    horas.sort();
+
+    // Agrupar horas consecutivas
+    List<String> grupos = [];
+    int inicio = horas[0];
+    int fim = horas[0];
+
+    for (int i = 1; i < horas.length; i++) {
+      if (horas[i] == fim + 1) {
+        fim = horas[i];
+      } else {
+        // Adicionar grupo anterior
+        if (inicio == fim) {
+          grupos.add('${inicio}:00');
+        } else {
+          grupos.add('${inicio}:00-${fim}:00');
+        }
+        inicio = horas[i];
+        fim = horas[i];
+      }
+    }
+
+    // Adicionar o último grupo
+    if (inicio == fim) {
+      grupos.add('${inicio}:00');
+    } else {
+      grupos.add('${inicio}:00-${fim}:00');
+    }
+
+    return grupos.join(', ');
+  }
+
+  // Mostrar o seletor de horas para um dia específico
+  void _mostrarSeletorHoras(String dia, String nomeDia) {
+    // Criar uma cópia da lista de horas selecionadas para este dia
+    List<int> horasSelecionadas = List.from(_horasSelecionadasPorDia[dia] ?? []);
+
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: Text('Selecione os horários para $nomeDia'),
+          content: Container(
+            width: double.maxFinite,
+            child: SingleChildScrollView(
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: List.generate(24, (hora) {
+                  final bool selecionado = horasSelecionadas.contains(hora);
+                  return InkWell(
+                    onTap: () {
+                      setState(() {
+                        if (selecionado) {
+                          horasSelecionadas.remove(hora);
+                        } else {
+                          horasSelecionadas.add(hora);
+                        }
+                      });
+                    },
+                    child: Container(
+                      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: selecionado ? AppTheme.primaryColor : Colors.grey.shade200,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        '${hora.toString().padLeft(2, '0')}:00',
+                        style: TextStyle(
+                          color: selecionado ? Colors.white : Colors.black,
+                          fontWeight: selecionado ? FontWeight.bold : FontWeight.normal,
+                        ),
+                      ),
+                    ),
+                  );
+                }),
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('Cancelar'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                // Atualizar as horas selecionadas
+                this.setState(() {
+                  _horasSelecionadasPorDia[dia] = horasSelecionadas;
+                  _horasSemanais[dia] = horasSelecionadas.length;
+                });
+                Navigator.pop(context);
+              },
+              child: Text('Confirmar'),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildPlanoGeradoIA() {

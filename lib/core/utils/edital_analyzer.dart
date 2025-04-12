@@ -9,6 +9,8 @@ import '../services/prompt_service.dart';
 import 'pdf_processor.dart';
 import 'text_utils.dart';
 import 'utf8_helper.dart';
+import 'yaml_processor.dart';
+import 'json_processor.dart';
 
 // --- Exceções Personalizadas ---
 class EditalAnalysisException implements Exception {
@@ -127,9 +129,9 @@ class EditalAnalyzer {
       }
 
       _reportProgress(0.7, 'Processando resultado da extração...');
-      _log('Resultado da extração de informações básicas recebido. Processando YAML...');
+      _log('Resultado da extração de informações básicas recebido. Processando resposta...');
 
-      // Processar o resultado YAML
+      // Processar o resultado (JSON ou YAML)
       return _processarRespostaYaml(resultado);
     } catch (e, stackTrace) {
       _log('Erro na extração de informações básicas: $e\nStackTrace: $stackTrace');
@@ -151,9 +153,9 @@ class EditalAnalyzer {
       }
 
       _reportProgress(0.7, 'Processando resultado da extração...');
-      _log('Resultado da extração de conteúdo programático recebido. Processando YAML...');
+      _log('Resultado da extração de conteúdo programático recebido. Processando resposta...');
 
-      // Processar o resultado YAML
+      // Processar o resultado (JSON ou YAML)
       return _processarRespostaYaml(resultado);
     } catch (e, stackTrace) {
       _log('Erro na extração de conteúdo programático: $e\nStackTrace: $stackTrace');
@@ -169,20 +171,60 @@ class EditalAnalyzer {
     return await _extrairInfoBasicasEdital(pdfBytes);
   }
 
-  /// Processa a resposta YAML da API LLM
+  /// Processa a resposta da API LLM (YAML ou JSON)
   Map<String, dynamic>? _processarRespostaYaml(String resposta) {
     try {
-      // Limpar a resposta para garantir que seja um YAML válido
-      String yamlStr = _limparRespostaYaml(resposta);
+      // Primeiro, tentar processar como JSON (nova abordagem)
+      _log('Tentando processar resposta como JSON...');
+      final jsonResult = JsonProcessor.processJson(resposta);
 
-      // Decodificar o YAML
-      final yamlDoc = loadYaml(yamlStr);
+      if (jsonResult != null) {
+        _log('Processamento JSON bem-sucedido!');
+        return jsonResult;
+      }
 
-      // Converter o YAML para Map<String, dynamic>
-      final Map<String, dynamic> result = _convertYamlToMap(yamlDoc);
+      // Se falhar com JSON, tentar com YAML (abordagem anterior)
+      _log('Processamento JSON falhou, tentando YAML...');
+
+      // Usar o processador YAML para lidar com respostas complexas
+      final result = YamlProcessor.processYaml(resposta);
+
+      if (result == null) {
+        _log('YamlProcessor não conseguiu processar a resposta');
+
+        // Fallback para o método antigo
+        _log('Tentando método antigo de processamento YAML...');
+
+        // Limpar a resposta para garantir que seja um YAML válido
+        String yamlStr = _limparRespostaYaml(resposta);
+
+        try {
+          // Decodificar o YAML
+          final yamlDoc = loadYaml(yamlStr);
+
+          // Converter o YAML para Map<String, dynamic>
+          final Map<String, dynamic> oldResult = _convertYamlToMap(yamlDoc);
+          return oldResult;
+        } catch (e2) {
+          _log('Método antigo também falhou: $e2');
+
+          // Tentar corrigir YAML malformado
+          final String yamlCorrigido = _corrigirYamlMalformado(yamlStr);
+          try {
+            final yamlDoc = loadYaml(yamlCorrigido);
+            final Map<String, dynamic> resultado = _convertYamlToMap(yamlDoc);
+            _log('YAML corrigido com sucesso usando método antigo!');
+            return resultado;
+          } catch (e3) {
+            _log('Todas as tentativas de processamento YAML falharam');
+            return null;
+          }
+        }
+      }
+
       return result;
     } catch (e, stackTrace) {
-      _log('Erro ao processar resposta YAML: $e\nStackTrace: $stackTrace');
+      _log('Erro ao processar resposta: $e\nStackTrace: $stackTrace');
       return null;
     }
   }
@@ -333,8 +375,8 @@ class EditalAnalyzer {
 
   /// Prepara o prompt para análise de edital
   Future<String> _prepararPromptAnaliseEdital(String textoEdital) async {
-    // Carregar o prompt YAML para análise de edital
-    final String promptTemplate = await _promptService.loadYamlEditalAnalysisPrompt();
+    // Carregar o prompt JSON para análise de edital
+    final String promptTemplate = await _promptService.loadJsonEditalAnalysisPrompt();
 
     // Adicionar o texto do edital ao prompt
     return '''
@@ -1065,11 +1107,12 @@ $textoEdital
         }
       }
 
-      // Criar e retornar o objeto DadosExtraidos
-      return DadosExtraidos(
+      // Criar o objeto DadosExtraidos
+      final dadosExtraidos = DadosExtraidos(
         titulo: titulo,
         orgao: orgao,
         banca: banca,
+        dataProva: dataProva,
         inicioInscricao: inicioInscricao,
         fimInscricao: fimInscricao,
         valorTaxa: valorTaxa,
@@ -1077,6 +1120,31 @@ $textoEdital
         cargos: cargos,
         textoCompleto: textoCompleto
       );
+
+      // Log detalhado dos dados extraídos
+      debugPrint('\nVERIFICAÇÃO DE DADOS EXTRAÍDOS:');
+      debugPrint('  Título: ${dadosExtraidos.titulo}');
+      debugPrint('  Órgão: ${dadosExtraidos.orgao}');
+      debugPrint('  Banca: ${dadosExtraidos.banca}');
+      debugPrint('  Data da Prova: ${dadosExtraidos.dataProva}');
+      debugPrint('  Início Inscrição: ${dadosExtraidos.inicioInscricao}');
+      debugPrint('  Fim Inscrição: ${dadosExtraidos.fimInscricao}');
+      debugPrint('  Valor Taxa: ${dadosExtraidos.valorTaxa}');
+      debugPrint('  Local Prova: ${dadosExtraidos.localProva}');
+      debugPrint('  Número de Cargos: ${dadosExtraidos.cargos.length}');
+
+      // Verificar dados sobre cotas nos dados originais
+      if (dadosJson.containsKey('cotas')) {
+        debugPrint('  Cotas: ${dadosJson['cotas']}');
+      } else if (dadosJson.containsKey('percentual_cotas')) {
+        debugPrint('  Cotas: ${dadosJson['percentual_cotas']}');
+      } else if (dadosJson.containsKey('reserva_vagas')) {
+        debugPrint('  Cotas: ${dadosJson['reserva_vagas']}');
+      } else {
+        debugPrint('  Cotas: NÃO ENCONTRADAS NOS DADOS ORIGINAIS');
+      }
+
+      return dadosExtraidos;
     } catch (e) {
       _log('Erro ao converter dados JSON para DadosExtraidos: $e');
       throw EditalAnalysisException('Erro ao converter dados: $e');
@@ -1508,7 +1576,12 @@ $textoEdital
     String cargo,
     DateTime dataInicio,
     DateTime dataFim,
-    {int horasDiarias = 2, List<String> diasDisponiveis = const ['segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado']}
+    {int horasDiarias = 2,
+     List<String> diasDisponiveis = const ['segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado'],
+     Map<String, List<int>>? horariosEspecificos,
+     List<Map<String, dynamic>>? materiasProficiencia,
+     List<String>? ferramentasEstudo,
+     Map<String, dynamic>? conteudoProgramatico}
   ) async {
     _reportProgress(0.1, 'Preparando dados para geração do plano de estudos...');
 
@@ -1518,16 +1591,20 @@ $textoEdital
       final int diasUteisDisponiveis = (diasTotais * diasDisponiveis.length / 7).round();
       final int horasTotais = diasUteisDisponiveis * horasDiarias;
 
-      _reportProgress(0.2, 'Gerando plano de estudos personalizado...');
+      _reportProgress(0.2, 'Gerando plano de estudos personalizado com ciclos...');
 
       // Preparar o prompt para a API LLM
-      final prompt = _prepararPromptPlanoEstudo(
+      final prompt = await _prepararPromptPlanoEstudo(
         textoEdital,
         cargo,
         dataInicio,
         dataFim,
         horasDiarias,
-        diasDisponiveis
+        diasDisponiveis,
+        horariosEspecificos: horariosEspecificos,
+        materiasProficiencia: materiasProficiencia,
+        ferramentasEstudo: ferramentasEstudo,
+        conteudoProgramatico: conteudoProgramatico
       );
 
       // Chamar a API LLM com o prompt
@@ -1547,79 +1624,180 @@ $textoEdital
     }
   }
 
-  /// Prepara o prompt para geração do plano de estudos
-  String _prepararPromptPlanoEstudo(
+  /// Prepara o prompt para geração do plano de estudos com ciclos
+  Future<String> _prepararPromptPlanoEstudo(
     String textoEdital,
     String cargo,
     DateTime dataInicio,
     DateTime dataFim,
     int horasDiarias,
-    List<String> diasDisponiveis
-  ) {
+    List<String> diasDisponiveis,
+    {Map<String, List<int>>? horariosEspecificos,
+     List<Map<String, dynamic>>? materiasProficiencia,
+     List<String>? ferramentasEstudo,
+     Map<String, dynamic>? conteudoProgramatico}
+  ) async {
+    // Carregar o prompt para geração do plano de estudo com ciclos
+    final String promptTemplate = await _promptService.loadStudyPlanCycleGenerationPrompt();
+
     final String dataInicioStr = '${dataInicio.day}/${dataInicio.month}/${dataInicio.year}';
     final String dataFimStr = '${dataFim.day}/${dataFim.month}/${dataFim.year}';
-    final String diasDisponiveisStr = diasDisponiveis.join(', ');
+    final int diasTotais = dataFim.difference(dataInicio).inDays + 1;
 
-    return '''
-    Você é um assistente especializado em criar planos de estudo personalizados para concursos públicos.
+    // Preparar dados do concurso
+    final String dadosConcurso = '''
+    Nome: $cargo
+    Data da Prova: $dataFimStr
+    ''';
 
-    Com base no edital e nas informações fornecidas, crie um plano de estudos detalhado para o cargo especificado.
+    // Preparar disponibilidade semanal
+    final Map<String, String> diasSemana = {
+      'segunda': 'Segunda-feira',
+      'terca': 'Terça-feira',
+      'quarta': 'Quarta-feira',
+      'quinta': 'Quinta-feira',
+      'sexta': 'Sexta-feira',
+      'sabado': 'Sábado',
+      'domingo': 'Domingo',
+    };
 
-    Informações do usuário:
-    - Cargo pretendido: $cargo
-    - Data de início dos estudos: $dataInicioStr
-    - Data da prova/fim dos estudos: $dataFimStr
-    - Horas diárias disponíveis: $horasDiarias horas
-    - Dias da semana disponíveis: $diasDisponiveisStr
-
-    Crie um plano de estudos em formato JSON com a seguinte estrutura:
-    {
-      "materiasPrioritarias": [
-        {
-          "nome": "Nome da matéria",
-          "peso": 5, // Valor de 1 a 5, sendo 5 o mais importante
-          "estrategia": "Estratégia de estudo recomendada para esta matéria"
-        }
-      ],
-      "cronogramaSemanal": {
-        "segunda": [
-          { "materia": "Nome da matéria", "horas": 2 }
-        ],
-        "terca": [
-          { "materia": "Nome da matéria", "horas": 2 }
-        ],
-        "quarta": [
-          { "materia": "Nome da matéria", "horas": 2 }
-        ],
-        "quinta": [
-          { "materia": "Nome da matéria", "horas": 2 }
-        ],
-        "sexta": [
-          { "materia": "Nome da matéria", "horas": 2 }
-        ],
-        "sabado": [
-          { "materia": "Nome da matéria", "horas": 2 }
-        ],
-        "domingo": [
-          { "materia": "Nome da matéria", "horas": 2 }
-        ]
-      },
-      "recursosRecomendados": [
-        {
-          "tipo": "Tipo de recurso (livro, vídeo, etc.)",
-          "descricao": "Descrição do recurso"
-        }
-      ],
-      "dicasGerais": [
-        "Dica 1",
-        "Dica 2"
-      ]
+    String disponibilidadeSemanal = '';
+    for (final dia in diasSemana.keys) {
+      final bool disponivel = diasDisponiveis.contains(dia);
+      final int horas = disponivel ? horasDiarias : 0;
+      disponibilidadeSemanal += '- ${diasSemana[dia]}: $horas horas\n';
     }
 
-    IMPORTANTE: Responda APENAS com o JSON estruturado, sem explicações adicionais ou texto introdutório. Não inclua código markdown ou delimitadores como ```json. Retorne apenas o objeto JSON puro.
+    // Preparar horários específicos
+    String horariosEspecificosStr = '';
+    if (horariosEspecificos != null && horariosEspecificos.isNotEmpty) {
+      for (final dia in diasSemana.keys) {
+        final List<int> horarios = horariosEspecificos[dia] ?? [];
+        if (horarios.isNotEmpty) {
+          // Ordenar os horários
+          horarios.sort();
+
+          // Agrupar horários consecutivos
+          List<String> grupos = [];
+          int inicio = horarios[0];
+          int fim = horarios[0];
+
+          for (int i = 1; i < horarios.length; i++) {
+            if (horarios[i] == fim + 1) {
+              fim = horarios[i];
+            } else {
+              // Adicionar grupo anterior
+              if (inicio == fim) {
+                grupos.add('${inicio}:00');
+              } else {
+                grupos.add('${inicio}:00-${fim}:00');
+              }
+              inicio = horarios[i];
+              fim = horarios[i];
+            }
+          }
+
+          // Adicionar o último grupo
+          if (inicio == fim) {
+            grupos.add('${inicio}:00');
+          } else {
+            grupos.add('${inicio}:00-${fim}:00');
+          }
+
+          horariosEspecificosStr += '- ${diasSemana[dia]}: ${grupos.join(', ')}\n';
+        } else {
+          horariosEspecificosStr += '- ${diasSemana[dia]}: Nenhum horário disponível\n';
+        }
+      }
+    } else {
+      horariosEspecificosStr = 'Nenhum horário específico definido.';
+    }
+
+    // Preparar conteúdo programático
+    String conteudoProgramaticoStr = 'Conteúdo programático para o cargo $cargo';
+    String pesoMateriasStr = '';
+    String criteriosDesempateStr = '';
+    String numeroQuestoesStr = '';
+
+    if (conteudoProgramatico != null) {
+      // Formatar o conteúdo programático
+      final List<dynamic> materias = conteudoProgramatico['conteudo_programatico'] ?? [];
+      if (materias.isNotEmpty) {
+        conteudoProgramaticoStr = 'Conteúdo programático para o cargo $cargo:\n';
+        pesoMateriasStr = 'Peso das matérias:\n';
+        criteriosDesempateStr = 'Critérios de desempate:\n';
+        numeroQuestoesStr = 'Número de questões por matéria:\n';
+
+        for (final materia in materias) {
+          final String nomeMateria = materia['nome'] ?? 'Desconhecida';
+          final String tipoMateria = materia['tipo'] ?? 'comum';
+          final bool pesoMaior = materia['peso_maior'] ?? false;
+          final bool criterioDesempate = materia['criterio_desempate'] ?? false;
+          final int? numeroQuestoes = materia['numero_questoes'];
+
+          conteudoProgramaticoStr += '- $nomeMateria (${tipoMateria == 'comum' ? 'Conhecimentos Básicos' : 'Conhecimentos Específicos'})\n';
+          pesoMateriasStr += '- $nomeMateria: ${pesoMaior ? 'Peso maior' : 'Peso normal'}\n';
+          criteriosDesempateStr += '- $nomeMateria: ${criterioDesempate ? 'Sim' : 'Não'}\n';
+          numeroQuestoesStr += '- $nomeMateria: ${numeroQuestoes != null ? '$numeroQuestoes questões' : 'Não especificado'}\n';
+        }
+      }
+    }
+
+    // Preparar proficiência nas matérias
+    String proficienciaMateriasStr = 'Proficiência média em todas as matérias';
+    if (materiasProficiencia != null && materiasProficiencia.isNotEmpty) {
+      proficienciaMateriasStr = 'Proficiência nas matérias:\n';
+      for (final materia in materiasProficiencia) {
+        final String nomeMateria = materia['nomeMateria'] ?? 'Desconhecida';
+        final int nivelProficiencia = materia['nivelProficiencia'] ?? 3;
+        String nivelTexto = 'Intermediário';
+
+        switch (nivelProficiencia) {
+          case 1: nivelTexto = 'Iniciante'; break;
+          case 2: nivelTexto = 'Básico'; break;
+          case 3: nivelTexto = 'Intermediário'; break;
+          case 4: nivelTexto = 'Avançado'; break;
+          case 5: nivelTexto = 'Especialista'; break;
+        }
+
+        proficienciaMateriasStr += '- $nomeMateria: $nivelTexto\n';
+      }
+    }
+
+    // Preparar ferramentas de estudo
+    String ferramentasEstudoStr = 'Resumos, Flashcards, Mapas Mentais, Questões';
+    if (ferramentasEstudo != null && ferramentasEstudo.isNotEmpty) {
+      ferramentasEstudoStr = 'Ferramentas de estudo disponíveis:\n';
+      for (final ferramenta in ferramentasEstudo) {
+        ferramentasEstudoStr += '- $ferramenta\n';
+      }
+    }
+
+    // Substituir variáveis no template
+    final Map<String, String> variables = {
+      'dados_concurso': dadosConcurso,
+      'data_inicio': dataInicioStr,
+      'data_fim': dataFimStr,
+      'total_dias': diasTotais.toString(),
+      'disponibilidade_semanal': disponibilidadeSemanal,
+      'horarios_especificos': horariosEspecificosStr,
+      'conteudo_programatico': conteudoProgramaticoStr,
+      'proficiencia_materias': proficienciaMateriasStr,
+      'ferramentas_estudo': ferramentasEstudoStr,
+      'recompensas': 'Recompensas personalizadas definidas pelo usuário',
+      'peso_materias': pesoMateriasStr,
+      'criterios_desempate': criteriosDesempateStr,
+      'numero_questoes': numeroQuestoesStr,
+    };
+
+    final String prompt = _promptService.customizePrompt(promptTemplate, variables);
+
+    // Adicionar o texto do edital ao final
+    return '''
+    $prompt
 
     Texto do edital:
-    ${textoEdital}
+    $textoEdital
     ''';
   }
 }

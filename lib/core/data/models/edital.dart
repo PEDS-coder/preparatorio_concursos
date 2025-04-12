@@ -2,11 +2,17 @@ class ConteudoProgramatico {
   final String nome;
   final String tipo; // 'comum' ou 'especifico'
   final List<String> topicos;
+  final bool? pesoMaior; // Indica se a matéria tem peso maior na pontuação final
+  final bool? criterioDesempate; // Indica se a matéria é critério de desempate
+  final int? numeroQuestoes; // Número de questões da matéria na prova
 
   ConteudoProgramatico({
     required this.nome,
     required this.tipo,
     required this.topicos,
+    this.pesoMaior,
+    this.criterioDesempate,
+    this.numeroQuestoes,
   });
 
   Map<String, dynamic> toMap() {
@@ -14,6 +20,9 @@ class ConteudoProgramatico {
       'nome': nome,
       'tipo': tipo,
       'topicos': topicos,
+      'peso_maior': pesoMaior,
+      'criterio_desempate': criterioDesempate,
+      'numero_questoes': numeroQuestoes,
     };
   }
 
@@ -22,6 +31,9 @@ class ConteudoProgramatico {
       nome: map['nome'] ?? 'Não informado',
       tipo: map['tipo'] ?? 'comum',
       topicos: List<String>.from(map['topicos'] ?? []),
+      pesoMaior: map['peso_maior'],
+      criterioDesempate: map['criterio_desempate'],
+      numeroQuestoes: map['numero_questoes'] is int ? map['numero_questoes'] : null,
     );
   }
 

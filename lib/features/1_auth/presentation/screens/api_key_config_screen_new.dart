@@ -19,7 +19,7 @@ class _ApiKeyConfigScreenState extends State<ApiKeyConfigScreen> {
   final _apiKeyController = TextEditingController();
   bool _isLoading = false;
   String? _errorMessage;
-  String _selectedApiType = 'gemini'; // 'gemini', 'openrouter' ou 'requestry'
+  String _selectedApiType = 'gemini'; // Apenas Gemini
 
   @override
   void initState() {
@@ -264,47 +264,43 @@ class _ApiKeyConfigScreenState extends State<ApiKeyConfigScreen> {
                         SizedBox(height: 8),
                         Column(
                           children: [
-                            RadioListTile<String>(
-                              title: Text('Google Gemini'),
-                              subtitle: Text('API oficial do Google (recomendada)'),
-                              value: 'gemini',
-                              groupValue: _selectedApiType,
-                              onChanged: (value) {
-                                setState(() {
-                                  _selectedApiType = value!;
-                                });
-                              },
-                              activeColor: AppTheme.accentColor,
-                              contentPadding: EdgeInsets.symmetric(horizontal: 0, vertical: 4),
-                              dense: true,
-                            ),
-                            RadioListTile<String>(
-                              title: Text('OpenRouter AI'),
-                              subtitle: Text('API unificada com acesso a vários modelos'),
-                              value: 'openrouter',
-                              groupValue: _selectedApiType,
-                              onChanged: (value) {
-                                setState(() {
-                                  _selectedApiType = value!;
-                                });
-                              },
-                              activeColor: AppTheme.accentColor,
-                              contentPadding: EdgeInsets.symmetric(horizontal: 0, vertical: 4),
-                              dense: true,
-                            ),
-                            RadioListTile<String>(
-                              title: Text('Requestry'),
-                              subtitle: Text('API com suporte a vários modelos'),
-                              value: 'requestry',
-                              groupValue: _selectedApiType,
-                              onChanged: (value) {
-                                setState(() {
-                                  _selectedApiType = value!;
-                                });
-                              },
-                              activeColor: AppTheme.accentColor,
-                              contentPadding: EdgeInsets.symmetric(horizontal: 0, vertical: 4),
-                              dense: true,
+                            // Apenas Gemini é suportado
+                            Container(
+                              padding: EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                              decoration: BoxDecoration(
+                                color: AppTheme.primaryColor.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(color: AppTheme.primaryColor.withOpacity(0.3)),
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(Icons.auto_awesome, color: AppTheme.primaryColor),
+                                  SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Google Gemini',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: isDarkMode ? Colors.white : Colors.black87,
+                                          ),
+                                        ),
+                                        SizedBox(height: 4),
+                                        Text(
+                                          'API oficial do Google com modelos avançados',
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            color: isDarkMode ? Colors.white70 : Colors.black54,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Icon(Icons.check_circle, color: AppTheme.primaryColor),
+                                ],
+                              ),
                             ),
                           ],
                         ),
@@ -313,11 +309,7 @@ class _ApiKeyConfigScreenState extends State<ApiKeyConfigScreen> {
                           controller: _apiKeyController,
                           decoration: InputDecoration(
                             labelText: 'Chave da API',
-                            hintText: _selectedApiType == 'gemini'
-                                ? 'Insira sua chave da API Gemini (começa com AI...)'
-                                : _selectedApiType == 'openrouter'
-                                    ? 'Insira sua chave da API OpenRouter (começa com sk...)'
-                                    : 'Insira sua chave da API Requestry (começa com sk...)',
+                            hintText: 'Insira sua chave da API Gemini (começa com AI...)',
                             prefixIcon: Icon(Icons.vpn_key),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
@@ -328,14 +320,8 @@ class _ApiKeyConfigScreenState extends State<ApiKeyConfigScreen> {
                             if (value == null || value.isEmpty) {
                               return 'Por favor, insira a chave da API';
                             }
-                            if (_selectedApiType == 'gemini' && !value.startsWith('AI')) {
+                            if (!value.startsWith('AI')) {
                               return 'Chave Gemini inválida. Deve começar com "AI"';
-                            }
-                            if (_selectedApiType == 'openrouter' && !value.startsWith('sk-')) {
-                              return 'Chave OpenRouter inválida. Deve começar com "sk-"';
-                            }
-                            if (_selectedApiType == 'requestry' && !value.startsWith('sk-')) {
-                              return 'Chave Requestry inválida. Deve começar com "sk-"';
                             }
                             return null;
                           },
@@ -390,6 +376,51 @@ class _ApiKeyConfigScreenState extends State<ApiKeyConfigScreen> {
                 ),
 
                 SizedBox(height: 16),
+                // Card com informações sobre limites de uso gratuito
+                Card(
+                  elevation: 4,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Limites de Uso Gratuito',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: isDarkMode ? Colors.white : Colors.black87,
+                          ),
+                        ),
+                        SizedBox(height: 12),
+                        _buildLimitItem(
+                          'gemini-2.5-pro-exp-03-25',
+                          '10 requisições por minuto',
+                          '65.536 tokens de saída (maxOutputTokens)',
+                          'Modelo experimental gratuito',
+                          Colors.purple,
+                          isDarkMode,
+                        ),
+                        SizedBox(height: 16),
+                        Text(
+                          'Nota: O modelo acima é experimental e oferece maior capacidade de saída. Você pode obter uma chave API gratuita no Google AI Studio.',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontStyle: FontStyle.italic,
+                            color: isDarkMode ? Colors.white70 : Colors.black54,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                SizedBox(height: 16),
+
+                // Card com instruções para gerar chave API
                 Card(
                   elevation: 4,
                   shape: RoundedRectangleBorder(
@@ -495,6 +526,73 @@ class _ApiKeyConfigScreenState extends State<ApiKeyConfigScreen> {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  // Widget para exibir informações sobre limites de uso
+  Widget _buildLimitItem(String modelName, String rpm, String tpm, String rpd, Color color, bool isDarkMode) {
+    return Container(
+      padding: EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: color.withOpacity(0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            modelName,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              color: isDarkMode ? Colors.white : Colors.black87,
+            ),
+          ),
+          SizedBox(height: 8),
+          Row(
+            children: [
+              Icon(Icons.timer, size: 16, color: color),
+              SizedBox(width: 4),
+              Text(
+                rpm,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: isDarkMode ? Colors.white70 : Colors.black54,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 4),
+          Row(
+            children: [
+              Icon(Icons.data_usage, size: 16, color: color),
+              SizedBox(width: 4),
+              Text(
+                tpm,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: isDarkMode ? Colors.white70 : Colors.black54,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 4),
+          Row(
+            children: [
+              Icon(Icons.calendar_today, size: 16, color: color),
+              SizedBox(width: 4),
+              Text(
+                rpd,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: isDarkMode ? Colors.white70 : Colors.black54,
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

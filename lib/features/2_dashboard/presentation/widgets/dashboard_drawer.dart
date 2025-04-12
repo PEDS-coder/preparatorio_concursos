@@ -83,6 +83,22 @@ class DashboardDrawer extends StatelessWidget {
               Navigator.pushNamed(context, '/gamificacao');
             },
           ),
+          ListTile(
+            leading: Icon(Icons.auto_awesome),
+            title: Text('Ferramentas de IA'),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.pushNamed(context, '/ferramentas');
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.shopping_bag),
+            title: Text('Mercado Aprovação'),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.pushReplacementNamed(context, '/dashboard', arguments: 5);
+            },
+          ),
           Divider(),
           ListTile(
             leading: Icon(Icons.settings),

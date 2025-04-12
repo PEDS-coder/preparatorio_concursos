@@ -77,6 +77,44 @@ class CacheManager {
         final result = jsonDecode(jsonString) as Map<String, dynamic>;
 
         debugPrint('Resultado recuperado do cache: ${cacheFile.path}');
+
+        // Log detalhado dos dados do cache
+        debugPrint('VERIFICAÇÃO DE CACHE - Dados recuperados:');
+        if (result.containsKey('orgao_responsavel')) {
+          debugPrint('  Órgão: ${result['orgao_responsavel']}');
+        } else if (result.containsKey('orgao')) {
+          debugPrint('  Órgão: ${result['orgao']}');
+        } else {
+          debugPrint('  Órgão: NÃO ENCONTRADO NO CACHE');
+        }
+
+        if (result.containsKey('data_provas')) {
+          debugPrint('  Data da Prova: ${result['data_provas']}');
+        } else if (result.containsKey('dataProva')) {
+          debugPrint('  Data da Prova: ${result['dataProva']}');
+        } else {
+          debugPrint('  Data da Prova: NÃO ENCONTRADA NO CACHE');
+        }
+
+        if (result.containsKey('taxa_inscricao')) {
+          debugPrint('  Valor da Inscrição: ${result['taxa_inscricao']}');
+        } else if (result.containsKey('valorTaxa')) {
+          debugPrint('  Valor da Inscrição: ${result['valorTaxa']}');
+        } else {
+          debugPrint('  Valor da Inscrição: NÃO ENCONTRADO NO CACHE');
+        }
+
+        // Verificar dados sobre cotas
+        if (result.containsKey('cotas')) {
+          debugPrint('  Cotas: ${result['cotas']}');
+        } else if (result.containsKey('percentual_cotas')) {
+          debugPrint('  Cotas: ${result['percentual_cotas']}');
+        } else if (result.containsKey('reserva_vagas')) {
+          debugPrint('  Cotas: ${result['reserva_vagas']}');
+        } else {
+          debugPrint('  Cotas: NÃO ENCONTRADAS NO CACHE');
+        }
+
         return result;
       }
 

@@ -61,6 +61,7 @@ class PlanoEstudo {
   final List<MateriaProficiencia> materiasProficiencia;
   final List<RecompensaConfig> recompensas;
   final List<SessaoEstudo> sessoesEstudo;
+  final Map<String, dynamic> metadados; // Dados adicionais como orgão, banca, data da prova, etc.
 
   PlanoEstudo({
     required this.id,
@@ -75,10 +76,11 @@ class PlanoEstudo {
     required this.materiasProficiencia,
     required this.recompensas,
     required this.sessoesEstudo,
-  });
+    Map<String, dynamic>? metadados,
+  }) : this.metadados = metadados ?? {};
 
   Map<String, dynamic> toMap() {
-    return {
+    final map = {
       'id': id,
       'userId': userId,
       'editalId': editalId,
@@ -92,6 +94,11 @@ class PlanoEstudo {
       'recompensas': recompensas.map((r) => r.toMap()).toList(),
       'sessoesEstudo': sessoesEstudo.map((s) => s.toMap()).toList(),
     };
+
+    // Adicionar metadados
+    map['metadados'] = metadados;
+
+    return map;
   }
 
   factory PlanoEstudo.fromMap(Map<String, dynamic> map) {
@@ -111,6 +118,7 @@ class PlanoEstudo {
           map['recompensas']?.map((x) => RecompensaConfig.fromMap(x))),
       sessoesEstudo: List<SessaoEstudo>.from(
           map['sessoesEstudo']?.map((x) => SessaoEstudo.fromMap(x))),
+      metadados: map['metadados'] != null ? Map<String, dynamic>.from(map['metadados']) : {},
     );
   }
 }

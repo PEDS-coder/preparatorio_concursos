@@ -10,37 +10,21 @@ import '../../services/connectivity_service.dart';
 import '../../services/cache_service.dart';
 
 class IAService extends ChangeNotifier {
-  // URLs base para as APIs
-  final String _geminiBaseUrl = 'https://generativelanguage.googleapis.com/v1/models';
-  final String _openaiBaseUrl = 'https://api.openai.com/v1';
-  final String _openrouterBaseUrl = 'https://openrouter.ai/api/v1'; // URL base para OpenRouter
-  final String _requestryBaseUrl = 'https://router.requesty.ai/v1'; // URL base para Requestry
+  // URL base para a API Gemini
+  final String _geminiBaseUrl = 'https://generativelanguage.googleapis.com/v1beta/models';
 
-  // Modelos
-  String _geminiModel = 'gemini-2.5-pro-preview-03-25'; // Mutável para permitir fallback
-  final String _openaiModel = 'gpt-3.5-turbo';
-  final String _openrouterModel = 'anthropic/claude-3.7-sonnet'; // Modelo padrão para OpenRouter
-  final String _requestryModel = 'openai/gpt-4o'; // Modelo padrão para Requestry
+  // Modelos Gemini
+  String _geminiModel = 'gemini-2.5-pro-exp-03-25'; // Modelo experimental gratuito
 
   // Modelos alternativos do Gemini (para fallback)
   final List<String> _geminiModelsAlternatives = [
-    // Modelo 2.5 (nome correto conforme documentação)
-    'gemini-2.5-pro-preview-03-25',  // Versão de pré-lançamento
-
-    // Modelos 2.0
-    'gemini-2.0-flash',              // Versão estável mais recente
-    'gemini-2.0-flash-001',          // Versão estável específica
-    'gemini-2.0-flash-lite',         // Versão estável mais recente (lite)
-    'gemini-2.0-flash-lite-001'      // Versão estável específica (lite)
+    // Modelo principal com alto limite de tokens de saída
+    'gemini-2.5-pro-exp-03-25',  // 65.536 tokens de saída
   ];
 
-  // Chaves de API
-  String? _apiKey; // Chave da API atual
-  String? _geminiApiKey; // Chave específica para Gemini
-  String? _openaiApiKey; // Chave específica para OpenAI
-  String? _openrouterApiKey; // Chave específica para OpenRouter
-  String? _requestryApiKey; // Chave específica para Requestry
-  String _apiType = 'gemini'; // 'gemini', 'openrouter' ou 'requestry'
+  // Chave de API
+  String? _apiKey; // Chave da API Gemini
+  String _apiType = 'gemini'; // Apenas 'gemini' é suportado
 
   // Construtor que carrega a chave API salva
   IAService() {
@@ -54,20 +38,9 @@ class IAService extends ChangeNotifier {
       final apiKey = prefs.getString('api_key');
       final apiType = prefs.getString('api_type');
 
-      if (apiKey != null && apiKey.isNotEmpty && apiType != null && apiType.isNotEmpty) {
+      if (apiKey != null && apiKey.isNotEmpty) {
         _apiKey = apiKey;
-        _apiType = apiType;
-
-        // Definir a chave específica com base no tipo
-        if (apiType == 'gemini') {
-          _geminiApiKey = apiKey;
-        } else if (apiType == 'openrouter') {
-          _openrouterApiKey = apiKey;
-        } else if (apiType == 'requestry') {
-          _requestryApiKey = apiKey;
-        } else if (apiType == 'openai') {
-          _openaiApiKey = apiKey;
-        }
+        _apiType = 'gemini';
 
         print('Chave API carregada com sucesso: tipo=$apiType');
         notifyListeners();
@@ -130,156 +103,70 @@ class IAService extends ChangeNotifier {
       bool isValid = false;
       String errorMessage = '';
 
-      if (apiType == 'gemini') {
-        // Teste simples para verificar se a API key do Gemini funciona
-        // Tentar com diferentes modelos em caso de falha
-        bool modeloValido = false;
-        String modeloTestado = '';
-        String ultimoErro = '';
+      // Teste simples para verificar se a API key do Gemini funciona
+      // Tentar com diferentes modelos em caso de falha
+      bool modeloValido = false;
+      String modeloTestado = '';
+      String ultimoErro = '';
 
-        // Priorizar modelos 2.5 e 2.0 para teste
-        List<String> modelosParaTeste = [
-          // Modelo 2.5 (nome correto conforme documentação)
-          'gemini-2.5-pro-preview-03-25',
+      // Priorizar os modelos preferidos para teste
+      List<String> modelosParaTeste = [
+        'gemini-2.5-pro-exp-03-25',  // Modelo experimental gratuito
+      ];
 
-          // Modelos 2.0
-          'gemini-2.0-flash',
-          'gemini-2.0-flash-001',
-          'gemini-2.0-flash-lite',
-          'gemini-2.0-flash-lite-001'
-        ];
-
-        for (String modelo in modelosParaTeste) {
-          try {
-            modeloTestado = modelo;
-            final url = '$_geminiBaseUrl/$modelo:generateContent?key=$apiKey';
-            final testBody = jsonEncode({
-              'contents': [
-                {
-                  'parts': [
-                    {
-                      'text': 'Olá, teste de conexão.'
-                    }
-                  ]
-                }
-              ],
-              'generationConfig': {
-                'maxOutputTokens': 10,
+      for (String modelo in modelosParaTeste) {
+        try {
+          modeloTestado = modelo;
+          final url = '$_geminiBaseUrl/$modelo:generateContent?key=$apiKey';
+          final testBody = jsonEncode({
+            'contents': [
+              {
+                'parts': [
+                  {
+                    'text': 'Olá, teste de conexão.'
+                  }
+                ]
               }
-            });
-
-            print('Testando API Gemini com modelo: $modelo');
-            final response = await http.post(
-              Uri.parse(url),
-              headers: {'Content-Type': 'application/json'},
-              body: testBody,
-            );
-
-            if (response.statusCode == 200) {
-              modeloValido = true;
-              // Atualizar o modelo padrão para o que funcionou
-              _geminiModel = modelo;
-              print('API Gemini validada com sucesso usando modelo: $modelo');
-              break;
-            } else {
-              ultimoErro = 'Erro com modelo $modelo: ${response.statusCode} ${response.body}';
-              print(ultimoErro);
+            ],
+            'generationConfig': {
+              'maxOutputTokens': 10,
             }
-          } catch (e) {
-            ultimoErro = 'Erro ao testar modelo $modelo: $e';
+          });
+
+          print('Testando API Gemini com modelo: $modelo');
+          final response = await http.post(
+            Uri.parse(url),
+            headers: {'Content-Type': 'application/json'},
+            body: testBody,
+          );
+
+          if (response.statusCode == 200) {
+            modeloValido = true;
+            // Atualizar o modelo padrão para o que funcionou
+            _geminiModel = modelo;
+            print('API Gemini validada com sucesso usando modelo: $modelo');
+            break;
+          } else {
+            ultimoErro = 'Erro com modelo $modelo: ${response.statusCode} ${response.body}';
             print(ultimoErro);
           }
+        } catch (e) {
+          ultimoErro = 'Erro ao testar modelo $modelo: $e';
+          print(ultimoErro);
         }
+      }
 
-        isValid = modeloValido;
-        if (!isValid) {
-          errorMessage = 'API Key Gemini inválida. $ultimoErro';
-          print(errorMessage);
-        } else {
-          print('API Gemini validada com sucesso usando modelo: $modeloTestado');
-        }
-      } else if (apiType == 'openrouter') {
-        // Teste simples para verificar se a API key do OpenRouter funciona
-        // Verificar o formato e fazer uma chamada de teste
-        if (!apiKey.startsWith('sk-')) {
-          isValid = false;
-          errorMessage = 'API Key OpenRouter inválida: Deve começar com "sk-"';
-          print(errorMessage);
-        } else {
-          try {
-            // Fazer uma chamada de teste para listar modelos disponíveis
-            final url = '$_openrouterBaseUrl/models';
-            final response = await http.get(
-              Uri.parse(url),
-              headers: {
-                'Authorization': 'Bearer $apiKey',
-              },
-            );
-
-            isValid = response.statusCode == 200;
-            if (!isValid) {
-              errorMessage = 'API Key OpenRouter inválida: ${response.statusCode} ${response.body}';
-              print(errorMessage);
-            } else {
-              print('API OpenRouter validada com sucesso');
-            }
-          } catch (e) {
-            isValid = false;
-            errorMessage = 'Erro ao validar API Key OpenRouter: $e';
-            print(errorMessage);
-          }
-        }
-      } else if (apiType == 'requestry') {
-        // Teste simples para verificar se a API key do Requestry funciona
-        // Verificar o formato e fazer uma chamada de teste
-        if (!apiKey.startsWith('sk-')) {
-          isValid = false;
-          errorMessage = 'API Key Requestry inválida: Deve começar com "sk-"';
-          print(errorMessage);
-        } else {
-          try {
-            // Fazer uma chamada de teste para listar modelos disponíveis
-            final url = '$_requestryBaseUrl/models';
-            final response = await http.get(
-              Uri.parse(url),
-              headers: {
-                'Authorization': 'Bearer $apiKey',
-              },
-            );
-
-            isValid = response.statusCode == 200;
-            if (!isValid) {
-              errorMessage = 'API Key Requestry inválida: ${response.statusCode} ${response.body}';
-              print(errorMessage);
-            } else {
-              print('API Requestry validada com sucesso');
-            }
-          } catch (e) {
-            // Se ocorrer um erro de conexão, vamos considerar válido apenas pelo formato
-            // Isso permite que o usuário teste a API mesmo sem conexão
-            isValid = true;
-            print('Aviso: Não foi possível conectar ao servidor Requestry. Validando apenas o formato da chave.');
-          }
-        }
+      isValid = modeloValido;
+      if (!isValid) {
+        errorMessage = 'API Key Gemini inválida. $ultimoErro';
+        print(errorMessage);
+      } else {
+        print('API Gemini validada com sucesso usando modelo: $modeloTestado');
       }
 
       if (isValid) {
         _apiKey = apiKey;
-        _apiType = apiType;
-
-        // Definir a chave específica com base no tipo
-        if (apiType == 'gemini') {
-          _geminiApiKey = apiKey;
-        } else if (apiType == 'openrouter') {
-          // Armazenar a chave do OpenRouter
-          _openrouterApiKey = apiKey;
-        } else if (apiType == 'requestry') {
-          // Armazenar a chave do Requestry
-          _requestryApiKey = apiKey;
-        } else if (apiType == 'openai') {
-          // Armazenar a chave da OpenAI
-          _openaiApiKey = apiKey;
-        }
+        _apiType = 'gemini';
 
         notifyListeners();
         return {
@@ -298,24 +185,10 @@ class IAService extends ChangeNotifier {
     }
   }
 
-  // Detectar automaticamente o tipo de API key
-  String _detectarTipoApiKey(String apiKey) {
+  // Verificar se a chave API é válida para o Gemini
+  bool _isGeminiApiKey(String apiKey) {
     // API keys do Gemini geralmente começam com "AI" seguido por caracteres alfanuméricos
-    if (apiKey.startsWith('AI')) {
-      return 'gemini';
-    }
-    // API keys do OpenRouter e Requestry também começam com "sk-" como as da OpenAI
-    // Neste caso, precisamos confiar no tipo selecionado pelo usuário
-    else if (apiKey.startsWith('sk-')) {
-      // Se o tipo atual já for openrouter ou requestry, manter
-      if (_apiType == 'openrouter' || _apiType == 'requestry') {
-        return _apiType;
-      }
-      // Caso contrário, assumir OpenAI (legado)
-      return 'openai';
-    }
-    // Se não conseguir detectar, manter o tipo atual
-    return _apiType;
+    return apiKey.startsWith('AI');
   }
 
   /// Verifica se o texto está dentro do limite de tokens para o modelo atual
@@ -323,57 +196,26 @@ class IAService extends ChangeNotifier {
     // Estimar o tamanho do texto em tokens (aproximadamente 4 caracteres por token)
     final int tokenEstimado = texto.length ~/ 4;
 
-    // Definir limite de tokens baseado no modelo e tipo de API
+    // Definir limite de tokens baseado no modelo
     int limiteTokens;
 
-    if (_apiType == 'gemini') {
-      // Limites para modelos Gemini
-      switch (_geminiModel) {
-        // Modelo 2.5
-        case 'gemini-2.5-pro-preview-03-25':
-          limiteTokens = 1048576; // ~1 milhão de tokens de contexto
-          break;
-
-        // Modelos 2.0
-        case 'gemini-2.0-flash':
-        case 'gemini-2.0-flash-001':
-          limiteTokens = 1048576; // ~1 milhão de tokens de contexto
-          break;
-        case 'gemini-2.0-flash-lite':
-        case 'gemini-2.0-flash-lite-001':
-          limiteTokens = 1048576; // ~1 milhão de tokens de contexto
-          break;
-
-        default:
-          limiteTokens = 30000; // Valor conservador para modelos desconhecidos
-      }
-    } else {
-      // Limites para modelos OpenAI
-      switch (_openaiModel) {
-        case 'gpt-4':
-        case 'gpt-4-turbo':
-          limiteTokens = 128000;
-          break;
-        case 'gpt-3.5-turbo-16k':
-          limiteTokens = 16000;
-          break;
-        case 'gpt-3.5-turbo':
-          limiteTokens = 4000;
-          break;
-        default:
-          limiteTokens = 4000; // Valor conservador para modelos desconhecidos
-      }
+    // Limites para modelos Gemini
+    switch (_geminiModel) {
+      case 'gemini-2.5-pro-exp-03-25':
+        limiteTokens = 1048576; // ~1 milhão de tokens de contexto
+        break;
+      default:
+        limiteTokens = 1000000; // Valor conservador para modelos desconhecidos
     }
 
     // Verificar se o texto está dentro do limite (com margem de segurança de 20%)
     return tokenEstimado < (limiteTokens * 0.8);
   }
 
-  // Este método foi substituído pelo setApiKey e não é mais usado
-  @deprecated
+  // Método simplificado para configurar a API key
   Future<bool> configurarApiKey(String apiKey) async {
     try {
-      final result = await setApiKey(apiKey, _detectarTipoApiKey(apiKey));
+      final result = await setApiKey(apiKey, 'gemini');
       return result['success'] as bool;
     } catch (e) {
       print('Erro ao configurar API key: $e');
@@ -677,13 +519,8 @@ OBSERVAÇÃO IMPORTANTE: Você está analisando a parte ${i+1} de ${textChunks.l
       final promptService = PromptService();
       final String promptTemplate = await promptService.loadPdfEditalAnalysisPrompt();
 
-      // Enviar o PDF diretamente para a API
-      if (_apiType == 'gemini') {
-        return await callGeminiApiWithPdf(promptTemplate, pdfBytes, pdfName: pdfName);
-      } else {
-        // Para outros provedores que não suportam PDF diretamente, podemos lançar uma exceção
-        throw Exception('Análise direta de PDF só é suportada pelo Gemini no momento');
-      }
+      // Enviar o PDF diretamente para a API Gemini
+      return await callGeminiApiWithPdf(promptTemplate, pdfBytes, pdfName: pdfName);
     } catch (e) {
       print('Erro ao analisar edital PDF: $e');
       rethrow;
@@ -697,27 +534,26 @@ OBSERVAÇÃO IMPORTANTE: Você está analisando a parte ${i+1} de ${textChunks.l
     }
 
     try {
-      // Carregar o prompt para extração de informações básicas
+      // Carregar o prompt para extração de informações básicas em formato JSON
       final promptService = PromptService();
       String promptTemplate;
       try {
-        promptTemplate = await promptService.loadBasicInfoEditalPrompt();
+        // Usar o prompt JSON em vez do prompt YAML
+        promptTemplate = await promptService.loadJsonEditalAnalysisPrompt();
       } catch (e) {
-        print('Erro ao carregar prompt básico: $e');
-        // Usar prompt de fallback em caso de erro
-        promptTemplate = await promptService.loadFallbackBasicInfoPrompt();
+        print('Erro ao carregar prompt JSON: $e');
+        // Tentar com o prompt básico como fallback
+        try {
+          promptTemplate = await promptService.loadBasicInfoEditalPrompt();
+        } catch (e2) {
+          print('Erro ao carregar prompt básico: $e2');
+          // Usar prompt de fallback em caso de erro
+          promptTemplate = await promptService.loadFallbackBasicInfoPrompt();
+        }
       }
 
-      // Enviar o PDF diretamente para a API
-      if (_apiType == 'gemini') {
-        return await callGeminiApiWithPdf(promptTemplate, pdfBytes, pdfName: pdfName);
-      } else if (_apiType == 'openrouter') {
-        throw Exception('Análise direta de PDF não é suportada pelo OpenRouter. Use a API Gemini.');
-      } else if (_apiType == 'requestry') {
-        throw Exception('Análise direta de PDF não é suportada pelo Requestry. Use a API Gemini.');
-      } else {
-        throw Exception('Análise direta de PDF só é suportada pelo Gemini no momento');
-      }
+      // Enviar o PDF diretamente para a API Gemini
+      return await callGeminiApiWithPdf(promptTemplate, pdfBytes, pdfName: pdfName);
     } catch (e) {
       print('Erro ao extrair informações básicas do edital: $e');
       rethrow;
@@ -735,11 +571,18 @@ OBSERVAÇÃO IMPORTANTE: Você está analisando a parte ${i+1} de ${textChunks.l
       final promptService = PromptService();
       String promptTemplate;
       try {
-        promptTemplate = await promptService.loadContentEditalPrompt();
+        // Usar o prompt JSON para conteúdo programático
+        promptTemplate = await promptService.loadContentJsonPrompt();
       } catch (e) {
-        print('Erro ao carregar prompt de conteúdo: $e');
-        // Usar prompt de fallback em caso de erro
-        promptTemplate = await promptService.loadFallbackCargoInfoPrompt();
+        print('Erro ao carregar prompt JSON de conteúdo: $e');
+        // Tentar com o prompt YAML como fallback
+        try {
+          promptTemplate = await promptService.loadContentEditalPrompt();
+        } catch (e2) {
+          print('Erro ao carregar prompt YAML de conteúdo: $e2');
+          // Usar prompt de fallback em caso de erro
+          promptTemplate = await promptService.loadFallbackCargoInfoPrompt();
+        }
       }
 
       // Substituir o placeholder do cargo alvo se existir
@@ -747,16 +590,8 @@ OBSERVAÇÃO IMPORTANTE: Você está analisando a parte ${i+1} de ${textChunks.l
         promptTemplate = promptTemplate.replaceAll('[CARGO_ALVO]', cargoAlvo);
       }
 
-      // Enviar o PDF diretamente para a API
-      if (_apiType == 'gemini') {
-        return await callGeminiApiWithPdf(promptTemplate, pdfBytes, pdfName: pdfName);
-      } else if (_apiType == 'openrouter') {
-        throw Exception('Análise direta de PDF não é suportada pelo OpenRouter. Use a API Gemini.');
-      } else if (_apiType == 'requestry') {
-        throw Exception('Análise direta de PDF não é suportada pelo Requestry. Use a API Gemini.');
-      } else {
-        throw Exception('Análise direta de PDF só é suportada pelo Gemini no momento');
-      }
+      // Enviar o PDF diretamente para a API Gemini
+      return await callGeminiApiWithPdf(promptTemplate, pdfBytes, pdfName: pdfName);
     } catch (e) {
       print('Erro ao extrair conteúdo programático do edital: $e');
       rethrow;
@@ -1002,37 +837,16 @@ OBSERVAÇÃO IMPORTANTE: Você está analisando a parte ${i+1} de ${textChunks.l
         throw Exception('Erro na comunicação com o serviço de IA. Verifique sua chave de API e conexão com a internet.');
       }
 
-      if (_apiType == 'gemini') {
-        try {
-          return await _callGeminiApi(prompt);
-        } catch (e) {
-          print('Erro específico da API Gemini: $e');
-          // Verificar se é um erro de modelo não encontrado
-          if (e.toString().contains('models/gemini-2.0-flash is not found') ||
-              e.toString().contains('not found')) {
-            throw Exception('O modelo Gemini 2.0 Flash não está disponível. Verifique se sua API key tem acesso a este modelo.');
-          }
-          rethrow;
+      try {
+        return await _callGeminiApi(prompt);
+      } catch (e) {
+        print('Erro específico da API Gemini: $e');
+        // Verificar se é um erro de modelo não encontrado
+        if (e.toString().contains('models/gemini-2.0-flash is not found') ||
+            e.toString().contains('not found')) {
+          throw Exception('O modelo Gemini não está disponível. Verifique se sua API key tem acesso a este modelo.');
         }
-      } else if (_apiType == 'openrouter') {
-        try {
-          return await _callOpenRouterApi(prompt);
-        } catch (e) {
-          print('Erro específico da API OpenRouter: $e');
-          rethrow;
-        }
-      } else if (_apiType == 'requestry') {
-        try {
-          return await _callRequestryApi(prompt);
-        } catch (e) {
-          print('Erro específico da API Requestry: $e');
-          rethrow;
-        }
-      } else if (_apiType == 'openai') {
-        // OpenAI (legado)
-        return await _callOpenAIApi(prompt);
-      } else {
-        throw Exception('Tipo de API não suportado: $_apiType');
+        rethrow;
       }
     } catch (e) {
       print('Erro ao chamar API: $e');
@@ -1055,12 +869,10 @@ OBSERVAÇÃO IMPORTANTE: Você está analisando a parte ${i+1} de ${textChunks.l
     await _cacheService.init();
 
     // Verificar se existe cache para este PDF e prompt
-    if (_forceCacheMode || !isConfigured) {
-      final cachedResult = await _cacheService.getFromCache(prompt, pdfBytes.toList());
-      if (cachedResult != null) {
-        print('Usando resultado do cache para análise do PDF');
-        return cachedResult;
-      }
+    final cachedResult = await _cacheService.getFromCache(prompt, pdfBytes.toList());
+    if (cachedResult != null) {
+      print('Usando resultado do cache para análise do PDF');
+      return cachedResult;
     }
 
     if (!isConfigured) {
@@ -1074,15 +886,15 @@ OBSERVAÇÃO IMPORTANTE: Você está analisando a parte ${i+1} de ${textChunks.l
     }
 
     // Verificar se o modelo atual suporta PDF
-    bool modeloSuportaPDF = _geminiModel == 'gemini-2.5-pro-preview-03-25' ||
+    bool modeloSuportaPDF = _geminiModel == 'gemini-2.5-pro-exp-03-25' ||
                            _geminiModel.contains('gemini-2.0') ||
                            _geminiModel.contains('gemini-1.5');
 
     if (!modeloSuportaPDF) {
       // Tentar encontrar um modelo que suporte PDF
-      if (_geminiModel != 'gemini-2.5-pro-preview-03-25') {
+      if (_geminiModel != 'gemini-2.5-pro-exp-03-25') {
         // Primeiro tentar o modelo 2.5 correto
-        _geminiModel = 'gemini-2.5-pro-preview-03-25';
+        _geminiModel = 'gemini-2.5-pro-exp-03-25';
         print('Alterando para modelo Gemini 2.5 para melhor processamento de PDF: $_geminiModel');
       } else {
         // Se já estiver usando o 2.5 e não funcionar, tentar modelos 2.0
@@ -1199,6 +1011,20 @@ OBSERVAÇÃO IMPORTANTE: Você está analisando a parte ${i+1} de ${textChunks.l
             throw Exception('Chave API inválida. Verifique suas configurações.');
           } else if (response.statusCode == 429 || response.body.contains('quota')) {
             print('Erro na API Gemini: Limite de quota excedido');
+
+            // Tentar buscar qualquer cache relacionado a este PDF
+            print('Tentando buscar qualquer cache relacionado a este PDF...');
+            final List<String> cacheKeys = await _cacheService.getAllCacheKeys();
+            if (cacheKeys.isNotEmpty) {
+              print('Encontrados ${cacheKeys.length} caches. Usando o primeiro disponível.');
+              final String firstCacheKey = cacheKeys.first;
+              final String? cachedContent = await _cacheService.getRawCache(firstCacheKey);
+              if (cachedContent != null && cachedContent.isNotEmpty) {
+                print('Usando cache alternativo devido ao limite de quota excedido');
+                return cachedContent;
+              }
+            }
+
             throw Exception('Limite de quota da API Gemini excedido. Tente novamente mais tarde ou use outra chave API.');
           } else if (response.statusCode == 413 || response.body.contains('too large')) {
             print('Erro na API Gemini: PDF muito grande');
@@ -1370,8 +1196,13 @@ OBSERVAÇÃO IMPORTANTE: Você está analisando a parte ${i+1} de ${textChunks.l
 
     // Detectar se é uma extração de edital em formato JSON
     bool isJsonExtraction = isEditalExtraction &&
-                          (prompt.contains('JSON') || prompt.contains('json')) &&
-                          !isYamlExtraction; // Priorizar YAML se ambos estiverem presentes
+                          (prompt.contains('JSON') || prompt.contains('json'));
+
+    // Priorizar JSON sobre YAML (nova abordagem)
+    if (isJsonExtraction && isYamlExtraction) {
+      isYamlExtraction = false;
+      print('Detectados ambos formatos JSON e YAML. Priorizando JSON.');
+    }
 
     // Adicionar logs para depuração
     debugPrint('isYamlExtraction: $isYamlExtraction');
@@ -1401,12 +1232,18 @@ OBSERVAÇÃO IMPORTANTE: Você está analisando a parte ${i+1} de ${textChunks.l
     if (isEditalExtraction) {
       // Para extração de dados de edital, usar temperatura baixa para respostas mais precisas
       temperature = 0.1;
-      maxOutputTokens = 64000; // Aumentado para o limite máximo do Gemini 2.5 Pro
+      maxOutputTokens = 65536; // Limite máximo do modelo experimental (65.536 tokens)
 
       // Definir o formato da resposta com base no tipo de extração
-      // Sempre usar YAML para extração de edital
-      responseMimeType = null; // Não definir responseMimeType para permitir resposta em YAML
-      print('Configurando chamada para extração de edital com Gemini 2.5 Pro (formato YAML)');
+      if (isJsonExtraction) {
+        // Usar JSON para extração de edital (nova abordagem)
+        responseMimeType = 'application/json'; // Solicitar resposta em formato JSON
+        print('Configurando chamada para extração de edital com modelos experimentais Gemini (formato JSON)');
+      } else {
+        // Usar YAML para extração de edital (abordagem anterior)
+        responseMimeType = null; // Não definir responseMimeType para permitir resposta em YAML
+        print('Configurando chamada para extração de edital com modelos experimentais Gemini (formato YAML)');
+      }
 
       // Definir schema para extração de edital
       responseSchema = {
@@ -1445,7 +1282,7 @@ OBSERVAÇÃO IMPORTANTE: Você está analisando a parte ${i+1} de ${textChunks.l
     } else if (isPlanoEstudo) {
       // Para geração de plano de estudo, usar temperatura moderada para criatividade controlada
       temperature = 0.3;
-      maxOutputTokens = 64000; // Aumentado para o limite máximo do Gemini 2.5 Pro (como número, não string)
+      maxOutputTokens = 65536; // Limite máximo do modelo experimental (65.536 tokens)
       responseMimeType = 'application/json'; // Solicitar resposta em formato JSON
 
       // Definir schema para plano de estudo
@@ -1494,12 +1331,12 @@ OBSERVAÇÃO IMPORTANTE: Você está analisando a parte ${i+1} de ${textChunks.l
         'required': ['materiasPrioritarias', 'cronogramaSemanal']
       };
 
-      print('Configurando chamada para geração de plano de estudo com Gemini 2.5 Pro (formato JSON)');
+      print('Configurando chamada para geração de plano de estudo com modelos experimentais Gemini (formato JSON)');
     } else {
       // Para outras tarefas, usar configurações padrão
       temperature = 0.2;
-      maxOutputTokens = 4096; // Valor padrão para outras tarefas
-      print('Configurando chamada padrão para Gemini 2.5 Pro');
+      maxOutputTokens = 65536; // Limite máximo do modelo experimental (65.536 tokens)
+      print('Configurando chamada padrão para modelos experimentais Gemini');
     }
 
     print('Parâmetros: temperature=$temperature, maxOutputTokens=$maxOutputTokens, responseMimeType=$responseMimeType');
@@ -1690,310 +1527,5 @@ OBSERVAÇÃO IMPORTANTE: Você está analisando a parte ${i+1} de ${textChunks.l
     } // Fim do loop while
   }
 
-  // Método para chamar a API do OpenRouter (compatível com OpenAI)
-  Future<String> _callOpenRouterApi(String prompt) async {
-    final url = '$_openrouterBaseUrl/chat/completions';
 
-    // Verificar se o prompt é para extração de dados de edital
-    bool isEditalExtraction = prompt.contains('edital') &&
-                            (prompt.contains('extrair') || prompt.contains('extração') ||
-                             prompt.contains('analise') || prompt.contains('análise'));
-
-    // Detectar se é uma extração de edital em formato YAML
-    bool isYamlExtraction = isEditalExtraction &&
-                          (prompt.contains('YAML') || prompt.contains('yaml'));
-
-    // Configurar parâmetros específicos para extração de dados de edital
-    double temperature = isEditalExtraction ? 0.0 : 0.1;
-    int maxTokens = isEditalExtraction ? 8192 : 4096;
-
-    print('Configurando chamada para OpenRouter: isEditalExtraction=$isEditalExtraction, temperature=$temperature, maxTokens=$maxTokens');
-
-    // Configurar o formato da resposta - sempre usar formato de texto para permitir resposta em YAML
-    Map<String, dynamic> responseFormat = { 'type': 'text' };
-    print('Configurando chamada para extração de edital com OpenRouter (formato YAML)');
-
-    final body = jsonEncode({
-      'model': _openrouterModel,
-      'messages': [
-        {
-          'role': 'system',
-          'content': isEditalExtraction
-              ? 'Você é um especialista em análise de editais de concursos públicos brasileiros. Sua tarefa é extrair informações estruturadas e retornar APENAS um documento YAML válido, sem texto adicional. NÃO retorne a resposta em formato JSON.'
-              : 'Você é um assistente especializado em preparação para concursos públicos brasileiros.'
-        },
-        {
-          'role': 'user',
-          'content': prompt
-        }
-      ],
-      'temperature': temperature,
-      'max_tokens': maxTokens,
-      'response_format': responseFormat
-    });
-
-    try {
-      print('Enviando requisição para a API OpenRouter...');
-      final response = await http.post(
-        Uri.parse(url),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $_openrouterApiKey',
-          'HTTP-Referer': 'https://preparatorio-concursos.app', // Opcional, para rankings no openrouter.ai
-          'X-Title': 'Preparatorio Concursos', // Opcional, para rankings no openrouter.ai
-        },
-        body: body,
-      );
-
-      if (response.statusCode == 200) {
-        print('Resposta recebida com sucesso da OpenRouter. Analisando JSON...');
-        final jsonResponse = jsonDecode(response.body);
-        print('Estrutura da resposta OpenRouter: ${jsonResponse.keys.toList()}');
-
-        // Extrair o texto da resposta - método principal
-        if (jsonResponse.containsKey('choices') &&
-            jsonResponse['choices'].isNotEmpty &&
-            jsonResponse['choices'][0].containsKey('message') &&
-            jsonResponse['choices'][0]['message'].containsKey('content')) {
-          return jsonResponse['choices'][0]['message']['content'];
-        }
-        // Fallback para outros formatos de resposta
-        else if (jsonResponse.containsKey('text')) {
-          return jsonResponse['text'];
-        } else {
-          throw Exception('Formato de resposta não reconhecido: $jsonResponse');
-        }
-      } else {
-        print('Erro na API OpenRouter: ${response.statusCode} ${response.body}');
-        throw Exception('Falha na chamada da API OpenRouter: ${response.statusCode} ${response.body}');
-      }
-    } catch (e) {
-      print('Exceção ao chamar API OpenRouter: $e');
-      throw Exception('Erro ao conectar com a API OpenRouter: $e');
-    }
-  }
-
-  // Método para chamar a API do Requestry (compatível com OpenAI)
-  Future<String> _callRequestryApi(String prompt) async {
-    final url = '$_requestryBaseUrl/chat/completions';
-
-    // Verificar se o prompt é para extração de dados de edital
-    bool isEditalExtraction = prompt.contains('edital') &&
-                            (prompt.contains('extrair') || prompt.contains('extração') ||
-                             prompt.contains('analise') || prompt.contains('análise'));
-
-    // Detectar se é uma extração de edital em formato YAML
-    bool isYamlExtraction = isEditalExtraction &&
-                          (prompt.contains('YAML') || prompt.contains('yaml'));
-
-    // Configurar parâmetros específicos para extração de dados de edital
-    double temperature = isEditalExtraction ? 0.0 : 0.1;
-    int maxTokens = isEditalExtraction ? 8192 : 4096;
-
-    print('Configurando chamada para Requestry: isEditalExtraction=$isEditalExtraction, temperature=$temperature, maxTokens=$maxTokens');
-
-    // Configurar o formato da resposta - sempre usar formato de texto para permitir resposta em YAML
-    Map<String, dynamic> responseFormat = { 'type': 'text' };
-    print('Configurando chamada para extração de edital com Requestry (formato YAML)');
-
-    final body = jsonEncode({
-      'model': _requestryModel,
-      'messages': [
-        {
-          'role': 'system',
-          'content': isEditalExtraction
-              ? 'Você é um especialista em análise de editais de concursos públicos brasileiros. Sua tarefa é extrair informações estruturadas e retornar APENAS um documento YAML válido, sem texto adicional. NÃO retorne a resposta em formato JSON.'
-              : 'Você é um assistente especializado em preparação para concursos públicos brasileiros.'
-        },
-        {
-          'role': 'user',
-          'content': prompt
-        }
-      ],
-      'temperature': temperature,
-      'max_tokens': maxTokens,
-      'response_format': responseFormat
-    });
-
-    try {
-      print('Enviando requisição para a API Requestry...');
-      final response = await http.post(
-        Uri.parse(url),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $_requestryApiKey',
-          'HTTP-Referer': 'https://preparatorio-concursos.app', // Opcional, para análise
-          'X-Title': 'Preparatorio Concursos', // Opcional, para análise
-        },
-        body: body,
-      );
-
-      if (response.statusCode == 200) {
-        print('Resposta recebida com sucesso da Requestry. Analisando JSON...');
-        final jsonResponse = jsonDecode(response.body);
-        print('Estrutura da resposta Requestry: ${jsonResponse.keys.toList()}');
-
-        // Extrair o texto da resposta - método principal
-        if (jsonResponse.containsKey('choices') &&
-            jsonResponse['choices'].isNotEmpty &&
-            jsonResponse['choices'][0].containsKey('message') &&
-            jsonResponse['choices'][0]['message'].containsKey('content')) {
-          return jsonResponse['choices'][0]['message']['content'];
-        }
-        // Fallback para outros formatos de resposta
-        else if (jsonResponse.containsKey('text')) {
-          return jsonResponse['text'];
-        } else {
-          throw Exception('Formato de resposta não reconhecido: $jsonResponse');
-        }
-      } else {
-        print('Erro na API Requestry: ${response.statusCode} ${response.body}');
-        throw Exception('Falha na chamada da API Requestry: ${response.statusCode} ${response.body}');
-      }
-    } catch (e) {
-      print('Exceção ao chamar API Requestry: $e');
-      throw Exception('Erro ao conectar com a API Requestry: $e');
-    }
-  }
-
-  // Método para chamar a API da OpenAI
-  Future<String> _callOpenAIApi(String prompt) async {
-    final url = '$_openaiBaseUrl/chat/completions';
-
-    // Verificar se o prompt é para extração de dados de edital
-    bool isEditalExtraction = prompt.contains('edital') &&
-                            (prompt.contains('extrair') || prompt.contains('extração') ||
-                             prompt.contains('analise') || prompt.contains('análise'));
-
-    // Detectar se é uma extração de edital em formato YAML
-    bool isYamlExtraction = isEditalExtraction &&
-                          (prompt.contains('YAML') || prompt.contains('yaml'));
-
-    // Detectar se é uma extração de edital em formato JSON
-    bool isJsonExtraction = isEditalExtraction &&
-                          (prompt.contains('JSON') || prompt.contains('json')) &&
-                          !isYamlExtraction; // Priorizar YAML se ambos estiverem presentes
-
-    // Configurar parâmetros específicos para extração de dados de edital
-    double temperature = isEditalExtraction ? 0.0 : 0.1;
-    int maxTokens = isEditalExtraction ? 8192 : 4096;
-
-    print('Configurando chamada para OpenAI: isEditalExtraction=$isEditalExtraction, temperature=$temperature, maxTokens=$maxTokens');
-
-    // Configurar o formato da resposta com base no tipo de prompt
-    // Sempre usar formato de texto para permitir resposta em YAML
-    Map<String, dynamic> responseFormat = { 'type': 'text' };
-    print('Configurando chamada para extração de edital com OpenAI (formato YAML)');
-
-    final body = jsonEncode({
-      'model': _openaiModel,
-      'messages': [
-        {
-          'role': 'system',
-          'content': isEditalExtraction
-              ? 'Você é um especialista em análise de editais de concursos públicos brasileiros. Sua tarefa é extrair informações estruturadas e retornar APENAS um documento YAML válido, sem texto adicional. NÃO retorne a resposta em formato JSON.'
-              : 'Você é um assistente especializado em preparação para concursos públicos brasileiros.'
-        },
-        {
-          'role': 'user',
-          'content': prompt
-        }
-      ],
-      'temperature': temperature,
-      'max_tokens': maxTokens,
-      'response_format': responseFormat
-    });
-
-    try {
-      print('Enviando requisição para a API OpenAI...');
-      final response = await http.post(
-        Uri.parse(url),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $_openaiApiKey',
-        },
-        body: body,
-      );
-
-      if (response.statusCode == 200) {
-        print('Resposta recebida com sucesso da OpenAI. Analisando JSON...');
-        final jsonResponse = jsonDecode(response.body);
-        print('Estrutura da resposta OpenAI: ${jsonResponse.keys.toList()}');
-
-        // Extrair o texto da resposta - método principal
-        if (jsonResponse.containsKey('choices') &&
-            jsonResponse['choices'].isNotEmpty &&
-            jsonResponse['choices'][0].containsKey('message') &&
-            jsonResponse['choices'][0]['message'].containsKey('content')) {
-
-          final text = jsonResponse['choices'][0]['message']['content'];
-          print('Texto extraído com sucesso da OpenAI: ${text.substring(0, min<int>(100, text.length))}...');
-
-          // Não precisamos mais verificar se o texto é um JSON válido, pois estamos usando YAML
-          if (false) { // Desabilitado
-            try {
-              // Tentar decodificar o JSON para verificar se é válido
-              json.decode(text);
-              print('Resposta contém JSON válido');
-              return text;
-            } catch (e) {
-              print('Resposta não é um JSON válido: $e');
-              // Tentar extrair JSON da resposta
-              final RegExp jsonRegex = RegExp(r'```(?:json)?\s*([\s\S]*?)\s*```');
-              final match = jsonRegex.firstMatch(text);
-
-              if (match != null && match.groupCount >= 1) {
-                final jsonText = match.group(1)!.trim();
-                print('Encontrado JSON entre delimitadores de código');
-                try {
-                  json.decode(jsonText);
-                  print('JSON entre delimitadores é válido');
-                  return jsonText;
-                } catch (e2) {
-                  print('JSON entre delimitadores não é válido: $e2');
-                }
-              }
-              // Retornar o texto original mesmo que não seja JSON válido
-              // O processador de JSON irá tentar corrigir depois
-            }
-          }
-
-          return text;
-        }
-        // Método alternativo de extração
-        else if (jsonResponse.containsKey('choices') &&
-                jsonResponse['choices'].isNotEmpty) {
-          // Tentar extrair de forma mais flexível
-          final choice = jsonResponse['choices'][0];
-          print('Estrutura do choice: ${choice.keys.toList()}');
-
-          // Tentar extrair do message diretamente
-          if (choice.containsKey('message')) {
-            final message = choice['message'];
-            print('Estrutura da message: ${message.keys.toList()}');
-
-            // Tentar extrair do content diretamente
-            if (message.containsKey('content')) {
-              return message['content'];
-            }
-          }
-
-          // Tentar extrair do texto completo do choice
-          return jsonEncode(choice);
-        }
-        // Último recurso: retornar o corpo completo da resposta
-        else {
-          print('Não foi possível extrair o texto usando os métodos padrão. Retornando resposta completa.');
-          return response.body;
-        }
-      } else {
-        print('Falha na chamada da API OpenAI: ${response.statusCode}');
-        print('Corpo da resposta: ${response.body}');
-        throw Exception('Falha na chamada da API OpenAI: ${response.statusCode} ${response.body}');
-      }
-    } catch (e) {
-      print('Erro ao conectar com a API OpenAI: $e');
-      throw Exception('Erro ao conectar com a API OpenAI: $e');
-    }
-  }
 }

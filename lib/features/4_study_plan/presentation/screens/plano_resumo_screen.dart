@@ -140,12 +140,17 @@ class _PlanoResumoScreenState extends State<PlanoResumoScreen> {
             ),
             Divider(),
             if (_edital != null) ...[
-              _buildInfoItem('Nome', _edital!.dadosExtraidos.titulo ?? 'Não informado'),
-              _buildInfoItem('Órgão', _edital!.dadosExtraidos.orgao ?? 'Não informado'),
-              _buildInfoItem('Banca', _edital!.dadosExtraidos.banca ?? 'Não informado'),
-              _buildInfoItem('Data da Prova', _edital!.dadosExtraidos.dataProva ?? 'Não informado'),
-              _buildInfoItem('Inscrição', _formatarValor(_edital!.dadosExtraidos.valorTaxa)),
+              _buildInfoItem('Nome', _obterValorConcurso('titulo', 'titulo_concurso')),
+              _buildInfoItem('Órgão', _obterValorConcurso('orgao', 'orgao_responsavel')),
+              _buildInfoItem('Banca', _obterValorConcurso('banca', 'banca_organizadora')),
+              _buildInfoItem('Data da Prova', _obterValorConcurso('dataProva', 'data_provas')),
+              _buildInfoItem('Inscrição', _formatarValor(_obterValorNumerico('valorInscricao', 'taxa_inscricao'))),
               _buildInfoItem('Cargo Escolhido', _plano!.cargoIds.isNotEmpty ? _plano!.cargoIds.first : 'Não informado'),
+              // Adicionar informações sobre cotas se disponíveis
+              if (_edital!.dadosOriginais != null && (_edital!.dadosOriginais!.containsKey('cotas') ||
+                  _edital!.dadosOriginais!.containsKey('percentual_cotas') ||
+                  _edital!.dadosOriginais!.containsKey('reserva_vagas')))
+                _buildInfoItem('Cotas', _obterInformacoesCotas()),
             ] else ...[
               _buildInfoItem('Plano', 'Plano de estudos personalizado'),
               _buildInfoItem('Período', '${_formatarData(_plano!.dataInicio)} a ${_formatarData(_plano!.dataFim)}'),
@@ -165,9 +170,15 @@ class _PlanoResumoScreenState extends State<PlanoResumoScreen> {
 
     // Calcular horas por semana
     int horasSemanais = 0;
-    _plano!.horasSemanais.forEach((dia, horas) {
-      horasSemanais += horas;
-    });
+    // Verificar se temos o valor total nos metadados
+    if (_plano!.metadados.containsKey('horasSemanaisTotal')) {
+      horasSemanais = _plano!.metadados['horasSemanaisTotal'];
+    } else {
+      // Calcular a partir das horas configuradas
+      _plano!.horasSemanais.forEach((dia, horas) {
+        horasSemanais += horas;
+      });
+    }
 
     // Calcular horas por dia (média)
     double horasPorDia = horasSemanais / 7;
@@ -278,8 +289,9 @@ class _PlanoResumoScreenState extends State<PlanoResumoScreen> {
 
                 return Chip(
                   avatar: Icon(icon, size: 18, color: Colors.black87),
-                  label: Text(ferramenta, style: TextStyle(color: Colors.black87)),
+                  label: Text(ferramenta, style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w500)),
                   backgroundColor: Colors.grey.shade200,
+                  side: BorderSide(color: Colors.grey.shade400),
                 );
               }).toList(),
             ),
@@ -297,9 +309,30 @@ class _PlanoResumoScreenState extends State<PlanoResumoScreen> {
       'mensal': [],
     };
 
+    // Adicionar todas as recompensas ao mapa
     for (var recompensa in _plano!.recompensas) {
       if (recompensasPorTipo.containsKey(recompensa.tipoRecompensa)) {
         recompensasPorTipo[recompensa.tipoRecompensa]!.add(recompensa.descricaoRecompensa);
+      }
+    }
+
+    // Verificar se temos recompensas nos metadados
+    if (_plano!.metadados.containsKey('recompensas')) {
+      try {
+        final List<dynamic> recompensasAdicionais = _plano!.metadados['recompensas'];
+        for (var recompensa in recompensasAdicionais) {
+          if (recompensa is Map<String, dynamic> &&
+              recompensa.containsKey('tipo') &&
+              recompensa.containsKey('descricao')) {
+            final tipo = recompensa['tipo'];
+            final descricao = recompensa['descricao'];
+            if (recompensasPorTipo.containsKey(tipo) && !recompensasPorTipo[tipo]!.contains(descricao)) {
+              recompensasPorTipo[tipo]!.add(descricao);
+            }
+          }
+        }
+      } catch (e) {
+        print('Erro ao processar recompensas adicionais: $e');
       }
     }
 
@@ -355,12 +388,13 @@ class _PlanoResumoScreenState extends State<PlanoResumoScreen> {
             decoration: BoxDecoration(
               color: cor.withOpacity(0.3),
               borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: cor.withOpacity(0.7)),
             ),
             child: Row(
               children: [
-                Icon(Icons.emoji_events, size: 16),
+                Icon(Icons.emoji_events, size: 16, color: Colors.black87),
                 SizedBox(width: 8),
-                Expanded(child: Text(recompensa)),
+                Expanded(child: Text(recompensa, style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w500))),
               ],
             ),
           ),
@@ -382,18 +416,35 @@ class _PlanoResumoScreenState extends State<PlanoResumoScreen> {
       orElse: () => cargos.isNotEmpty ? cargos.first : Cargo(nome: 'Não encontrado', conteudoProgramatico: []),
     );
 
-    // Separar matérias por tipo (básico e específico)
+    // Separar matérias por tipo (comum e específico)
     List<ConteudoProgramatico> conhecimentosBasicos = [];
     List<ConteudoProgramatico> conhecimentosEspecificos = [];
 
     for (var conteudo in cargoSelecionado.conteudoProgramatico) {
-      if (conteudo.tipo?.toLowerCase() == 'básico' ||
-          conteudo.tipo?.toLowerCase() == 'basico' ||
-          conteudo.tipo?.toLowerCase() == 'conhecimentos básicos' ||
-          conteudo.tipo?.toLowerCase() == 'conhecimentos basicos') {
+      // Não ignorar matérias com nomes genéricos para exibir todos os conhecimentos
+      // Incluir todas as matérias, tanto básicas quanto específicas
+
+      // Classificar por tipo
+      if (conteudo.tipo.toLowerCase() == 'comum' ||
+          conteudo.tipo.toLowerCase() == 'básico' ||
+          conteudo.tipo.toLowerCase() == 'basico' ||
+          conteudo.tipo.toLowerCase() == 'conhecimentos básicos' ||
+          conteudo.tipo.toLowerCase() == 'conhecimentos basicos') {
         conhecimentosBasicos.add(conteudo);
-      } else {
+      } else if (conteudo.tipo.toLowerCase() == 'específico' ||
+                conteudo.tipo.toLowerCase() == 'especifico' ||
+                conteudo.tipo.toLowerCase() == 'conhecimentos específicos' ||
+                conteudo.tipo.toLowerCase() == 'conhecimentos especificos') {
         conhecimentosEspecificos.add(conteudo);
+      } else {
+        // Se não for possível determinar o tipo, verificar pelo nome
+        if (conteudo.nome.toLowerCase().contains('direito') ||
+            conteudo.nome.toLowerCase().contains('legisla') ||
+            conteudo.nome.toLowerCase().contains('específ')) {
+          conhecimentosEspecificos.add(conteudo);
+        } else {
+          conhecimentosBasicos.add(conteudo);
+        }
       }
     }
 
@@ -521,6 +572,11 @@ class _PlanoResumoScreenState extends State<PlanoResumoScreen> {
               focusedDay: _focusedDay,
               selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
               calendarFormat: CalendarFormat.month,
+              locale: 'pt_BR',
+              availableCalendarFormats: const {
+                CalendarFormat.month: 'Mês',
+                CalendarFormat.week: 'Semana',
+              },
               eventLoader: (day) {
                 final normalizedDay = DateTime(day.year, day.month, day.day);
                 return _sessoesPorDia[normalizedDay] ?? [];
@@ -545,14 +601,42 @@ class _PlanoResumoScreenState extends State<PlanoResumoScreen> {
                   color: AppTheme.primaryColor,
                   shape: BoxShape.circle,
                 ),
+                // Aumentar o tamanho da célula para evitar sobreposição
+                cellMargin: EdgeInsets.all(4.0),
+                cellPadding: EdgeInsets.zero,
+                // Ajustar o tamanho do texto dos dias
+                defaultTextStyle: TextStyle(fontSize: 14),
+                weekendTextStyle: TextStyle(fontSize: 14, color: Colors.red[600]),
+                outsideTextStyle: TextStyle(fontSize: 14, color: Colors.grey.shade400),
+                // Adicionar espaço entre as linhas do calendário
+                rowDecoration: BoxDecoration(
+                  border: Border(bottom: BorderSide(color: Colors.grey.shade100, width: 1.0)),
+                ),
+              ),
+
+              daysOfWeekStyle: DaysOfWeekStyle(
+                weekdayStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                weekendStyle: TextStyle(fontWeight: FontWeight.bold, color: Colors.red[600], fontSize: 12),
+                // Usar o nome completo do dia da semana em português
+                dowTextFormatter: (date, locale) => DateFormat.E(locale).format(date).substring(0, 3).toUpperCase(),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade100,
+                  border: Border(bottom: BorderSide(color: Colors.grey.shade300, width: 1.0)),
+                ),
               ),
               headerStyle: HeaderStyle(
-                formatButtonVisible: false,
+                formatButtonVisible: true,
                 titleCentered: true,
-                titleTextStyle: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+                formatButtonShowsNext: false,
+                formatButtonDecoration: BoxDecoration(
+                  color: AppTheme.primaryColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12.0),
                 ),
+                formatButtonTextStyle: TextStyle(color: AppTheme.primaryColor),
+                titleTextStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                headerPadding: EdgeInsets.symmetric(vertical: 10.0),
+                leftChevronIcon: Icon(Icons.chevron_left, color: AppTheme.primaryColor),
+                rightChevronIcon: Icon(Icons.chevron_right, color: AppTheme.primaryColor),
               ),
             ),
             if (_selectedDay != null) ..._buildSessoesParaDia(_selectedDay!),
@@ -611,13 +695,22 @@ class _PlanoResumoScreenState extends State<PlanoResumoScreen> {
     return Column(
       children: [
         // Botões de sincronização
+        Text(
+          'Sincronizar com Calendários',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: AppTheme.primaryColor,
+          ),
+        ),
+        SizedBox(height: 12),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Expanded(
               child: ElevatedButton.icon(
                 icon: Icon(Icons.calendar_month, color: Colors.white),
-                label: Text('Sincronizar com\nGoogle Agenda'),
+                label: Text('Google Agenda'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue.shade700,
                   foregroundColor: Colors.white,
@@ -633,7 +726,7 @@ class _PlanoResumoScreenState extends State<PlanoResumoScreen> {
             Expanded(
               child: ElevatedButton.icon(
                 icon: Icon(Icons.calendar_today, color: Colors.white),
-                label: Text('Sincronizar com\nCalendário Apple'),
+                label: Text('Calendário Apple'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.grey.shade800,
                   foregroundColor: Colors.white,
@@ -788,23 +881,159 @@ class _PlanoResumoScreenState extends State<PlanoResumoScreen> {
     );
   }
 
-  String _formatarData(DateTime? data) {
-    if (data == null) return 'Não informado';
-    final formatter = DateFormat('dd/MM/yyyy');
-    return formatter.format(data);
+  String _formatarData(DateTime data) {
+    return DateFormat('dd/MM/yyyy').format(data);
   }
 
-  String _formatarValor(double? valor) {
+  String _formatarValor(dynamic valor) {
     if (valor == null) return 'Não informado';
-    final formatter = NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$');
-    return formatter.format(valor);
+
+    if (valor is String) {
+      try {
+        valor = double.parse(valor);
+      } catch (e) {
+        return valor;
+      }
+    }
+
+    if (valor is num) {
+      return NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$').format(valor);
+    }
+
+    return valor.toString();
   }
 
-  String _formatarCotas(Map<String, dynamic> cotas) {
-    List<String> cotasFormatadas = [];
-    cotas.forEach((tipo, percentual) {
-      cotasFormatadas.add('$tipo: $percentual%');
-    });
-    return cotasFormatadas.join(', ');
+  // Método para obter valor do concurso (primeiro do plano, depois do edital)
+  String _obterValorConcurso(String chaveMetadados, String chaveDadosOriginais) {
+    debugPrint('\nVERIFICAÇÃO DE EXIBIÇÃO - Buscando: $chaveMetadados / $chaveDadosOriginais');
+
+    // Verificar primeiro nos metadados do plano
+    if (_plano!.metadados.containsKey(chaveMetadados) &&
+        _plano!.metadados[chaveMetadados] != null &&
+        _plano!.metadados[chaveMetadados].toString().isNotEmpty) {
+      debugPrint('  Encontrado nos metadados do plano: ${_plano!.metadados[chaveMetadados]}');
+      return _plano!.metadados[chaveMetadados].toString();
+    } else {
+      debugPrint('  Não encontrado nos metadados do plano');
+    }
+
+    // Verificar nos dados extraídos do edital
+    final dadosExtraidos = _edital!.dadosExtraidos;
+    switch (chaveMetadados) {
+      case 'titulo':
+        if (dadosExtraidos.titulo != null && dadosExtraidos.titulo!.isNotEmpty) {
+          debugPrint('  Encontrado no dadosExtraidos.titulo: ${dadosExtraidos.titulo}');
+          return dadosExtraidos.titulo!;
+        }
+        break;
+      case 'orgao':
+        if (dadosExtraidos.orgao != null && dadosExtraidos.orgao!.isNotEmpty) {
+          debugPrint('  Encontrado no dadosExtraidos.orgao: ${dadosExtraidos.orgao}');
+          return dadosExtraidos.orgao!;
+        }
+        break;
+      case 'banca':
+        if (dadosExtraidos.banca != null && dadosExtraidos.banca!.isNotEmpty) {
+          debugPrint('  Encontrado no dadosExtraidos.banca: ${dadosExtraidos.banca}');
+          return dadosExtraidos.banca!;
+        }
+        break;
+      case 'dataProva':
+        if (dadosExtraidos.dataProva != null && dadosExtraidos.dataProva!.isNotEmpty) {
+          debugPrint('  Encontrado no dadosExtraidos.dataProva: ${dadosExtraidos.dataProva}');
+          return dadosExtraidos.dataProva!;
+        }
+        break;
+    }
+    debugPrint('  Não encontrado nos dados extraídos do edital');
+
+    // Verificar nos dados originais do edital
+    if (_edital!.dadosOriginais != null &&
+        _edital!.dadosOriginais!.containsKey(chaveDadosOriginais) &&
+        _edital!.dadosOriginais![chaveDadosOriginais] != null) {
+      debugPrint('  Encontrado nos dados originais: ${_edital!.dadosOriginais![chaveDadosOriginais]}');
+      return _edital!.dadosOriginais![chaveDadosOriginais].toString();
+    } else {
+      debugPrint('  Não encontrado nos dados originais do edital');
+    }
+
+    // Se não encontrar, retornar valor padrão
+    debugPrint('  Retornando valor padrão: Não informado');
+    return 'Não informado';
+  }
+
+  // Método para obter valor numérico do concurso
+  dynamic _obterValorNumerico(String chaveMetadados, String chaveDadosOriginais) {
+    debugPrint('\nVERIFICAÇÃO DE EXIBIÇÃO (Numérico) - Buscando: $chaveMetadados / $chaveDadosOriginais');
+
+    // Verificar primeiro nos metadados do plano
+    if (_plano!.metadados.containsKey(chaveMetadados) &&
+        _plano!.metadados[chaveMetadados] != null) {
+      debugPrint('  Encontrado nos metadados do plano: ${_plano!.metadados[chaveMetadados]}');
+      return _plano!.metadados[chaveMetadados];
+    } else {
+      debugPrint('  Não encontrado nos metadados do plano');
+    }
+
+    // Verificar nos dados extraídos do edital
+    final dadosExtraidos = _edital!.dadosExtraidos;
+    if (chaveMetadados == 'valorInscricao' && dadosExtraidos.valorTaxa != null) {
+      debugPrint('  Encontrado no dadosExtraidos.valorTaxa: ${dadosExtraidos.valorTaxa}');
+      return dadosExtraidos.valorTaxa;
+    } else {
+      debugPrint('  Não encontrado nos dados extraídos do edital');
+    }
+
+    // Verificar nos dados originais do edital
+    if (_edital!.dadosOriginais != null &&
+        _edital!.dadosOriginais!.containsKey(chaveDadosOriginais) &&
+        _edital!.dadosOriginais![chaveDadosOriginais] != null) {
+      debugPrint('  Encontrado nos dados originais: ${_edital!.dadosOriginais![chaveDadosOriginais]}');
+      return _edital!.dadosOriginais![chaveDadosOriginais];
+    } else {
+      debugPrint('  Não encontrado nos dados originais do edital');
+    }
+
+    // Se não encontrar, retornar valor padrão
+    debugPrint('  Retornando valor padrão: 0.0');
+    return 0.0;
+  }
+
+  // Método para obter informações sobre cotas
+  String _obterInformacoesCotas() {
+    debugPrint('\nVERIFICAÇÃO DE COTAS:');
+
+    // Verificar primeiro nos metadados do plano
+    if (_plano!.metadados.containsKey('cotas') && _plano!.metadados['cotas'] != null) {
+      debugPrint('  Encontrado nos metadados do plano: ${_plano!.metadados['cotas']}');
+      return _plano!.metadados['cotas'].toString();
+    } else {
+      debugPrint('  Não encontrado nos metadados do plano');
+    }
+
+    if (_edital!.dadosOriginais == null) {
+      debugPrint('  Dados originais do edital não disponíveis');
+      return 'Não informado';
+    }
+
+    final dadosOriginais = _edital!.dadosOriginais!;
+
+    if (dadosOriginais.containsKey('cotas') && dadosOriginais['cotas'] != null) {
+      debugPrint('  Encontrado em dadosOriginais[cotas]: ${dadosOriginais['cotas']}');
+      return dadosOriginais['cotas'].toString();
+    }
+
+    if (dadosOriginais.containsKey('percentual_cotas') && dadosOriginais['percentual_cotas'] != null) {
+      debugPrint('  Encontrado em dadosOriginais[percentual_cotas]: ${dadosOriginais['percentual_cotas']}');
+      return dadosOriginais['percentual_cotas'].toString();
+    }
+
+    if (dadosOriginais.containsKey('reserva_vagas') && dadosOriginais['reserva_vagas'] != null) {
+      debugPrint('  Encontrado em dadosOriginais[reserva_vagas]: ${dadosOriginais['reserva_vagas']}');
+      return dadosOriginais['reserva_vagas'].toString();
+    }
+
+    debugPrint('  Nenhuma informação sobre cotas encontrada');
+    return 'Não informado';
   }
 }

@@ -7,3 +7,4 @@ export 'cronograma_item.dart';
 export 'sessao_estudo.dart';
 export 'flashcard.dart';
 export 'trofeu.dart';
+export 'recompensa_mercado.dart';

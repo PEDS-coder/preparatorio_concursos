@@ -8,10 +8,9 @@ import '../tabs/meu_edital_tab.dart';
 import '../tabs/plano_estudo_tab.dart';
 import '../tabs/meu_progresso_tab.dart';
 // Ferramentas de IA
-import '../../../7_ai_tools/presentation/screens/flashcards_screen.dart';
-import '../../../7_ai_tools/presentation/screens/resumos_screen.dart';
-import '../../../7_ai_tools/presentation/screens/questoes_screen.dart';
-import '../../../7_ai_tools/presentation/screens/mapas_mentais_screen.dart';
+import '../../../7_ai_tools/presentation/tabs/ia_tools_tab.dart';
+// Mercado Aprovação
+import '../../../8_mercado/presentation/tabs/mercado_tab.dart';
 
 class DashboardScreen extends StatefulWidget {
   final int initialTabIndex;
@@ -36,11 +35,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
     MeuEditalTab(),
     PlanoEstudoTab(),
     MeuProgressoTab(),
-    // Ferramentas de IA integradas diretamente no dashboard
-    FlashcardsScreen(showBottomNavigationBar: false),
-    ResumosScreen(),
-    QuestoesScreen(),
-    MapasMentaisScreen(),
+    // Ferramentas de IA agrupadas em uma única aba
+    IAToolsTab(),
+    // Mercado Aprovação
+    MercadoTab(),
   ];
 
   final List<String> _tabTitles = [
@@ -48,10 +46,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     'Meu Edital',
     'Plano de Estudo',
     'Meu Progresso',
-    'Flashcards',
-    'Resumos',
-    'Questões',
-    'Mapas Mentais',
+    'Ferramentas de IA',
+    'Mercado Aprovação',
   ];
 
   void _onItemTapped(int index) {
@@ -172,26 +168,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
               activeIcon: Icon(Icons.insights, color: AppTheme.primaryColor),
               label: 'Progresso',
             ),
-            // Ferramentas de IA
+            // Ferramentas de IA (agrupadas)
             BottomNavigationBarItem(
-              icon: Icon(Icons.flash_on, color: _getIconColor(4)),
-              activeIcon: Icon(Icons.flash_on, color: AppTheme.primaryColor),
-              label: 'Flashcards',
+              icon: Icon(Icons.auto_awesome, color: _getIconColor(4)),
+              activeIcon: Icon(Icons.auto_awesome, color: AppTheme.primaryColor),
+              label: 'Ferramentas',
             ),
+            // Mercado Aprovação
             BottomNavigationBarItem(
-              icon: Icon(Icons.summarize, color: _getIconColor(5)),
-              activeIcon: Icon(Icons.summarize, color: AppTheme.primaryColor),
-              label: 'Resumos',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.quiz, color: _getIconColor(6)),
-              activeIcon: Icon(Icons.quiz, color: AppTheme.primaryColor),
-              label: 'Questões',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.account_tree, color: _getIconColor(7)),
-              activeIcon: Icon(Icons.account_tree, color: AppTheme.primaryColor),
-              label: 'Mapas',
+              icon: Icon(Icons.shopping_bag, color: _getIconColor(5)),
+              activeIcon: Icon(Icons.shopping_bag, color: AppTheme.primaryColor),
+              label: 'Mercado',
             ),
           ],
         ),

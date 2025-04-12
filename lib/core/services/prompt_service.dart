@@ -12,7 +12,7 @@ class PromptService {
   factory PromptService() => _instance;
   PromptService._internal();
 
-  /// Carrega um prompt a partir do arquivo especificado
+  /// Carrega um prompt a partir do arquivo especificado usando o AssetBundle
   Future<String> loadPrompt(String promptPath) async {
     // Limpar o cache para garantir que sempre carregue a versão mais recente
     // Comentar esta linha em produção para melhorar o desempenho
@@ -37,6 +37,36 @@ class PromptService {
     }
   }
 
+  /// Carrega um arquivo de prompt a partir do caminho do arquivo
+  Future<String> loadFile(String filePath) async {
+    // Verificar se o arquivo já está em cache
+    if (_promptCache.containsKey(filePath)) {
+      return _promptCache[filePath]!;
+    }
+
+    try {
+      // Tentar carregar usando o AssetBundle primeiro
+      try {
+        final String content = await rootBundle.loadString(filePath);
+        _promptCache[filePath] = content;
+        return content;
+      } catch (assetError) {
+        // Se falhar, tentar carregar diretamente do sistema de arquivos
+        final File file = File(filePath);
+        if (await file.exists()) {
+          final String content = await file.readAsString();
+          _promptCache[filePath] = content;
+          return content;
+        } else {
+          throw Exception('Arquivo não encontrado: $filePath');
+        }
+      }
+    } catch (e) {
+      print('Erro ao carregar arquivo de $filePath: $e');
+      throw Exception('Não foi possível carregar o arquivo: $e');
+    }
+  }
+
   /// Carrega um prompt para análise de edital (método tradicional)
   Future<String> loadTraditionalEditalAnalysisPrompt() async {
     return await loadPrompt('lib/core/prompts/edital_analysis/traditional_prompt.txt');
@@ -57,6 +87,11 @@ class PromptService {
     return await loadPrompt('lib/core/prompts/edital_analysis/yaml_prompt.txt');
   }
 
+  /// Carrega um prompt para análise de edital em formato JSON
+  Future<String> loadJsonEditalAnalysisPrompt() async {
+    return await loadPrompt('lib/core/prompts/edital_analysis/json_prompt.txt');
+  }
+
   /// Carrega um prompt para análise direta de PDF de edital
   Future<String> loadPdfEditalAnalysisPrompt() async {
     return await loadPrompt('lib/core/prompts/edital_analysis/pdf_prompt.txt');
@@ -70,6 +105,11 @@ class PromptService {
   /// Carrega um prompt para extração de conteúdo programático de um cargo específico
   Future<String> loadContentEditalPrompt() async {
     return await loadPrompt('lib/core/prompts/edital_analysis/content_prompt.txt');
+  }
+
+  /// Carrega um prompt para extração de conteúdo programático em formato JSON
+  Future<String> loadContentJsonPrompt() async {
+    return await loadPrompt('lib/core/prompts/edital_analysis/content_json_prompt.txt');
   }
 
   /// Carrega um prompt para análise comparativa de edital em texto simples
@@ -102,9 +142,20 @@ class PromptService {
     return await loadPrompt('lib/core/prompts/study_plan_generation.txt');
   }
 
+  /// Carrega o novo prompt para geração de plano de estudos
+  Future<String> loadNewStudyPlanGenerationPrompt() async {
+    return await loadFile('lib/core/prompts/study_plan_generation_new.txt');
+  }
+
+  /// Carrega o prompt para geração de plano de estudos com ciclos
+  Future<String> loadStudyPlanCycleGenerationPrompt() async {
+    return await loadFile('lib/core/prompts/study_plan_cycle_generation.txt');
+  }
+
   /// Carrega um prompt para geração de plano de estudos (alias para compatibilidade)
   Future<String> loadStudyPlanPrompt() async {
-    return await loadStudyPlanGenerationPrompt();
+    // Usar o prompt de ciclos por padrão
+    return await loadStudyPlanCycleGenerationPrompt();
   }
 
   /// Carrega um prompt para análise básica de informações em fallback

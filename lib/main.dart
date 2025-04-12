@@ -5,6 +5,8 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'core/auth/auth_service.dart';
 import 'core/data/services/services.dart';
+import 'core/data/services/document_storage_service.dart';
+import 'core/data/services/mercado_service.dart';
 import 'core/services/document_classifier_service.dart';
 import 'core/services/api_config_service.dart';
 import 'core/services/audio_explanation_service.dart';
@@ -43,6 +45,11 @@ void main() async {
   final iaService = IAService();
   final apiConfigService = ApiConfigService();
   final audioExplanationService = AudioExplanationService();
+  final documentStorageService = DocumentStorageService();
+  final mercadoService = MercadoService(authService);
+
+  // Conectar o serviço de sessão de estudo com o serviço de mercado
+  sessaoEstudoService.setMercadoService(mercadoService);
 
   // Inicializar o serviço de áudio de explicação
   await audioExplanationService.init();
@@ -66,6 +73,8 @@ void main() async {
   await planoEstudoService.loadPlanos();
   await sessaoEstudoService.loadSessoes();
   await gamificacaoService.loadUsuarioTrofeus();
+  // Resetar o bônus diário à meia-noite
+  await mercadoService.resetarBonusDiario();
 
   runApp(
     MultiProvider(
@@ -78,6 +87,8 @@ void main() async {
         ChangeNotifierProvider.value(value: iaService),
         ChangeNotifierProvider.value(value: apiConfigService),
         ChangeNotifierProvider.value(value: audioExplanationService),
+        ChangeNotifierProvider.value(value: documentStorageService),
+        ChangeNotifierProvider.value(value: mercadoService),
         Provider.value(value: documentClassifierService),
       ],
       child: PreparatorioConcursosApp(),

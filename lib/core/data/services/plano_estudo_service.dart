@@ -74,6 +74,8 @@ class PlanoEstudoService extends ChangeNotifier {
     List<String> ferramentas,
     List<MateriaProficiencia> materiasProficiencia,
     List<RecompensaConfig> recompensas,
+    {Map<String, List<int>>? horariosEspecificos,
+     Map<String, dynamic>? dadosAdicionais}
   ) async {
     // Gerar sessões de estudo
     final List<SessaoEstudo> sessoesEstudo = _gerarSessoesEstudo(
@@ -83,7 +85,16 @@ class PlanoEstudoService extends ChangeNotifier {
       horasSemanais,
       materiasProficiencia,
       ferramentas,
+      horariosEspecificos: horariosEspecificos,
     );
+
+    // Criar mapa de metadados com dados adicionais
+    final Map<String, dynamic> metadados = {};
+
+    // Adicionar dados adicionais se fornecidos
+    if (dadosAdicionais != null) {
+      metadados.addAll(dadosAdicionais);
+    }
 
     final plano = PlanoEstudo(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -98,6 +109,7 @@ class PlanoEstudoService extends ChangeNotifier {
       materiasProficiencia: materiasProficiencia,
       recompensas: recompensas,
       sessoesEstudo: sessoesEstudo,
+      metadados: metadados,
     );
 
     _planos.add(plano);
@@ -114,6 +126,7 @@ class PlanoEstudoService extends ChangeNotifier {
     Map<String, int> horasSemanais,
     List<MateriaProficiencia> materiasProficiencia,
     List<String> ferramentas,
+    {Map<String, List<int>>? horariosEspecificos}
   ) {
     final List<SessaoEstudo> sessoes = [];
     final diasDaSemana = ['segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado', 'domingo'];
@@ -134,15 +147,43 @@ class PlanoEstudoService extends ChangeNotifier {
       final horasDisponiveis = horasSemanais[diaDaSemana] ?? 0;
 
       if (horasDisponiveis > 0) {
-        // Distribuir as horas entre as matérias
-        int horasRestantes = horasDisponiveis;
-        int materiaIndex = 0;
+        // Verificar se há horários específicos para este dia
+        final List<int> horariosDoDia = horariosEspecificos?[diaDaSemana] ?? [];
 
-        while (horasRestantes > 0 && materias.isNotEmpty) {
-          final materia = materias[materiaIndex % materias.length];
+        // Se não houver horários específicos, usar horários padrão
+        final List<int> horariosParaUsar = horariosDoDia.isNotEmpty
+            ? horariosDoDia
+            : List.generate(horasDisponiveis, (index) => 18 + index); // Começar às 18h por padrão
+
+        // Limitar a quantidade de horários ao número de horas disponíveis
+        final List<int> horariosLimitados = horariosParaUsar.length > horasDisponiveis
+            ? horariosParaUsar.sublist(0, horasDisponiveis)
+            : horariosParaUsar;
+
+        // Distribuir as matérias pelos horários disponíveis
+        // Usar um índice baseado no dia da semana para variar as matérias
+        int materiaIndex = dia % materias.length;
+
+        for (final horaInicio in horariosLimitados) {
+          // Selecionar matéria com base no índice e na hora
+          // Isso garante uma distribuição mais equilibrada das matérias
+          final materiaPos = (materiaIndex + horaInicio) % materias.length;
+          final materia = materias[materiaPos];
+
+          // Selecionar ferramentas de estudo de forma variada
+          final List<String> ferramentasSessao = [];
+          if (ferramentas.isNotEmpty) {
+            // Adicionar 1-2 ferramentas por sessão
+            final numFerramentas = 1 + (materiaPos % 2); // 1 ou 2 ferramentas
+            for (int i = 0; i < numFerramentas && i < ferramentas.length; i++) {
+              final ferramentaIndex = (materiaPos + i) % ferramentas.length;
+              ferramentasSessao.add(ferramentas[ferramentaIndex]);
+            }
+          } else {
+            ferramentasSessao.add('livro');
+          }
 
           // Criar uma sessão de estudo de 1 hora
-          final horaInicio = 18 + (horasDisponiveis - horasRestantes); // Começar às 18h
           final sessao = SessaoEstudo(
             id: '${userId}_${dataAtual.toIso8601String()}_$horaInicio',
             planoId: 'temp', // Será atualizado depois
@@ -164,14 +205,10 @@ class PlanoEstudoService extends ChangeNotifier {
               0,
             ),
             duracaoMinutos: 60,
-            ferramentas: ferramentas.isNotEmpty
-              ? [ferramentas[materiaIndex % ferramentas.length]]
-              : ['livro'],
+            ferramentas: ferramentasSessao,
           );
 
           sessoes.add(sessao);
-
-          horasRestantes--;
           materiaIndex++;
         }
       }

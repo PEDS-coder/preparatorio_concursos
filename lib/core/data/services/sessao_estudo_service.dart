@@ -2,8 +2,14 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/foundation.dart';
 import '../models/sessao_estudo.dart';
+import 'mercado_service.dart';
 
 class SessaoEstudoService extends ChangeNotifier {
+  MercadoService? _mercadoService;
+
+  void setMercadoService(MercadoService mercadoService) {
+    _mercadoService = mercadoService;
+  }
   List<SessaoEstudo> _sessoes = [];
 
   List<SessaoEstudo> get sessoes => _sessoes;
@@ -54,6 +60,11 @@ class SessaoEstudoService extends ChangeNotifier {
     _sessoes.add(sessao);
     await _saveSessoes();
     notifyListeners();
+
+    // Registrar a sessão no sistema de moedas
+    if (_mercadoService != null) {
+      await _mercadoService!.registrarSessaoEstudo(sessao.duracaoMinutos);
+    }
 
     return sessao;
   }

@@ -1,0 +1,120 @@
+Crie um plano de estudo personalizado com ciclos de estudo para concurso público com base nas seguintes informações:
+
+**Dados do Concurso:**
+{{dados_concurso}}
+
+**Período de Estudo:**
+- Data de Início: {{data_inicio}}
+- Data de Término: {{data_fim}}
+- Total de Dias: {{total_dias}}
+
+**Disponibilidade Semanal:**
+{{disponibilidade_semanal}}
+
+**Horários Específicos por Dia:**
+{{horarios_especificos}}
+
+**Conteúdo Programático:**
+{{conteudo_programatico}}
+
+**Proficiência nas Matérias:**
+{{proficiencia_materias}}
+
+**Ferramentas de Estudo Disponíveis:**
+{{ferramentas_estudo}}
+
+**Recompensas:**
+{{recompensas}}
+
+**Informações Adicionais:**
+- Peso das matérias: {{peso_materias}}
+- Critérios de desempate: {{criterios_desempate}}
+- Número de questões por matéria: {{numero_questoes}}
+
+Crie um ciclo de estudos detalhado em formato JSON com a seguinte estrutura:
+
+```json
+{
+  "ciclo_estudos": [
+    {
+      "dia": 1,
+      "blocos": [
+        {
+          "ordem": 1,
+          "materia": "Nome da Matéria",
+          "duracao_minutos": 90,
+          "ferramenta": "Nome da Ferramenta",
+          "foco": "Descrição do foco de estudo para este bloco"
+        },
+        {
+          "ordem": 2,
+          "materia": "Nome da Matéria",
+          "duracao_minutos": 60,
+          "ferramenta": "Nome da Ferramenta",
+          "foco": "Descrição do foco de estudo para este bloco"
+        }
+      ]
+    },
+    {
+      "dia": 2,
+      "blocos": [
+        {
+          "ordem": 1,
+          "materia": "Nome da Matéria",
+          "duracao_minutos": 120,
+          "ferramenta": "Nome da Ferramenta",
+          "foco": "Descrição do foco de estudo para este bloco"
+        }
+      ]
+    }
+  ],
+  "materias_prioritarias": [
+    {
+      "nome": "Nome da Matéria",
+      "pontuacao_prioridade": 31,
+      "estrategia": "Breve descrição da estratégia para esta matéria"
+    }
+  ],
+  "recomendacoes_gerais": [
+    "Recomendação 1 para otimizar o estudo",
+    "Recomendação 2 para otimizar o estudo"
+  ]
+}
+```
+
+Para criar o ciclo de estudos, siga estas regras de priorização:
+
+**Sistema de Pontuação para Priorização de Matérias:**
+1. Matérias com peso maior no edital: +10 pontos
+2. Matérias com peso menor no edital: +1 ponto
+3. Matérias com mais questões na prova: +8 pontos
+4. Matérias com menos questões na prova: +1 ponto
+5. Matérias que são critérios de desempate: +5 pontos
+6. Matérias que não são critérios de desempate: +0 pontos
+7. Proficiência do estudante:
+   - Iniciante: +10 pontos
+   - Básico: +8 pontos
+   - Intermediário: +5 pontos
+   - Avançado: +2 pontos
+   - Especialista: +1 ponto
+
+**Eficácia das Ferramentas de Estudo (escala 1-10):**
+1. Plataformas de Questões: 10
+2. Flashcards: 9
+3. PDFs/Livros: 8
+4. Leitura de lei seca: 7
+5. Videoaulas: 6
+6. Resumos: 5
+7. Audioaulas: 4
+
+**Diretrizes para o Ciclo de Estudos:**
+1. Crie um único ciclo com dias suficientes para que o usuário veja ao menos uma vez cada matéria e use ao menos uma vez cada ferramenta de estudo disponível.
+2. Aloque mais tempo para matérias com maior pontuação de prioridade.
+3. Alterne entre matérias teóricas e práticas para evitar fadiga mental.
+4. Alterne entre ferramentas de estudo, priorizando as mais eficazes.
+5. Cada bloco de estudo deve ter entre 60 e 150 minutos.
+6. Distribua as matérias de forma que disciplinas similares não fiquem em sequência.
+7. Alterne entre disciplinas que usam diferentes hemisférios cerebrais (ex: alternar entre matérias de exatas e humanas).
+8. Inclua pequenos intervalos entre os blocos (não é necessário especificar no JSON).
+
+Sua resposta deve conter APENAS o JSON, sem texto introdutório ou explicativo.

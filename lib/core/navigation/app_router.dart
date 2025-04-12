@@ -17,12 +17,14 @@ import '../../features/4_study_plan/presentation/screens/plano_resumo_screen.dar
 import '../../features/5_study_session/presentation/screens/sessao_screen.dart';
 import '../../features/6_gamification/presentation/screens/trofeus_screen.dart';
 import '../../features/7_ai_tools/presentation/screens/ia_tools_screen.dart';
-import '../../features/7_ai_tools/presentation/screens/flashcards_screen.dart';
+import '../../features/7_ai_tools/presentation/screens/flashcards_screen_new.dart';
 import '../../features/7_ai_tools/presentation/screens/resumos_screen.dart';
 import '../../features/7_ai_tools/presentation/screens/questoes_screen.dart';
 import '../../features/7_ai_tools/presentation/screens/mapas_mentais_screen.dart';
 import '../../features/9_settings/presentation/screens/settings_screen.dart';
 import '../../features/9_settings/presentation/screens/audio_explanation_settings_screen.dart';
+import '../../features/8_mercado/presentation/screens/adicionar_recompensa_screen.dart';
+import '../../features/8_mercado/presentation/screens/historico_moedas_screen.dart';
 
 class AppRouter {
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -92,8 +94,8 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => TrofeusScreen());
 
       // Rotas de ferramentas IA
-      case '/ia':
-        return MaterialPageRoute(builder: (_) => IAToolsScreen());
+      case '/ferramentas':
+        return MaterialPageRoute(builder: (_) => DashboardScreen(initialTabIndex: 4));
       case '/flashcards':
         return MaterialPageRoute(builder: (_) => FlashcardsScreen());
       case '/resumos':
@@ -102,6 +104,14 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => QuestoesScreen());
       case '/mapas_mentais':
         return MaterialPageRoute(builder: (_) => MapasMentaisScreen());
+
+      // Rotas do Mercado Aprovação
+      case '/mercado':
+        return MaterialPageRoute(builder: (_) => DashboardScreen(initialTabIndex: 5));
+      case '/mercado/adicionar':
+        return MaterialPageRoute(builder: (_) => AdicionarRecompensaScreen());
+      case '/mercado/historico':
+        return MaterialPageRoute(builder: (_) => HistoricoMoedasScreen());
 
       // Configurações
       case '/settings':

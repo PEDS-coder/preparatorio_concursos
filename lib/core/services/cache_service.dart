@@ -144,4 +144,42 @@ class CacheService {
       return [];
     }
   }
+
+  // Obter todas as chaves de cache
+  Future<List<String>> getAllCacheKeys() async {
+    if (!_initialized) await init();
+    if (_cacheDir == null) return [];
+
+    try {
+      final files = await _cacheDir!.list().toList();
+      return files
+          .where((file) => file.path.endsWith('.json'))
+          .map((file) => file.path.split('/').last.replaceAll('.json', ''))
+          .toList();
+    } catch (e) {
+      debugPrint('Erro ao obter chaves de cache: $e');
+      return [];
+    }
+  }
+
+  // Obter conteúdo do cache a partir da chave
+  Future<String?> getRawCache(String cacheKey) async {
+    if (!_initialized) await init();
+    if (_cacheDir == null) return null;
+
+    try {
+      final cacheFile = File('${_cacheDir!.path}/$cacheKey.json');
+
+      if (await cacheFile.exists()) {
+        final cacheData = jsonDecode(await cacheFile.readAsString());
+        debugPrint('Resultado recuperado do cache: ${cacheFile.path}');
+        return cacheData['result'];
+      }
+
+      return null;
+    } catch (e) {
+      debugPrint('Erro ao recuperar do cache: $e');
+      return null;
+    }
+  }
 }
