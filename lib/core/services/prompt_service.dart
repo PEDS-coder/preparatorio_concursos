@@ -14,6 +14,10 @@ class PromptService {
 
   /// Carrega um prompt a partir do arquivo especificado
   Future<String> loadPrompt(String promptPath) async {
+    // Limpar o cache para garantir que sempre carregue a versão mais recente
+    // Comentar esta linha em produção para melhorar o desempenho
+    _promptCache.clear();
+
     // Verificar se o prompt já está em cache
     if (_promptCache.containsKey(promptPath)) {
       return _promptCache[promptPath]!;
@@ -51,6 +55,21 @@ class PromptService {
   /// Carrega um prompt para análise de edital em formato YAML
   Future<String> loadYamlEditalAnalysisPrompt() async {
     return await loadPrompt('lib/core/prompts/edital_analysis/yaml_prompt.txt');
+  }
+
+  /// Carrega um prompt para análise direta de PDF de edital
+  Future<String> loadPdfEditalAnalysisPrompt() async {
+    return await loadPrompt('lib/core/prompts/edital_analysis/pdf_prompt.txt');
+  }
+
+  /// Carrega um prompt para extração de informações básicas do edital
+  Future<String> loadBasicInfoEditalPrompt() async {
+    return await loadPrompt('lib/core/prompts/edital_analysis/basic_info_prompt.txt');
+  }
+
+  /// Carrega um prompt para extração de conteúdo programático de um cargo específico
+  Future<String> loadContentEditalPrompt() async {
+    return await loadPrompt('lib/core/prompts/edital_analysis/content_prompt.txt');
   }
 
   /// Carrega um prompt para análise comparativa de edital em texto simples

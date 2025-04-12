@@ -5,9 +5,11 @@ import '../../../../core/auth/auth_service.dart';
 import '../../../../core/data/services/edital_service.dart';
 import '../../../../core/data/services/plano_estudo_service.dart';
 import '../../../../core/data/services/ia_service.dart';
+import '../../../../core/services/audio_explanation_service.dart';
 import '../../../../core/data/models/models.dart';
 import '../../../../core/data/models/edital.dart';
 import '../../../../core/utils/edital_analyzer.dart';
+import '../../../../core/widgets/matrix_rain_animation.dart';
 import 'recompensas_personalizadas.dart';
 
 class PlanoAddScreen extends StatefulWidget {
@@ -97,6 +99,14 @@ class _PlanoAddScreenState extends State<PlanoAddScreen> {
     if (widget.cargoIds != null && widget.cargoIds!.isNotEmpty) {
       _cargosSelecionados = List.from(widget.cargoIds!);
     }
+
+    // Definir respostas como confirmadas automaticamente
+    _respostasConfirmadas = true;
+
+    // Reproduzir explicação da tela de questionário
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<AudioExplanationService>(context, listen: false).playQuestionnaireExplanation();
+    });
   }
 
   // Verifica se a API LLM está configurada
@@ -370,10 +380,10 @@ class _PlanoAddScreenState extends State<PlanoAddScreen> {
         // Pequeno delay para mostrar a mensagem antes de redirecionar
         await Future.delayed(Duration(milliseconds: 500));
 
-        // Navegar para a tela de calendário
+        // Navegar para a tela de resumo do plano
         Navigator.pushReplacementNamed(
           context,
-          '/plano/calendario',
+          '/plano/resumo',
           arguments: plano.id,
         );
       } catch (e) {
@@ -462,10 +472,10 @@ class _PlanoAddScreenState extends State<PlanoAddScreen> {
         // Registrar atividade de gamificação
         // (Isso seria feito através do GamificacaoService em um app real)
 
-        // Navegar para a tela de calendário
+        // Navegar para a tela de resumo do plano
         Navigator.pushReplacementNamed(
           context,
-          '/plano/calendario',
+          '/plano/resumo',
           arguments: plano.id,
         );
 
@@ -515,43 +525,27 @@ class _PlanoAddScreenState extends State<PlanoAddScreen> {
 
   Widget _buildProgressOverlay() {
     return Container(
-      color: Colors.black.withOpacity(0.7),
+      color: Colors.black.withOpacity(0.9),
       child: Center(
         child: Card(
           elevation: 8,
+          color: Colors.black,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          child: Container(
-            width: 300,
-            padding: EdgeInsets.all(24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.auto_awesome,
-                  size: 48,
-                  color: AppTheme.primaryColor,
-                ),
-                SizedBox(height: 16),
-                Text(
-                  'Gerando Plano de Estudo',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(height: 8),
-                Text(
-                  _progressMessage,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 14),
-                ),
-                SizedBox(height: 24),
-                LinearProgressIndicator(value: _progressValue),
-                SizedBox(height: 8),
-                Text(
-                  '${(_progressValue * 100).toStringAsFixed(0)}%',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
+          child: Padding(
+            padding: EdgeInsets.all(4),
+            child: MatrixRainAnimation(
+              width: 350,
+              height: 300,
+              primaryColor: AppTheme.primaryColor,
+              secondaryColor: AppTheme.accentColor,
+              message: 'Gerando Plano de Estudo',
+              statusMessages: [
+                'Analisando conteúdo programático...',
+                'Identificando matérias prioritárias...',
+                'Calculando distribuição de horas...',
+                'Organizando cronograma semanal...',
+                'Definindo estratégias de estudo...',
+                'Gerando plano personalizado...',
               ],
             ),
           ),
@@ -728,77 +722,46 @@ class _PlanoAddScreenState extends State<PlanoAddScreen> {
 
             // Botões de ação
             SizedBox(height: 32),
-            Row(
-              children: [
-                // Botão de confirmar respostas
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: _isLoading || _respostasConfirmadas ? null : _confirmarRespostas,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-                      padding: EdgeInsets.symmetric(vertical: 16),
-                      disabledBackgroundColor: Colors.grey.shade300,
-                    ),
-                    child: _isLoading
-                        ? CircularProgressIndicator(color: Colors.white)
-                        : Text(
-                            'Confirmar Respostas',
-                            style: TextStyle(fontSize: 16),
-                          ),
-                  ),
-                ),
-                SizedBox(width: 16),
-                // Botão de configurar API LLM
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: _isLoading || !_respostasConfirmadas ? null : _configurarApiLLM,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.primaryColor,
-                      padding: EdgeInsets.symmetric(vertical: 16),
-                      disabledBackgroundColor: Colors.grey.shade300,
-                    ),
-                    child: Text(
-                      'Configurar API LLM',
-                      style: TextStyle(fontSize: 16),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-
-            // Botão de gerar plano (aparece após configurar API LLM)
-            if (_isApiLlmConfigured && _respostasConfirmadas && edital != null) ...[
-              SizedBox(height: 16),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: _isLoading ? null : () => _gerarPlanoEstudoIA(edital),
-                  icon: Icon(Icons.auto_awesome),
-                  label: Text('Gerar Plano de Estudo com IA'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                    padding: EdgeInsets.symmetric(vertical: 16),
-                    disabledBackgroundColor: Colors.grey.shade300,
-                  ),
-                ),
-              ),
-            ],
-
-            // Botão de cancelar
-            SizedBox(height: 16),
-            Container(
+            // Botão de confirmar respostas
+            SizedBox(
               width: double.infinity,
-              child: OutlinedButton(
+              child: ElevatedButton(
                 onPressed: _isLoading ? null : () {
-                  Navigator.pop(context);
+                  if (_validarFormulario()) {
+                    // Verificar se a API LLM está configurada
+                    final iaService = Provider.of<IAService>(context, listen: false);
+                    if (iaService.isConfigured) {
+                      // Gerar plano de estudo automaticamente
+                      if (edital != null) {
+                        _gerarPlanoEstudoIA(edital);
+                      }
+                    } else {
+                      // Mostrar mensagem de erro
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Configure a API LLM nas configurações do aplicativo antes de continuar.'),
+                          backgroundColor: Colors.red,
+                          duration: Duration(seconds: 3),
+                        ),
+                      );
+                    }
+                  }
                 },
-                style: OutlinedButton.styleFrom(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
                   padding: EdgeInsets.symmetric(vertical: 16),
-                  side: BorderSide(color: AppTheme.primaryColor),
+                  disabledBackgroundColor: Colors.grey.shade300,
                 ),
-                child: Text('Cancelar'),
+                child: _isLoading
+                    ? CircularProgressIndicator(color: Colors.white)
+                    : Text(
+                        'Confirmar Respostas',
+                        style: TextStyle(fontSize: 16),
+                      ),
               ),
             ),
+
+            // Botão de cancelar removido
           ],
         ),
       ),
@@ -951,7 +914,7 @@ class _PlanoAddScreenState extends State<PlanoAddScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Recompensas Diárias',
+          'Recompensas Pequenas',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         SizedBox(height: 8),
@@ -959,7 +922,7 @@ class _PlanoAddScreenState extends State<PlanoAddScreen> {
         SizedBox(height: 16),
 
         Text(
-          'Recompensas Semanais',
+          'Recompensas Médias',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         SizedBox(height: 8),
@@ -967,7 +930,7 @@ class _PlanoAddScreenState extends State<PlanoAddScreen> {
         SizedBox(height: 16),
 
         Text(
-          'Recompensas Mensais',
+          'Recompensas Grandes',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         SizedBox(height: 8),
@@ -1334,10 +1297,10 @@ class _PlanoAddScreenState extends State<PlanoAddScreen> {
           recompensas,
         );
 
-        // Navegar para a tela de calendário
+        // Navegar para a tela de resumo do plano
         Navigator.pushReplacementNamed(
           context,
-          '/plano/calendario',
+          '/plano/resumo',
           arguments: plano.id,
         );
 

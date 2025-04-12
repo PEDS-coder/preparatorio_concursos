@@ -6,6 +6,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/data/services/ia_service.dart';
 import '../../../../core/services/api_config_service.dart';
+import '../../../../core/services/audio_explanation_service.dart';
 import 'api_info_screen.dart';
 
 class ApiKeyConfigScreen extends StatefulWidget {
@@ -24,6 +25,19 @@ class _ApiKeyConfigScreenState extends State<ApiKeyConfigScreen> {
   void initState() {
     super.initState();
     _loadSavedApiKey();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // Reproduzir explicação da tela de configuração da API
+    Future.delayed(Duration(milliseconds: 500), () {
+      print('Tentando reproduzir áudio da tela de configuração da API');
+      final audioService = Provider.of<AudioExplanationService>(context, listen: false);
+      audioService.playApiConfigExplanation();
+      print('Chamada para reproduzir áudio da API concluída');
+    });
   }
 
   @override
@@ -189,50 +203,14 @@ class _ApiKeyConfigScreenState extends State<ApiKeyConfigScreen> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => ApiInfoScreen(
-                    title: 'Sobre as APIs',
-                    content: '''
-# APIs de Inteligência Artificial
-
-Este aplicativo utiliza APIs de IA para análise de editais e geração de conteúdo personalizado.
-
-## Google Gemini API
-
-A API Gemini é a mais recomendada por oferecer excelente qualidade e custo-benefício.
-
-### Como obter uma chave:
-1. Visite [ai.google.dev](https://ai.google.dev)
-2. Crie uma conta Google (se ainda não tiver)
-3. Obtenha uma chave API gratuita (crédito inicial de \$10)
-4. Copie a chave API para o campo "Chave da API"
-
-## OpenRouter API
-
-A API OpenRouter oferece acesso unificado a centenas de modelos de IA.
-
-### Como obter uma chave:
-1. Visite [openrouter.ai](https://openrouter.ai)
-2. Crie uma conta
-3. Compre créditos para usar com qualquer modelo
-4. Gere uma chave API (começa com "sk-")
-5. Copie a chave API para o campo "Chave da API"
-
-## Requestry API
-
-A API Requestry oferece roteamento inteligente para modelos de IA.
-
-### Como obter uma chave:
-1. Visite [requesty.ai](https://app.requesty.ai/sign-up)
-2. Crie uma conta
-3. Obtenha \$6 em créditos gratuitos
-4. Gere uma chave API (começa com "sk-")
-5. Copie a chave API para o campo "Chave da API"
-
-## Configuração:
-
-1. Escolha o tipo de API (Gemini, OpenRouter ou Requestry)
-2. Insira sua chave API no campo "Chave da API"
-3. Clique em "Validar e Salvar" para testar e salvar sua chave
-                    ''',
+                    title: 'Como Gerar Uma Chave API',
+                    content: 'Para gerar uma chave API gratuitamente, abra o navegador no site aistudio.google.com.\nFaça o login com sua conta google e siga as instruções abaixo:',
+                    imageAssets: [
+                      'assets/images/gemini_api_steps/step1.png',
+                      'assets/images/gemini_api_steps/step2.png',
+                      'assets/images/gemini_api_steps/step3.png',
+                      'assets/images/gemini_api_steps/step4.png',
+                    ],
                   ),
                 ),
               );
@@ -423,7 +401,7 @@ A API Requestry oferece roteamento inteligente para modelos de IA.
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Sobre as APIs',
+                          'Como Gerar Uma Chave API',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -432,7 +410,7 @@ A API Requestry oferece roteamento inteligente para modelos de IA.
                         ),
                         SizedBox(height: 8),
                         Text(
-                          'Este aplicativo utiliza APIs de IA para análise de editais e geração de conteúdo personalizado.',
+                          'Para gerar uma chave API gratuitamente, abra o navegador no site aistudio.google.com.',
                           style: TextStyle(
                             fontSize: 14,
                             color: isDarkMode ? Colors.white70 : Colors.black54,
@@ -440,52 +418,62 @@ A API Requestry oferece roteamento inteligente para modelos de IA.
                         ),
                         SizedBox(height: 12),
                         Text(
-                          'A API Gemini é a mais recomendada por oferecer excelente qualidade e custo-benefício.',
+                          'Faça o login com sua conta Google e siga as instruções no botão abaixo.',
                           style: TextStyle(
                             fontSize: 14,
                             color: isDarkMode ? Colors.white70 : Colors.black54,
                           ),
                         ),
                         SizedBox(height: 16),
+                        // Botão para limpar o cache
+                        ElevatedButton(
+                          onPressed: () async {
+                            final iaService = Provider.of<IAService>(context, listen: false);
+                            final result = await iaService.clearCache();
+
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(result ? 'Cache limpo com sucesso!' : 'Erro ao limpar o cache'),
+                                backgroundColor: result ? Colors.green : Colors.red,
+                                duration: Duration(seconds: 2),
+                              ),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.orange,
+                            padding: EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.cleaning_services, color: Colors.white),
+                              SizedBox(width: 8),
+                              Text(
+                                'Limpar Cache de Análises',
+                                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(height: 16),
+                        // Botão de ajuda
                         ElevatedButton(
                           onPressed: () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => ApiInfoScreen(
-                                  title: 'Sobre as APIs',
-                                  content: '''
-# APIs de Inteligência Artificial
-
-Este aplicativo utiliza APIs de IA para análise de editais e geração de conteúdo personalizado.
-
-## Google Gemini API
-
-A API Gemini é a mais recomendada por oferecer excelente qualidade e custo-benefício.
-
-### Como obter uma chave:
-1. Visite [ai.google.dev](https://ai.google.dev)
-2. Crie uma conta Google (se ainda não tiver)
-3. Obtenha uma chave API gratuita (crédito inicial de \$10)
-4. Copie a chave API para o campo "Chave da API"
-
-## OpenAI API
-
-A API da OpenAI (GPT-4) também é suportada, mas tem um custo mais elevado.
-
-### Como obter uma chave:
-1. Visite [platform.openai.com](https://platform.openai.com)
-2. Crie uma conta OpenAI
-3. Adicione um método de pagamento
-4. Gere uma chave API
-5. Copie a chave API para o campo "Chave da API"
-
-## Configuração:
-
-1. Escolha o tipo de API (Gemini ou OpenAI)
-2. Insira sua chave API no campo "Chave da API"
-3. Clique em "Validar e Salvar" para testar e salvar sua chave
-                                ''',
+                                  title: 'Como Gerar Uma Chave API',
+                                  content: 'Para gerar uma chave API gratuitamente, abra o navegador no site aistudio.google.com.\nFaça o login com sua conta google e siga as instruções abaixo:',
+                                  imageAssets: [
+                                    'assets/images/gemini_api_steps/step1.png',
+                                    'assets/images/gemini_api_steps/step2.png',
+                                    'assets/images/gemini_api_steps/step3.png',
+                                    'assets/images/gemini_api_steps/step4.png',
+                                  ],
                                 ),
                               ),
                             );
@@ -497,7 +485,7 @@ A API da OpenAI (GPT-4) também é suportada, mas tem um custo mais elevado.
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          child: Text('Mais Informações'),
+                          child: Text('Ver Instruções'),
                         ),
                       ],
                     ),

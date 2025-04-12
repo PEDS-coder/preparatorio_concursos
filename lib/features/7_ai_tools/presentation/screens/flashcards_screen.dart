@@ -11,6 +11,10 @@ import '../../../../core/widgets/document_upload_widget.dart';
 import '../../../../core/services/document_classifier_service.dart';
 
 class FlashcardsScreen extends StatefulWidget {
+  final bool showBottomNavigationBar;
+
+  const FlashcardsScreen({this.showBottomNavigationBar = true});
+
   @override
   _FlashcardsScreenState createState() => _FlashcardsScreenState();
 }
@@ -149,7 +153,7 @@ class _FlashcardsScreenState extends State<FlashcardsScreen> {
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
-      bottomNavigationBar: _buildBottomNavigationBar(context),
+      bottomNavigationBar: widget.showBottomNavigationBar ? _buildBottomNavigationBar(context) : null,
       body: !isPremium
           ? _buildPremiumRequired()
           : SingleChildScrollView(

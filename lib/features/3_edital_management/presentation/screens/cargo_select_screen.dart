@@ -1,10 +1,19 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/auth/auth_service.dart';
 import '../../../../core/data/services/edital_service.dart';
+import '../../../../core/data/services/ia_service.dart';
+import '../../../../core/services/audio_explanation_service.dart';
 import '../../../../core/data/models/models.dart';
 import '../../../../core/data/models/edital.dart';
+import '../../../../core/utils/edital_analyzer.dart';
+import '../../../../core/widgets/matrix_rain_animation.dart';
+import 'edital_analysis_view_screen.dart';
 
 class CargoSelectScreen extends StatefulWidget {
   final String editalId;
@@ -21,6 +30,22 @@ class _CargoSelectScreenState extends State<CargoSelectScreen> {
   List<String> _cargosSelecionados = [];
   bool _isLoading = false;
   String? _errorMessage;
+  String _progressMessage = 'Preparando plano de estudo...';
+  double _progressValue = 0.0;
+
+  // Controle para os botões pop-up
+  bool _showPopupButtons = false;
+  String? _lastSelectedCargo;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Reproduzir explicação da tela de seleção de cargo
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<AudioExplanationService>(context, listen: false).playCargoSelectExplanation();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,6 +64,44 @@ class _CargoSelectScreenState extends State<CargoSelectScreen> {
       );
     }
 
+    // Mostrar overlay de loading com animação matrix quando estiver carregando
+    if (_isLoading) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text('Selecionar Cargo'),
+          backgroundColor: AppTheme.primaryColor,
+        ),
+        body: Container(
+          color: Colors.black.withOpacity(0.9),
+          child: Center(
+            child: Card(
+              elevation: 8,
+              color: Colors.black,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              child: Padding(
+                padding: EdgeInsets.all(4),
+                child: MatrixRainAnimation(
+                  width: 350,
+                  height: 300,
+                  primaryColor: AppTheme.primaryColor,
+                  secondaryColor: AppTheme.accentColor,
+                  message: 'Preparando Plano de Estudo',
+                  statusMessages: [
+                    'Verificando compatibilidade de datas...',
+                    'Extraindo conteúdo programático...',
+                    'Analisando matérias do cargo...',
+                    'Organizando assuntos por disciplina...',
+                    'Preparando plano personalizado...',
+                    _progressMessage,
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
     // Obter dados originais extraídos pela IA
     final Map<String, dynamic>? dadosOriginais = edital.dadosOriginais;
 
@@ -46,6 +109,25 @@ class _CargoSelectScreenState extends State<CargoSelectScreen> {
       appBar: AppBar(
         title: Text('Selecionar Cargo'),
         backgroundColor: AppTheme.primaryColor,
+        actions: [
+          if (_cargosSelecionados.isNotEmpty)
+            IconButton(
+              icon: Icon(Icons.visibility),
+              onPressed: () {
+                // Navegar para a tela de visualização do edital com os cargos selecionados
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => EditalAnalysisViewScreen(
+                      editalId: widget.editalId,
+                      cargosSelecionados: _cargosSelecionados,
+                    ),
+                  ),
+                );
+              },
+              tooltip: 'Visualizar Edital',
+            ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(24),
@@ -71,7 +153,7 @@ class _CargoSelectScreenState extends State<CargoSelectScreen> {
             ),
             SizedBox(height: 24),
 
-            // Informações do edital
+            // Instruções para seleção de cargo
             Container(
               padding: EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -79,23 +161,19 @@ class _CargoSelectScreenState extends State<CargoSelectScreen> {
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(color: Colors.blue.shade200),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              child: Row(
                 children: [
-                  Text(
-                    'Informações do Edital',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: AppTheme.primaryColor,
+                  Icon(Icons.info_outline, color: Colors.blue.shade700),
+                  SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'Selecione o cargo para o qual deseja se preparar. Após a seleção, você poderá ver o conteúdo programático detalhado e criar seu plano de estudos personalizado.',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.blue.shade900,
+                      ),
                     ),
                   ),
-                  SizedBox(height: 8),
-                  _buildEditalInfo('Órgão', _extrairOrgao(dadosOriginais)),
-                  _buildEditalInfo('Banca', dadosOriginais?['banca'] ?? 'Não especificado'),
-                  _buildEditalInfo('Inscrições', _formatarPeriodoInscricao(dadosOriginais)),
-                  _buildEditalInfo('Data da Prova', _formatarDataProva(dadosOriginais)),
-                  _buildEditalInfo('Local da Prova', _extrairLocalProva(dadosOriginais)),
                 ],
               ),
             ),
@@ -145,237 +223,49 @@ class _CargoSelectScreenState extends State<CargoSelectScreen> {
                 ),
               ),
 
-            // Botão de continuar
-            SizedBox(height: 32),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _cargosSelecionados.isEmpty || _isLoading
-                    ? null
-                    : _continuarParaPlanoEstudo,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.primaryColor,
-                  padding: EdgeInsets.symmetric(vertical: 16),
-                  disabledBackgroundColor: Colors.grey.shade300,
+            // Os botões pop-up foram movidos para dentro da caixa do cargo selecionado
+
+            // Indicador de progresso quando estiver carregando
+            if (_isLoading)
+              Container(
+                margin: EdgeInsets.only(top: 24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    LinearProgressIndicator(
+                      value: _progressValue > 0 ? _progressValue : null,
+                      backgroundColor: Colors.grey.shade200,
+                      valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
+                      minHeight: 6,
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      _progressMessage.isNotEmpty ? _progressMessage : 'Processando...',
+                      style: TextStyle(fontSize: 14),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
                 ),
-                child: _isLoading
-                    ? CircularProgressIndicator(color: Colors.white)
-                    : Text(
-                        'Continuar para Plano de Estudo',
-                        style: TextStyle(fontSize: 16),
-                      ),
               ),
-            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildEditalInfo(String label, String value) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: 8),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 100,
-            child: Text(
-              '$label:',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Colors.grey.shade800,
-              ),
-            ),
-          ),
-          Expanded(
-            child: Text(
-              value,
-              style: TextStyle(
-                color: Colors.grey.shade800,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  // Método removido pois não é mais necessário na tela de seleção de cargo
 
-  String _extrairOrgao(Map<String, dynamic>? dados) {
-    if (dados == null) return 'Não especificado';
+  // Método removido pois não é mais necessário na tela de seleção de cargo
 
-    // Verificar formato de órgão responsável
-    if (dados.containsKey('orgao_responsavel')) {
-      if (dados['orgao_responsavel'] is Map && dados['orgao_responsavel'].containsKey('value')) {
-        return dados['orgao_responsavel']['value'].toString();
-      } else {
-        return dados['orgao_responsavel'].toString();
-      }
-    }
+  // Métodos removidos pois não são mais necessários na tela de seleção de cargo
 
-    // Verificar formatos alternativos
-    if (dados.containsKey('orgao')) {
-      if (dados['orgao'] is Map && dados['orgao'].containsKey('value')) {
-        return dados['orgao']['value'].toString();
-      } else {
-        return dados['orgao'].toString();
-      }
-    }
+  // Método removido pois não é mais necessário na tela de seleção de cargo
 
-    if (dados.containsKey('titulo_concurso')) {
-      if (dados['titulo_concurso'] is Map && dados['titulo_concurso'].containsKey('value')) {
-        String titulo = dados['titulo_concurso']['value'].toString();
-        // Tentar extrair o órgão do título
-        if (titulo.contains('CONSELHO REGIONAL DE MEDICINA')) {
-          return 'CONSELHO REGIONAL DE MEDICINA DO ESTADO DE RORAIMA';
-        }
-      }
-    }
+  // Método removido pois não é mais necessário na tela de seleção de cargo
 
-    return 'Não especificado';
-  }
+  // Método removido pois não é mais necessário na tela de seleção de cargo
 
-  // Formatar data de formato extenso para DD/MM/AAAA
-  String _formatarDataParaDDMMAAAA(String dataStr) {
-    // Formato por extenso: "22 de novembro de 2021"
-    final RegExp regexData = RegExp(r'(\d+)\s+de\s+(\w+)\s+de\s+(\d+)');
-    final match = regexData.firstMatch(dataStr);
-
-    if (match != null && match.groupCount >= 3) {
-      final dia = match.group(1)!.padLeft(2, '0');
-      final mes = _converterMesParaNumero(match.group(2)!).toString().padLeft(2, '0');
-      final ano = match.group(3)!;
-
-      return '$dia/$mes/$ano';
-    }
-
-    return dataStr;
-  }
-
-  // Converter nome do mês para número
-  int _converterMesParaNumero(String nomeMes) {
-    final meses = {
-      'janeiro': 1, 'fevereiro': 2, 'março': 3, 'abril': 4,
-      'maio': 5, 'junho': 6, 'julho': 7, 'agosto': 8,
-      'setembro': 9, 'outubro': 10, 'novembro': 11, 'dezembro': 12
-    };
-
-    return meses[nomeMes.toLowerCase()] ?? 1;
-  }
-
-  String _formatarPeriodoInscricao(Map<String, dynamic>? dados) {
-    if (dados == null) return 'Não especificado';
-
-    // Verificar formato de período de inscrições
-    if (dados.containsKey('periodo_inscricoes')) {
-      final periodoMap = dados['periodo_inscricoes'] as Map<String, dynamic>;
-      if (periodoMap.containsKey('inicio') && periodoMap.containsKey('fim')) {
-        String inicio = '';
-        String fim = '';
-
-        // Extrair data de início
-        if (periodoMap['inicio'] is Map && periodoMap['inicio'].containsKey('value')) {
-          inicio = periodoMap['inicio']['value'].toString();
-          // Converter para formato DD/MM/AAAA
-          inicio = _formatarDataParaDDMMAAAA(inicio);
-        } else {
-          inicio = periodoMap['inicio'].toString();
-        }
-
-        // Extrair data de fim
-        if (periodoMap['fim'] is Map && periodoMap['fim'].containsKey('value')) {
-          fim = periodoMap['fim']['value'].toString();
-          // Converter para formato DD/MM/AAAA
-          fim = _formatarDataParaDDMMAAAA(fim);
-        } else {
-          fim = periodoMap['fim'].toString();
-        }
-
-        return '$inicio a $fim';
-      }
-    }
-
-    // Verificar formato alternativo
-    if (dados.containsKey('inicioInscricao') && dados.containsKey('fimInscricao')) {
-      String inicio = dados['inicioInscricao'].toString();
-      String fim = dados['fimInscricao'].toString();
-      return '$inicio a $fim';
-    }
-
-    return 'Não especificado';
-  }
-
-  String _extrairLocalProva(Map<String, dynamic>? dados) {
-    if (dados == null) return 'Não especificado';
-
-    // Verificar formato de local de prova
-    if (dados.containsKey('local_prova')) {
-      if (dados['local_prova'] is Map && dados['local_prova'].containsKey('value')) {
-        return dados['local_prova']['value'].toString();
-      } else {
-        return dados['local_prova'].toString();
-      }
-    }
-
-    // Verificar formato alternativo
-    if (dados.containsKey('localProva') && dados['localProva'] != null) {
-      return dados['localProva'].toString();
-    }
-
-    // Verificar se há informação de cidade
-    if (dados.containsKey('cidade_prova')) {
-      if (dados['cidade_prova'] is Map && dados['cidade_prova'].containsKey('value')) {
-        return dados['cidade_prova']['value'].toString();
-      } else {
-        return dados['cidade_prova'].toString();
-      }
-    }
-
-    // Caso específico para o edital do CRM-RR
-    return 'Boa Vista-RR';
-  }
-
-  String _formatarDataProva(Map<String, dynamic>? dados) {
-    if (dados == null) return 'Não especificado';
-
-    // Verificar se há datas de prova no formato de lista
-    if (dados.containsKey('data_provas')) {
-      if (dados['data_provas'] is Map && dados['data_provas'].containsKey('list')) {
-        // Formato especial do conversor YAML
-        final list = dados['data_provas']['list'] as List;
-        if (list.isNotEmpty) {
-          if (list.first is Map && list.first.containsKey('value')) {
-            String dataStr = list.first['value'].toString();
-            return _formatarDataParaDDMMAAAA(dataStr);
-          } else {
-            String dataStr = list.first.toString();
-            return _formatarDataParaDDMMAAAA(dataStr);
-          }
-        }
-      } else if (dados['data_provas'] is List && (dados['data_provas'] as List).isNotEmpty) {
-        final datasList = dados['data_provas'] as List;
-        String dataStr = datasList.first.toString();
-        return _formatarDataParaDDMMAAAA(dataStr);
-      } else if (dados['data_provas'] is String) {
-        String dataStr = dados['data_provas'].toString();
-        return _formatarDataParaDDMMAAAA(dataStr);
-      }
-    }
-
-    // Verificar formato alternativo
-    if (dados.containsKey('dataProva') && dados['dataProva'] != null) {
-      String dataStr = dados['dataProva'].toString();
-      return _formatarDataParaDDMMAAAA(dataStr);
-    }
-
-    // Verificar outro formato alternativo
-    if (dados.containsKey('data_prova') && dados['data_prova'] != null) {
-      String dataStr = dados['data_prova'].toString();
-      return _formatarDataParaDDMMAAAA(dataStr);
-    }
-
-    return 'Não especificado';
-  }
+  // Método removido pois não é mais necessário na tela de seleção de cargo
 
   Widget _buildCargoCard(Cargo cargo, Edital edital) {
     // Usar o nome do cargo como identificador único para evitar problemas com IDs gerados dinamicamente
@@ -395,28 +285,39 @@ class _CargoSelectScreenState extends State<CargoSelectScreen> {
       color: isSelecionado ? Colors.blue.shade50 : Colors.white,
       child: InkWell(
         onTap: () {
-          setState(() {
-            if (isSelecionado) {
+          if (isSelecionado) {
+            setState(() {
               _cargosSelecionados.remove(cargo.id);
               _cargosSelecionados.remove(cargoIdentifier);
-            } else {
-              // Permitir seleção de múltiplos cargos
-              // Verificar se as datas de prova não colidem
-              if (_verificarCompatibilidadeDatas(cargo)) {
+              _showPopupButtons = false;
+              _lastSelectedCargo = null;
+            });
+          } else {
+            // Permitir seleção de múltiplos cargos
+            // Verificar se as datas de prova não colidem
+            if (_verificarCompatibilidadeDatas(cargo)) {
+              setState(() {
+                // Limpar seleção anterior se houver
+                if (_lastSelectedCargo != null && _lastSelectedCargo != cargoIdentifier) {
+                  _cargosSelecionados.clear();
+                }
+
                 // Usar o nome do cargo como identificador estável
                 _cargosSelecionados.add(cargoIdentifier);
-              } else {
-                // Mostrar mensagem de erro
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Este cargo tem data de prova que conflita com outro cargo já selecionado.'),
-                    backgroundColor: Colors.red,
-                    duration: Duration(seconds: 3),
-                  ),
-                );
-              }
+                _showPopupButtons = true;
+                _lastSelectedCargo = cargoIdentifier;
+              });
+            } else {
+              // Mostrar mensagem de erro
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Este cargo tem data de prova que conflita com outro cargo já selecionado.'),
+                  backgroundColor: Colors.red,
+                  duration: Duration(seconds: 3),
+                ),
+              );
             }
-          });
+          }
         },
         borderRadius: BorderRadius.circular(12),
         child: Padding(
@@ -443,38 +344,130 @@ class _CargoSelectScreenState extends State<CargoSelectScreen> {
                     ),
                 ],
               ),
+
+              // Botões pop-up quando o cargo está selecionado
+              if (isSelecionado && _showPopupButtons)
+                Container(
+                  margin: EdgeInsets.only(top: 16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      // Botão para adicionar mais cargos
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: () {
+                            setState(() {
+                              _showPopupButtons = false;
+                            });
+                          },
+                          icon: Icon(Icons.add_circle_outline, size: 16),
+                          label: Text('Adicionar Mais', style: TextStyle(fontSize: 12)),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.amber.shade600,
+                            foregroundColor: Colors.white,
+                            padding: EdgeInsets.symmetric(vertical: 8),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 8),
+                      // Botão para continuar para o plano de estudo
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: _isLoading ? null : _continuarParaPlanoEstudo,
+                          icon: Icon(Icons.arrow_forward, size: 16),
+                          label: Text('Criar Plano', style: TextStyle(fontSize: 12)),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppTheme.primaryColor,
+                            foregroundColor: Colors.white,
+                            padding: EdgeInsets.symmetric(vertical: 8),
+                            disabledBackgroundColor: Colors.grey.shade300,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               SizedBox(height: 12),
               _buildCargoInfoItem('Vagas', _formatarVagas(cargo, edital), Icons.people),
               _buildCargoInfoItem('Salário', 'R\$ ${_formatarSalario(cargo.salario)}', Icons.attach_money),
               _buildCargoInfoItem('Escolaridade', cargo.escolaridade, Icons.school),
               SizedBox(height: 16),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(
-                  color: Colors.blue.shade100,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Row(
+              if (isSelecionado && cargo.conteudoProgramatico.isNotEmpty)
+                ExpansionTile(
+                  title: Text(
+                    'Conteúdo Programático',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.green.shade900,
+                    ),
+                  ),
+                  leading: Icon(Icons.menu_book, color: Colors.green.shade800),
+                  backgroundColor: Colors.green.shade50,
+                  collapsedBackgroundColor: Colors.green.shade100,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                   children: [
-                    Icon(Icons.menu_book, size: 16, color: Colors.blue.shade800),
-                    SizedBox(width: 8),
-                    Text(
-                      'Conteúdo Programático:',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.blue.shade900,
+                    Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: cargo.conteudoProgramatico.map((conteudo) {
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                conteudo.nome,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                  color: AppTheme.primaryColor,
+                                ),
+                              ),
+                              SizedBox(height: 4),
+                              ...conteudo.topicos.map((topico) => Padding(
+                                padding: EdgeInsets.only(left: 16, bottom: 4),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('• ', style: TextStyle(fontWeight: FontWeight.bold)),
+                                    Expanded(child: Text(topico)),
+                                  ],
+                                ),
+                              )).toList(),
+                              SizedBox(height: 12),
+                            ],
+                          );
+                        }).toList(),
                       ),
                     ),
                   ],
+                )
+              else
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Colors.green.shade100,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.info_outline, size: 16, color: Colors.green.shade800),
+                      SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          isSelecionado
+                              ? 'Aguarde enquanto o conteúdo programático é carregado...'
+                              : 'Selecione este cargo para ver o conteúdo programático detalhado',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.green.shade900,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              SizedBox(height: 10),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: _filtrarConteudoProgramatico(cargo, edital).map((materia) {
-                  return _buildMateriaExpandable(materia);
-                }).toList(),
-              ),
             ],
           ),
         ),
@@ -520,26 +513,9 @@ class _CargoSelectScreenState extends State<CargoSelectScreen> {
   }
 
   List<ConteudoProgramatico> _filtrarConteudoProgramatico(Cargo cargo, Edital edital) {
-    // Obter dados originais
-    final Map<String, dynamic>? dadosOriginais = edital.dadosOriginais;
-    // Caso específico para o cargo de Auxiliar de Serviços Gerais do CRM-RR
-    if (cargo.nome.contains('Auxiliar de Serviços Gerais')) {
-      return [
-        ConteudoProgramatico(
-          nome: 'Língua Portuguesa',
-          tipo: 'comum',
-          topicos: ['Interpretação de texto', 'Ortografia', 'Gramática']
-        ),
-        ConteudoProgramatico(
-          nome: 'Raciocínio Lógico',
-          tipo: 'comum',
-          topicos: ['Lógica proposicional', 'Problemas de raciocínio']
-        )
-      ];
-    }
-
-    // Para outros cargos, retornar o conteúdo programatico original
-    return cargo.conteudoProgramatico;
+    // Na tela de seleção de cargo, não exibimos o conteúdo programático
+    // O conteúdo programático detalhado só será exibido após a segunda etapa da análise
+    return [];
   }
 
   String _formatarVagas(Cargo cargo, Edital edital) {
@@ -630,6 +606,25 @@ class _CargoSelectScreenState extends State<CargoSelectScreen> {
     }
 
     // Se não encontrou informações específicas, usar o valor do cargo
+    if (cargo.vagas <= 0) {
+      // Verificar se a escolaridade ou nome do cargo menciona cadastro de reserva
+      if (cargo.escolaridade.toLowerCase().contains('cadastro de reserva') ||
+          cargo.nome.toLowerCase().contains('cadastro de reserva') ||
+          cargo.escolaridade.toLowerCase().contains('cr') ||
+          cargo.nome.toLowerCase().contains('cr')) {
+        return 'Apenas cadastro de reserva';
+      }
+
+      // Verificar se o edital menciona cadastro de reserva para todos os cargos
+      if (edital.textoCompleto != null &&
+          edital.textoCompleto!.toLowerCase().contains('cadastro de reserva')) {
+        return 'Apenas cadastro de reserva';
+      }
+
+      // Se o número de vagas é zero ou negativo, assumir que é cadastro de reserva
+      return 'Apenas cadastro de reserva';
+    }
+
     return '${cargo.vagas}';
   }
 
@@ -821,7 +816,71 @@ class _CargoSelectScreenState extends State<CargoSelectScreen> {
                          cargoSelecionado.dataProva!.day == novoCargo.dataProva!.day;
 
         if (mesmaData) {
-          return false; // Datas colidem
+          // Verificar se há informações de horário nos dados originais
+          bool conflitoPeriodo = true; // Por padrão, considerar conflito se for no mesmo dia
+
+          // Verificar se há informações de horário nos dados originais
+          if (edital.dadosOriginais != null &&
+              edital.dadosOriginais!.containsKey('cargos') &&
+              edital.dadosOriginais!['cargos'] is List) {
+
+            final cargosOriginais = edital.dadosOriginais!['cargos'] as List;
+
+            // Buscar informações de horário para o cargo selecionado
+            Map<dynamic, dynamic>? cargoSelecionadoOriginal;
+            Map<dynamic, dynamic>? novoCargoOriginal;
+
+            for (var cargo in cargosOriginais) {
+              if (cargo is Map) {
+                final nomeCargo = cargo['nome']?.toString() ?? '';
+
+                if (nomeCargo == cargoSelecionado.nome) {
+                  cargoSelecionadoOriginal = cargo as Map<dynamic, dynamic>;
+                }
+
+                if (nomeCargo == novoCargo.nome) {
+                  novoCargoOriginal = cargo as Map<dynamic, dynamic>;
+                }
+              }
+            }
+
+            // Verificar se ambos os cargos têm informações de horário
+            if (cargoSelecionadoOriginal != null && novoCargoOriginal != null) {
+              // Verificar diferentes campos possíveis para horário
+              final camposHorario = ['horario_prova', 'horario', 'periodo_prova', 'periodo', 'turno'];
+
+              String? horarioSelecionado;
+              String? horarioNovo;
+
+              for (var campo in camposHorario) {
+                if (cargoSelecionadoOriginal.containsKey(campo)) {
+                  horarioSelecionado = cargoSelecionadoOriginal[campo]?.toString();
+                }
+
+                if (novoCargoOriginal.containsKey(campo)) {
+                  horarioNovo = novoCargoOriginal[campo]?.toString();
+                }
+              }
+
+              // Se ambos os cargos têm horários definidos, verificar se são diferentes
+              if (horarioSelecionado != null && horarioNovo != null) {
+                // Verificar se os horários são diferentes
+                if (horarioSelecionado != horarioNovo) {
+                  // Verificar se são períodos diferentes (manhã/tarde/noite)
+                  final periodoSelecionado = _identificarPeriodo(horarioSelecionado);
+                  final periodoNovo = _identificarPeriodo(horarioNovo);
+
+                  if (periodoSelecionado != null && periodoNovo != null && periodoSelecionado != periodoNovo) {
+                    conflitoPeriodo = false; // Não há conflito se os períodos são diferentes
+                  }
+                }
+              }
+            }
+          }
+
+          if (conflitoPeriodo) {
+            return false; // Datas colidem no mesmo período
+          }
         }
       }
     }
@@ -829,7 +888,58 @@ class _CargoSelectScreenState extends State<CargoSelectScreen> {
     return true; // Não há conflito
   }
 
-  void _continuarParaPlanoEstudo() {
+  // Identifica o período (manhã, tarde, noite) com base no texto do horário
+  String? _identificarPeriodo(String horario) {
+    final horarioLower = horario.toLowerCase();
+
+    if (horarioLower.contains('manhã') ||
+        horarioLower.contains('manha') ||
+        horarioLower.contains('8h') ||
+        horarioLower.contains('9h') ||
+        horarioLower.contains('10h') ||
+        horarioLower.contains('11h') ||
+        horarioLower.contains('12h') ||
+        horarioLower.contains('08:') ||
+        horarioLower.contains('09:') ||
+        horarioLower.contains('10:') ||
+        horarioLower.contains('11:') ||
+        horarioLower.contains('am')) {
+      return 'manha';
+    }
+
+    if (horarioLower.contains('tarde') ||
+        horarioLower.contains('13h') ||
+        horarioLower.contains('14h') ||
+        horarioLower.contains('15h') ||
+        horarioLower.contains('16h') ||
+        horarioLower.contains('17h') ||
+        horarioLower.contains('13:') ||
+        horarioLower.contains('14:') ||
+        horarioLower.contains('15:') ||
+        horarioLower.contains('16:') ||
+        horarioLower.contains('17:') ||
+        (horarioLower.contains('pm') && !horarioLower.contains('18:') && !horarioLower.contains('19:'))) {
+      return 'tarde';
+    }
+
+    if (horarioLower.contains('noite') ||
+        horarioLower.contains('18h') ||
+        horarioLower.contains('19h') ||
+        horarioLower.contains('20h') ||
+        horarioLower.contains('21h') ||
+        horarioLower.contains('22h') ||
+        horarioLower.contains('18:') ||
+        horarioLower.contains('19:') ||
+        horarioLower.contains('20:') ||
+        horarioLower.contains('21:') ||
+        horarioLower.contains('22:')) {
+      return 'noite';
+    }
+
+    return null; // Não foi possível identificar o período
+  }
+
+  Future<void> _continuarParaPlanoEstudo() async {
     if (_cargosSelecionados.isEmpty) {
       setState(() {
         _errorMessage = 'Selecione pelo menos um cargo para continuar';
@@ -840,16 +950,129 @@ class _CargoSelectScreenState extends State<CargoSelectScreen> {
     setState(() {
       _isLoading = true;
       _errorMessage = null;
+      _progressMessage = 'Verificando compatibilidade de datas...';
+      _progressValue = 0.1;
     });
 
     try {
       // Obter o edital
       final editalService = Provider.of<EditalService>(context, listen: false);
+      final iaService = Provider.of<IAService>(context, listen: false);
       final edital = editalService.getEditalById(widget.editalId);
 
       if (edital == null) {
         throw Exception('Edital não encontrado');
       }
+
+      // Verificar conflito de datas entre os cargos selecionados
+      if (_cargosSelecionados.length > 1) {
+        final List<Cargo> cargosSelecionados = [];
+        for (final cargoNome in _cargosSelecionados) {
+          final cargo = edital.dadosExtraidos.cargos.firstWhere(
+            (c) => c.nome == cargoNome,
+            orElse: () => throw Exception('Cargo não encontrado: $cargoNome'),
+          );
+          cargosSelecionados.add(cargo);
+        }
+
+        final conflitos = _verificarConflitoDatas(cargosSelecionados);
+        if (conflitos.isNotEmpty) {
+          // Mostrar alerta de conflito de datas
+          final result = await showDialog<bool>(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => AlertDialog(
+              title: Text('Conflito de Datas'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Foram detectados conflitos de datas entre os cargos selecionados:'),
+                  SizedBox(height: 8),
+                  ...conflitos.map((conflito) => Padding(
+                    padding: EdgeInsets.only(bottom: 4),
+                    child: Text('- $conflito', style: TextStyle(fontWeight: FontWeight.bold)),
+                  )),
+                  SizedBox(height: 8),
+                  Text('Deseja continuar mesmo assim?'),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context, false),
+                  child: Text('Voltar'),
+                ),
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(context, true),
+                  child: Text('Continuar'),
+                ),
+              ],
+            ),
+          );
+
+          if (result != true) {
+            setState(() {
+              _isLoading = false;
+            });
+            return;
+          }
+        }
+      }
+
+      // Segunda etapa: extrair conteúdo programático para o cargo selecionado
+      if (_cargosSelecionados.length == 1) {
+        setState(() {
+          _progressMessage = 'Extraindo conteúdo programático para o cargo selecionado...';
+          _progressValue = 0.3;
+        });
+
+        // Obter o nome do cargo selecionado
+        final String cargoNome = _cargosSelecionados.first;
+
+        // Obter os bytes do PDF do edital
+        final String? pdfBytesBase64 = edital.dadosOriginais?['pdfBytes'];
+        if (pdfBytesBase64 != null) {
+          // Decodificar os bytes do PDF
+          final Uint8List pdfBytes = base64Decode(pdfBytesBase64);
+
+          // Criar analisador de edital
+          final editalAnalyzer = EditalAnalyzer(
+            iaService: iaService,
+            onProgress: (progress, message) {
+              setState(() {
+                _progressValue = 0.3 + (progress * 0.6); // Mapear o progresso para 30%-90%
+                _progressMessage = message;
+              });
+            },
+          );
+
+          // Extrair conteúdo programático para o cargo selecionado
+          final conteudoProgramatico = await editalAnalyzer.extrairConteudoProgramatico(pdfBytes, cargoNome);
+
+          if (conteudoProgramatico != null) {
+            setState(() {
+              _progressMessage = 'Atualizando conteúdo programático...';
+              _progressValue = 0.9;
+            });
+
+            // Atualizar o conteúdo programático do cargo no edital
+            await editalService.atualizarConteudoProgramaticoCargo(
+              edital.id,
+              cargoNome,
+              conteudoProgramatico,
+            );
+          }
+        }
+      }
+
+      // Mostrar indicador de progresso com animação matrix
+      setState(() {
+        _progressMessage = 'Preparando plano de estudo...';
+        _progressValue = 0.95;
+      });
+
+      // Pequeno delay para mostrar o indicador de progresso
+      await Future.delayed(Duration(milliseconds: 500));
 
       // Navegar para a tela de criação de plano de estudo com todos os cargos selecionados
       Navigator.pushReplacementNamed(
@@ -866,5 +1089,32 @@ class _CargoSelectScreenState extends State<CargoSelectScreen> {
         _errorMessage = 'Erro ao continuar: $e';
       });
     }
+  }
+
+  /// Verifica conflitos de datas entre os cargos selecionados
+  List<String> _verificarConflitoDatas(List<Cargo> cargos) {
+    final List<String> conflitos = [];
+
+    // Verificar conflitos apenas se houver mais de um cargo e se tiverem datas de prova definidas
+    if (cargos.length <= 1) return conflitos;
+
+    // Agrupar cargos por data de prova
+    final Map<String, List<String>> cargosPorData = {};
+
+    for (final cargo in cargos) {
+      if (cargo.dataProva != null) {
+        final dataStr = DateFormat('dd/MM/yyyy').format(cargo.dataProva!);
+        cargosPorData.putIfAbsent(dataStr, () => []).add(cargo.nome);
+      }
+    }
+
+    // Verificar conflitos (mais de um cargo na mesma data)
+    cargosPorData.forEach((data, cargosList) {
+      if (cargosList.length > 1) {
+        conflitos.add('${cargosList.join(' e ')} têm prova na mesma data ($data)');
+      }
+    });
+
+    return conflitos;
   }
 }

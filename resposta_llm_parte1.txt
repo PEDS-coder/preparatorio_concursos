@@ -1,0 +1,10 @@
+titulo_concurso: "CONCURSO PÚBLICO PARA O PROVIMENTO DE VAGAS E A FORMAÇÃO DE CADASTRO DE RESERVA EM CARGOS DE ANALISTA JUDICIÁRIO E DE TÉCNICO JUDICIÁRIO"
+orgao_responsavel: "TRIBUNAL REGIONAL DO TRABALHO DA 10ª REGIÃO (TRT 10)"
+banca_organizadora: "Centro Brasileiro de Pesquisa em Avaliação e Seleção e de Promoção de Eventos (Cebraspe)"
+periodo_inscricoes:
+  data_inicio: "27/12/2024"
+  data_fim: "17/01/2025"
+valor_taxa_inscricao:
+  analista_judiciario: 120.00
+  tecnico_judiciario: 90.00
+local_prova: "Brasília/DF e Palmas/TO"

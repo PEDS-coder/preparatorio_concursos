@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/auth/auth_service.dart';
 import '../../../../core/data/services/ia_service.dart';
 import '../../../../core/services/api_config_service.dart';
+import '../../../../core/services/audio_explanation_service.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/gradient_button.dart';
 import '../../../../core/widgets/styled_text_field.dart';
@@ -19,6 +20,15 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
   bool _isLoading = false;
   String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    // Reproduzir explicação da tela de login
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<AudioExplanationService>(context, listen: false).playLoginExplanation();
+    });
+  }
 
   @override
   void dispose() {

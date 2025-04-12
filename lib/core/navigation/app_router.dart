@@ -13,7 +13,7 @@ import '../../features/3_edital_management/presentation/screens/edital_analyze_s
 import '../../features/3_edital_management/presentation/screens/cargo_select_screen.dart';
 import '../../features/4_study_plan/presentation/screens/plano_add_screen.dart';
 import '../../features/4_study_plan/presentation/screens/plano_details_screen.dart';
-import '../../features/4_study_plan/presentation/screens/plano_calendario_screen.dart';
+import '../../features/4_study_plan/presentation/screens/plano_resumo_screen.dart';
 import '../../features/5_study_session/presentation/screens/sessao_screen.dart';
 import '../../features/6_gamification/presentation/screens/trofeus_screen.dart';
 import '../../features/7_ai_tools/presentation/screens/ia_tools_screen.dart';
@@ -22,6 +22,7 @@ import '../../features/7_ai_tools/presentation/screens/resumos_screen.dart';
 import '../../features/7_ai_tools/presentation/screens/questoes_screen.dart';
 import '../../features/7_ai_tools/presentation/screens/mapas_mentais_screen.dart';
 import '../../features/9_settings/presentation/screens/settings_screen.dart';
+import '../../features/9_settings/presentation/screens/audio_explanation_settings_screen.dart';
 
 class AppRouter {
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -75,8 +76,8 @@ class AppRouter {
         ));
       case '/plano/detalhes':
         return MaterialPageRoute(builder: (_) => PlanoDetailsScreen(planoId: args as String));
-      case '/plano/calendario':
-        return MaterialPageRoute(builder: (_) => PlanoCalendarioScreen(planoId: args as String));
+      case '/plano/resumo':
+        return MaterialPageRoute(builder: (_) => PlanoResumoScreen(planoId: args as String));
 
       // Rotas de sessão de estudo
       case '/sessao':
@@ -105,6 +106,8 @@ class AppRouter {
       // Configurações
       case '/settings':
         return MaterialPageRoute(builder: (_) => SettingsScreen());
+      case '/settings/audio_explanations':
+        return MaterialPageRoute(builder: (_) => AudioExplanationSettingsScreen());
 
       // Rota padrão para rotas não definidas
       default:

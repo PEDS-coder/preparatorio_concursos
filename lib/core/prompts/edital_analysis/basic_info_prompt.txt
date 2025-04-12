@@ -1,0 +1,73 @@
+**Tarefa:** Extrair informações básicas de um edital de concurso público e apresentar o resultado em formato YAML.
+
+**Contexto:** Você está analisando um edital de concurso público. Sua tarefa é extrair as informações essenciais sobre o concurso e os cargos disponíveis, sem incluir o conteúdo programático detalhado.
+
+**Instruções Detalhadas:**
+
+1. **Informações Gerais do Concurso:**
+   - Título/nome do concurso
+   - Órgão responsável
+   - Banca organizadora
+   - Período de inscrições (data de início e fim)
+   - Valor da taxa de inscrição (para cada nível, se houver diferença)
+   - Local das provas
+   - Data das provas (se disponível)
+   - Informações sobre cotas e reserva de vagas (percentuais para negros, PCD, indígenas, etc.)
+
+2. **Informações dos Cargos:**
+   - Liste todos os cargos disponíveis no concurso
+   - Para cada cargo, extraia:
+     - Nome exato do cargo (como aparece no edital)
+     - Número de vagas (se for apenas cadastro de reserva, indique explicitamente)
+     - Salário/remuneração
+     - Requisitos/escolaridade mínima (seja específico sobre o nível: superior, médio, etc.)
+     - Carga horária (se disponível)
+     - Área/especialidade (se aplicável)
+
+3. **Formate a Saída em YAML:**
+   Organize as informações extraídas no seguinte formato YAML:
+
+```yaml
+titulo_concurso: "Nome completo do concurso"
+orgao_responsavel: "Nome do órgão responsável"
+banca_organizadora: "Nome da banca organizadora"
+periodo_inscricoes:
+  inicio: "DD/MM/AAAA"
+  fim: "DD/MM/AAAA"
+taxas_por_nivel:
+  nivel_superior: 00.00
+  nivel_medio: 00.00
+  # Use os nomes específicos dos cargos se as taxas variarem por cargo
+  # Por exemplo: analista: 00.00, tecnico: 00.00
+local_prova: "Locais onde as provas serão realizadas"
+data_provas: "DD/MM/AAAA" # Se disponível
+cotas:
+  negros: 20 # Percentual (apenas o número)
+  pcd: 10 # Percentual para Pessoas com Deficiência
+  indigenas: 5 # Se aplicável
+cargos:
+  - nome: "Nome exato do cargo 1"
+    vagas: 00 # Use 0 para "Cadastro de Reserva"
+    cadastro_reserva: true # Adicione este campo se for apenas cadastro de reserva
+    salario: 0000.00
+    escolaridade: "Nível Superior em [área específica]" # Seja explícito sobre o nível
+    carga_horaria: "XX horas semanais" # Se disponível
+    area: "Especialidade ou área do cargo" # Se aplicável
+  - nome: "Nome exato do cargo 2"
+    vagas: 00
+    salario: 0000.00
+    escolaridade: "Nível Médio Completo" # Seja explícito sobre o nível
+    carga_horaria: "XX horas semanais" # Se disponível
+  # Continue para todos os cargos
+```
+
+**Observações Importantes:**
+- NÃO inclua o conteúdo programático (matérias e tópicos) nesta resposta.
+- Seja preciso com os nomes dos cargos, exatamente como aparecem no edital.
+- Seja explícito sobre o nível de escolaridade de cada cargo (superior, médio, técnico, etc.).
+- Se alguma informação não estiver disponível no edital, use "Não informado" ou deixe em branco.
+- Se houver diferentes valores de taxa de inscrição para diferentes cargos ou níveis, especifique cada um.
+- Certifique-se de listar TODOS os cargos disponíveis no concurso.
+- Para cadastro de reserva, defina vagas como 0 e adicione o campo cadastro_reserva: true.
+- Não agrupe os cargos por nível de escolaridade no YAML - liste cada cargo individualmente.
+- Inclua informações sobre cotas e reserva de vagas, com os percentuais específicos quando disponíveis.

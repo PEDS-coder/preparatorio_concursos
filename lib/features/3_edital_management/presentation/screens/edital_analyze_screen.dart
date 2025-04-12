@@ -4,15 +4,20 @@ import 'package:provider/provider.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:io';
+import 'dart:convert';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/auth/auth_service.dart';
 import '../../../../core/data/services/edital_service.dart';
 import '../../../../core/data/services/ia_service.dart';
 import '../../../../core/services/api_config_service.dart';
+import '../../../../core/services/audio_explanation_service.dart';
 import '../../../../core/data/models/models.dart';
 import '../../../../core/data/models/edital.dart';
 import '../../../../core/utils/edital_analyzer.dart';
 import '../../../../core/utils/pdf_processor.dart';
+import '../../../../core/utils/cargo_converter.dart';
+import '../../../../core/utils/cache_manager.dart';
+import '../../../../core/widgets/matrix_rain_animation.dart';
 import 'cargo_select_screen.dart';
 import 'edital_analysis_view_screen.dart';
 
@@ -37,6 +42,11 @@ class _EditalAnalyzeScreenState extends State<EditalAnalyzeScreen> {
   @override
   void initState() {
     super.initState();
+
+    // Reproduzir explicação da tela de análise de edital
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<AudioExplanationService>(context, listen: false).playEditalAnalyzeExplanation();
+    });
   }
 
   Future<void> _pickPdfFile() async {
@@ -124,29 +134,36 @@ class _EditalAnalyzeScreenState extends State<EditalAnalyzeScreen> {
       return;
     }
 
-    // Verificar se a API LLM está configurada
     final apiConfigService = Provider.of<ApiConfigService>(context, listen: false);
-    if (!apiConfigService.isLlmConfigured) {
-      setState(() {
-        _errorMessage = 'É necessário configurar a API LLM (Gemini ou OpenAI) para analisar editais.';
-      });
+    final iaService = Provider.of<IAService>(context, listen: false);
 
-      // Mostrar mensagem de erro
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(_errorMessage!),
-          backgroundColor: Colors.red,
-          duration: Duration(seconds: 5),
-          action: SnackBarAction(
-            label: 'Configurar',
-            textColor: Colors.white,
-            onPressed: () {
-              Navigator.pushNamed(context, '/api_config');
-            },
+    // Verificar se o IAService está configurado
+    if (!iaService.isConfigured) {
+      // Tentar verificar a configuração novamente
+      final bool isConfigured = await apiConfigService.verificarConfiguracao();
+
+      if (!isConfigured) {
+        setState(() {
+          _errorMessage = 'É necessário configurar a API LLM (Gemini, OpenRouter ou Requestry) para analisar editais.';
+        });
+
+        // Mostrar mensagem de erro
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(_errorMessage!),
+            backgroundColor: Colors.red,
+            duration: Duration(seconds: 5),
+            action: SnackBarAction(
+              label: 'Configurar',
+              textColor: Colors.white,
+              onPressed: () {
+                Navigator.pushNamed(context, '/api_config');
+              },
+            ),
           ),
-        ),
-      );
-      return;
+        );
+        return;
+      }
     }
 
     setState(() {
@@ -269,38 +286,80 @@ class _EditalAnalyzeScreenState extends State<EditalAnalyzeScreen> {
       final iaService = Provider.of<IAService>(context, listen: false);
       final apiConfigService = Provider.of<ApiConfigService>(context, listen: false);
 
-      // Verificar se a API LLM está configurada
-      if (!apiConfigService.isLlmConfigured) {
-        setState(() {
-          _isProcessingPdf = false;
-          _isAnalyzingEdital = false;
-          _errorMessage = 'É necessário configurar a API LLM (Gemini ou OpenAI) para analisar editais.';
-        });
+      // Verificar se o IAService está configurado
+      if (!iaService.isConfigured) {
+        // Tentar verificar a configuração novamente
+        final bool isConfigured = await apiConfigService.verificarConfiguracao();
 
-        // Mostrar mensagem de erro
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(_errorMessage ?? 'Erro ao analisar edital'),
-            backgroundColor: Colors.red,
-            duration: Duration(seconds: 5),
-            action: SnackBarAction(
-              label: 'Configurar',
-              textColor: Colors.white,
-              onPressed: () {
-                Navigator.pushNamed(context, '/api_config');
-              },
+        if (!isConfigured) {
+          setState(() {
+            _isProcessingPdf = false;
+            _isAnalyzingEdital = false;
+            _errorMessage = 'É necessário configurar a API LLM (Gemini, OpenRouter ou Requestry) para analisar editais.';
+          });
+
+          // Mostrar mensagem de erro
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(_errorMessage ?? 'Erro ao analisar edital'),
+              backgroundColor: Colors.red,
+              duration: Duration(seconds: 5),
+              action: SnackBarAction(
+                label: 'Configurar',
+                textColor: Colors.white,
+                onPressed: () {
+                  Navigator.pushNamed(context, '/api_config');
+                },
+              ),
             ),
-          ),
-        );
+          );
 
-        return;
+          return;
+        }
       }
 
       setState(() {
         _isAnalyzingEdital = true;
-        _progressMessage = 'Extraindo texto do PDF...';
-        _pdfProcessingProgress = 0.1;
+        _progressMessage = 'Verificando cache...';
+        _pdfProcessingProgress = 0.05;
       });
+
+      // Verificar se há cache para este PDF
+      final bool hasCache = await CacheManager.hasCache(_pdfBytes!);
+
+      if (hasCache) {
+        // Este bloco não será executado durante os testes
+        setState(() {
+          _progressMessage = 'Recuperando análise do cache...';
+          _pdfProcessingProgress = 0.1;
+        });
+
+        // Recuperar dados do cache
+        final Map<String, dynamic>? cachedData = await CacheManager.getFromCache(pdfBytes);
+
+        if (cachedData != null) {
+          setState(() {
+            _progressMessage = 'Processando dados do cache...';
+            _pdfProcessingProgress = 0.8;
+          });
+
+          // Remover o timestamp do resultado
+          cachedData.remove('timestamp');
+
+          setState(() {
+            _dadosExtraidos = cachedData;
+            _isProcessingPdf = false;
+            _isAnalyzingEdital = false;
+            _pdfProcessingProgress = 1.0;
+            _progressMessage = 'Análise recuperada do cache!';
+            _errorMessage = null; // Limpar mensagens de erro anteriores
+          });
+
+          // Mostrar diálogo de sucesso
+          _mostrarDialogoSucesso();
+          return;
+        }
+      }
 
       // Criar o analisador de edital
       final editalAnalyzer = EditalAnalyzer(
@@ -313,17 +372,14 @@ class _EditalAnalyzeScreenState extends State<EditalAnalyzeScreen> {
         },
       );
 
-      // Extrair texto do PDF usando PDFMiner.six
-      final String textoEdital = await compute(_extractTextFromPdf, pdfBytes);
-
       setState(() {
-        _progressMessage = 'Analisando edital com IA...';
-        _pdfProcessingProgress = 0.3;
+        _progressMessage = 'Preparando PDF para análise...';
+        _pdfProcessingProgress = 0.2;
       });
 
       try {
-        // Analisar o edital usando o novo fluxo de análise comparativa
-        final DadosExtraidos dadosExtraidos = await editalAnalyzer.analisarEdital(textoEdital, pdfBytes);
+        // Analisar o edital enviando o PDF diretamente para a LLM (primeira etapa: informações básicas)
+        final DadosExtraidos dadosExtraidos = await editalAnalyzer.analisarEdital(null, pdfBytes);
 
         // Converter para Map para manter compatibilidade com o restante do código
         final Map<String, dynamic> dadosMap = {
@@ -339,13 +395,21 @@ class _EditalAnalyzeScreenState extends State<EditalAnalyzeScreen> {
             'salario': cargo.salario,
             'escolaridade': cargo.escolaridade,
             'dataProva': cargo.dataProva?.toIso8601String().split('T')[0],
-            'conteudoProgramatico': cargo.conteudoProgramatico.map((cp) => {
-              'nome': cp.nome,
-              'tipo': cp.tipo,
-              'topicos': cp.topicos,
-            }).toList(),
+            // Não incluir conteúdo programático na primeira etapa
+            'conteudoProgramatico': [],
           }).toList(),
+          // Preservar os bytes do PDF para a segunda etapa
+          'pdfBytes': base64Encode(pdfBytes),
         };
+
+        // Salvar no cache para uso futuro
+        setState(() {
+          _progressMessage = 'Finalizando análise e salvando no cache...';
+          _pdfProcessingProgress = 0.9;
+        });
+
+        // Salvar no cache para uso futuro
+        await CacheManager.saveToCache(pdfBytes, dadosMap);
 
         setState(() {
           _dadosExtraidos = dadosMap;
@@ -377,44 +441,181 @@ class _EditalAnalyzeScreenState extends State<EditalAnalyzeScreen> {
   }
 
   void _mostrarDialogoSucesso() {
+    // Obter o número de cargos identificados
+    final int numCargos = _dadosExtraidos?['cargos_disponiveis']?.length ??
+                         _dadosExtraidos?['cargos']?.length ?? 0;
+
+    // Verificar se os dados foram recuperados do cache
+    final bool fromCache = _progressMessage.contains('cache');
+
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        title: Row(
-          children: [
-            Icon(Icons.check_circle, color: Colors.green),
-            SizedBox(width: 8),
-            Text('Análise Concluída!'),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'O edital foi analisado com sucesso. Agora você pode visualizar o conteúdo programático e selecionar o cargo para o qual deseja se preparar.',
-              style: TextStyle(fontSize: 16),
-            ),
-            SizedBox(height: 16),
-            Text(
-              'Foram identificados ${_dadosExtraidos?['cargos_disponiveis']?.length ?? _dadosExtraidos?['cargos']?.length ?? 0} cargos neste edital.',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
-        actions: [
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              _navegarParaSelecaoCargo();
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.primaryColor,
-            ),
-            child: Text('Visualizar Análise'),
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        elevation: 8,
+        child: Container(
+          padding: EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Ícone animado de sucesso
+              TweenAnimationBuilder<double>(
+                tween: Tween<double>(begin: 0.0, end: 1.0),
+                duration: Duration(milliseconds: 800),
+                curve: Curves.elasticOut,
+                builder: (context, value, child) {
+                  return Transform.scale(
+                    scale: value,
+                    child: Container(
+                      width: 80,
+                      height: 80,
+                      decoration: BoxDecoration(
+                        color: Colors.green.shade100,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        fromCache ? Icons.cached : Icons.check_circle_outline,
+                        color: Colors.green,
+                        size: 50,
+                      ),
+                    ),
+                  );
+                },
+              ),
+              SizedBox(height: 24),
+              // Título com animação
+              TweenAnimationBuilder<double>(
+                tween: Tween<double>(begin: 0.0, end: 1.0),
+                duration: Duration(milliseconds: 600),
+                curve: Curves.easeOutCubic,
+                builder: (context, value, child) {
+                  return Opacity(
+                    opacity: value,
+                    child: Transform.translate(
+                      offset: Offset(0, 20 * (1 - value)),
+                      child: Text(
+                        fromCache ? 'Análise Recuperada!' : 'Análise Concluída!',
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.primaryColor,
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+              SizedBox(height: 16),
+              // Mensagem principal
+              Text(
+                fromCache
+                    ? 'O edital foi recuperado do cache. Você já analisou este edital anteriormente.'
+                    : 'O edital foi analisado com sucesso. Agora você pode selecionar o cargo para o qual deseja se preparar.',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.black87, // Cor escura para garantir legibilidade
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: 24),
+              // Informações sobre cargos
+              Container(
+                padding: EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.blue.shade50,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.blue.shade100),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.work_outline, color: Colors.blue),
+                    SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Cargos Identificados',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87, // Cor escura para garantir legibilidade
+                            ),
+                          ),
+                          SizedBox(height: 4),
+                          Text(
+                            'Foram encontrados $numCargos cargos neste edital.',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.black87, // Cor escura para garantir legibilidade
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 24),
+              // Botões de ação
+              Column(
+                children: [
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        _navegarParaSelecaoCargo();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.primaryColor,
+                        foregroundColor: Colors.white,
+                        padding: EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      icon: Icon(Icons.check_circle),
+                      label: Text(
+                        'Selecionar Cargo',
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+
+                  // Botão para forçar nova análise (apenas se for do cache)
+                  if (fromCache)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 12.0),
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: OutlinedButton.icon(
+                          onPressed: () {
+                            Navigator.pop(context);
+                            _forcarNovaAnalise();
+                          },
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: Colors.red.shade700,
+                            side: BorderSide(color: Colors.red.shade300),
+                            padding: EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          icon: Icon(Icons.refresh),
+                          label: Text(
+                            'Forçar Nova Análise',
+                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -433,7 +634,7 @@ class _EditalAnalyzeScreenState extends State<EditalAnalyzeScreen> {
             banca: _dadosExtraidos?['banca'] ?? 'Não especificado',
             inicioInscricao: _parseData(_dadosExtraidos?['inicioInscricao']),
             fimInscricao: _parseData(_dadosExtraidos?['fimInscricao']),
-            valorTaxa: (_dadosExtraidos?['valorTaxa'] ?? 100.0).toDouble(),
+            valorTaxa: _extrairValorTaxa(_dadosExtraidos),
             localProva: _dadosExtraidos?['localProva'] ?? 'Não especificado',
             cargos: _converterCargos(_dadosExtraidos?['cargos'] ?? []),
           );
@@ -450,10 +651,10 @@ class _EditalAnalyzeScreenState extends State<EditalAnalyzeScreen> {
           print('Edital salvo com ID: ${edital.id}');
           print('Navegando para tela de seleção de cargo...');
 
-          // Navegar para a tela de visualização da análise do edital
+          // Navegar para a tela de seleção de cargo
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(
-              builder: (context) => EditalAnalysisViewScreen(editalId: edital.id),
+              builder: (context) => CargoSelectScreen(editalId: edital.id),
             ),
           );
         } catch (e) {
@@ -467,6 +668,12 @@ class _EditalAnalyzeScreenState extends State<EditalAnalyzeScreen> {
   }
 
   List<Cargo> _converterCargos(List<dynamic> cargosJson) {
+    // Usar a classe utilitária para converter os cargos
+    return CargoConverter.converterCargos(cargosJson);
+  }
+
+  // Método antigo de conversão de cargos (mantido para referência)
+  List<Cargo> _converterCargosAntigo(List<dynamic> cargosJson) {
     try {
       // Verificar se a lista de cargos é válida
       if (cargosJson.isEmpty) {
@@ -968,47 +1175,41 @@ class _EditalAnalyzeScreenState extends State<EditalAnalyzeScreen> {
             ),
           ),
 
-          // Overlay de análise
+          // Overlay de análise com animação Matrix
           if (_isAnalyzingEdital)
-            Container(
-              color: Colors.black.withOpacity(0.7),
-              child: Center(
-                child: Card(
-                  elevation: 8,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                  child: Container(
-                    width: 300,
-                    padding: EdgeInsets.all(24),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.psychology,
-                          size: 48,
-                          color: AppTheme.primaryColor,
-                        ),
-                        SizedBox(height: 16),
-                        Text(
-                          'Analisando Edital',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        SizedBox(height: 8),
-                        Text(
-                          _progressMessage,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 14),
-                        ),
-                        SizedBox(height: 24),
-                        LinearProgressIndicator(value: _pdfProcessingProgress),
-                        SizedBox(height: 8),
-                        Text(
-                          '${(_pdfProcessingProgress * 100).toStringAsFixed(0)}%',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      ],
+            AnimatedOpacity(
+              opacity: 1.0,
+              duration: Duration(milliseconds: 300),
+              child: Container(
+                color: Colors.black.withOpacity(0.9),
+                child: Center(
+                  child: Card(
+                    elevation: 8,
+                    color: Colors.black,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    child: Padding(
+                      padding: EdgeInsets.all(4),
+                      child: MatrixRainAnimation(
+                        width: 350,
+                        height: 300,
+                        primaryColor: AppTheme.primaryColor,
+                        secondaryColor: AppTheme.accentColor,
+                        message: 'Analisando Edital',
+                        statusMessages: [
+                          'Identificando nome do concurso...',
+                          'Identificando órgão responsável...',
+                          'Identificando banca organizadora...',
+                          'Identificando datas de inscrição...',
+                          'Identificando taxas de inscrição...',
+                          'Identificando cotas e vagas...',
+                          'Identificando cargos disponíveis...',
+                          'Identificando requisitos dos cargos...',
+                          'Identificando conteúdo programático...',
+                          'Organizando informações...',
+                          'Estruturando dados para análise...',
+                          'Finalizando processamento...',
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -1018,6 +1219,8 @@ class _EditalAnalyzeScreenState extends State<EditalAnalyzeScreen> {
       ),
     );
   }
+
+  // Métodos removidos pois foram substituídos pela animação Matrix
 
   Widget _buildProcessStep(String number, String title, String description, IconData icon) {
     return Padding(
@@ -1097,8 +1300,12 @@ class _EditalAnalyzeScreenState extends State<EditalAnalyzeScreen> {
              '1. Verifique se o PDF está correto e legível\n' +
              '2. Tente novamente com um arquivo menor\n' +
              '3. Verifique sua conexão com a internet';
-    } else if (mensagemOriginal.contains('API')) {
-      return 'Erro na comunicação com o serviço de IA. Verifique sua chave de API e conexão com a internet.';
+    } else if (mensagemOriginal.contains('API') || mensagemOriginal.contains('comunicação com o serviço de IA')) {
+      return 'Erro na comunicação com o serviço de IA. Verifique sua chave de API e conexão com a internet.\n\n' +
+             'Sugestões:\n' +
+             '1. Verifique se você está conectado à internet\n' +
+             '2. Verifique se sua chave API está configurada corretamente\n' +
+             '3. Tente novamente em alguns instantes';
     } else if (mensagemOriginal.contains('timeout') || mensagemOriginal.contains('tempo esgotado')) {
       return 'O tempo de processamento excedeu o limite. Tente novamente com um arquivo menor ou em partes.';
     } else {
@@ -1108,18 +1315,7 @@ class _EditalAnalyzeScreenState extends State<EditalAnalyzeScreen> {
     }
   }
 
-  /// Extrai texto de um PDF usando PDFMiner.six
-  static Future<String> _extractTextFromPdf(Uint8List pdfBytes) async {
-    try {
-      // Usar o PDFProcessor para extrair o texto
-      final pdfProcessor = PdfProcessor();
-      final String textoExtraido = await pdfProcessor.extractTextFromPdfBytes(pdfBytes);
-      return textoExtraido;
-    } catch (e) {
-      debugPrint('Erro ao extrair texto do PDF: $e');
-      return '';
-    }
-  }
+  // Removido o método de extração de texto do PDF pois agora enviamos o PDF diretamente para a LLM
 
   /// Converte uma string de data para DateTime
   DateTime _parseData(String? dataStr) {
@@ -1170,6 +1366,87 @@ class _EditalAnalyzeScreenState extends State<EditalAnalyzeScreen> {
     }
   }
 
+  /// Extrai o valor da taxa de inscrição dos dados do edital
+  double _extrairValorTaxa(Map<String, dynamic>? dados) {
+    if (dados == null) return 100.0; // Valor padrão
+
+    // Verificar se há um valor direto de taxa
+    if (dados.containsKey('valorTaxa')) {
+      var valorTaxa = dados['valorTaxa'];
+      if (valorTaxa is num) {
+        return valorTaxa.toDouble();
+      } else if (valorTaxa is String) {
+        // Tentar converter string para double
+        try {
+          return double.parse(valorTaxa.replaceAll(RegExp(r'[^\d.,]'), '').replaceAll(',', '.'));
+        } catch (e) {
+          print('Erro ao converter taxa: $e');
+        }
+      }
+    }
+
+    // Verificar se há taxas por nível
+    if (dados.containsKey('taxas_por_nivel')) {
+      var taxasPorNivel = dados['taxas_por_nivel'];
+      if (taxasPorNivel is Map) {
+        // Verificar se há valores para analista ou técnico
+        if (taxasPorNivel.containsKey('analista')) {
+          var taxa = taxasPorNivel['analista'];
+          if (taxa is num) return taxa.toDouble();
+          if (taxa is String) {
+            try {
+              return double.parse(taxa.replaceAll(RegExp(r'[^\d.,]'), '').replaceAll(',', '.'));
+            } catch (e) {}
+          }
+        }
+        if (taxasPorNivel.containsKey('tecnico')) {
+          var taxa = taxasPorNivel['tecnico'];
+          if (taxa is num) return taxa.toDouble();
+          if (taxa is String) {
+            try {
+              return double.parse(taxa.replaceAll(RegExp(r'[^\d.,]'), '').replaceAll(',', '.'));
+            } catch (e) {}
+          }
+        }
+        if (taxasPorNivel.containsKey('nivel_superior')) {
+          var taxa = taxasPorNivel['nivel_superior'];
+          if (taxa is num) return taxa.toDouble();
+          if (taxa is String) {
+            try {
+              return double.parse(taxa.replaceAll(RegExp(r'[^\d.,]'), '').replaceAll(',', '.'));
+            } catch (e) {}
+          }
+        }
+
+        // Se não encontrou valores específicos, pegar o primeiro valor
+        if (taxasPorNivel.isNotEmpty) {
+          var primeiroValor = taxasPorNivel.values.first;
+          if (primeiroValor is num) return primeiroValor.toDouble();
+          if (primeiroValor is String) {
+            try {
+              return double.parse(primeiroValor.replaceAll(RegExp(r'[^\d.,]'), '').replaceAll(',', '.'));
+            } catch (e) {}
+          }
+        }
+      }
+    }
+
+    // Verificar se há informações no texto completo
+    if (dados.containsKey('textoCompleto')) {
+      String texto = dados['textoCompleto'].toString().toLowerCase();
+      RegExp regexTaxa = RegExp(r'taxa\s+de\s+inscri[çc][ãa]o\s*[:-]?\s*R\$\s*(\d+[.,]\d+)');
+      var match = regexTaxa.firstMatch(texto);
+      if (match != null && match.groupCount >= 1) {
+        try {
+          return double.parse(match.group(1)!.replaceAll(',', '.'));
+        } catch (e) {}
+      }
+    }
+
+    // Valor padrão se nada for encontrado
+    return 100.0;
+  }
+
   /// Extrai tópicos de diferentes formatos de dados
   List<String> _extrairTopicos(dynamic topicosData) {
     List<String> topicos = [];
@@ -1211,4 +1488,34 @@ class _EditalAnalyzeScreenState extends State<EditalAnalyzeScreen> {
       .toSet()
       .toList();
   }
+
+  /// Força uma nova análise do edital, ignorando o cache
+  Future<void> _forcarNovaAnalise() async {
+    if (_pdfBytes == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Arquivo PDF não disponível. Selecione o arquivo novamente.'),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 3),
+        ),
+      );
+      return;
+    }
+
+    // Limpar o cache para este PDF
+    await CacheManager.removeFromCache(_pdfBytes!);
+
+    // Iniciar nova análise
+    setState(() {
+      _isAnalyzingEdital = true;
+      _progressMessage = 'Iniciando nova análise...';
+      _pdfProcessingProgress = 0.05;
+      _errorMessage = null;
+    });
+
+    // Analisar o edital novamente
+    await _analisarEdital(_pdfBytes!);
+  }
+
+  // O método _formatarMensagemErro já está definido em outra parte do código
 }

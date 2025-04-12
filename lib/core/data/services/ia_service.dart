@@ -2,22 +2,37 @@ import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/flashcard.dart';
 import '../../utils/text_utils.dart';
 import '../../services/prompt_service.dart';
+import '../../services/connectivity_service.dart';
+import '../../services/cache_service.dart';
 
 class IAService extends ChangeNotifier {
   // URLs base para as APIs
-  final String _geminiBaseUrl = 'https://generativelanguage.googleapis.com/v1beta/models';
+  final String _geminiBaseUrl = 'https://generativelanguage.googleapis.com/v1/models';
   final String _openaiBaseUrl = 'https://api.openai.com/v1';
   final String _openrouterBaseUrl = 'https://openrouter.ai/api/v1'; // URL base para OpenRouter
   final String _requestryBaseUrl = 'https://router.requesty.ai/v1'; // URL base para Requestry
 
   // Modelos
-  final String _geminiModel = 'gemini-2.5-pro-exp-03-25';
+  String _geminiModel = 'gemini-2.5-pro-preview-03-25'; // Mutável para permitir fallback
   final String _openaiModel = 'gpt-3.5-turbo';
   final String _openrouterModel = 'anthropic/claude-3.7-sonnet'; // Modelo padrão para OpenRouter
   final String _requestryModel = 'openai/gpt-4o'; // Modelo padrão para Requestry
+
+  // Modelos alternativos do Gemini (para fallback)
+  final List<String> _geminiModelsAlternatives = [
+    // Modelo 2.5 (nome correto conforme documentação)
+    'gemini-2.5-pro-preview-03-25',  // Versão de pré-lançamento
+
+    // Modelos 2.0
+    'gemini-2.0-flash',              // Versão estável mais recente
+    'gemini-2.0-flash-001',          // Versão estável específica
+    'gemini-2.0-flash-lite',         // Versão estável mais recente (lite)
+    'gemini-2.0-flash-lite-001'      // Versão estável específica (lite)
+  ];
 
   // Chaves de API
   String? _apiKey; // Chave da API atual
@@ -27,8 +42,49 @@ class IAService extends ChangeNotifier {
   String? _requestryApiKey; // Chave específica para Requestry
   String _apiType = 'gemini'; // 'gemini', 'openrouter' ou 'requestry'
 
+  // Construtor que carrega a chave API salva
+  IAService() {
+    _carregarChaveAPI();
+  }
+
+  /// Carrega a chave API salva no SharedPreferences
+  Future<void> _carregarChaveAPI() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final apiKey = prefs.getString('api_key');
+      final apiType = prefs.getString('api_type');
+
+      if (apiKey != null && apiKey.isNotEmpty && apiType != null && apiType.isNotEmpty) {
+        _apiKey = apiKey;
+        _apiType = apiType;
+
+        // Definir a chave específica com base no tipo
+        if (apiType == 'gemini') {
+          _geminiApiKey = apiKey;
+        } else if (apiType == 'openrouter') {
+          _openrouterApiKey = apiKey;
+        } else if (apiType == 'requestry') {
+          _requestryApiKey = apiKey;
+        } else if (apiType == 'openai') {
+          _openaiApiKey = apiKey;
+        }
+
+        print('Chave API carregada com sucesso: tipo=$apiType');
+        notifyListeners();
+      }
+    } catch (e) {
+      print('Erro ao carregar chave API: $e');
+    }
+  }
+
   // Serviço de prompts
   final PromptService _promptService = PromptService();
+
+  // Serviço de cache
+  final CacheService _cacheService = CacheService();
+
+  // Controle de cache
+  bool _forceCacheMode = true; // Modo de desenvolvimento: usar cache mesmo com API válida
 
   // Método para configurar o tipo de API
   void setApiType(String apiType) {
@@ -40,44 +96,107 @@ class IAService extends ChangeNotifier {
   String get apiType => _apiType;
   String? get apiKey => _apiKey;
 
+  // Getters e setters para controle de cache
+  bool get forceCacheMode => _forceCacheMode;
+
+  void setForceCacheMode(bool value) {
+    _forceCacheMode = value;
+    notifyListeners();
+  }
+
+  // Inicializar o cache
+  Future<void> initCache() async {
+    await _cacheService.init();
+  }
+
+  // Limpar o cache
+  Future<bool> clearCache() async {
+    return await _cacheService.clearCache();
+  }
+
   // Método para configurar a chave de API
   Future<Map<String, dynamic>> setApiKey(String apiKey, String apiType) async {
     try {
+      // Verificar conectividade com a internet antes de validar a chave
+      final bool isConnected = await ConnectivityService.isConnected();
+      if (!isConnected) {
+        return {
+          'success': false,
+          'message': 'Erro na comunicação com o serviço de IA. Verifique sua conexão com a internet.'
+        };
+      }
+
       // Verificar se a API key é válida
       bool isValid = false;
       String errorMessage = '';
 
       if (apiType == 'gemini') {
         // Teste simples para verificar se a API key do Gemini funciona
-        final url = '$_geminiBaseUrl/gemini-2.5-pro-exp-03-25:generateContent?key=$apiKey';
-        final testBody = jsonEncode({
-          'contents': [
-            {
-              'parts': [
+        // Tentar com diferentes modelos em caso de falha
+        bool modeloValido = false;
+        String modeloTestado = '';
+        String ultimoErro = '';
+
+        // Priorizar modelos 2.5 e 2.0 para teste
+        List<String> modelosParaTeste = [
+          // Modelo 2.5 (nome correto conforme documentação)
+          'gemini-2.5-pro-preview-03-25',
+
+          // Modelos 2.0
+          'gemini-2.0-flash',
+          'gemini-2.0-flash-001',
+          'gemini-2.0-flash-lite',
+          'gemini-2.0-flash-lite-001'
+        ];
+
+        for (String modelo in modelosParaTeste) {
+          try {
+            modeloTestado = modelo;
+            final url = '$_geminiBaseUrl/$modelo:generateContent?key=$apiKey';
+            final testBody = jsonEncode({
+              'contents': [
                 {
-                  'text': 'Olá, teste de conexão.'
+                  'parts': [
+                    {
+                      'text': 'Olá, teste de conexão.'
+                    }
+                  ]
                 }
-              ]
+              ],
+              'generationConfig': {
+                'maxOutputTokens': 10,
+              }
+            });
+
+            print('Testando API Gemini com modelo: $modelo');
+            final response = await http.post(
+              Uri.parse(url),
+              headers: {'Content-Type': 'application/json'},
+              body: testBody,
+            );
+
+            if (response.statusCode == 200) {
+              modeloValido = true;
+              // Atualizar o modelo padrão para o que funcionou
+              _geminiModel = modelo;
+              print('API Gemini validada com sucesso usando modelo: $modelo');
+              break;
+            } else {
+              ultimoErro = 'Erro com modelo $modelo: ${response.statusCode} ${response.body}';
+              print(ultimoErro);
             }
-          ],
-          'generationConfig': {
-            'maxOutputTokens': 10,
+          } catch (e) {
+            ultimoErro = 'Erro ao testar modelo $modelo: $e';
+            print(ultimoErro);
           }
-        });
+        }
 
-        print('Testando API Gemini com modelo: gemini-2.5-pro-exp-03-25');
-        final response = await http.post(
-          Uri.parse(url),
-          headers: {'Content-Type': 'application/json'},
-          body: testBody,
-        );
-
-        isValid = response.statusCode == 200;
+        isValid = modeloValido;
         if (!isValid) {
-          errorMessage = 'API Key Gemini inválida: ${response.statusCode} ${response.body}';
+          errorMessage = 'API Key Gemini inválida. $ultimoErro';
           print(errorMessage);
         } else {
-          print('API Gemini validada com sucesso');
+          print('API Gemini validada com sucesso usando modelo: $modeloTestado');
         }
       } else if (apiType == 'openrouter') {
         // Teste simples para verificar se a API key do OpenRouter funciona
@@ -210,20 +329,21 @@ class IAService extends ChangeNotifier {
     if (_apiType == 'gemini') {
       // Limites para modelos Gemini
       switch (_geminiModel) {
-        case 'gemini-2.5-pro-exp-03-25':
+        // Modelo 2.5
         case 'gemini-2.5-pro-preview-03-25':
-          limiteTokens = 1000000;
+          limiteTokens = 1048576; // ~1 milhão de tokens de contexto
           break;
+
+        // Modelos 2.0
         case 'gemini-2.0-flash':
+        case 'gemini-2.0-flash-001':
+          limiteTokens = 1048576; // ~1 milhão de tokens de contexto
+          break;
         case 'gemini-2.0-flash-lite':
-          limiteTokens = 1000000;
+        case 'gemini-2.0-flash-lite-001':
+          limiteTokens = 1048576; // ~1 milhão de tokens de contexto
           break;
-        case 'gemini-1.5-pro':
-          limiteTokens = 2000000;
-          break;
-        case 'gemini-1.5-flash':
-          limiteTokens = 1000000;
-          break;
+
         default:
           limiteTokens = 30000; // Valor conservador para modelos desconhecidos
       }
@@ -281,15 +401,44 @@ class IAService extends ChangeNotifier {
 
   // Gerar resposta em formato JSON
   Future<Map<String, dynamic>?> gerarRespostaJson(String prompt) async {
-    if (!isConfigured) {
+    if (!isConfigured && !_forceCacheMode) {
       throw Exception('API Key não configurada');
+    }
+
+    // Inicializar o cache se ainda não foi inicializado
+    await _cacheService.init();
+
+    // Verificar se existe cache para este prompt
+    if (_forceCacheMode || !isConfigured) {
+      // Criar um hash do prompt para usar como chave de cache
+      final promptBytes = utf8.encode(prompt);
+      final cachedResult = await _cacheService.getFromCache(prompt, promptBytes);
+      if (cachedResult != null) {
+        print('Usando resultado do cache para plano de estudo');
+        try {
+          return json.decode(cachedResult) as Map<String, dynamic>;
+        } catch (e) {
+          print('Erro ao decodificar JSON do cache: $e');
+          // Continuar com a chamada normal se o cache estiver corrompido
+        }
+      }
     }
 
     try {
       final String resposta = await callApi(prompt);
+      debugPrint('Resposta bruta da API: ${resposta.substring(0, min(200, resposta.length))}...');
 
       // Extrair o JSON da resposta
       String jsonStr = resposta.trim();
+
+      // Verificar se o texto contém delimitadores de código JSON
+      final RegExp jsonRegex = RegExp(r'```(?:json)?\s*([\s\S]*?)\s*```');
+      final match = jsonRegex.firstMatch(jsonStr);
+
+      if (match != null && match.groupCount >= 1) {
+        jsonStr = match.group(1)!.trim();
+        debugPrint('Encontrado JSON entre delimitadores de código');
+      }
 
       // Encontrar o início do JSON (primeiro '{')
       final int startIndex = jsonStr.indexOf('{');
@@ -303,12 +452,121 @@ class IAService extends ChangeNotifier {
         jsonStr = jsonStr.substring(0, endIndex + 1);
       }
 
+      // Tentar corrigir JSON malformado
+      jsonStr = _corrigirJsonMalformado(jsonStr);
+
       // Decodificar o JSON
-      return json.decode(jsonStr) as Map<String, dynamic>;
+      try {
+        final result = json.decode(jsonStr) as Map<String, dynamic>;
+
+        // Salvar o resultado no cache
+        final promptBytes = utf8.encode(prompt);
+        await _cacheService.saveToCache(prompt, promptBytes, jsonStr);
+        print('Resultado do plano de estudo salvo no cache para uso futuro');
+
+        return result;
+      } catch (jsonError) {
+        debugPrint('Erro ao decodificar JSON: $jsonError');
+        debugPrint('JSON malformado: $jsonStr');
+
+        // Criar um JSON de fallback para não quebrar o fluxo
+        return _criarJsonFallback();
+      }
     } catch (e) {
       debugPrint('Erro ao gerar resposta JSON: $e');
-      return null;
+      return _criarJsonFallback();
     }
+  }
+
+  // Corrigir JSON malformado
+  String _corrigirJsonMalformado(String jsonStr) {
+    try {
+      // Tentar decodificar para ver se já é válido
+      json.decode(jsonStr);
+      return jsonStr; // Se não lançar exceção, o JSON já é válido
+    } catch (e) {
+      debugPrint('Corrigindo JSON malformado...');
+
+      // Corrigir aspas simples para aspas duplas
+      String corrigido = jsonStr.replaceAll("'", '"');
+
+      // Corrigir chaves sem aspas
+      final RegExp chavesSemAspas = RegExp(r'([{,]\s*)([a-zA-Z0-9_]+)\s*:');
+      corrigido = corrigido.replaceAllMapped(chavesSemAspas, (match) {
+        return '${match.group(1)}"${match.group(2)}":';
+      });
+
+      // Corrigir valores sem aspas (exceto números, true, false, null)
+      final RegExp valoresSemAspas = RegExp(r':\s*([a-zA-Z][a-zA-Z0-9_]*)\s*([,}])');
+      corrigido = corrigido.replaceAllMapped(valoresSemAspas, (match) {
+        final valor = match.group(1);
+        if (valor == 'true' || valor == 'false' || valor == 'null' || RegExp(r'^\d+$').hasMatch(valor!)) {
+          return ': $valor${match.group(2)}';
+        }
+        return ': "$valor"${match.group(2)}';
+      });
+
+      return corrigido;
+    }
+  }
+
+  // Criar JSON de fallback para quando a resposta da API falhar
+  Map<String, dynamic> _criarJsonFallback() {
+    return {
+      "materiasPrioritarias": [
+        {
+          "nome": "Direito Constitucional",
+          "peso": 5,
+          "estrategia": "Foco em direitos fundamentais e organização do Estado"
+        },
+        {
+          "nome": "Direito Administrativo",
+          "peso": 4,
+          "estrategia": "Estudar princípios e atos administrativos"
+        },
+        {
+          "nome": "Português",
+          "peso": 3,
+          "estrategia": "Revisar gramática e fazer exercícios"
+        }
+      ],
+      "cronogramaSemanal": {
+        "segunda": [
+          { "materia": "Direito Constitucional", "horas": 2 }
+        ],
+        "terca": [
+          { "materia": "Direito Administrativo", "horas": 2 }
+        ],
+        "quarta": [
+          { "materia": "Português", "horas": 2 }
+        ],
+        "quinta": [
+          { "materia": "Direito Constitucional", "horas": 2 }
+        ],
+        "sexta": [
+          { "materia": "Direito Administrativo", "horas": 2 }
+        ],
+        "sabado": [
+          { "materia": "Revisão Geral", "horas": 4 }
+        ],
+        "domingo": []
+      },
+      "recursosRecomendados": [
+        {
+          "tipo": "Livro",
+          "descricao": "Manual de Direito Constitucional"
+        },
+        {
+          "tipo": "Videoaula",
+          "descricao": "Curso completo de Direito Administrativo"
+        }
+      ],
+      "dicasGerais": [
+        "Faça resumos dos conteúdos estudados",
+        "Resolva questões anteriores da banca",
+        "Mantenha uma rotina consistente de estudos"
+      ]
+    };
   }
 
   // Gerar flashcards a partir de um texto
@@ -408,7 +666,103 @@ OBSERVAÇÃO IMPORTANTE: Você está analisando a parte ${i+1} de ${textChunks.l
     return flashcards;
   }
 
-  // Gerar resumo a partir de um texto
+  // Analisar edital diretamente a partir do PDF
+  Future<String> analisarEditalPdf(Uint8List pdfBytes, {String? pdfName}) async {
+    if (!isConfigured) {
+      throw Exception('API Key não configurada');
+    }
+
+    try {
+      // Carregar o prompt para análise direta de PDF
+      final promptService = PromptService();
+      final String promptTemplate = await promptService.loadPdfEditalAnalysisPrompt();
+
+      // Enviar o PDF diretamente para a API
+      if (_apiType == 'gemini') {
+        return await callGeminiApiWithPdf(promptTemplate, pdfBytes, pdfName: pdfName);
+      } else {
+        // Para outros provedores que não suportam PDF diretamente, podemos lançar uma exceção
+        throw Exception('Análise direta de PDF só é suportada pelo Gemini no momento');
+      }
+    } catch (e) {
+      print('Erro ao analisar edital PDF: $e');
+      rethrow;
+    }
+  }
+
+  // Extrair informações básicas do edital (primeira etapa)
+  Future<String> extrairInfoBasicasEdital(Uint8List pdfBytes, {String? pdfName}) async {
+    if (!isConfigured) {
+      throw Exception('API Key não configurada');
+    }
+
+    try {
+      // Carregar o prompt para extração de informações básicas
+      final promptService = PromptService();
+      String promptTemplate;
+      try {
+        promptTemplate = await promptService.loadBasicInfoEditalPrompt();
+      } catch (e) {
+        print('Erro ao carregar prompt básico: $e');
+        // Usar prompt de fallback em caso de erro
+        promptTemplate = await promptService.loadFallbackBasicInfoPrompt();
+      }
+
+      // Enviar o PDF diretamente para a API
+      if (_apiType == 'gemini') {
+        return await callGeminiApiWithPdf(promptTemplate, pdfBytes, pdfName: pdfName);
+      } else if (_apiType == 'openrouter') {
+        throw Exception('Análise direta de PDF não é suportada pelo OpenRouter. Use a API Gemini.');
+      } else if (_apiType == 'requestry') {
+        throw Exception('Análise direta de PDF não é suportada pelo Requestry. Use a API Gemini.');
+      } else {
+        throw Exception('Análise direta de PDF só é suportada pelo Gemini no momento');
+      }
+    } catch (e) {
+      print('Erro ao extrair informações básicas do edital: $e');
+      rethrow;
+    }
+  }
+
+  // Extrair conteúdo programático para um cargo específico (segunda etapa)
+  Future<String> extrairConteudoProgramatico(Uint8List pdfBytes, String cargoAlvo, {String? pdfName}) async {
+    if (!isConfigured) {
+      throw Exception('API Key não configurada');
+    }
+
+    try {
+      // Carregar o prompt para extração de conteúdo programático
+      final promptService = PromptService();
+      String promptTemplate;
+      try {
+        promptTemplate = await promptService.loadContentEditalPrompt();
+      } catch (e) {
+        print('Erro ao carregar prompt de conteúdo: $e');
+        // Usar prompt de fallback em caso de erro
+        promptTemplate = await promptService.loadFallbackCargoInfoPrompt();
+      }
+
+      // Substituir o placeholder do cargo alvo se existir
+      if (promptTemplate.contains('[CARGO_ALVO]')) {
+        promptTemplate = promptTemplate.replaceAll('[CARGO_ALVO]', cargoAlvo);
+      }
+
+      // Enviar o PDF diretamente para a API
+      if (_apiType == 'gemini') {
+        return await callGeminiApiWithPdf(promptTemplate, pdfBytes, pdfName: pdfName);
+      } else if (_apiType == 'openrouter') {
+        throw Exception('Análise direta de PDF não é suportada pelo OpenRouter. Use a API Gemini.');
+      } else if (_apiType == 'requestry') {
+        throw Exception('Análise direta de PDF não é suportada pelo Requestry. Use a API Gemini.');
+      } else {
+        throw Exception('Análise direta de PDF só é suportada pelo Gemini no momento');
+      }
+    } catch (e) {
+      print('Erro ao extrair conteúdo programático do edital: $e');
+      rethrow;
+    }
+  }
+
   Future<String> gerarResumo(String texto) async {
     if (!isConfigured) {
       throw Exception('API Key não configurada');
@@ -642,6 +996,12 @@ OBSERVAÇÃO IMPORTANTE: Você está analisando a parte ${i+1} de ${textChunks.l
   // Método público para chamar a API
   Future<String> callApi(String prompt) async {
     try {
+      // Verificar conectividade com a internet antes de fazer a chamada
+      final bool isConnected = await ConnectivityService.isConnected();
+      if (!isConnected) {
+        throw Exception('Erro na comunicação com o serviço de IA. Verifique sua chave de API e conexão com a internet.');
+      }
+
       if (_apiType == 'gemini') {
         try {
           return await _callGeminiApi(prompt);
@@ -676,12 +1036,320 @@ OBSERVAÇÃO IMPORTANTE: Você está analisando a parte ${i+1} de ${textChunks.l
       }
     } catch (e) {
       print('Erro ao chamar API: $e');
+      // Verificar se o erro está relacionado à conexão
+      if (e.toString().contains('SocketException') ||
+          e.toString().contains('Connection refused') ||
+          e.toString().contains('Connection reset') ||
+          e.toString().contains('Connection closed') ||
+          e.toString().contains('Connection timed out') ||
+          e.toString().contains('Network is unreachable')) {
+        throw Exception('Erro na comunicação com o serviço de IA. Verifique sua conexão com a internet.');
+      }
       rethrow;
+    }
+  }
+
+  // Método para chamar a API do Gemini com PDF
+  Future<String> callGeminiApiWithPdf(String prompt, Uint8List pdfBytes, {String? pdfName}) async {
+    // Inicializar o cache se ainda não foi inicializado
+    await _cacheService.init();
+
+    // Verificar se existe cache para este PDF e prompt
+    if (_forceCacheMode || !isConfigured) {
+      final cachedResult = await _cacheService.getFromCache(prompt, pdfBytes.toList());
+      if (cachedResult != null) {
+        print('Usando resultado do cache para análise do PDF');
+        return cachedResult;
+      }
+    }
+
+    if (!isConfigured) {
+      throw Exception('API Key não configurada');
+    }
+
+    // Verificar conectividade com a internet antes de fazer a chamada
+    final bool isConnected = await ConnectivityService.isConnected();
+    if (!isConnected) {
+      throw Exception('Erro na comunicação com o serviço de IA. Verifique sua chave de API e conexão com a internet.');
+    }
+
+    // Verificar se o modelo atual suporta PDF
+    bool modeloSuportaPDF = _geminiModel == 'gemini-2.5-pro-preview-03-25' ||
+                           _geminiModel.contains('gemini-2.0') ||
+                           _geminiModel.contains('gemini-1.5');
+
+    if (!modeloSuportaPDF) {
+      // Tentar encontrar um modelo que suporte PDF
+      if (_geminiModel != 'gemini-2.5-pro-preview-03-25') {
+        // Primeiro tentar o modelo 2.5 correto
+        _geminiModel = 'gemini-2.5-pro-preview-03-25';
+        print('Alterando para modelo Gemini 2.5 para melhor processamento de PDF: $_geminiModel');
+      } else {
+        // Se já estiver usando o 2.5 e não funcionar, tentar modelos 2.0
+        for (String modelo in _geminiModelsAlternatives) {
+          if (modelo.contains('gemini-2.0')) {
+            _geminiModel = modelo;
+            print('Alterando para modelo Gemini 2.0 para processamento de PDF: $_geminiModel');
+            break;
+          }
+        }
+      }
+    }
+
+    final url = '$_geminiBaseUrl/$_geminiModel:generateContent?key=$_apiKey';
+
+    // Parâmetros de retry
+    final int maxRetries = 5; // Aumentado para 5 tentativas
+    final int initialDelayMs = 1000; // 1 segundo
+    int currentRetry = 0;
+    int delayMs = initialDelayMs;
+
+    // Configurar parâmetros específicos para extração de dados de edital
+    double temperature = 0.0; // Temperatura baixa para extração de dados
+    int maxTokens = 64000; // Tokens máximos para o Gemini 2.5 Pro
+
+    print('Configurando chamada para Gemini com PDF: temperature=$temperature, maxTokens=$maxTokens');
+
+    try {
+      // Converter PDF para base64
+      final String pdfBase64 = base64Encode(pdfBytes);
+      final String fileName = pdfName ?? 'edital.pdf';
+      print('PDF codificado em base64. Tamanho: ${pdfBase64.length} caracteres');
+
+      // Preparar o corpo da requisição com o PDF
+      final Map<String, dynamic> requestBody = {
+        'contents': [
+          {
+            'parts': [
+              {
+                'text': prompt
+              },
+              {
+                'inline_data': {
+                  'mime_type': 'application/pdf',
+                  'data': pdfBase64
+                }
+              }
+            ]
+          }
+        ],
+        'generationConfig': {
+          'temperature': temperature,
+          'maxOutputTokens': maxTokens,
+        }
+      };
+
+      final body = jsonEncode(requestBody);
+      print('Corpo da requisição preparado. Tamanho: ${body.length} caracteres');
+
+      // Loop de retry
+      while (true) {
+        try {
+          print('Enviando PDF para a API Gemini (tentativa ${currentRetry + 1} de $maxRetries)...');
+          final response = await http.post(
+            Uri.parse(url),
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: body,
+          );
+
+          if (response.statusCode == 200) {
+            print('Resposta recebida com sucesso do Gemini. Analisando JSON...');
+            final jsonResponse = jsonDecode(response.body);
+
+            // Extrair o texto da resposta
+            if (jsonResponse.containsKey('candidates') &&
+                jsonResponse['candidates'].isNotEmpty &&
+                jsonResponse['candidates'][0].containsKey('content') &&
+                jsonResponse['candidates'][0]['content'].containsKey('parts') &&
+                jsonResponse['candidates'][0]['content']['parts'].isNotEmpty &&
+                jsonResponse['candidates'][0]['content']['parts'][0].containsKey('text')) {
+
+              final String text = jsonResponse['candidates'][0]['content']['parts'][0]['text'];
+              print('Texto extraído com sucesso. Tamanho: ${text.length} caracteres');
+
+              // Salvar o resultado no cache
+              await _cacheService.saveToCache(prompt, pdfBytes.toList(), text);
+              print('Resultado salvo no cache para uso futuro');
+
+              return text;
+            } else {
+              print('Estrutura de resposta inesperada do Gemini: ${jsonResponse.keys.toList()}');
+
+              // Tentar extrair o texto de forma alternativa
+              if (jsonResponse.containsKey('text')) {
+                final String text = jsonResponse['text'];
+                // Salvar o resultado no cache
+                await _cacheService.saveToCache(prompt, pdfBytes.toList(), text);
+                print('Resultado alternativo salvo no cache para uso futuro');
+                return text;
+              } else if (jsonResponse.containsKey('content') && jsonResponse['content'].containsKey('text')) {
+                final String text = jsonResponse['content']['text'];
+                // Salvar o resultado no cache
+                await _cacheService.saveToCache(prompt, pdfBytes.toList(), text);
+                print('Resultado alternativo salvo no cache para uso futuro');
+                return text;
+              } else {
+                throw Exception('Não foi possível carregar o prompt: Estrutura de resposta inesperada do Gemini');
+              }
+            }
+          } else if (response.statusCode == 400 && response.body.contains('Invalid API key')) {
+            print('Erro na API Gemini: Chave API inválida');
+            throw Exception('Chave API inválida. Verifique suas configurações.');
+          } else if (response.statusCode == 429 || response.body.contains('quota')) {
+            print('Erro na API Gemini: Limite de quota excedido');
+            throw Exception('Limite de quota da API Gemini excedido. Tente novamente mais tarde ou use outra chave API.');
+          } else if (response.statusCode == 413 || response.body.contains('too large')) {
+            print('Erro na API Gemini: PDF muito grande');
+            throw Exception('O arquivo PDF é muito grande para ser processado. Tente com um arquivo menor.');
+          } else {
+            print('Erro na API Gemini: ${response.statusCode} ${response.body}');
+
+            // Verificar se é um erro de sobrecarga (503) e se ainda podemos tentar novamente
+            if ((response.statusCode == 503 || response.statusCode == 500) && currentRetry < maxRetries - 1) {
+              currentRetry++;
+              // Aumentar o tempo de espera exponencialmente (backoff exponencial)
+              delayMs *= 2;
+              print('Servidor sobrecarregado. Tentando novamente em ${delayMs}ms...');
+              await Future.delayed(Duration(milliseconds: delayMs));
+              continue; // Tentar novamente
+            }
+
+            throw Exception('Não foi possível carregar o prompt: Erro na API Gemini: ${response.statusCode} ${response.body}');
+          }
+        } catch (e) {
+          print('Exceção ao chamar API Gemini: $e');
+
+          // Verificar se ainda podemos tentar novamente
+          if (currentRetry < maxRetries - 1 && !e.toString().contains('Chave API inválida') && !e.toString().contains('quota')) {
+            currentRetry++;
+            // Aumentar o tempo de espera exponencialmente (backoff exponencial)
+            delayMs *= 2;
+            print('Erro ao conectar. Tentando novamente em ${delayMs}ms...');
+            await Future.delayed(Duration(milliseconds: delayMs));
+            continue; // Tentar novamente
+          }
+
+          // Se já tentamos o máximo de vezes, lançar exceção
+          throw Exception('Não foi possível carregar o prompt: $e');
+        }
+      }
+    } catch (e) {
+      print('Erro ao processar PDF ou chamar API: $e');
+      throw Exception('Não foi possível carregar o prompt: $e');
     }
   }
 
   // Método para chamar a API do Gemini com retry
   Future<String> _callGeminiApi(String prompt) async {
+    // Inicializar o cache se ainda não foi inicializado
+    await _cacheService.init();
+
+    // Verificar se existe cache para este prompt
+    if (_forceCacheMode || !isConfigured) {
+      // Criar um hash do prompt para usar como chave de cache
+      final promptBytes = utf8.encode(prompt);
+      final cachedResult = await _cacheService.getFromCache(prompt, promptBytes);
+      if (cachedResult != null) {
+        print('Usando resultado do cache para prompt');
+        return cachedResult;
+      }
+    }
+
+    // Verificar se o modelo atual é válido
+    bool modeloValido = false;
+    String modeloTestado = _geminiModel;
+    String ultimoErro = '';
+
+    // Priorizar modelo 2.5 se o prompt não for muito longo
+    if (_geminiModel != 'gemini-2.5-pro-preview-03-25' && prompt.length < 100000) {
+      // Tentar usar o modelo 2.5 correto
+      _geminiModel = 'gemini-2.5-pro-preview-03-25';
+      print('Alterando para modelo Gemini 2.5 para melhor qualidade: $_geminiModel');
+    }
+
+    // Se não encontrar modelo 2.5, tentar modelo 2.0
+    if (_geminiModel != 'gemini-2.5-pro-preview-03-25' && !_geminiModel.contains('gemini-2.0') && prompt.length < 100000) {
+      // Tentar encontrar um modelo 2.0 na lista de alternativas
+      for (String modelo in _geminiModelsAlternatives) {
+        if (modelo.contains('gemini-2.0')) {
+          _geminiModel = modelo;
+          print('Alterando para modelo Gemini 2.0 para melhor qualidade: $_geminiModel');
+          break;
+        }
+      }
+    }
+
+    // Tentar com o modelo atual primeiro
+    try {
+      final testUrl = '$_geminiBaseUrl/$_geminiModel:generateContent?key=$_apiKey';
+      final testBody = jsonEncode({
+        'contents': [
+          {
+            'parts': [
+              {
+                'text': 'Teste de conexão'
+              }
+            ]
+          }
+        ],
+        'generationConfig': {
+          'maxOutputTokens': 10,
+        }
+      });
+
+      print('Testando modelo atual: $_geminiModel');
+      final testResponse = await http.post(
+        Uri.parse(testUrl),
+        headers: {'Content-Type': 'application/json'},
+        body: testBody,
+      );
+
+      if (testResponse.statusCode == 200) {
+        modeloValido = true;
+        print('Modelo atual $_geminiModel é válido');
+      } else {
+        ultimoErro = 'Erro com modelo $_geminiModel: ${testResponse.statusCode} ${testResponse.body}';
+        print(ultimoErro);
+
+        // Tentar com modelos alternativos
+        for (String modelo in _geminiModelsAlternatives) {
+          if (modelo == _geminiModel) continue; // Pular o modelo atual que já foi testado
+
+          try {
+            modeloTestado = modelo;
+            final altUrl = '$_geminiBaseUrl/$modelo:generateContent?key=$_apiKey';
+            final altResponse = await http.post(
+              Uri.parse(altUrl),
+              headers: {'Content-Type': 'application/json'},
+              body: testBody,
+            );
+
+            if (altResponse.statusCode == 200) {
+              modeloValido = true;
+              _geminiModel = modelo; // Atualizar o modelo para o que funcionou
+              print('Modelo alternativo $modelo é válido. Usando-o para esta chamada.');
+              break;
+            } else {
+              ultimoErro = 'Erro com modelo $modelo: ${altResponse.statusCode} ${altResponse.body}';
+              print(ultimoErro);
+            }
+          } catch (e) {
+            ultimoErro = 'Erro ao testar modelo $modelo: $e';
+            print(ultimoErro);
+          }
+        }
+      }
+    } catch (e) {
+      ultimoErro = 'Erro ao testar modelo $_geminiModel: $e';
+      print(ultimoErro);
+    }
+
+    if (!modeloValido) {
+      throw Exception('Não foi possível encontrar um modelo Gemini válido. $ultimoErro');
+    }
+
     final url = '$_geminiBaseUrl/$_geminiModel:generateContent?key=$_apiKey';
 
     // Parâmetros de retry
@@ -726,14 +1394,14 @@ OBSERVAÇÃO IMPORTANTE: Você está analisando a parte ${i+1} de ${textChunks.l
 
     // Otimizar parâmetros com base no tipo de tarefa
     double temperature;
-    String maxOutputTokens; // Alterado para String para evitar erro de tipo
+    dynamic maxOutputTokens; // Pode ser int ou string, dependendo do contexto
     String? responseMimeType;
     Map<String, dynamic>? responseSchema;
 
     if (isEditalExtraction) {
       // Para extração de dados de edital, usar temperatura baixa para respostas mais precisas
       temperature = 0.1;
-      maxOutputTokens = '64000'; // Aumentado para o limite máximo do Gemini 2.5 Pro
+      maxOutputTokens = 64000; // Aumentado para o limite máximo do Gemini 2.5 Pro
 
       // Definir o formato da resposta com base no tipo de extração
       // Sempre usar YAML para extração de edital
@@ -777,7 +1445,7 @@ OBSERVAÇÃO IMPORTANTE: Você está analisando a parte ${i+1} de ${textChunks.l
     } else if (isPlanoEstudo) {
       // Para geração de plano de estudo, usar temperatura moderada para criatividade controlada
       temperature = 0.3;
-      maxOutputTokens = '8192'; // Alterado para string para compatibilidade com a API
+      maxOutputTokens = 64000; // Aumentado para o limite máximo do Gemini 2.5 Pro (como número, não string)
       responseMimeType = 'application/json'; // Solicitar resposta em formato JSON
 
       // Definir schema para plano de estudo
@@ -830,7 +1498,7 @@ OBSERVAÇÃO IMPORTANTE: Você está analisando a parte ${i+1} de ${textChunks.l
     } else {
       // Para outras tarefas, usar configurações padrão
       temperature = 0.2;
-      maxOutputTokens = '4096'; // Alterado para string para compatibilidade com a API
+      maxOutputTokens = 4096; // Valor padrão para outras tarefas
       print('Configurando chamada padrão para Gemini 2.5 Pro');
     }
 
@@ -977,6 +1645,11 @@ OBSERVAÇÃO IMPORTANTE: Você está analisando a parte ${i+1} de ${textChunks.l
             // O processador de JSON irá tentar corrigir depois
           }
         }
+
+        // Salvar o resultado no cache
+        final promptBytes = utf8.encode(prompt);
+        await _cacheService.saveToCache(prompt, promptBytes, text);
+        print('Resultado salvo no cache para uso futuro');
 
         return text;
       } else {

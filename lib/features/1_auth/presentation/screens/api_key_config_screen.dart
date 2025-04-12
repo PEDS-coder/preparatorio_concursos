@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/data/services/ia_service.dart';
 import '../../../../core/services/api_config_service.dart';
+import '../../../../core/services/audio_explanation_service.dart';
 import '../../../../core/widgets/gradient_button.dart';
 import '../../../../core/widgets/styled_text_field.dart';
 import 'api_info_screen.dart';
@@ -24,6 +25,19 @@ class _ApiKeyConfigScreenState extends State<ApiKeyConfigScreen> {
   void initState() {
     super.initState();
     _loadSavedApiKey();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // Reproduzir explicação da tela de configuração da API
+    Future.delayed(Duration(milliseconds: 500), () {
+      print('Tentando reproduzir áudio da tela de configuração da API');
+      final audioService = Provider.of<AudioExplanationService>(context, listen: false);
+      audioService.playApiConfigExplanation();
+      print('Chamada para reproduzir áudio da API concluída');
+    });
   }
 
   @override
@@ -412,7 +426,16 @@ class _ApiKeyConfigScreenState extends State<ApiKeyConfigScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => ApiInfoScreen(),
+                        builder: (context) => ApiInfoScreen(
+                          title: 'Como Gerar Uma Chave API',
+                          content: 'Para gerar uma chave API gratuitamente, abra o navegador no site aistudio.google.com.\nFaça o login com sua conta google e siga as instruções abaixo:',
+                          imageAssets: [
+                            'assets/images/gemini_api_steps/step1.png',
+                            'assets/images/gemini_api_steps/step2.png',
+                            'assets/images/gemini_api_steps/step3.png',
+                            'assets/images/gemini_api_steps/step4.png',
+                          ],
+                        ),
                       ),
                     );
                   },

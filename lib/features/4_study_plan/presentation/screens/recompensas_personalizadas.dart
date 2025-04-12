@@ -106,7 +106,7 @@ class _RecompensasPersonalizadasWidgetState extends State<RecompensasPersonaliza
   void _mostrarDialogoAdicionarRecompensa() {
     final TextEditingController nomeController = TextEditingController();
     String tipoSelecionado = 'diaria';
-    
+
     showDialog(
       context: context,
       builder: (context) => StatefulBuilder(
@@ -134,9 +134,9 @@ class _RecompensasPersonalizadasWidgetState extends State<RecompensasPersonaliza
                   contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 ),
                 items: [
-                  DropdownMenuItem(value: 'diaria', child: Text('Diária')),
-                  DropdownMenuItem(value: 'semanal', child: Text('Semanal')),
-                  DropdownMenuItem(value: 'mensal', child: Text('Mensal')),
+                  DropdownMenuItem(value: 'diaria', child: Text('Pequena')),
+                  DropdownMenuItem(value: 'semanal', child: Text('Média')),
+                  DropdownMenuItem(value: 'mensal', child: Text('Grande')),
                 ],
                 onChanged: (value) {
                   if (value != null) {
@@ -161,11 +161,11 @@ class _RecompensasPersonalizadasWidgetState extends State<RecompensasPersonaliza
                     'nome': nomeController.text.trim(),
                     'tipo': tipoSelecionado,
                   };
-                  
+
                   setState(() {
                     _recompensas.add(novaRecompensa);
                   });
-                  
+
                   widget.onRecompensasChanged(_recompensas);
                   Navigator.pop(context);
                 }
@@ -184,7 +184,7 @@ class _RecompensasPersonalizadasWidgetState extends State<RecompensasPersonaliza
   void _mostrarDialogoEditarRecompensa(Map<String, dynamic> recompensa) {
     final TextEditingController nomeController = TextEditingController(text: recompensa['nome']);
     String tipoSelecionado = recompensa['tipo'];
-    
+
     showDialog(
       context: context,
       builder: (context) => StatefulBuilder(
@@ -211,9 +211,9 @@ class _RecompensasPersonalizadasWidgetState extends State<RecompensasPersonaliza
                   contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 ),
                 items: [
-                  DropdownMenuItem(value: 'diaria', child: Text('Diária')),
-                  DropdownMenuItem(value: 'semanal', child: Text('Semanal')),
-                  DropdownMenuItem(value: 'mensal', child: Text('Mensal')),
+                  DropdownMenuItem(value: 'diaria', child: Text('Pequena')),
+                  DropdownMenuItem(value: 'semanal', child: Text('Média')),
+                  DropdownMenuItem(value: 'mensal', child: Text('Grande')),
                 ],
                 onChanged: (value) {
                   if (value != null) {
@@ -242,7 +242,7 @@ class _RecompensasPersonalizadasWidgetState extends State<RecompensasPersonaliza
                         'tipo': tipoSelecionado,
                       };
                     });
-                    
+
                     widget.onRecompensasChanged(_recompensas);
                   }
                   Navigator.pop(context);

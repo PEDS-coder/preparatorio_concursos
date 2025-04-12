@@ -7,6 +7,11 @@ import '../tabs/home_tab.dart';
 import '../tabs/meu_edital_tab.dart';
 import '../tabs/plano_estudo_tab.dart';
 import '../tabs/meu_progresso_tab.dart';
+// Ferramentas de IA
+import '../../../7_ai_tools/presentation/screens/flashcards_screen.dart';
+import '../../../7_ai_tools/presentation/screens/resumos_screen.dart';
+import '../../../7_ai_tools/presentation/screens/questoes_screen.dart';
+import '../../../7_ai_tools/presentation/screens/mapas_mentais_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   final int initialTabIndex;
@@ -31,15 +36,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
     MeuEditalTab(),
     PlanoEstudoTab(),
     MeuProgressoTab(),
-    // Novas abas para ferramentas de IA
-    Scaffold(body: Center(child: Text('Flashcards'))),
-    Scaffold(body: Center(child: Text('Resumos'))),
-    Scaffold(body: Center(child: Text('Questões'))),
-    Scaffold(body: Center(child: Text('Mapas Mentais'))),
+    // Ferramentas de IA integradas diretamente no dashboard
+    FlashcardsScreen(showBottomNavigationBar: false),
+    ResumosScreen(),
+    QuestoesScreen(),
+    MapasMentaisScreen(),
   ];
 
   final List<String> _tabTitles = [
-    'Dashboard',
+    'Home',
     'Meu Edital',
     'Plano de Estudo',
     'Meu Progresso',
@@ -132,28 +137,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
         child: BottomNavigationBar(
           type: BottomNavigationBarType.fixed,
-          currentIndex: _selectedIndex < 4 ? _selectedIndex : 0, // Manter selecionado apenas as 4 primeiras abas
+          currentIndex: _selectedIndex,
           onTap: (index) {
-            if (index < 4) {
-              // Abas principais
-              _onItemTapped(index);
-            } else {
-              // Abas de ferramentas de IA
-              switch (index) {
-                case 4: // Flashcards
-                  Navigator.pushNamed(context, '/flashcards');
-                  break;
-                case 5: // Resumos
-                  Navigator.pushNamed(context, '/resumos');
-                  break;
-                case 6: // Questões
-                  Navigator.pushNamed(context, '/questoes');
-                  break;
-                case 7: // Mapas Mentais
-                  Navigator.pushNamed(context, '/mapas_mentais');
-                  break;
-              }
-            }
+            // Todas as abas agora são principais
+            _onItemTapped(index);
           },
           selectedItemColor: AppTheme.primaryColor,
           unselectedItemColor: _getTextColor(),
@@ -166,9 +153,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
           items: [
             // Abas principais
             BottomNavigationBarItem(
-              icon: Icon(Icons.dashboard, color: _getIconColor(0)),
-              activeIcon: Icon(Icons.dashboard, color: AppTheme.primaryColor),
-              label: 'Início',
+              icon: Icon(Icons.home, color: _getIconColor(0)),
+              activeIcon: Icon(Icons.home, color: AppTheme.primaryColor),
+              label: 'Home',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.article, color: _getIconColor(1)),

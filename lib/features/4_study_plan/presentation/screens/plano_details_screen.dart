@@ -100,8 +100,8 @@ class PlanoDetailsScreen extends StatelessWidget {
               children: [
                 Expanded(
                   child: ElevatedButton.icon(
-                    icon: Icon(Icons.calendar_today),
-                    label: Text('Ver Calendário'),
+                    icon: Icon(Icons.summarize),
+                    label: Text('Ver Resumo do Plano'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.primaryColor,
                       padding: EdgeInsets.symmetric(vertical: 16),
@@ -109,7 +109,7 @@ class PlanoDetailsScreen extends StatelessWidget {
                     onPressed: () {
                       Navigator.pushNamed(
                         context,
-                        '/plano/calendario',
+                        '/plano/resumo',
                         arguments: planoId,
                       );
                     },

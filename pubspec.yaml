@@ -23,9 +23,14 @@ dependencies:
   collection: ^1.18.0
   table_calendar: ^3.0.9
   intl: ^0.18.1
+  fl_chart: ^0.65.0
 
   flutter_dotenv: ^5.1.0
   yaml: ^3.1.2
+  crypto: ^3.0.3
+  url_launcher: ^6.3.1
+  just_audio: ^0.9.46
+  just_audio_windows: ^0.2.0
 
 dev_dependencies:
   flutter_test:
@@ -37,9 +42,11 @@ flutter:
 
   assets:
     - assets/images/
+    - assets/images/gemini_api_steps/
     - assets/data/
     - assets/fonts/
     - assets/i18n/
+    - assets/audio_explanations/
     - lib/core/prompts/
     - lib/core/prompts/edital_analysis/
     - .env

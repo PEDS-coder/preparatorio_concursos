@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'dart:math' as math;
 import '../../../../core/auth/auth_service.dart';
 import '../../../../core/data/services/gamificacao_service.dart';
@@ -452,60 +453,91 @@ class MeuProgressoTab extends StatelessWidget {
   }
 
   Widget _buildBarChart(List<Map<String, dynamic>> dados) {
-    // Encontrar o valor máximo para escala
-    final maxHoras = dados.fold<double>(0.0, (maxVal, item) => math.max(maxVal, item['horas'] as double));
-
     return Padding(
-      padding: const EdgeInsets.only(top: 20, bottom: 10),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: dados.map((item) {
-          final altura = (item['horas'] as double) / (maxHoras > 0 ? maxHoras : 1) * 150;
-
-          return Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Text(
-                '${item['horas']}h',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.white,
-                ),
+      padding: const EdgeInsets.only(top: 20, right: 20, left: 10),
+      child: BarChart(
+        BarChartData(
+          alignment: BarChartAlignment.spaceEvenly,
+          maxY: dados.fold<double>(0.0, (maxVal, item) => math.max(maxVal, item['horas'] as double)) * 1.2,
+          titlesData: FlTitlesData(
+            show: true,
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                getTitlesWidget: (value, meta) {
+                  if (value.toInt() >= 0 && value.toInt() < dados.length) {
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Text(
+                        dados[value.toInt()]['dia'],
+                        style: TextStyle(color: Colors.grey.shade400, fontSize: 12),
+                      ),
+                    );
+                  }
+                  return const SizedBox();
+                },
+                reservedSize: 30,
               ),
-              SizedBox(height: 5),
-              Container(
-                width: 30,
-                height: altura,
-                decoration: BoxDecoration(
+            ),
+            leftTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                getTitlesWidget: (value, meta) {
+                  if (value == 0) return const SizedBox();
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: Text(
+                      '${value.toInt()}h',
+                      style: TextStyle(color: Colors.grey.shade400, fontSize: 10),
+                    ),
+                  );
+                },
+                reservedSize: 30,
+              ),
+            ),
+            topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          ),
+          gridData: FlGridData(
+            show: true,
+            drawVerticalLine: false,
+            getDrawingHorizontalLine: (value) => FlLine(
+              color: Colors.grey.shade800,
+              strokeWidth: 0.5,
+              dashArray: [5, 5],
+            ),
+          ),
+          borderData: FlBorderData(show: false),
+          barGroups: List.generate(
+            dados.length,
+            (index) => BarChartGroupData(
+              x: index,
+              barRods: [
+                BarChartRodData(
+                  toY: dados[index]['horas'],
                   gradient: LinearGradient(
-                    colors: [AppTheme.secondaryColor, Color(0xFF2E7BFF)],
+                    colors: [
+                      Color(0xFF00CCFF), // Neon azul
+                      Color(0xFF2E7BFF),
+                    ],
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                   ),
-                  borderRadius: BorderRadius.vertical(
-                    top: Radius.circular(6),
+                  width: 20,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(6),
+                    topRight: Radius.circular(6),
                   ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppTheme.secondaryColor.withOpacity(0.3),
-                      blurRadius: 8,
-                      offset: Offset(0, 2),
-                    ),
-                  ],
+                  backDrawRodData: BackgroundBarChartRodData(
+                    show: true,
+                    toY: dados.fold<double>(0.0, (maxVal, item) => math.max(maxVal, item['horas'] as double)) * 1.2,
+                    color: Colors.grey.shade800.withOpacity(0.3),
+                  ),
                 ),
-              ),
-              SizedBox(height: 8),
-              Text(
-                item['dia'],
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey.shade400,
-                ),
-              ),
-            ],
-          );
-        }).toList(),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -514,11 +546,53 @@ class MeuProgressoTab extends StatelessWidget {
     // Calcular total para percentuais
     final total = dados.fold<double>(0.0, (sum, item) => sum + (item['horas'] as double));
 
-    return CustomPaint(
-      painter: PieChartPainter(dados, total),
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+    // Cores neon para o gráfico
+    final List<Color> neonColors = [
+      Color(0xFF00FFFF), // Neon ciano
+      Color(0xFFFF00FF), // Neon magenta
+      Color(0xFF00FF00), // Neon verde
+      Color(0xFFFFFF00), // Neon amarelo
+      Color(0xFFFF9900), // Neon laranja
+    ];
+
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        PieChart(
+          PieChartData(
+            sectionsSpace: 2,
+            centerSpaceRadius: 40,
+            sections: List.generate(
+              dados.length,
+              (index) {
+                final item = dados[index];
+                final percentual = (item['horas'] as double) / total;
+                final color = index < neonColors.length ? neonColors[index] : Colors.grey;
+
+                return PieChartSectionData(
+                  color: color,
+                  value: item['horas'] as double,
+                  title: '${(percentual * 100).toStringAsFixed(0)}%',
+                  radius: 60,
+                  titleStyle: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    shadows: [
+                      Shadow(color: Colors.black, blurRadius: 2)
+                    ],
+                  ),
+                  badgeWidget: _buildGlowingDot(color),
+                  badgePositionPercentageOffset: 0.9,
+                );
+              },
+            ),
+            borderData: FlBorderData(show: false),
+          ),
+        ),
+        // Texto central
+        Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
             Text(
               '${total.toStringAsFixed(1)}h',
@@ -537,6 +611,24 @@ class MeuProgressoTab extends StatelessWidget {
             ),
           ],
         ),
+      ],
+    );
+  }
+
+  Widget _buildGlowingDot(Color color) {
+    return Container(
+      width: 8,
+      height: 8,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: color,
+        boxShadow: [
+          BoxShadow(
+            color: color.withOpacity(0.8),
+            blurRadius: 4,
+            spreadRadius: 1,
+          ),
+        ],
       ),
     );
   }
@@ -545,24 +637,29 @@ class MeuProgressoTab extends StatelessWidget {
     // Calcular total para percentuais
     final total = dados.fold<double>(0.0, (sum, item) => sum + (item['horas'] as double));
 
+    // Cores neon para o gráfico
+    final List<Color> neonColors = [
+      Color(0xFF00FFFF), // Neon ciano
+      Color(0xFFFF00FF), // Neon magenta
+      Color(0xFF00FF00), // Neon verde
+      Color(0xFFFFFF00), // Neon amarelo
+      Color(0xFFFF9900), // Neon laranja
+    ];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.center,
-      children: dados.map((item) {
+      children: dados.asMap().entries.map((entry) {
+        final index = entry.key;
+        final item = entry.value;
         final percentual = (item['horas'] as double) / total * 100;
+        final color = index < neonColors.length ? neonColors[index] : Colors.grey;
 
         return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 4.0),
+          padding: const EdgeInsets.symmetric(vertical: 6.0),
           child: Row(
             children: [
-              Container(
-                width: 12,
-                height: 12,
-                decoration: BoxDecoration(
-                  color: item['cor'] as Color,
-                  shape: BoxShape.circle,
-                ),
-              ),
+              _buildGlowingDot(color),
               SizedBox(width: 8),
               Expanded(
                 child: Text(
@@ -570,17 +667,28 @@ class MeuProgressoTab extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 12,
                     color: Colors.white,
+                    shadows: [
+                      Shadow(color: color.withOpacity(0.7), blurRadius: 3)
+                    ],
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
               SizedBox(width: 4),
-              Text(
-                '${percentual.toStringAsFixed(1)}%',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: color.withOpacity(0.5), width: 1),
+                ),
+                child: Text(
+                  '${percentual.toStringAsFixed(1)}%',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
                 ),
               ),
             ],
@@ -589,62 +697,4 @@ class MeuProgressoTab extends StatelessWidget {
       }).toList(),
     );
   }
-}
-
-// Painter para o gráfico de pizza
-class PieChartPainter extends CustomPainter {
-  final List<Map<String, dynamic>> dados;
-  final double total;
-
-  PieChartPainter(this.dados, this.total);
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height / 2);
-    final radius = math.min(size.width, size.height) / 2 * 0.8;
-
-    double startAngle = -math.pi / 2; // Começar do topo
-
-    for (var item in dados) {
-      final sweepAngle = (item['horas'] as double) / total * 2 * math.pi;
-
-      final paint = Paint()
-        ..color = (item['cor'] as Color)
-        ..style = PaintingStyle.fill;
-
-      canvas.drawArc(
-        Rect.fromCircle(center: center, radius: radius),
-        startAngle,
-        sweepAngle,
-        true,
-        paint,
-      );
-
-      // Adicionar borda
-      final borderPaint = Paint()
-        ..color = Colors.black.withOpacity(0.1)
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 1;
-
-      canvas.drawArc(
-        Rect.fromCircle(center: center, radius: radius),
-        startAngle,
-        sweepAngle,
-        true,
-        borderPaint,
-      );
-
-      startAngle += sweepAngle;
-    }
-
-    // Adicionar círculo central
-    final centerPaint = Paint()
-      ..color = AppTheme.darkCardColor
-      ..style = PaintingStyle.fill;
-
-    canvas.drawCircle(center, radius * 0.5, centerPaint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

@@ -86,6 +86,84 @@ class EditalService extends ChangeNotifier {
     return false;
   }
 
+  // Atualizar o conteúdo programático de um cargo
+  Future<void> atualizarConteudoProgramaticoCargo(String editalId, String cargoNome, Map<String, dynamic> conteudoProgramatico) async {
+    // Encontrar o edital
+    final editalIndex = _editais.indexWhere((edital) => edital.id == editalId);
+    if (editalIndex == -1) {
+      throw Exception('Edital não encontrado');
+    }
+
+    // Encontrar o cargo
+    final cargoIndex = _editais[editalIndex].dadosExtraidos.cargos.indexWhere(
+      (cargo) => cargo.nome == cargoNome || cargo.id == cargoNome
+    );
+
+    if (cargoIndex == -1) {
+      throw Exception('Cargo não encontrado');
+    }
+
+    // Verificar se o conteúdo programático contém a chave 'conteudo_programatico'
+    if (conteudoProgramatico.containsKey('conteudo_programatico')) {
+      // Atualizar o conteúdo programático do cargo
+      final List<dynamic> novoConteudo = conteudoProgramatico['conteudo_programatico'] as List<dynamic>;
+
+      // Converter para o formato esperado pelo modelo
+      final List<ConteudoProgramatico> novoConteudoProgramatico = [];
+
+      for (final item in novoConteudo) {
+        final Map<String, dynamic> itemMap = item as Map<String, dynamic>;
+
+        novoConteudoProgramatico.add(
+          ConteudoProgramatico(
+            nome: itemMap['nome'] as String,
+            tipo: itemMap['tipo'] as String,
+            topicos: (itemMap['topicos'] as List<dynamic>).cast<String>(),
+          ),
+        );
+      }
+
+      // Criar uma cópia do edital para não modificar diretamente o objeto original
+      final Edital editalAtualizado = Edital(
+        id: _editais[editalIndex].id,
+        userId: _editais[editalIndex].userId,
+        nomeConcurso: _editais[editalIndex].nomeConcurso,
+        textoCompleto: _editais[editalIndex].textoCompleto,
+        dataUpload: _editais[editalIndex].dataUpload,
+        dadosOriginais: _editais[editalIndex].dadosOriginais,
+        dadosExtraidos: DadosExtraidos(
+          titulo: _editais[editalIndex].dadosExtraidos.titulo,
+          orgao: _editais[editalIndex].dadosExtraidos.orgao,
+          banca: _editais[editalIndex].dadosExtraidos.banca,
+          inicioInscricao: _editais[editalIndex].dadosExtraidos.inicioInscricao,
+          fimInscricao: _editais[editalIndex].dadosExtraidos.fimInscricao,
+          valorTaxa: _editais[editalIndex].dadosExtraidos.valorTaxa,
+          localProva: _editais[editalIndex].dadosExtraidos.localProva,
+          dataProva: _editais[editalIndex].dadosExtraidos.dataProva,
+          cargos: List.from(_editais[editalIndex].dadosExtraidos.cargos),
+        ),
+      );
+
+      // Atualizar o conteúdo programático do cargo
+      editalAtualizado.dadosExtraidos.cargos[cargoIndex] = Cargo(
+        id: editalAtualizado.dadosExtraidos.cargos[cargoIndex].id,
+        nome: editalAtualizado.dadosExtraidos.cargos[cargoIndex].nome,
+        vagas: editalAtualizado.dadosExtraidos.cargos[cargoIndex].vagas,
+        salario: editalAtualizado.dadosExtraidos.cargos[cargoIndex].salario,
+        escolaridade: editalAtualizado.dadosExtraidos.cargos[cargoIndex].escolaridade,
+        dataProva: editalAtualizado.dadosExtraidos.cargos[cargoIndex].dataProva,
+        conteudoProgramatico: novoConteudoProgramatico,
+      );
+
+      // Atualizar o edital na lista
+      _editais[editalIndex] = editalAtualizado;
+
+      // Salvar as alterações
+      await _saveEditais();
+      notifyListeners();
+    }
+  }
+
   // Extrair dados de um edital (simulação)
   Future<DadosExtraidos> extrairDadosEdital(String textoEdital) async {
     // Simulação de processamento de extração

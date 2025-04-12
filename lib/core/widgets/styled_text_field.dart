@@ -155,7 +155,8 @@ class _StyledTextFieldState extends State<StyledTextField> {
         enabled: widget.enabled,
         textInputAction: widget.textInputAction,
         style: TextStyle(
-          color: Colors.white,
+          // Usar cor baseada no tema para garantir legibilidade
+          color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black87,
           fontSize: 16,
         ),
         decoration: InputDecoration(
@@ -210,13 +211,19 @@ class _StyledTextFieldState extends State<StyledTextField> {
             ),
           ),
           filled: true,
-          fillColor: AppTheme.darkCardColor,
+          fillColor: Theme.of(context).brightness == Brightness.dark ?
+                    AppTheme.darkCardColor : Colors.grey.shade100,
           labelStyle: TextStyle(
-            color: _isFocused ? glowColor : Colors.white.withOpacity(0.7),
+            // Usar cor baseada no tema para garantir legibilidade
+            color: _isFocused ? glowColor :
+                  (Theme.of(context).brightness == Brightness.dark ?
+                   Colors.white.withOpacity(0.7) : Colors.black87.withOpacity(0.7)),
             fontWeight: _isFocused ? FontWeight.bold : FontWeight.normal,
           ),
           hintStyle: TextStyle(
-            color: Colors.white.withOpacity(0.3),
+            // Usar cor baseada no tema para garantir legibilidade
+            color: Theme.of(context).brightness == Brightness.dark ?
+                  Colors.white.withOpacity(0.3) : Colors.black87.withOpacity(0.5),
           ),
           errorStyle: TextStyle(
             color: AppTheme.errorColor,

@@ -1,0 +1,82 @@
+# ANALISADOR DE EDITAIS DE CONCURSO - ANÁLISE DIRETA DE PDF
+
+Você está recebendo um arquivo PDF de um edital de concurso público brasileiro. Sua tarefa é analisar diretamente este documento PDF e extrair as informações relevantes em formato YAML.
+
+**INSTRUÇÕES IMPORTANTES:**
+1. Analise o conteúdo do PDF do edital de concurso público fornecido.
+2. Extraia todas as informações relevantes sobre o concurso, especialmente o conteúdo programático.
+3. É ABSOLUTAMENTE CRUCIAL que você identifique e extraia TODOS OS CARGOS mencionados no edital, não apenas um.
+4. ATENÇÃO: O edital contém múltiplos cargos! Você deve extrair TODOS eles, incluindo Analista Judiciário e Técnico Judiciário com suas diferentes áreas e especialidades.
+5. Forneça sua resposta EXCLUSIVAMENTE em formato YAML válido.
+6. Não inclua texto introdutório, explicações ou comentários fora do YAML.
+
+**ESTRUTURA DO YAML A SER GERADO:**
+
+```yaml
+titulo_concurso: "Nome do Concurso"
+orgao_responsavel: "Nome do Órgão"
+banca_organizadora: "Nome da Banca"
+periodo_inscricoes:
+  data_inicio: "DD/MM/AAAA"
+  data_fim: "DD/MM/AAAA"
+valor_taxa_inscricao: 123.45
+local_prova: "Local da Prova"
+cargos:
+  - nome: "Nome do Cargo 1"
+    vagas: 10
+    salario: 5000.00
+    escolaridade: "Nível de escolaridade exigido"
+    conteudo_programatico:
+      - nome: "Língua Portuguesa"
+        tipo: "comum"
+        topicos:
+          - "Compreensão e interpretação de textos"
+          - "Tipologia textual"
+      - nome: "Matemática"
+        tipo: "comum"
+        topicos:
+          - "Números inteiros e racionais"
+          - "Problemas envolvendo as quatro operações"
+  - nome: "Nome do Cargo 2"
+    vagas: 5
+    salario: 6000.00
+    escolaridade: "Nível de escolaridade exigido"
+    conteudo_programatico:
+      - nome: "Língua Portuguesa"
+        tipo: "comum"
+        topicos:
+          - "Compreensão e interpretação de textos"
+          - "Tipologia textual"
+      - nome: "Conhecimentos Específicos"
+        tipo: "específico"
+        topicos:
+          - "Tópico específico 1"
+          - "Tópico específico 2"
+```
+
+**IMPORTANTE SOBRE DATAS:**
+- Use o formato DD/MM/AAAA para todas as datas (exemplo: "10/04/2025")
+- NÃO use o formato ISO (AAAA-MM-DD)
+- Certifique-se de que as datas estejam entre aspas
+
+**IMPORTANTE SOBRE O CONTEÚDO PROGRAMÁTICO:**
+- Preserve o texto completo dos tópicos conforme aparecem no edital
+- Categorize corretamente as disciplinas como "comum" ou "específico"
+- Inclua todos os tópicos listados para cada disciplina
+
+**IMPORTANTE SOBRE A ESTRUTURA:**
+- Mantenha a indentação correta no YAML
+- Use aspas para strings que contêm caracteres especiais
+- Use listas para representar múltiplos itens
+- Não inclua informações que não estejam no edital
+
+**IMPORTANTE SOBRE OS CARGOS:**
+- É ABSOLUTAMENTE ESSENCIAL que você extraia TODOS os cargos mencionados no edital, não apenas um
+- Procure por seções como "DOS CARGOS", "DAS VAGAS", "QUADRO DE VAGAS" ou tabelas que listam os cargos
+- Examine cuidadosamente todo o documento para identificar todos os cargos, incluindo anexos e apêndices
+- Inclua todos os cargos, mesmo que tenham conteúdo programático similar
+- Se houver muitos cargos e você não conseguir extrair o conteúdo programático para todos, priorize extrair pelo menos o nome, vagas e escolaridade de cada cargo
+- Verifique se há cargos de níveis diferentes (como Analista Judiciário e Técnico Judiciário) e inclua todos eles
+- Certifique-se de incluir todas as especialidades e áreas para cada cargo
+
+Sua resposta deve começar diretamente com o YAML, sem texto introdutório ou explicativo.

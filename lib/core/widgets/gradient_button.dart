@@ -51,7 +51,13 @@ class GradientButton extends StatelessWidget {
     return GradientButton(
       key: key,
       onPressed: onPressed,
-      child: Text(text, style: textStyle ?? TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+      child: Text(
+        text,
+        style: textStyle ?? TextStyle(
+          color: Colors.white, // Branco sobre gradiente colorido tem bom contraste
+          fontWeight: FontWeight.bold
+        )
+      ),
       gradient: gradient,
       borderRadius: borderRadius,
       padding: padding,

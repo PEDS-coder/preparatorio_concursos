@@ -53,33 +53,41 @@ class EditalAnalyzer {
   //============================================================================
 
   /// Analisa um edital e extrai informações detalhadas usando a API LLM (Gemini ou OpenAI)
-  Future<DadosExtraidos> analisarEdital(String textoEdital, [Uint8List? pdfBytes]) async {
+  /// Primeira etapa: extrai informações básicas do edital
+  Future<DadosExtraidos> analisarEdital([String? textoEdital, Uint8List? pdfBytes]) async {
     _reportProgress(0.05, 'Iniciando análise...');
     Map<String, dynamic>? dadosExtraidosMap;
 
     try {
-      // Verificar se temos o texto do edital
-      if (textoEdital.isEmpty) {
-        throw EditalAnalysisException('Texto do edital não fornecido. A análise de edital requer o texto extraído do PDF.');
+      // Verificar se temos o PDF
+      if (pdfBytes == null || pdfBytes.isEmpty) {
+        throw EditalAnalysisException('PDF do edital não fornecido. A análise direta de edital requer o arquivo PDF.');
       }
 
-      // Usar a API LLM (Gemini ou OpenAI) para análise do edital
-      _reportProgress(0.1, 'Enviando edital para análise com IA...');
+      // Usar a API LLM para extração de informações básicas
+      _reportProgress(0.1, 'Extraindo informações básicas do edital...');
 
-      // Analisar o edital com a API LLM
-      dadosExtraidosMap = await _analisarEditalComLLM(textoEdital);
+      // Extrair informações básicas do edital
+      dadosExtraidosMap = await _extrairInfoBasicasEdital(pdfBytes);
 
       if (dadosExtraidosMap != null) {
-        _log('Análise com LLM bem-sucedida!');
-        // Adicionar o texto completo ao resultado
-        dadosExtraidosMap['textoCompleto'] = textoEdital;
+        _log('Extração de informações básicas bem-sucedida!');
+
+        // Adicionar o texto completo ao resultado se disponível
+        if (textoEdital != null && textoEdital.isNotEmpty) {
+          dadosExtraidosMap['textoCompleto'] = textoEdital;
+        }
+
+        // Armazenar os bytes do PDF para uso posterior na extração de conteúdo programático
+        dadosExtraidosMap['pdfBytes'] = base64Encode(pdfBytes);
+
         _reportProgress(0.9, 'Convertendo dados para formato final...');
 
         // Retornar os dados extraídos pelo LLM
         return _converterParaDadosExtraidos(dadosExtraidosMap);
       } else {
         // Se a análise com LLM falhou, lançar uma exceção
-        throw EditalAnalysisException('A análise com a API LLM falhou. Verifique se a API está configurada corretamente.');
+        throw EditalAnalysisException('A extração de informações básicas falhou. Verifique se a API está configurada corretamente.');
       }
 
     } catch (e, stackTrace) {
@@ -92,6 +100,147 @@ class EditalAnalyzer {
   //============================================================================
   //== MÉTODOS DE ANÁLISE COM LLM
   //============================================================================
+
+  /// Extrai informações básicas do edital (primeira etapa)
+  Future<Map<String, dynamic>?> _extrairInfoBasicasEdital(Uint8List pdfBytes) async {
+    try {
+      _reportProgress(0.2, 'Preparando PDF para extração de informações básicas...');
+
+      // Verificar o tamanho do PDF
+      final int pdfSizeKB = (pdfBytes.length / 1024).round();
+      _log('Tamanho do PDF: $pdfSizeKB KB');
+
+      if (pdfSizeKB > 10240) { // 10 MB
+        _log('PDF muito grande (${pdfSizeKB}KB). Pode haver problemas no processamento.');
+        _reportProgress(0.25, 'Atenção: PDF grande, pode demorar mais...');
+      }
+
+      // Enviar o PDF para a API LLM
+      _reportProgress(0.3, 'Enviando PDF para extração de informações básicas...');
+
+      // Usar o método de extração de informações básicas
+      final String? resultado = await iaService.extrairInfoBasicasEdital(pdfBytes);
+
+      if (resultado == null || resultado.isEmpty) {
+        _log('Resultado da extração de informações básicas vazio');
+        return null;
+      }
+
+      _reportProgress(0.7, 'Processando resultado da extração...');
+      _log('Resultado da extração de informações básicas recebido. Processando YAML...');
+
+      // Processar o resultado YAML
+      return _processarRespostaYaml(resultado);
+    } catch (e, stackTrace) {
+      _log('Erro na extração de informações básicas: $e\nStackTrace: $stackTrace');
+      rethrow;
+    }
+  }
+
+  /// Extrai o conteúdo programático para um cargo específico (segunda etapa)
+  Future<Map<String, dynamic>?> extrairConteudoProgramatico(Uint8List pdfBytes, String cargoAlvo) async {
+    try {
+      _reportProgress(0.1, 'Extraindo conteúdo programático para o cargo: $cargoAlvo...');
+
+      // Chamar a API para extrair o conteúdo programático
+      final String? resultado = await iaService.extrairConteudoProgramatico(pdfBytes, cargoAlvo);
+
+      if (resultado == null || resultado.isEmpty) {
+        _log('Resultado da extração de conteúdo programático vazio');
+        return null;
+      }
+
+      _reportProgress(0.7, 'Processando resultado da extração...');
+      _log('Resultado da extração de conteúdo programático recebido. Processando YAML...');
+
+      // Processar o resultado YAML
+      return _processarRespostaYaml(resultado);
+    } catch (e, stackTrace) {
+      _log('Erro na extração de conteúdo programático: $e\nStackTrace: $stackTrace');
+      rethrow;
+    }
+  }
+
+  /// Analisa um edital enviando o PDF diretamente para a API LLM
+  /// Este método não extrai o texto do PDF, enviando o arquivo diretamente
+  /// DEPRECATED: Use _extrairInfoBasicasEdital em vez disso
+  Future<Map<String, dynamic>?> _analisarEditalComPdfDireto(Uint8List pdfBytes) async {
+    // Redirecionar para o novo método
+    return await _extrairInfoBasicasEdital(pdfBytes);
+  }
+
+  /// Processa a resposta YAML da API LLM
+  Map<String, dynamic>? _processarRespostaYaml(String resposta) {
+    try {
+      // Limpar a resposta para garantir que seja um YAML válido
+      String yamlStr = _limparRespostaYaml(resposta);
+
+      // Decodificar o YAML
+      final yamlDoc = loadYaml(yamlStr);
+
+      // Converter o YAML para Map<String, dynamic>
+      final Map<String, dynamic> result = _convertYamlToMap(yamlDoc);
+      return result;
+    } catch (e, stackTrace) {
+      _log('Erro ao processar resposta YAML: $e\nStackTrace: $stackTrace');
+      return null;
+    }
+  }
+
+  /// Converte um documento YAML para Map<String, dynamic>
+  Map<String, dynamic> _convertYamlToMap(dynamic yamlDoc) {
+    if (yamlDoc is YamlMap) {
+      final Map<String, dynamic> result = {};
+      for (final entry in yamlDoc.entries) {
+        final key = entry.key.toString();
+        final value = _convertYamlValue(entry.value);
+        result[key] = value;
+      }
+      return result;
+    } else {
+      throw EditalAnalysisException('Documento YAML inválido: não é um mapa');
+    }
+  }
+
+  /// Converte um valor YAML para um tipo Dart apropriado
+  dynamic _convertYamlValue(dynamic value) {
+    if (value is YamlMap) {
+      return _convertYamlToMap(value);
+    } else if (value is YamlList) {
+      return value.map((item) => _convertYamlValue(item)).toList();
+    } else {
+      return value;
+    }
+  }
+
+  /// Limpa a resposta YAML para garantir que seja válida
+  String _limparRespostaYaml(String resposta) {
+    // Remover qualquer texto antes do início do YAML
+    final yamlStartRegex = RegExp(r'```yaml\s*|```\s*|---\s*', multiLine: true);
+    final yamlEndRegex = RegExp(r'\s*```', multiLine: true);
+
+    String cleanYaml = resposta;
+
+    // Remover delimitadores de código se presentes
+    final startMatch = yamlStartRegex.firstMatch(cleanYaml);
+    if (startMatch != null) {
+      cleanYaml = cleanYaml.substring(startMatch.end);
+    }
+
+    // Procurar o delimitador de fim
+    final endMatches = yamlEndRegex.allMatches(cleanYaml).toList();
+    if (endMatches.isNotEmpty) {
+      // Pegar o último match
+      final endMatch = endMatches.last;
+      cleanYaml = cleanYaml.substring(0, endMatch.start);
+    }
+
+    // Remover linhas vazias no início e fim
+    cleanYaml = cleanYaml.trim();
+
+    _log('YAML limpo:\n$cleanYaml');
+    return cleanYaml;
+  }
 
   /// Analisa um edital usando a API LLM (Gemini ou OpenAI)
   /// Envia o texto extraído do PDF para a API LLM e processa o resultado
@@ -180,30 +329,7 @@ class EditalAnalyzer {
     }
   }
 
-  /// Converte um documento YAML para Map<String, dynamic>
-  Map<String, dynamic> _convertYamlToMap(dynamic yamlDoc) {
-    if (yamlDoc is Map) {
-      return Map<String, dynamic>.fromEntries(
-        yamlDoc.entries.map((entry) {
-          final key = entry.key.toString();
-          final value = _convertYamlToMap(entry.value);
-          return MapEntry(key, value);
-        }),
-      );
-    } else if (yamlDoc is List) {
-      return {
-        'list': yamlDoc.map((item) {
-          if (item is Map || item is List) {
-            return _convertYamlToMap(item);
-          } else {
-            return item;
-          }
-        }).toList(),
-      };
-    } else {
-      return {'value': yamlDoc};
-    }
-  }
+  // Método removido para evitar duplicação
 
   /// Prepara o prompt para análise de edital
   Future<String> _prepararPromptAnaliseEdital(String textoEdital) async {
@@ -388,6 +514,80 @@ $textoEdital
         valorTaxa = (dadosJson['valorTaxa'] is num) ?
                     (dadosJson['valorTaxa'] as num).toDouble() :
                     _DEFAULT_TAXA;
+      } else if (dadosJson.containsKey('valor_taxa_inscricao')) {
+        // Verificar se é um mapa com valores específicos por cargo
+        if (dadosJson['valor_taxa_inscricao'] is Map) {
+          // Pegar o primeiro valor encontrado
+          final taxaMap = dadosJson['valor_taxa_inscricao'];
+
+          // Armazenar as taxas por nível no objeto dadosJson para uso posterior
+          dadosJson['taxas_por_nivel'] = taxaMap;
+
+          // Para o MPU, verificar se há valores específicos para analista e técnico
+          if (taxaMap.containsKey('nivel_superior')) {
+            valorTaxa = (taxaMap['nivel_superior'] is num) ?
+                        (taxaMap['nivel_superior'] as num).toDouble() :
+                        _extrairValorNumerico(taxaMap['nivel_superior'].toString());
+          } else if (taxaMap.containsKey('analista')) {
+            valorTaxa = (taxaMap['analista'] is num) ?
+                        (taxaMap['analista'] as num).toDouble() :
+                        _extrairValorNumerico(taxaMap['analista'].toString());
+          } else if (taxaMap.containsKey('tecnico')) {
+            valorTaxa = (taxaMap['tecnico'] is num) ?
+                        (taxaMap['tecnico'] as num).toDouble() :
+                        _extrairValorNumerico(taxaMap['tecnico'].toString());
+          } else if (taxaMap.containsKey('analista_judiciario')) {
+            valorTaxa = (taxaMap['analista_judiciario'] is num) ?
+                        (taxaMap['analista_judiciario'] as num).toDouble() :
+                        _extrairValorNumerico(taxaMap['analista_judiciario'].toString());
+          } else if (taxaMap.containsKey('tecnico_judiciario')) {
+            valorTaxa = (taxaMap['tecnico_judiciario'] is num) ?
+                        (taxaMap['tecnico_judiciario'] as num).toDouble() :
+                        _extrairValorNumerico(taxaMap['tecnico_judiciario'].toString());
+          } else {
+            // Se não encontrou valores específicos, pegar o primeiro valor do mapa
+            final firstKey = taxaMap.keys.first;
+            valorTaxa = (taxaMap[firstKey] is num) ?
+                        (taxaMap[firstKey] as num).toDouble() :
+                        _extrairValorNumerico(taxaMap[firstKey].toString());
+          }
+
+          // Verificar se a taxa ainda é zero após a extração
+          if (valorTaxa <= 0) {
+            // Tentar extrair valores diretamente do texto
+            _log('Taxa de inscrição zero ou negativa, tentando extrair do texto...');
+            if (dadosJson.containsKey('textoCompleto')) {
+              final texto = dadosJson['textoCompleto'].toString().toLowerCase();
+              // Procurar por padrões comuns de taxa de inscrição
+              final RegExp regexTaxa = RegExp(r'taxa\s+de\s+inscri[çc][ãa]o\s*[:-]?\s*R\$\s*(\d+[.,]\d+)');
+              final match = regexTaxa.firstMatch(texto);
+              if (match != null && match.groupCount >= 1) {
+                final taxaStr = match.group(1)!;
+                valorTaxa = _extrairValorNumerico(taxaStr);
+                _log('Taxa extraída do texto: $valorTaxa');
+              }
+            }
+          }
+        } else if (dadosJson['valor_taxa_inscricao'] is num) {
+          // Se for um número direto
+          valorTaxa = (dadosJson['valor_taxa_inscricao'] as num).toDouble();
+        } else {
+          // Se for uma string, tentar extrair o valor numérico
+          valorTaxa = _extrairValorNumerico(dadosJson['valor_taxa_inscricao'].toString());
+        }
+      }
+
+      // Se a taxa ainda for zero, tentar extrair do texto do edital
+      if (valorTaxa <= 0 && dadosJson.containsKey('textoCompleto')) {
+        final texto = dadosJson['textoCompleto'].toString().toLowerCase();
+        // Procurar por padrões comuns de taxa de inscrição
+        final RegExp regexTaxa = RegExp(r'taxa\s+de\s+inscri[çc][ãa]o\s*[:-]?\s*R\$\s*(\d+[.,]\d+)');
+        final match = regexTaxa.firstMatch(texto);
+        if (match != null && match.groupCount >= 1) {
+          final taxaStr = match.group(1)!;
+          valorTaxa = _extrairValorNumerico(taxaStr);
+          _log('Taxa extraída do texto: $valorTaxa');
+        }
       }
 
       // Extrair local da prova
@@ -1372,14 +1572,51 @@ $textoEdital
     - Horas diárias disponíveis: $horasDiarias horas
     - Dias da semana disponíveis: $diasDisponiveisStr
 
-    Crie um plano de estudos em formato JSON com as seguintes informações:
-    1. Lista de matérias prioritárias com peso de importância (1-5)
-    2. Distribuição de horas por matéria
-    3. Cronograma semanal de estudos
-    4. Metas de curto, médio e longo prazo
-    5. Estratégias de revisão
+    Crie um plano de estudos em formato JSON com a seguinte estrutura:
+    {
+      "materiasPrioritarias": [
+        {
+          "nome": "Nome da matéria",
+          "peso": 5, // Valor de 1 a 5, sendo 5 o mais importante
+          "estrategia": "Estratégia de estudo recomendada para esta matéria"
+        }
+      ],
+      "cronogramaSemanal": {
+        "segunda": [
+          { "materia": "Nome da matéria", "horas": 2 }
+        ],
+        "terca": [
+          { "materia": "Nome da matéria", "horas": 2 }
+        ],
+        "quarta": [
+          { "materia": "Nome da matéria", "horas": 2 }
+        ],
+        "quinta": [
+          { "materia": "Nome da matéria", "horas": 2 }
+        ],
+        "sexta": [
+          { "materia": "Nome da matéria", "horas": 2 }
+        ],
+        "sabado": [
+          { "materia": "Nome da matéria", "horas": 2 }
+        ],
+        "domingo": [
+          { "materia": "Nome da matéria", "horas": 2 }
+        ]
+      },
+      "recursosRecomendados": [
+        {
+          "tipo": "Tipo de recurso (livro, vídeo, etc.)",
+          "descricao": "Descrição do recurso"
+        }
+      ],
+      "dicasGerais": [
+        "Dica 1",
+        "Dica 2"
+      ]
+    }
 
-    Responda APENAS com o JSON estruturado, sem explicações adicionais ou texto introdutório.
+    IMPORTANTE: Responda APENAS com o JSON estruturado, sem explicações adicionais ou texto introdutório. Não inclua código markdown ou delimitadores como ```json. Retorne apenas o objeto JSON puro.
 
     Texto do edital:
     ${textoEdital}

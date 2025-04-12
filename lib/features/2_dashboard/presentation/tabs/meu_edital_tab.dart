@@ -130,6 +130,11 @@ class MeuEditalTab extends StatelessWidget {
         ? planos.firstWhere((p) => p.editalId == edital.id, orElse: () => null)
         : null;
 
+    // Obter o cargo selecionado
+    final cargoSelecionado = edital.dadosExtraidos.cargos.isNotEmpty
+        ? edital.dadosExtraidos.cargos.first
+        : null;
+
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -243,9 +248,9 @@ class MeuEditalTab extends StatelessWidget {
 
           SizedBox(height: 24),
 
-          // Seção de cargo selecionado
+          // Seção de conteúdo programático
           Text(
-            'Cargo Selecionado',
+            'Conteúdo Programático',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -254,7 +259,7 @@ class MeuEditalTab extends StatelessWidget {
           ),
           SizedBox(height: 12),
 
-          // Card do cargo
+          // Card do conteúdo programático
           ModernCard(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
@@ -262,72 +267,20 @@ class MeuEditalTab extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Verificar se há um cargo selecionado
-                  if (edital.cargoSelecionado != null)
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          edital.cargoSelecionado.nome,
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                        SizedBox(height: 8),
-                        _buildInfoRow(
-                          Icons.work,
-                          'Vagas',
-                          '${edital.cargoSelecionado.vagas}'
-                        ),
-                        SizedBox(height: 8),
-                        _buildInfoRow(
-                          Icons.attach_money,
-                          'Salário',
-                          'R\$ ${edital.cargoSelecionado.salario.toStringAsFixed(2)}'
-                        ),
-                        SizedBox(height: 8),
-                        _buildInfoRow(
-                          Icons.school,
-                          'Escolaridade',
-                          edital.cargoSelecionado.escolaridade
-                        ),
+                  if (cargoSelecionado != null) ...[
+                    Text(
+                      cargoSelecionado.nome,
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    SizedBox(height: 16),
 
-                        // Matérias
-                        SizedBox(height: 16),
-                        Text(
-                          'Matérias',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                        SizedBox(height: 8),
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: edital.cargoSelecionado.conteudoProgramatico.map<Widget>((materia) {
-                            return Chip(
-                              backgroundColor: AppTheme.secondaryColor.withOpacity(0.2),
-                              label: Text(
-                                materia,
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: AppTheme.secondaryColor,
-                                ),
-                              ),
-                              avatar: Icon(
-                                Icons.book,
-                                size: 16,
-                                color: AppTheme.secondaryColor,
-                              ),
-                            );
-                          }).toList(),
-                        ),
-                      ],
-                    )
-                  else
+                    // Separar matérias por tipo (básico e específico)
+                    _buildConteudoProgramatico(cargoSelecionado),
+                  ] else
                     Center(
                       child: Column(
                         children: [
@@ -540,5 +493,93 @@ class MeuEditalTab extends StatelessWidget {
     } catch (e) {
       return dateStr;
     }
+  }
+
+  Widget _buildConteudoProgramatico(dynamic cargo) {
+    // Separar matérias por tipo (básico e específico)
+    List<dynamic> conhecimentosBasicos = [];
+    List<dynamic> conhecimentosEspecificos = [];
+
+    for (var conteudo in cargo.conteudoProgramatico) {
+      if (conteudo.tipo?.toLowerCase() == 'básico' ||
+          conteudo.tipo?.toLowerCase() == 'basico' ||
+          conteudo.tipo?.toLowerCase() == 'conhecimentos básicos' ||
+          conteudo.tipo?.toLowerCase() == 'conhecimentos basicos') {
+        conhecimentosBasicos.add(conteudo);
+      } else {
+        conhecimentosEspecificos.add(conteudo);
+      }
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (conhecimentosBasicos.isNotEmpty) ...[
+          Text(
+            'Conhecimentos Básicos',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.blue.shade300,
+            ),
+          ),
+          SizedBox(height: 8),
+          ...conhecimentosBasicos.map((conteudo) => _buildMateriaItem(conteudo)),
+          SizedBox(height: 16),
+        ],
+        if (conhecimentosEspecificos.isNotEmpty) ...[
+          Text(
+            'Conhecimentos Específicos',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.red.shade300,
+            ),
+          ),
+          SizedBox(height: 8),
+          ...conhecimentosEspecificos.map((conteudo) => _buildMateriaItem(conteudo)),
+        ],
+        if (cargo.conteudoProgramatico.isEmpty)
+          Text(
+            'Nenhum conteúdo programático disponível para este cargo.',
+            style: TextStyle(fontStyle: FontStyle.italic, color: Colors.grey.shade400),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildMateriaItem(dynamic conteudo) {
+    return Card(
+      margin: EdgeInsets.only(bottom: 8),
+      color: AppTheme.darkCardColor,
+      child: ExpansionTile(
+        title: Text(
+          conteudo.nome,
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+        ),
+        children: [
+          Padding(
+            padding: EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: conteudo.topicos.asMap().entries.map<Widget>((entry) {
+                final index = entry.key + 1; // Começar do 1
+                final topico = entry.value;
+                return Padding(
+                  padding: EdgeInsets.only(bottom: 8),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('$index. ', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+                      Expanded(child: Text(topico, style: TextStyle(color: Colors.white))),
+                    ],
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

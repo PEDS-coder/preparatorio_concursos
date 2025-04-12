@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
 import '../../../../core/theme/app_theme.dart';
+import 'package:flutter/services.dart';
 
 class ApiInfoScreen extends StatelessWidget {
   final String title;
   final String content;
+  final List<String>? imageAssets;
 
   const ApiInfoScreen({
     Key? key,
     required this.title,
     required this.content,
+    this.imageAssets,
   }) : super(key: key);
 
   void _launchUrl(BuildContext context, String url) {
@@ -69,7 +72,12 @@ class ApiInfoScreen extends StatelessWidget {
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(24),
-        child: _buildMarkdownContent(context),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildMarkdownContent(context),
+          ],
+        ),
       ),
     );
   }
@@ -77,142 +85,66 @@ class ApiInfoScreen extends StatelessWidget {
   Widget _buildMarkdownContent(BuildContext context) {
     // Implementação simples de renderização de markdown
     // Em uma implementação real, usaríamos um pacote como flutter_markdown
-    
+
     final lines = content.split('\n');
     List<Widget> widgets = [];
-    
+
+    // Primeiro, processar o texto
     for (var line in lines) {
-      if (line.startsWith('# ')) {
-        // Título principal
-        widgets.add(
-          Padding(
-            padding: const EdgeInsets.only(bottom: 16.0, top: 8.0),
-            child: Text(
-              line.substring(2),
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: AppTheme.primaryColor,
-              ),
-            ),
-          ),
-        );
-      } else if (line.startsWith('## ')) {
-        // Subtítulo
-        widgets.add(
-          Padding(
-            padding: const EdgeInsets.only(bottom: 12.0, top: 16.0),
-            child: Text(
-              line.substring(3),
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: AppTheme.secondaryColor,
-              ),
-            ),
-          ),
-        );
-      } else if (line.startsWith('### ')) {
-        // Sub-subtítulo
-        widgets.add(
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8.0, top: 12.0),
-            child: Text(
-              line.substring(4),
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        );
-      } else if (line.startsWith('- ')) {
-        // Item de lista
-        widgets.add(
-          Padding(
-            padding: const EdgeInsets.only(bottom: 4.0, left: 16.0),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('• ', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                Expanded(
-                  child: Text(
-                    line.substring(2),
-                    style: TextStyle(fontSize: 16),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      } else if (line.startsWith('1. ') || line.startsWith('2. ') || line.startsWith('3. ') || 
-                 line.startsWith('4. ') || line.startsWith('5. ') || line.startsWith('6. ') || 
-                 line.startsWith('7. ') || line.startsWith('8. ') || line.startsWith('9. ')) {
-        // Item de lista numerada
-        final number = line.substring(0, line.indexOf('. ') + 2);
-        widgets.add(
-          Padding(
-            padding: const EdgeInsets.only(bottom: 4.0, left: 16.0),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(number, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                Expanded(
-                  child: Text(
-                    line.substring(number.length),
-                    style: TextStyle(fontSize: 16),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      } else if (line.startsWith('```')) {
-        // Código
-        // Ignorar a primeira linha com ```
-        continue;
-      } else if (line.endsWith('```')) {
-        // Fim do código
-        // Ignorar a última linha com ```
-        continue;
-      } else if (line.contains('[') && line.contains('](')) {
-        // Link
-        final text = line.substring(line.indexOf('[') + 1, line.indexOf(']'));
-        final url = line.substring(line.indexOf('](') + 2, line.indexOf(')', line.indexOf('](') + 2));
-        
-        widgets.add(
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4.0),
-            child: GestureDetector(
-              onTap: () => _launchUrl(context, url),
-              child: Text(
-                text,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.blue,
-                  decoration: TextDecoration.underline,
-                ),
-              ),
-            ),
-          ),
-        );
-      } else if (line.trim().isEmpty) {
+      if (line.trim().isEmpty) {
         // Linha em branco
         widgets.add(SizedBox(height: 8));
-      } else {
-        // Texto normal
+        continue;
+      }
+
+      // Texto normal
+      widgets.add(
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4.0),
+          child: Text(
+            line,
+            style: TextStyle(fontSize: 16),
+          ),
+        ),
+      );
+    }
+
+    // Adicionar espaço entre o texto e as imagens
+    widgets.add(SizedBox(height: 16));
+
+    // Depois, adicionar imagens se fornecidas
+    if (imageAssets != null && imageAssets!.isNotEmpty) {
+      for (var i = 0; i < imageAssets!.length; i++) {
         widgets.add(
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4.0),
-            child: Text(
-              line,
-              style: TextStyle(fontSize: 16),
+            padding: const EdgeInsets.symmetric(vertical: 16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (i > 0) SizedBox(height: 8),
+                Text(
+                  'Passo ${i + 1}:',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.primaryColor,
+                  ),
+                ),
+                SizedBox(height: 8),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Image.asset(
+                    imageAssets![i],
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              ],
             ),
           ),
         );
       }
     }
-    
+
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: widgets);
   }
 }
