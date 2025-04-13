@@ -17,7 +17,7 @@ class AudioExplanationService extends ChangeNotifier {
   double _volume = 0.7;
 
   // Verificar se estamos no Windows
-  final bool _isWindows = Platform.isWindows;
+  final bool _isWindows = !kIsWeb && Platform.isWindows;
 
   // Diretório temporário para armazenar arquivos de áudio no Windows
   String? _tempDir;

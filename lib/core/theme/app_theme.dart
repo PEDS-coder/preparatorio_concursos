@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'custom_theme.dart';
 
 class AppTheme {
   // Cores principais inspiradas no design moderno
@@ -70,7 +71,14 @@ class AppTheme {
   static const Color darkOnSurface = Color(0xFFF5F5F5); // Cinza mais claro para melhor contraste
 
   // Tema claro
-  static final ThemeData lightTheme = ThemeData(
+  static final ThemeData lightTheme = CustomTheme.lightTheme(
+    primaryColor: primaryColor,
+    secondaryColor: secondaryColor,
+    errorColor: errorColor,
+  );
+
+  // Tema claro original (mantido para referência)
+  static final ThemeData lightThemeOriginal = ThemeData(
     useMaterial3: true,
     colorScheme: ColorScheme(
       brightness: Brightness.light,
@@ -160,7 +168,16 @@ class AppTheme {
   );
 
   // Tema escuro moderno
-  static final ThemeData darkTheme = ThemeData(
+  static final ThemeData darkTheme = CustomTheme.darkTheme(
+    primaryColor: primaryColor,
+    secondaryColor: secondaryColor,
+    backgroundColor: darkBackground,
+    surfaceColor: darkSurface,
+    errorColor: errorColor,
+  );
+
+  // Tema escuro original (mantido para referência)
+  static final ThemeData darkThemeOriginal = ThemeData(
     useMaterial3: true,
     colorScheme: ColorScheme(
       brightness: Brightness.dark,

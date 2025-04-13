@@ -1,4 +1,6 @@
-class Usuario {
+import 'base_model.dart';
+
+class Usuario implements BaseModel {
   final String id;
   final String nome;
   final String email;

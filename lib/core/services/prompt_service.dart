@@ -1,9 +1,11 @@
 import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:path/path.dart' as path;
+import '../data/services/interfaces/prompt_service_interface.dart';
+import '../utils/logger_adapter.dart';
 
 /// Serviço para gerenciar prompts utilizados nas requisições à LLM
-class PromptService {
+class PromptService implements PromptServiceInterface {
   // Mapa para armazenar os prompts carregados em memória
   final Map<String, String> _promptCache = {};
 
@@ -32,7 +34,7 @@ class PromptService {
 
       return promptContent;
     } catch (e) {
-      print('Erro ao carregar prompt de $promptPath: $e');
+      AppLogger.e('PromptService', 'Erro ao carregar prompt de $promptPath', e);
       throw Exception('Não foi possível carregar o prompt: $e');
     }
   }
@@ -62,7 +64,7 @@ class PromptService {
         }
       }
     } catch (e) {
-      print('Erro ao carregar arquivo de $filePath: $e');
+      AppLogger.e('PromptService', 'Erro ao carregar arquivo de $filePath', e);
       throw Exception('Não foi possível carregar o arquivo: $e');
     }
   }
@@ -110,6 +112,16 @@ class PromptService {
   /// Carrega um prompt para extração de conteúdo programático em formato JSON
   Future<String> loadContentJsonPrompt() async {
     return await loadPrompt('lib/core/prompts/edital_analysis/content_json_prompt.txt');
+  }
+
+  /// Carrega um prompt para extração apenas dos cargos do edital
+  Future<String> loadCargosEditalPrompt() async {
+    return await loadPrompt('lib/core/prompts/edital_analysis/cargos_prompt.txt');
+  }
+
+  /// Carrega um prompt para extração de dados do concurso e conteúdo programático
+  Future<String> loadConcursoConteudoPrompt() async {
+    return await loadPrompt('lib/core/prompts/edital_analysis/concurso_conteudo_prompt.txt');
   }
 
   /// Carrega um prompt para análise comparativa de edital em texto simples

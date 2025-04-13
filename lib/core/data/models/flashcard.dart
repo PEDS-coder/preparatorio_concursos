@@ -1,4 +1,6 @@
-class Flashcard {
+import 'base_model.dart';
+
+class Flashcard implements BaseModel {
   final String id;
   final String userId;
   final String? editalId; // Opcional
@@ -38,6 +40,27 @@ class Flashcard {
       pergunta: map['pergunta'],
       resposta: map['resposta'],
       fonte: map['fonte'],
+    );
+  }
+
+  @override
+  Flashcard copyWith({
+    String? id,
+    String? userId,
+    String? editalId,
+    String? materia,
+    String? pergunta,
+    String? resposta,
+    String? fonte,
+  }) {
+    return Flashcard(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      editalId: editalId ?? this.editalId,
+      materia: materia ?? this.materia,
+      pergunta: pergunta ?? this.pergunta,
+      resposta: resposta ?? this.resposta,
+      fonte: fonte ?? this.fonte,
     );
   }
 }

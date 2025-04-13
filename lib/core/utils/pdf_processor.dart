@@ -7,93 +7,344 @@ import 'package:path_provider/path_provider.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
 import 'package:image/image.dart' as img;
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
+import 'logger_adapter.dart';
+import 'pdf_optimizer.dart';
+import 'pdf_scanner_detector.dart';
+import 'pdf_parallel_processor.dart';
+
+/// Configurações para o processamento de PDF
+class PdfProcessorConfig {
+  /// Tamanho do chunk para processamento de PDFs grandes
+  final int chunkSize;
+
+  /// Usar OCR por padrão
+  final bool useOcrByDefault;
+
+  /// Qualidade da imagem para OCR (1-100)
+  final int ocrImageQuality;
+
+  /// Limite de tamanho para considerar um PDF como grande (em bytes)
+  final int largePdfThreshold;
+
+  /// Construtor
+  PdfProcessorConfig({
+    this.chunkSize = 20,
+    this.useOcrByDefault = false,
+    this.ocrImageQuality = 100,
+    this.largePdfThreshold = 10 * 1024 * 1024, // 10MB
+  });
+}
+
+/// Resultado do processamento de PDF
+class PdfProcessingResult {
+  final String text;
+  final bool usedOcr;
+  final bool isLargePdf;
+  final int pageCount;
+  final List<String> tables;
+  final Map<String, dynamic> metadata;
+  final List<String> warnings;
+  final List<String> errors;
+
+  PdfProcessingResult({
+    required this.text,
+    this.usedOcr = false,
+    this.isLargePdf = false,
+    this.pageCount = 0,
+    this.tables = const [],
+    this.metadata = const {},
+    this.warnings = const [],
+    this.errors = const [],
+  });
+
+  bool get hasWarnings => warnings.isNotEmpty;
+  bool get hasErrors => errors.isNotEmpty;
+  bool get hasContent => text.isNotEmpty;
+  bool get hasTables => tables.isNotEmpty;
+}
 
 /// Classe para processamento avançado de PDFs
 class PdfProcessor {
+  static const String _tag = 'PdfProcessor';
+
   /// Callback para reportar progresso
   final Function(double, String)? onProgress;
 
+  /// Configurações de processamento
+  final PdfProcessorConfig config;
+
   /// Construtor
-  PdfProcessor({this.onProgress});
+  PdfProcessor({this.onProgress, PdfProcessorConfig? config}) :
+    this.config = config ?? PdfProcessorConfig();
 
   /// Extrai texto de um PDF, incluindo tabelas e estruturas complexas
-  Future<String> extractTextFromPdf(dynamic pdfSource, {bool useOcr = false, bool useAdvancedMethods = true}) async {
-    if (pdfSource is String && !kIsWeb) {
-      // Caminho do arquivo (plataformas nativas)
-      return await _extractFromPath(pdfSource, useOcr: useOcr, useAdvancedMethods: useAdvancedMethods);
-    } else if (pdfSource is Uint8List) {
-      // Bytes do arquivo (web ou bytes diretos)
-      return await _extractFromBytes(pdfSource, useOcr: useOcr, useAdvancedMethods: useAdvancedMethods);
-    } else {
-      throw Exception('Formato de fonte de PDF não suportado');
+  Future<PdfProcessingResult> extractTextFromPdf(
+    dynamic pdfSource, {
+    bool? useOcr,
+    bool? useAdvancedMethods,
+  }) async {
+    AppLogger.d(_tag, 'Iniciando extração de texto de PDF');
+
+    final bool shouldUseOcr = useOcr ?? config.useOcrByDefault;
+    final bool shouldUseAdvancedMethods = useAdvancedMethods ?? true;
+    final List<String> warnings = [];
+    final List<String> errors = [];
+
+    try {
+      if (pdfSource is String && !kIsWeb) {
+        // Caminho do arquivo (plataformas nativas)
+        AppLogger.d(_tag, 'Processando PDF a partir do caminho: $pdfSource');
+        return await _extractFromPath(
+          pdfSource,
+          useOcr: shouldUseOcr,
+          useAdvancedMethods: shouldUseAdvancedMethods,
+          warnings: warnings,
+          errors: errors,
+        );
+      } else if (pdfSource is Uint8List) {
+        // Bytes do arquivo (web ou bytes diretos)
+        AppLogger.d(_tag, 'Processando PDF a partir de bytes (tamanho: ${pdfSource.length} bytes)');
+        return await _extractFromBytes(
+          pdfSource,
+          useOcr: shouldUseOcr,
+          useAdvancedMethods: shouldUseAdvancedMethods,
+          warnings: warnings,
+          errors: errors,
+        );
+      } else {
+        final error = 'Formato de fonte de PDF não suportado: ${pdfSource.runtimeType}';
+        AppLogger.e(_tag, error);
+        errors.add(error);
+        return PdfProcessingResult(
+          text: '',
+          errors: errors,
+        );
+      }
+    } catch (e, stackTrace) {
+      AppLogger.e(_tag, 'Erro ao extrair texto do PDF', e, stackTrace);
+      errors.add('Erro ao extrair texto: $e');
+      return PdfProcessingResult(
+        text: '',
+        errors: errors,
+      );
     }
   }
 
   /// Extrai texto de um PDF a partir dos bytes (método público)
-  Future<String> extractTextFromPdfBytes(Uint8List bytes, {bool useOcr = false, bool useAdvancedMethods = true}) async {
-    return await _extractFromBytes(bytes, useOcr: useOcr, useAdvancedMethods: useAdvancedMethods);
+  Future<PdfProcessingResult> extractTextFromPdfBytes(
+    Uint8List bytes, {
+    bool? useOcr,
+    bool? useAdvancedMethods,
+  }) async {
+    final bool shouldUseOcr = useOcr ?? config.useOcrByDefault;
+    final bool shouldUseAdvancedMethods = useAdvancedMethods ?? true;
+    final List<String> warnings = [];
+    final List<String> errors = [];
+
+    return await _extractFromBytes(
+      bytes,
+      useOcr: shouldUseOcr,
+      useAdvancedMethods: shouldUseAdvancedMethods,
+      warnings: warnings,
+      errors: errors,
+    );
   }
 
   /// Extrai texto de um PDF a partir do caminho do arquivo
-  Future<String> _extractFromPath(String filePath, {bool useOcr = false, bool useAdvancedMethods = true}) async {
-    final File file = File(filePath);
-    final Uint8List bytes = await file.readAsBytes();
-    return _extractFromBytes(bytes, useOcr: useOcr, useAdvancedMethods: useAdvancedMethods);
+  Future<PdfProcessingResult> _extractFromPath(
+    String filePath, {
+    required bool useOcr,
+    required bool useAdvancedMethods,
+    required List<String> warnings,
+    required List<String> errors,
+  }) async {
+    try {
+      final File file = File(filePath);
+      final Uint8List bytes = await file.readAsBytes();
+      return _extractFromBytes(
+        bytes,
+        useOcr: useOcr,
+        useAdvancedMethods: useAdvancedMethods,
+        warnings: warnings,
+        errors: errors,
+      );
+    } catch (e) {
+      AppLogger.e(_tag, 'Erro ao ler arquivo PDF: $filePath', e);
+      errors.add('Erro ao ler arquivo PDF: $e');
+      return PdfProcessingResult(
+        text: '',
+        errors: errors,
+      );
+    }
   }
 
   /// Extrai texto de um PDF a partir dos bytes
-  Future<String> _extractFromBytes(Uint8List bytes, {bool useOcr = false, bool useAdvancedMethods = true}) async {
-    // Usar OCR se solicitado
-    if (useOcr) {
-      return await _extractWithOcr(bytes);
+  Future<PdfProcessingResult> _extractFromBytes(
+    Uint8List bytes, {
+    required bool useOcr,
+    required bool useAdvancedMethods,
+    required List<String> warnings,
+    required List<String> errors,
+  }) async {
+    // Verificar se o PDF é grande
+    final bool isLargePdf = bytes.length > config.largePdfThreshold;
+
+    // Verificar se o PDF é escaneado
+    bool isScanned = false;
+    try {
+      isScanned = await isPdfScanned(bytes);
+      if (isScanned) {
+        AppLogger.i(_tag, 'PDF detectado como escaneado, considerando usar OCR');
+        warnings.add('PDF detectado como escaneado, qualidade do texto pode ser afetada');
+      }
+    } catch (e) {
+      AppLogger.w(_tag, 'Erro ao verificar se o PDF é escaneado', e);
+      warnings.add('Não foi possível verificar se o PDF é escaneado');
+    }
+
+    // Usar OCR se solicitado ou se o PDF for escaneado
+    final bool shouldUseOcr = useOcr || isScanned;
+    if (shouldUseOcr) {
+      AppLogger.i(_tag, 'Usando OCR para extrair texto do PDF');
+      try {
+        final String ocrText = await _extractWithOcr(bytes);
+        return PdfProcessingResult(
+          text: ocrText,
+          usedOcr: true,
+          isLargePdf: isLargePdf,
+          warnings: warnings,
+          errors: errors,
+        );
+      } catch (e) {
+        AppLogger.e(_tag, 'Erro ao extrair texto com OCR', e);
+        errors.add('Erro ao extrair texto com OCR: $e');
+        warnings.add('Falha no OCR, tentando método alternativo');
+        // Continuar com o método normal em caso de falha no OCR
+      }
+    }
+
+    // Se o PDF for grande, usar processamento otimizado
+    if (isLargePdf) {
+      AppLogger.i(_tag, 'PDF grande detectado, usando processamento otimizado');
+      warnings.add('PDF grande detectado, usando processamento otimizado');
+      try {
+        final String largeText = await processLargePdf(bytes);
+        return PdfProcessingResult(
+          text: largeText,
+          usedOcr: false,
+          isLargePdf: true,
+          warnings: warnings,
+          errors: errors,
+        );
+      } catch (e) {
+        AppLogger.e(_tag, 'Erro ao processar PDF grande', e);
+        errors.add('Erro ao processar PDF grande: $e');
+        warnings.add('Falha no processamento otimizado, tentando método padrão');
+        // Continuar com o método normal em caso de falha
+      }
     }
 
     // Extração normal de texto
-    final PdfDocument document = PdfDocument(inputBytes: bytes);
-    final int pageCount = document.pages.count;
-
     try {
-      // Resultado combinado
-      String extractedText = '';
+      final PdfDocument document = PdfDocument(inputBytes: bytes);
+      final int pageCount = document.pages.count;
+      final List<String> allTableData = [];
+      Map<String, dynamic> metadata = {};
 
-      // Extrair texto e tabelas de cada página
-      for (int i = 0; i < pageCount; i++) {
-        // Reportar progresso
-        if (onProgress != null) {
-          onProgress!((i + 1) / pageCount, 'Processando página ${i + 1} de $pageCount...');
-        }
+      // Extrair metadados do documento
+      try {
+        metadata['title'] = document.documentInformation.title ?? '';
+        metadata['author'] = document.documentInformation.author ?? '';
+        metadata['subject'] = document.documentInformation.subject ?? '';
+        metadata['keywords'] = document.documentInformation.keywords ?? '';
+        metadata['creator'] = document.documentInformation.creator ?? '';
+        metadata['producer'] = document.documentInformation.producer ?? '';
+        metadata['creation_date'] = document.documentInformation.creationDate?.toString() ?? '';
+        metadata['modification_date'] = document.documentInformation.modificationDate?.toString() ?? '';
+        metadata['page_count'] = pageCount;
+      } catch (e) {
+        AppLogger.w(_tag, 'Erro ao extrair metadados do PDF', e);
+        warnings.add('Não foi possível extrair todos os metadados do PDF');
+      }
 
-        // Extrair texto normal
-        final String pageText = PdfTextExtractor(document).extractText(
-          startPageIndex: i,
-          endPageIndex: i,
-        );
+      try {
+        // Resultado combinado
+        String extractedText = '';
 
-        // Extrair tabelas
-        final List<String> tableDatas = await _extractTablesFromPage(document, i);
+        // Extrair texto e tabelas de cada página
+        for (int i = 0; i < pageCount; i++) {
+          // Reportar progresso
+          if (onProgress != null) {
+            onProgress!((i + 1) / pageCount, 'Processando página ${i + 1} de $pageCount...');
+          }
 
-        // Combinar resultados
-        extractedText += pageText;
+          // Extrair texto normal
+          String pageText = '';
+          try {
+            pageText = PdfTextExtractor(document).extractText(
+              startPageIndex: i,
+              endPageIndex: i,
+            );
+          } catch (e) {
+            AppLogger.w(_tag, 'Erro ao extrair texto da página ${i + 1}', e);
+            warnings.add('Erro ao extrair texto da página ${i + 1}');
+            pageText = '[Erro ao extrair texto desta página]';
+          }
 
-        // Adicionar dados de tabelas
-        if (tableDatas.isNotEmpty) {
-          extractedText += '\n\n--- TABELAS DETECTADAS ---\n\n';
-          for (int t = 0; t < tableDatas.length; t++) {
-            extractedText += 'TABELA ${t + 1}:\n${tableDatas[t]}\n\n';
+          // Extrair tabelas
+          List<String> tableDatas = [];
+          try {
+            tableDatas = await _extractTablesFromPage(document, i);
+            if (tableDatas.isNotEmpty) {
+              allTableData.addAll(tableDatas);
+            }
+          } catch (e) {
+            AppLogger.w(_tag, 'Erro ao extrair tabelas da página ${i + 1}', e);
+            warnings.add('Erro ao extrair tabelas da página ${i + 1}');
+          }
+
+          // Combinar resultados
+          extractedText += pageText;
+
+          // Adicionar dados de tabelas
+          if (tableDatas.isNotEmpty) {
+            extractedText += '\n\n--- TABELAS DETECTADAS NA PÁGINA ${i + 1} ---\n\n';
+            for (int t = 0; t < tableDatas.length; t++) {
+              extractedText += 'TABELA ${t + 1}:\n${tableDatas[t]}\n\n';
+            }
+          }
+
+          extractedText += '\n\n';
+
+          // Pausa para não bloquear a UI
+          if (i % 5 == 0) {
+            await Future.delayed(Duration(milliseconds: 10));
           }
         }
 
-        extractedText += '\n\n';
-
-        // Pausa para não bloquear a UI
-        if (i % 5 == 0) {
-          await Future.delayed(Duration(milliseconds: 10));
-        }
+        return PdfProcessingResult(
+          text: extractedText,
+          usedOcr: false,
+          isLargePdf: isLargePdf,
+          pageCount: pageCount,
+          tables: allTableData,
+          metadata: metadata,
+          warnings: warnings,
+          errors: errors,
+        );
+      } finally {
+        document.dispose();
       }
-
-      return extractedText;
-    } finally {
-      document.dispose();
+    } catch (e) {
+      AppLogger.e(_tag, 'Erro ao extrair texto do PDF', e);
+      errors.add('Erro ao extrair texto do PDF: $e');
+      return PdfProcessingResult(
+        text: '',
+        usedOcr: false,
+        isLargePdf: isLargePdf,
+        warnings: warnings,
+        errors: errors,
+      );
     }
   }
 
@@ -142,7 +393,7 @@ class PdfProcessor {
         tableData.add(currentTable);
       }
     } catch (e) {
-      print('Erro ao extrair tabelas: $e');
+      AppLogger.e('PdfProcessor', 'Erro ao extrair tabelas', e);
     }
 
     return tableData;
@@ -151,15 +402,20 @@ class PdfProcessor {
   /// Extrai texto usando OCR para PDFs escaneados
   Future<String> _extractWithOcr(Uint8List pdfBytes) async {
     String extractedText = '';
+    AppLogger.i(_tag, 'Iniciando extração de texto com OCR');
 
     try {
       // Renderizar páginas do PDF como imagens de alta qualidade
+      AppLogger.d(_tag, 'Renderizando páginas do PDF como imagens para OCR');
       final List<Uint8List> pageImages = await _renderPdfPagesToImages(pdfBytes);
       final int totalPages = pageImages.length;
 
       if (pageImages.isEmpty) {
+        AppLogger.w(_tag, 'Não foi possível extrair imagens do PDF para OCR');
         return 'Não foi possível extrair imagens do PDF para OCR.';
       }
+
+      AppLogger.d(_tag, 'Iniciando OCR em $totalPages páginas');
 
       // Inicializar o reconhecedor de texto com opções avançadas
       final textRecognizer = TextRecognizer(script: TextRecognitionScript.latin);
@@ -172,15 +428,18 @@ class PdfProcessor {
         }
 
         try {
+          AppLogger.d(_tag, 'Processando OCR na página ${i + 1}');
+
           // Converter a imagem para um formato compatível com o OCR
           final img.Image? decodedImage = img.decodeImage(pageImages[i]);
 
           if (decodedImage == null) {
-            print('Falha ao decodificar imagem da página $i');
+            AppLogger.w(_tag, 'Falha ao decodificar imagem da página $i');
             continue;
           }
 
           // Pré-processamento da imagem para melhorar o OCR
+          AppLogger.d(_tag, 'Aplicando pré-processamento na imagem da página ${i + 1}');
           img.Image processedImage = decodedImage;
 
           // Aumentar contraste para melhorar a detecção de texto
@@ -191,9 +450,12 @@ class PdfProcessor {
           );
 
           // Converter de volta para Uint8List
-          final Uint8List processedBytes = Uint8List.fromList(img.encodeJpg(processedImage, quality: 100));
+          final Uint8List processedBytes = Uint8List.fromList(
+            img.encodeJpg(processedImage, quality: config.ocrImageQuality)
+          );
 
           // Processar a imagem com OCR
+          AppLogger.d(_tag, 'Executando OCR na imagem processada da página ${i + 1}');
           final InputImage inputImage = InputImage.fromBytes(
             bytes: processedBytes,
             metadata: InputImageMetadata(
@@ -208,6 +470,7 @@ class PdfProcessor {
 
           // Processar o texto reconhecido para melhorar a qualidade
           String pageText = recognizedText.text;
+          AppLogger.d(_tag, 'Texto reconhecido na página ${i + 1}: ${pageText.length} caracteres');
 
           // Remover quebras de linha desnecessárias no meio de frases
           pageText = pageText.replaceAll(RegExp(r'(?<=[a-z])\n(?=[a-z])'), ' ');
@@ -216,7 +479,7 @@ class PdfProcessor {
           extractedText += 'Página ${i + 1}:\n$pageText\n\n';
 
         } catch (pageError) {
-          print('Erro no OCR da página $i: $pageError');
+          AppLogger.e(_tag, 'Erro no OCR da página $i', pageError);
           extractedText += 'Página ${i + 1}: [Erro no processamento OCR]\n\n';
         }
 
@@ -230,11 +493,13 @@ class PdfProcessor {
       textRecognizer.close();
 
       // Pós-processamento do texto completo
+      AppLogger.d(_tag, 'Aplicando pós-processamento ao texto OCR');
       extractedText = _postProcessOcrText(extractedText);
+      AppLogger.i(_tag, 'OCR concluído com sucesso: ${extractedText.length} caracteres extraídos');
 
       return extractedText;
     } catch (e) {
-      print('Erro no OCR: $e');
+      AppLogger.e(_tag, 'Erro no OCR', e);
       return 'Erro ao processar OCR: $e';
     }
   }
@@ -288,7 +553,7 @@ class PdfProcessor {
 
       document.dispose();
     } catch (e) {
-      print('Erro ao renderizar PDF para imagens: $e');
+      AppLogger.e('PdfProcessor', 'Erro ao renderizar PDF para imagens', e);
 
       // Criar pelo menos uma imagem em branco para o OCR não falhar completamente
       final Uint8List placeholderImage = Uint8List.fromList(List.filled(1000 * 1000 * 4, 255));
@@ -300,67 +565,34 @@ class PdfProcessor {
 
   /// Detecta se um PDF é escaneado (imagem) ou digital
   Future<bool> isPdfScanned(Uint8List pdfBytes) async {
-    try {
-      final PdfDocument document = PdfDocument(inputBytes: pdfBytes);
-      final int pageCount = document.pages.count;
-
-      // Verificar a primeira página
-      if (pageCount > 0) {
-        final String pageText = PdfTextExtractor(document).extractText(
-          startPageIndex: 0,
-          endPageIndex: 0,
-        );
-
-        // Se o texto extraído for muito pequeno em relação ao esperado,
-        // provavelmente é um PDF escaneado
-        if (pageText.length < 100) {
-          return true;
-        }
-      }
-
-      return false;
-    } catch (e) {
-      print('Erro ao verificar se o PDF é escaneado: $e');
-      return false;
-    }
+    return PdfScannerDetector.isPdfScanned(pdfBytes);
   }
 
   /// Otimiza o processamento para PDFs muito grandes
-  Future<String> processLargePdf(Uint8List pdfBytes, {int chunkSize = 20}) async {
-    final PdfDocument document = PdfDocument(inputBytes: pdfBytes);
-    final int pageCount = document.pages.count;
+  Future<String> processLargePdf(Uint8List pdfBytes, {int? chunkSize}) async {
+    final optimizer = PdfOptimizer(onProgress: onProgress);
+    return optimizer.processLargePdf(
+      pdfBytes,
+      chunkSize: chunkSize ?? config.chunkSize,
+    );
+  }
 
-    try {
-      String extractedText = '';
-      final int totalChunks = (pageCount / chunkSize).ceil();
+  /// Processa múltiplos PDFs em lote
+  Future<Map<String, String>> processBatchPdfs(List<Uint8List> pdfBytesList) async {
+    final parallelProcessor = PdfParallelProcessor(onProgress: onProgress);
+    final List<String> results = await parallelProcessor.processPdfsInParallel(
+      pdfBytesList,
+      maxConcurrent: 2,
+      detectScanned: true,
+      useOcrForScanned: config.useOcrByDefault,
+    );
 
-      // Processar em chunks para evitar problemas de memória
-      for (int chunk = 0; chunk < totalChunks; chunk++) {
-        final int startPage = chunk * chunkSize;
-        final int endPage = (chunk + 1) * chunkSize - 1 < pageCount
-            ? (chunk + 1) * chunkSize - 1
-            : pageCount - 1;
-
-        // Reportar progresso
-        if (onProgress != null) {
-          onProgress!((chunk + 1) / totalChunks, 'Processando chunk ${chunk + 1} de $totalChunks...');
-        }
-
-        // Extrair texto do chunk
-        final String chunkText = PdfTextExtractor(document).extractText(
-          startPageIndex: startPage,
-          endPageIndex: endPage,
-        );
-
-        extractedText += chunkText + '\n\n';
-
-        // Pausa para liberar memória
-        await Future.delayed(Duration(milliseconds: 100));
-      }
-
-      return extractedText;
-    } finally {
-      document.dispose();
+    // Converter para o formato de retorno esperado
+    final Map<String, String> resultMap = {};
+    for (int i = 0; i < results.length; i++) {
+      resultMap['pdf_$i'] = results[i];
     }
+
+    return resultMap;
   }
 }

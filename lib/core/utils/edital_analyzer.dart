@@ -54,8 +54,8 @@ class EditalAnalyzer {
   //== MÉTODO PRINCIPAL DE ANÁLISE
   //============================================================================
 
-  /// Analisa um edital e extrai informações detalhadas usando a API LLM (Gemini ou OpenAI)
-  /// Primeira etapa: extrai informações básicas do edital
+  /// Analisa um edital e extrai apenas os cargos disponíveis (primeira etapa do novo fluxo)
+  /// Retorna um objeto DadosExtraidos com apenas os cargos preenchidos
   Future<DadosExtraidos> analisarEdital([String? textoEdital, Uint8List? pdfBytes]) async {
     _reportProgress(0.05, 'Iniciando análise...');
     Map<String, dynamic>? dadosExtraidosMap;
@@ -66,14 +66,14 @@ class EditalAnalyzer {
         throw EditalAnalysisException('PDF do edital não fornecido. A análise direta de edital requer o arquivo PDF.');
       }
 
-      // Usar a API LLM para extração de informações básicas
-      _reportProgress(0.1, 'Extraindo informações básicas do edital...');
+      // Usar a API LLM para extração apenas dos cargos (novo fluxo)
+      _reportProgress(0.1, 'Extraindo cargos do edital...');
 
-      // Extrair informações básicas do edital
-      dadosExtraidosMap = await _extrairInfoBasicasEdital(pdfBytes);
+      // Extrair cargos do edital
+      dadosExtraidosMap = await _extrairCargosEdital(pdfBytes);
 
       if (dadosExtraidosMap != null) {
-        _log('Extração de informações básicas bem-sucedida!');
+        _log('Extração de cargos bem-sucedida!');
 
         // Adicionar o texto completo ao resultado se disponível
         if (textoEdital != null && textoEdital.isNotEmpty) {
@@ -89,7 +89,7 @@ class EditalAnalyzer {
         return _converterParaDadosExtraidos(dadosExtraidosMap);
       } else {
         // Se a análise com LLM falhou, lançar uma exceção
-        throw EditalAnalysisException('A extração de informações básicas falhou. Verifique se a API está configurada corretamente.');
+        throw EditalAnalysisException('A extração de cargos falhou. Verifique se a API está configurada corretamente.');
       }
 
     } catch (e, stackTrace) {
@@ -103,7 +103,43 @@ class EditalAnalyzer {
   //== MÉTODOS DE ANÁLISE COM LLM
   //============================================================================
 
-  /// Extrai informações básicas do edital (primeira etapa)
+  /// Extrai apenas os cargos do edital (primeira etapa - novo fluxo)
+  Future<Map<String, dynamic>?> _extrairCargosEdital(Uint8List pdfBytes) async {
+    try {
+      _reportProgress(0.2, 'Preparando PDF para extração de cargos...');
+
+      // Verificar o tamanho do PDF
+      final int pdfSizeKB = (pdfBytes.length / 1024).round();
+      _log('Tamanho do PDF: $pdfSizeKB KB');
+
+      if (pdfSizeKB > 10240) { // 10 MB
+        _log('PDF muito grande (${pdfSizeKB}KB). Pode haver problemas no processamento.');
+        _reportProgress(0.25, 'Atenção: PDF grande, pode demorar mais...');
+      }
+
+      // Enviar o PDF para a API LLM
+      _reportProgress(0.3, 'Enviando PDF para extração de cargos...');
+
+      // Usar o novo método de extração de cargos
+      final String? resultado = await iaService.extrairCargosEdital(pdfBytes);
+
+      if (resultado == null || resultado.isEmpty) {
+        _log('Resultado da extração de cargos vazio');
+        return null;
+      }
+
+      _reportProgress(0.7, 'Processando resultado da extração...');
+      _log('Resultado da extração de cargos recebido. Processando resposta...');
+
+      // Processar o resultado (JSON)
+      return _processarRespostaYaml(resultado);
+    } catch (e, stackTrace) {
+      _log('Erro na extração de cargos: $e\nStackTrace: $stackTrace');
+      rethrow;
+    }
+  }
+
+  /// Extrai informações básicas do edital (primeira etapa - método antigo)
   Future<Map<String, dynamic>?> _extrairInfoBasicasEdital(Uint8List pdfBytes) async {
     try {
       _reportProgress(0.2, 'Preparando PDF para extração de informações básicas...');
@@ -139,7 +175,31 @@ class EditalAnalyzer {
     }
   }
 
-  /// Extrai o conteúdo programático para um cargo específico (segunda etapa)
+  /// Extrai dados do concurso e conteúdo programático para um cargo específico (segunda etapa - novo fluxo)
+  Future<Map<String, dynamic>?> extrairConcursoConteudo(Uint8List pdfBytes, String cargoAlvo) async {
+    try {
+      _reportProgress(0.1, 'Extraindo dados do concurso e conteúdo programático para o cargo: $cargoAlvo...');
+
+      // Chamar a API para extrair os dados do concurso e conteúdo programático
+      final String? resultado = await iaService.extrairConcursoConteudo(pdfBytes, cargoAlvo);
+
+      if (resultado == null || resultado.isEmpty) {
+        _log('Resultado da extração de dados do concurso e conteúdo programático vazio');
+        return null;
+      }
+
+      _reportProgress(0.7, 'Processando resultado da extração...');
+      _log('Resultado da extração de dados do concurso e conteúdo programático recebido. Processando resposta...');
+
+      // Processar o resultado (JSON)
+      return _processarRespostaYaml(resultado);
+    } catch (e, stackTrace) {
+      _log('Erro na extração de dados do concurso e conteúdo programático: $e\nStackTrace: $stackTrace');
+      rethrow;
+    }
+  }
+
+  /// Extrai o conteúdo programático para um cargo específico (segunda etapa - método antigo)
   Future<Map<String, dynamic>?> extrairConteudoProgramatico(Uint8List pdfBytes, String cargoAlvo) async {
     try {
       _reportProgress(0.1, 'Extraindo conteúdo programático para o cargo: $cargoAlvo...');
@@ -818,7 +878,23 @@ $textoEdital
 
           // Extrair remuneração
           double salario = 0.0;
-          if (cargoJson.containsKey('remuneracao')) {
+          if (cargoJson.containsKey('salario')) {
+            if (cargoJson['salario'] is num) {
+              salario = (cargoJson['salario'] as num).toDouble();
+            } else if (cargoJson['salario'] is String) {
+              try {
+                salario = double.parse(cargoJson['salario'].toString().replaceAll(',', '.'));
+              } catch (e) {
+                _log('Erro ao converter salário: $e');
+              }
+            } else if (cargoJson['salario'] is Map && cargoJson['salario'].containsKey('value')) {
+              try {
+                salario = double.parse(cargoJson['salario']['value'].toString().replaceAll(',', '.'));
+              } catch (e) {
+                _log('Erro ao converter salário do formato value: $e');
+              }
+            }
+          } else if (cargoJson.containsKey('remuneracao')) {
             if (cargoJson['remuneracao'] is num) {
               salario = (cargoJson['remuneracao'] as num).toDouble();
             } else if (cargoJson['remuneracao'] is String) {
@@ -1646,8 +1722,9 @@ $textoEdital
 
     // Preparar dados do concurso
     final String dadosConcurso = '''
-    Nome: $cargo
+    Nome do Concurso: Concurso para $cargo
     Data da Prova: $dataFimStr
+    Período de Estudo: $dataInicioStr a $dataFimStr ($diasTotais dias)
     ''';
 
     // Preparar disponibilidade semanal
@@ -1768,8 +1845,23 @@ $textoEdital
     String ferramentasEstudoStr = 'Resumos, Flashcards, Mapas Mentais, Questões';
     if (ferramentasEstudo != null && ferramentasEstudo.isNotEmpty) {
       ferramentasEstudoStr = 'Ferramentas de estudo disponíveis:\n';
+
+      // Mapeamento de nomes de ferramentas para descrições mais detalhadas
+      final Map<String, String> descricoesFerramenta = {
+        'videoaulas': 'Videoaulas (assistir aulas em vídeo)',
+        'pdfs': 'PDFs/Livros (leitura de material teórico)',
+        'resumos': 'Resumos (leitura e criação de resumos)',
+        'flashcards': 'Flashcards (revisão com cartões de memória)',
+        'mapas_mentais': 'Mapas Mentais (organização visual do conteúdo)',
+        'questoes': 'Questões (resolução de exercícios práticos)',
+        'audioaulas': 'Audioaulas (ouvir aulas em áudio)',
+        'lei_seca': 'Lei Seca (leitura direta da legislação - apenas para matérias jurídicas)',
+        'livro': 'Livros (leitura de material teórico)',
+      };
+
       for (final ferramenta in ferramentasEstudo) {
-        ferramentasEstudoStr += '- $ferramenta\n';
+        final descricao = descricoesFerramenta[ferramenta] ?? ferramenta;
+        ferramentasEstudoStr += '- $descricao\n';
       }
     }
 
@@ -1784,7 +1876,7 @@ $textoEdital
       'conteudo_programatico': conteudoProgramaticoStr,
       'proficiencia_materias': proficienciaMateriasStr,
       'ferramentas_estudo': ferramentasEstudoStr,
-      'recompensas': 'Recompensas personalizadas definidas pelo usuário',
+      'recompensas': 'Recompensas personalizadas:\n- Recompensa diária: Pausa para café\n- Recompensa semanal: Assistir um episódio de série\n- Recompensa mensal: Dia de folga nos estudos',
       'peso_materias': pesoMateriasStr,
       'criterios_desempate': criteriosDesempateStr,
       'numero_questoes': numeroQuestoesStr,

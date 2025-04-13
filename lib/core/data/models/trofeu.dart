@@ -1,4 +1,6 @@
-class Trofeu {
+import 'base_model.dart';
+
+class Trofeu implements BaseModel {
   final String id;
   final String nomeTrofeu;
   final String descricaoTrofeu;
@@ -28,9 +30,24 @@ class Trofeu {
       icone: map['icone'],
     );
   }
+
+  @override
+  Trofeu copyWith({
+    String? id,
+    String? nomeTrofeu,
+    String? descricaoTrofeu,
+    String? icone,
+  }) {
+    return Trofeu(
+      id: id ?? this.id,
+      nomeTrofeu: nomeTrofeu ?? this.nomeTrofeu,
+      descricaoTrofeu: descricaoTrofeu ?? this.descricaoTrofeu,
+      icone: icone ?? this.icone,
+    );
+  }
 }
 
-class UsuarioTrofeu {
+class UsuarioTrofeu implements BaseModel {
   final String userId;
   final String trofeuId;
   final DateTime dataConquista;
@@ -54,6 +71,19 @@ class UsuarioTrofeu {
       userId: map['userId'],
       trofeuId: map['trofeuId'],
       dataConquista: DateTime.parse(map['dataConquista']),
+    );
+  }
+
+  @override
+  UsuarioTrofeu copyWith({
+    String? userId,
+    String? trofeuId,
+    DateTime? dataConquista,
+  }) {
+    return UsuarioTrofeu(
+      userId: userId ?? this.userId,
+      trofeuId: trofeuId ?? this.trofeuId,
+      dataConquista: dataConquista ?? this.dataConquista,
     );
   }
 }

@@ -1,10 +1,12 @@
+import 'base_model.dart';
+
 enum StatusItem {
   pendente,
   concluido,
   pulado,
 }
 
-class CronogramaItem {
+class CronogramaItem implements BaseModel {
   final String id;
   final String planoId;
   final DateTime dataHoraInicio;

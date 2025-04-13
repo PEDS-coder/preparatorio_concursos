@@ -173,11 +173,27 @@ class PlanoEstudoService extends ChangeNotifier {
           // Selecionar ferramentas de estudo de forma variada
           final List<String> ferramentasSessao = [];
           if (ferramentas.isNotEmpty) {
+            // Verificar se a matéria é jurídica para usar a ferramenta "Lei seca"
+            bool isJuridica = _isMateriasJuridica(materia.nomeMateria);
+
+            // Criar uma lista de ferramentas disponíveis para esta matéria
+            List<String> ferramentasDisponiveis = List.from(ferramentas);
+
+            // Remover "Lei seca" se não for matéria jurídica
+            if (!isJuridica && ferramentasDisponiveis.contains('lei_seca')) {
+              ferramentasDisponiveis.remove('lei_seca');
+            }
+
+            // Se não houver ferramentas disponíveis após a filtragem, usar todas as ferramentas
+            if (ferramentasDisponiveis.isEmpty) {
+              ferramentasDisponiveis = List.from(ferramentas);
+            }
+
             // Adicionar 1-2 ferramentas por sessão
             final numFerramentas = 1 + (materiaPos % 2); // 1 ou 2 ferramentas
-            for (int i = 0; i < numFerramentas && i < ferramentas.length; i++) {
-              final ferramentaIndex = (materiaPos + i) % ferramentas.length;
-              ferramentasSessao.add(ferramentas[ferramentaIndex]);
+            for (int i = 0; i < numFerramentas && i < ferramentasDisponiveis.length; i++) {
+              final ferramentaIndex = (materiaPos + i) % ferramentasDisponiveis.length;
+              ferramentasSessao.add(ferramentasDisponiveis[ferramentaIndex]);
             }
           } else {
             ferramentasSessao.add('livro');
@@ -414,6 +430,38 @@ class PlanoEstudoService extends ChangeNotifier {
       await _saveAssuntos();
       notifyListeners();
       return true;
+    }
+
+    return false;
+  }
+
+  // Verificar se uma matéria é jurídica
+  bool _isMateriasJuridica(String nomeMateria) {
+    final nomeLower = nomeMateria.toLowerCase();
+
+    // Lista de termos que indicam matérias jurídicas
+    final termos = [
+      'direito',
+      'constitucional',
+      'administrativo',
+      'civil',
+      'penal',
+      'processual',
+      'tributário',
+      'trabalho',
+      'previdenciário',
+      'legislação',
+      'lei',
+      'código',
+      'jurídico',
+      'jurídica',
+    ];
+
+    // Verificar se o nome da matéria contém algum dos termos
+    for (final termo in termos) {
+      if (nomeLower.contains(termo)) {
+        return true;
+      }
     }
 
     return false;

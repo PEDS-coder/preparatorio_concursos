@@ -1,0 +1,39 @@
+dartdoc:
+  categories:
+    "Core":
+      markdown: docs/core.md
+    "Features":
+      markdown: docs/features.md
+    "Utils":
+      markdown: docs/utils.md
+  categoryOrder: ["Core", "Features", "Utils"]
+  showUndocumentedCategories: true
+  ignore:
+    - ambiguous-doc-reference
+    - unknown-directive
+    - unknown-macro
+    - missing-from-search-index
+  errors:
+    - unresolved-doc-reference
+    - invalid-parameter
+  warnings:
+    - tool-error
+  include: ["lib/"]
+  exclude: ["lib/generated/", "lib/gen/"]
+  nodoc: ["lib/generated/**", "lib/gen/**"]
+  linkToSource:
+    root: '.'
+    uriTemplate: 'https://github.com/seu-usuario/preparatorio-concursos/blob/main/%f%#L%l%'
+  favicon: 'assets/images/favicon.png'
+  header: ['docs/header.html']
+  footer: ['docs/footer.html']
+  footerText: ['Preparatório Concursos © 2023']
+  includeExternal: ['README.md', 'CHANGELOG.md', 'LICENSE']
+  examples:
+    package: 'examples'
+  showUndocumentedCategories: true
+  externalLinks:
+    - url: 'https://flutter.dev/docs'
+      text: 'Flutter Documentation'
+    - url: 'https://dart.dev/guides'
+      text: 'Dart Documentation'

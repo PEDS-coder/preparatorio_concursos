@@ -322,10 +322,60 @@ class CargoConverter {
         // Extrair cada matéria específica
         especificosMap.forEach((materia, topicosData) {
           var topicos = _extrairTopicos(topicosData);
+
+          // Verificar se há informações sobre número de questões, peso e critério de desempate
+          int? numeroQuestoes;
+          bool? pesoMaior;
+          bool? criterioDesempate;
+
+          // Verificar se topicosData é um mapa com informações adicionais
+          if (topicosData is Map<String, dynamic>) {
+            if (topicosData.containsKey('numero_questoes')) {
+              var numQuestoesValue = topicosData['numero_questoes'];
+              if (numQuestoesValue is int) {
+                numeroQuestoes = numQuestoesValue;
+              } else if (numQuestoesValue is String) {
+                try {
+                  numeroQuestoes = int.parse(numQuestoesValue);
+                } catch (e) {
+                  // Ignorar erro de parsing
+                  print('Erro ao converter número de questões: $e');
+                }
+              } else if (numQuestoesValue is double) {
+                numeroQuestoes = numQuestoesValue.toInt();
+              }
+              print('Número de questões para $materia: $numeroQuestoes');
+            }
+
+            if (topicosData.containsKey('peso_maior')) {
+              pesoMaior = topicosData['peso_maior'] as bool?;
+            }
+
+            if (topicosData.containsKey('criterio_desempate')) {
+              criterioDesempate = topicosData['criterio_desempate'] as bool?;
+            }
+          }
+
+          // Verificar se o nome da matéria contém informações sobre o número de questões
+          if (numeroQuestoes == null) {
+            final RegExp regexQuestoes = RegExp(r'\(([0-9]+)\s*quest[\u00f5o]es\)', caseSensitive: false);
+            final match = regexQuestoes.firstMatch(materia);
+            if (match != null && match.groupCount >= 1) {
+              try {
+                numeroQuestoes = int.parse(match.group(1)!);
+              } catch (e) {
+                // Ignorar erro de parsing
+              }
+            }
+          }
+
           resultado.add(ConteudoProgramatico(
             nome: materia,
             tipo: 'específico',
             topicos: topicos.isEmpty ? ['Conteúdo específico'] : topicos,
+            numeroQuestoes: numeroQuestoes,
+            pesoMaior: pesoMaior,
+            criterioDesempate: criterioDesempate,
           ));
         });
       }
@@ -358,10 +408,53 @@ class CargoConverter {
   ) {
     if (conteudoMap.containsKey(nomeDisciplina)) {
       var topicos = _extrairTopicos(conteudoMap[nomeDisciplina]);
+
+      // Verificar se há informações sobre número de questões, peso e critério de desempate
+      int? numeroQuestoes;
+      bool? pesoMaior;
+      bool? criterioDesempate;
+
+      // Verificar se o valor é um mapa com informações adicionais
+      if (conteudoMap[nomeDisciplina] is Map<String, dynamic>) {
+        final Map<String, dynamic> disciplinaMap = conteudoMap[nomeDisciplina] as Map<String, dynamic>;
+
+        if (disciplinaMap.containsKey('numero_questoes')) {
+          try {
+            numeroQuestoes = int.parse(disciplinaMap['numero_questoes'].toString());
+          } catch (e) {
+            // Ignorar erro de parsing
+          }
+        }
+
+        if (disciplinaMap.containsKey('peso_maior')) {
+          pesoMaior = disciplinaMap['peso_maior'] as bool?;
+        }
+
+        if (disciplinaMap.containsKey('criterio_desempate')) {
+          criterioDesempate = disciplinaMap['criterio_desempate'] as bool?;
+        }
+      }
+
+      // Verificar se o nome da disciplina contém informações sobre o número de questões
+      if (numeroQuestoes == null) {
+        final RegExp regexQuestoes = RegExp(r'\(([0-9]+)\s*quest[\u00f5o]es\)', caseSensitive: false);
+        final match = regexQuestoes.firstMatch(nomeDisciplina);
+        if (match != null && match.groupCount >= 1) {
+          try {
+            numeroQuestoes = int.parse(match.group(1)!);
+          } catch (e) {
+            // Ignorar erro de parsing
+          }
+        }
+      }
+
       resultado.add(ConteudoProgramatico(
         nome: nomeDisciplina,
         tipo: 'comum',
         topicos: topicos.isEmpty ? ['Conteúdo básico'] : topicos,
+        numeroQuestoes: numeroQuestoes,
+        pesoMaior: pesoMaior,
+        criterioDesempate: criterioDesempate,
       ));
     }
   }
@@ -373,20 +466,71 @@ class CargoConverter {
         // Extrair tópicos
         List<String> topicos = _extrairTopicosDeItem(item);
 
+        // Verificar se há informações sobre número de questões, peso e critério de desempate
+        int? numeroQuestoes;
+        bool? pesoMaior;
+        bool? criterioDesempate;
+
+        if (item.containsKey('numero_questoes')) {
+          try {
+            numeroQuestoes = int.parse(item['numero_questoes'].toString());
+          } catch (e) {
+            // Ignorar erro de parsing
+          }
+        }
+
+        if (item.containsKey('peso_maior')) {
+          pesoMaior = item['peso_maior'] as bool?;
+        }
+
+        if (item.containsKey('criterio_desempate')) {
+          criterioDesempate = item['criterio_desempate'] as bool?;
+        }
+
+        // Verificar se o nome da matéria contém informações sobre o número de questões
+        final String nomeMateria = item['nome'] ?? 'Conteúdo não especificado';
+        if (numeroQuestoes == null) {
+          final RegExp regexQuestoes = RegExp(r'\(([0-9]+)\s*quest[\u00f5o]es\)', caseSensitive: false);
+          final match = regexQuestoes.firstMatch(nomeMateria);
+          if (match != null && match.groupCount >= 1) {
+            try {
+              numeroQuestoes = int.parse(match.group(1)!);
+            } catch (e) {
+              // Ignorar erro de parsing
+            }
+          }
+        }
+
         return ConteudoProgramatico(
-          nome: item['nome'] ?? 'Conteúdo não especificado',
+          nome: nomeMateria,
           tipo: item['tipo'] ?? 'comum',
           topicos: topicos.isEmpty ? ['Conteúdo básico'] : topicos,
+          numeroQuestoes: numeroQuestoes,
+          pesoMaior: pesoMaior,
+          criterioDesempate: criterioDesempate,
         );
       } else if (item is String) {
         // Se for uma string, verificar se é uma matéria comum
         final String nomeMateria = item.toString().trim();
         List<String> topicos = _inferirTopicosPorMateria(nomeMateria);
 
+        // Verificar se o nome da matéria contém informações sobre o número de questões
+        int? numeroQuestoes;
+        final RegExp regexQuestoes = RegExp(r'\(([0-9]+)\s*quest[\u00f5o]es\)', caseSensitive: false);
+        final match = regexQuestoes.firstMatch(nomeMateria);
+        if (match != null && match.groupCount >= 1) {
+          try {
+            numeroQuestoes = int.parse(match.group(1)!);
+          } catch (e) {
+            // Ignorar erro de parsing
+          }
+        }
+
         return ConteudoProgramatico(
           nome: nomeMateria,
           tipo: 'comum',
-          topicos: topicos.isEmpty ? ['Conteúdo básico'] : topicos
+          topicos: topicos.isEmpty ? ['Conteúdo básico'] : topicos,
+          numeroQuestoes: numeroQuestoes,
         );
       }
 

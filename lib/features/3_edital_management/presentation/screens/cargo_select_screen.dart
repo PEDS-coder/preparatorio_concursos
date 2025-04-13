@@ -392,82 +392,7 @@ class _CargoSelectScreenState extends State<CargoSelectScreen> {
               _buildCargoInfoItem('Salário', 'R\$ ${_formatarSalario(cargo.salario)}', Icons.attach_money),
               _buildCargoInfoItem('Escolaridade', cargo.escolaridade, Icons.school),
               SizedBox(height: 16),
-              if (isSelecionado && cargo.conteudoProgramatico.isNotEmpty)
-                ExpansionTile(
-                  title: Text(
-                    'Conteúdo Programático',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.green.shade900,
-                    ),
-                  ),
-                  leading: Icon(Icons.menu_book, color: Colors.green.shade800),
-                  backgroundColor: Colors.green.shade50,
-                  collapsedBackgroundColor: Colors.green.shade100,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: cargo.conteudoProgramatico.map((conteudo) {
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                conteudo.nome,
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                  color: AppTheme.primaryColor,
-                                ),
-                              ),
-                              SizedBox(height: 4),
-                              ...conteudo.topicos.map((topico) => Padding(
-                                padding: EdgeInsets.only(left: 16, bottom: 4),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text('• ', style: TextStyle(fontWeight: FontWeight.bold)),
-                                    Expanded(child: Text(topico)),
-                                  ],
-                                ),
-                              )).toList(),
-                              SizedBox(height: 12),
-                            ],
-                          );
-                        }).toList(),
-                      ),
-                    ),
-                  ],
-                )
-              else
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: Colors.green.shade100,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.info_outline, size: 16, color: Colors.green.shade800),
-                      SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          isSelecionado
-                              ? 'Aguarde enquanto o conteúdo programático é carregado...'
-                              : 'Selecione este cargo para ver o conteúdo programático detalhado',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.green.shade900,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+
             ],
           ),
         ),
@@ -1019,10 +944,10 @@ class _CargoSelectScreenState extends State<CargoSelectScreen> {
         }
       }
 
-      // Segunda etapa: extrair conteúdo programático para o cargo selecionado
+      // Segunda etapa: extrair dados do concurso e conteúdo programático para o cargo selecionado
       if (_cargosSelecionados.length == 1) {
         setState(() {
-          _progressMessage = 'Extraindo conteúdo programático para o cargo selecionado...';
+          _progressMessage = 'Extraindo dados do concurso e conteúdo programático para o cargo selecionado...';
           _progressValue = 0.3;
         });
 
@@ -1046,8 +971,8 @@ class _CargoSelectScreenState extends State<CargoSelectScreen> {
             },
           );
 
-          // Extrair conteúdo programático para o cargo selecionado
-          final conteudoProgramatico = await editalAnalyzer.extrairConteudoProgramatico(pdfBytes, cargoNome);
+          // Extrair dados do concurso e conteúdo programático para o cargo selecionado (novo fluxo)
+          final conteudoProgramatico = await editalAnalyzer.extrairConcursoConteudo(pdfBytes, cargoNome);
 
           if (conteudoProgramatico != null) {
             setState(() {

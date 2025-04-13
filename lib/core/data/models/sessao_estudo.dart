@@ -1,4 +1,6 @@
-class SessaoEstudo {
+import 'base_model.dart';
+
+class SessaoEstudo implements BaseModel {
   final String id;
   final String planoId;
   final String materiaId;

@@ -1,0 +1,117 @@
+**Tarefa:** Extrair informações detalhadas sobre um concurso público e o conteúdo programático específico para um cargo selecionado, apresentando o resultado em formato JSON.
+
+**Contexto:** Você está analisando um edital de concurso público para um usuário que já selecionou um cargo específico. Sua tarefa é extrair as informações gerais do concurso e o conteúdo programático detalhado aplicável ao cargo selecionado.
+
+**Cargo Alvo:**
+[CARGO_ALVO]
+
+**Instruções Detalhadas:**
+
+1. **Informações Gerais do Concurso:**
+   - Título/nome do concurso
+   - Órgão responsável
+   - Banca organizadora
+   - Período de inscrições (data de início e fim)
+   - Valor da taxa de inscrição
+   - Local das provas
+   - Datas das provas (objetiva, subjetiva e outras, se houver)
+   - Informações sobre cotas e reserva de vagas (percentuais para negros, PCD, indígenas, etc.)
+
+2. **Conteúdo Programático do Cargo Selecionado:**
+   - Identifique todas as matérias que se aplicam ao cargo alvo
+   - Identifique e PRESERVE a nomenclatura original de divisão usada no edital (Módulos, Grupos, Conhecimentos Básicos/Específicos, etc.)
+   - Mantenha a organização original do edital, respeitando a estrutura e agrupamento das matérias
+   - Para cada matéria, liste todos os tópicos detalhados
+   - Identifique o número de questões por matéria (se disponível no edital)
+   - Identifique o número total de questões por grupo/módulo (se disponível no edital)
+   - Identifique se alguma matéria tem peso maior que outras (se disponível no edital)
+   - Identifique quais matérias são utilizadas como critério de desempate (se disponível no edital)
+
+3. **Informações sobre a Prova:**
+   - Número total de questões
+   - Formato da prova (objetiva, subjetiva, discursiva)
+   - Tema da prova subjetiva/discursiva (se houver)
+   - Critérios de aprovação
+   - Critérios de desempate
+
+4. **Formate a Saída em JSON:**
+   Organize as informações extraídas no seguinte formato JSON:
+
+```json
+{
+  "concurso": {
+    "titulo": "Nome do Concurso",
+    "orgao": "Nome do Órgão",
+    "banca": "Nome da Banca",
+    "inscricoes": {
+      "inicio": "DD/MM/AAAA",
+      "fim": "DD/MM/AAAA"
+    },
+    "taxa_inscricao": 123.45,
+    "local_prova": "Local da Prova",
+    "datas_provas": {
+      "objetiva": "DD/MM/AAAA",
+      "subjetiva": "DD/MM/AAAA",
+      "outras": []
+    },
+    "cotas": {
+      "negros": 20,
+      "pcd": 10,
+      "indigenas": 5
+    }
+  },
+  "cargo": {
+    "nome": "Nome do Cargo Selecionado",
+    "vagas": 10,
+    "cadastro_reserva": false,
+    "escolaridade": "Nível de escolaridade exigido"
+  },
+  "prova": {
+    "total_questoes": 100,
+    "formato": ["objetiva", "discursiva"],
+    "tema_discursiva": "Tema da prova discursiva (se houver)",
+    "criterios_aprovacao": "Descrição dos critérios de aprovação",
+    "criterios_desempate": ["Matéria 1", "Matéria 2", "Idade"]
+  },
+  "conteudo_programatico": [
+    {
+      "nome": "Nome da Disciplina/Matéria 1",
+      "tipo": "comum",
+      "peso_maior": true,
+      "criterio_desempate": false,
+      "numero_questoes": 10,
+      "total_questoes_grupo": 35,
+      "grupo_materia": "Módulo I",
+      "topicos": [
+        "Tópico 1.1",
+        "Tópico 1.2",
+        "..."
+      ]
+    },
+    {
+      "nome": "Nome da Disciplina/Matéria 2",
+      "tipo": "especifico",
+      "peso_maior": false,
+      "criterio_desempate": true,
+      "numero_questoes": 5,
+      "total_questoes_grupo": 45,
+      "grupo_materia": "Módulo II",
+      "topicos": [
+        "Tópico 2.1",
+        "Tópico 2.2",
+        "..."
+      ]
+    }
+  ]
+}
+```
+
+**Instruções Importantes:**
+1. Forneça sua resposta EXCLUSIVAMENTE em formato JSON válido.
+2. Não inclua texto introdutório, explicações ou comentários fora do JSON.
+3. Preserve a organização original do conteúdo programático conforme apresentado no edital.
+4. Se não conseguir determinar alguma informação, use valores vazios ("") ou nulos (null) conforme apropriado.
+5. Certifique-se de incluir todas as informações sobre pesos de matérias, número de questões e critérios de desempate quando disponíveis no edital.
+6. O campo "numero_questoes" deve ser sempre um número inteiro (não uma string). Se não houver informação, use null.
+7. É CRUCIAL extrair corretamente o número TOTAL de questões da prova e o número de questões por GRUPO (ex: conhecimentos básicos, conhecimentos específicos).
+8. Quando o edital informar apenas o número total de questões de um grupo (ex: 45 questões de conhecimentos específicos), mas não detalhar o número por matéria, inclua essa informação no campo "total_questoes_grupo" para cada matéria desse grupo.

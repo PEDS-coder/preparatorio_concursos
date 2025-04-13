@@ -59,10 +59,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             subtitle: Text('Personalizar tema e cores'),
             trailing: Icon(Icons.arrow_forward_ios, size: 16),
             onTap: () {
-              // Implementar futuramente
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Funcionalidade em desenvolvimento')),
-              );
+              Navigator.pushNamed(context, '/settings/theme');
             },
           ),
         ],

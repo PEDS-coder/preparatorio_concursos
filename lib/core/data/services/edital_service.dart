@@ -114,13 +114,72 @@ class EditalService extends ChangeNotifier {
       for (final item in novoConteudo) {
         final Map<String, dynamic> itemMap = item as Map<String, dynamic>;
 
+        // Depuração para verificar os dados recebidos
+        print('Processando matéria: ${itemMap['nome']}');
+        print('  Tipo: ${itemMap['tipo']}');
+        if (itemMap.containsKey('numero_questoes')) {
+          print('  Número de questões (original): ${itemMap['numero_questoes']} (${itemMap['numero_questoes'].runtimeType})');
+        } else {
+          print('  Número de questões não encontrado no JSON');
+        }
+
+        // Processar o número de questões
+        int? numeroQuestoes;
+        int? totalQuestoesGrupo;
+
+        // Processar o número total de questões do grupo
+        if (itemMap.containsKey('total_questoes_grupo')) {
+          var totalQuestoesValue = itemMap['total_questoes_grupo'];
+          if (totalQuestoesValue is int) {
+            totalQuestoesGrupo = totalQuestoesValue;
+            print('  Total de questões do grupo (processado como int): $totalQuestoesGrupo');
+          } else if (totalQuestoesValue is String) {
+            try {
+              totalQuestoesGrupo = int.tryParse(totalQuestoesValue);
+              print('  Total de questões do grupo (convertido de string): $totalQuestoesGrupo');
+            } catch (e) {
+              print('  Erro ao converter total de questões do grupo de string: $e');
+            }
+          } else if (totalQuestoesValue is double) {
+            totalQuestoesGrupo = totalQuestoesValue.toInt();
+            print('  Total de questões do grupo (convertido de double): $totalQuestoesGrupo');
+          }
+        }
+
+        // Processar o número de questões da matéria
+        if (itemMap.containsKey('numero_questoes')) {
+          var numQuestoesValue = itemMap['numero_questoes'];
+          if (numQuestoesValue is int) {
+            numeroQuestoes = numQuestoesValue;
+            print('  Número de questões (processado como int): $numeroQuestoes');
+          } else if (numQuestoesValue is String) {
+            try {
+              numeroQuestoes = int.tryParse(numQuestoesValue);
+              print('  Número de questões (convertido de string): $numeroQuestoes');
+            } catch (e) {
+              print('  Erro ao converter número de questões de string: $e');
+            }
+          } else if (numQuestoesValue is double) {
+            numeroQuestoes = numQuestoesValue.toInt();
+            print('  Número de questões (convertido de double): $numeroQuestoes');
+          } else {
+            print('  Tipo não suportado para número de questões: ${numQuestoesValue.runtimeType}');
+          }
+        }
+
         novoConteudoProgramatico.add(
           ConteudoProgramatico(
             nome: itemMap['nome'] as String,
             tipo: itemMap['tipo'] as String,
             topicos: (itemMap['topicos'] as List<dynamic>).cast<String>(),
+            pesoMaior: itemMap['peso_maior'] as bool?,
+            criterioDesempate: itemMap['criterio_desempate'] as bool?,
+            numeroQuestoes: numeroQuestoes,
+            totalQuestoesGrupo: totalQuestoesGrupo,
           ),
         );
+
+        print('  Matéria adicionada com número de questões: $numeroQuestoes');
       }
 
       // Criar uma cópia do edital para não modificar diretamente o objeto original
@@ -143,6 +202,52 @@ class EditalService extends ChangeNotifier {
           cargos: List.from(_editais[editalIndex].dadosExtraidos.cargos),
         ),
       );
+
+      // Atualizar os dados originais com as informações do concurso, se disponíveis
+      if (conteudoProgramatico.containsKey('concurso') &&
+          conteudoProgramatico['concurso'] is Map<String, dynamic>) {
+
+        // Se não houver dados originais, criar um novo mapa
+        if (editalAtualizado.dadosOriginais == null) {
+          editalAtualizado.dadosOriginais = {};
+        }
+
+        // Adicionar todas as informações do concurso aos dados originais
+        final concursoMap = conteudoProgramatico['concurso'] as Map<String, dynamic>;
+        concursoMap.forEach((key, value) {
+          editalAtualizado.dadosOriginais![key] = value;
+        });
+
+        // Atualizar os dados extraídos do edital com as informações do concurso
+        // Criar uma nova instância de DadosExtraidos com os valores atualizados
+        editalAtualizado.dadosExtraidos = DadosExtraidos(
+          titulo: concursoMap.containsKey('titulo') ? concursoMap['titulo'] as String? : editalAtualizado.dadosExtraidos.titulo,
+          orgao: concursoMap.containsKey('orgao') ? concursoMap['orgao'] as String? : editalAtualizado.dadosExtraidos.orgao,
+          banca: concursoMap.containsKey('banca') ? concursoMap['banca'] as String? : editalAtualizado.dadosExtraidos.banca,
+          inicioInscricao: editalAtualizado.dadosExtraidos.inicioInscricao,
+          fimInscricao: editalAtualizado.dadosExtraidos.fimInscricao,
+          valorTaxa: concursoMap.containsKey('taxa_inscricao') ? concursoMap['taxa_inscricao'] : editalAtualizado.dadosExtraidos.valorTaxa,
+          localProva: concursoMap.containsKey('local_prova') ? concursoMap['local_prova'] as String? : editalAtualizado.dadosExtraidos.localProva,
+          dataProva: concursoMap.containsKey('datas_provas') && concursoMap['datas_provas'] is Map && (concursoMap['datas_provas'] as Map).containsKey('objetiva') ?
+                    (concursoMap['datas_provas'] as Map)['objetiva'] as String? : editalAtualizado.dadosExtraidos.dataProva,
+          cargos: editalAtualizado.dadosExtraidos.cargos,
+          textoCompleto: editalAtualizado.dadosExtraidos.textoCompleto,
+        );
+        // Dados já atualizados na criação da nova instância de DadosExtraidos
+      }
+
+      // Atualizar os dados originais com as informações da prova, se disponíveis
+      if (conteudoProgramatico.containsKey('prova') &&
+          conteudoProgramatico['prova'] is Map<String, dynamic>) {
+
+        // Se não houver dados originais, criar um novo mapa
+        if (editalAtualizado.dadosOriginais == null) {
+          editalAtualizado.dadosOriginais = {};
+        }
+
+        // Adicionar informações da prova aos dados originais
+        editalAtualizado.dadosOriginais!['prova'] = conteudoProgramatico['prova'];
+      }
 
       // Atualizar o conteúdo programático do cargo
       editalAtualizado.dadosExtraidos.cargos[cargoIndex] = Cargo(

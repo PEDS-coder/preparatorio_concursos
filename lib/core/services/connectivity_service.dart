@@ -12,10 +12,9 @@ class ConnectivityService {
   static Future<bool> isConnected() async {
     try {
       if (kIsWeb) {
-        // No ambiente web, tentamos acessar o Google
-        final response = await http.get(Uri.parse(_googleUrl))
-            .timeout(_timeout);
-        return response.statusCode == 200;
+        // No ambiente web, assumimos que há conexão para evitar problemas de CORS
+        debugPrint('Ambiente web detectado, assumindo conectividade');
+        return true;
       } else {
         // Em dispositivos móveis, primeiro tentamos o ping do Google DNS
         try {
@@ -47,6 +46,12 @@ class ConnectivityService {
   /// Verifica se um serviço específico está acessível
   static Future<bool> canReachService(String url) async {
     try {
+      if (kIsWeb) {
+        // No ambiente web, assumimos que o serviço está acessível para evitar problemas de CORS
+        debugPrint('Ambiente web detectado, assumindo que o serviço $url está acessível');
+        return true;
+      }
+
       final response = await http.get(Uri.parse(url))
           .timeout(_timeout);
       return response.statusCode >= 200 && response.statusCode < 400;

@@ -3,8 +3,10 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:crypto/crypto.dart';
+import '../data/services/interfaces/cache_service_interface.dart';
+import '../utils/logger_adapter.dart';
 
-class CacheService {
+class CacheService implements CacheServiceInterface {
   static final CacheService _instance = CacheService._internal();
   factory CacheService() => _instance;
   CacheService._internal();
@@ -18,6 +20,14 @@ class CacheService {
     if (_initialized) return;
 
     try {
+      if (kIsWeb) {
+        // No ambiente web, não podemos usar o sistema de arquivos
+        // Apenas marcamos como inicializado para evitar erros
+        _initialized = true;
+        AppLogger.i('CacheService', 'Inicializado em modo web (sem armazenamento persistente)');
+        return;
+      }
+
       final appDir = await getApplicationDocumentsDirectory();
       _cacheDir = Directory('${appDir.path}/analysis_cache');
 
@@ -26,9 +36,9 @@ class CacheService {
       }
 
       _initialized = true;
-      debugPrint('CacheService inicializado: ${_cacheDir!.path}');
+      AppLogger.i('CacheService', 'Inicializado: ${_cacheDir!.path}');
     } catch (e) {
-      debugPrint('Erro ao inicializar CacheService: $e');
+      AppLogger.e('CacheService', 'Erro ao inicializar', e);
     }
   }
 
@@ -42,6 +52,10 @@ class CacheService {
   // Salvar resultado no cache
   Future<bool> saveToCache(String prompt, List<int> pdfBytes, String result) async {
     if (!_initialized) await init();
+    if (kIsWeb) {
+      AppLogger.w('CacheService', 'Ambiente web detectado, não é possível salvar no cache');
+      return false;
+    }
     if (_cacheDir == null) return false;
 
     try {
@@ -56,10 +70,10 @@ class CacheService {
       };
 
       await cacheFile.writeAsString(jsonEncode(cacheData));
-      debugPrint('Resultado salvo no cache: ${cacheFile.path}');
+      AppLogger.i('CacheService', 'Resultado salvo no cache: ${cacheFile.path}');
       return true;
     } catch (e) {
-      debugPrint('Erro ao salvar no cache: $e');
+      AppLogger.e('CacheService', 'Erro ao salvar no cache', e);
       return false;
     }
   }
@@ -67,6 +81,10 @@ class CacheService {
   // Recuperar resultado do cache
   Future<String?> getFromCache(String prompt, List<int> pdfBytes) async {
     if (!_initialized) await init();
+    if (kIsWeb) {
+      AppLogger.w('CacheService', 'Ambiente web detectado, não é possível recuperar do cache');
+      return null;
+    }
     if (_cacheDir == null) return null;
 
     try {
@@ -75,14 +93,14 @@ class CacheService {
 
       if (await cacheFile.exists()) {
         final cacheData = jsonDecode(await cacheFile.readAsString());
-        debugPrint('Resultado recuperado do cache: ${cacheFile.path}');
-        debugPrint('Data do cache: ${cacheData['timestamp']}');
+        AppLogger.i('CacheService', 'Resultado recuperado do cache: ${cacheFile.path}');
+        AppLogger.d('CacheService', 'Data do cache: ${cacheData['timestamp']}');
         return cacheData['result'];
       }
 
       return null;
     } catch (e) {
-      debugPrint('Erro ao recuperar do cache: $e');
+      AppLogger.e('CacheService', 'Erro ao recuperar do cache', e);
       return null;
     }
   }
@@ -90,6 +108,10 @@ class CacheService {
   // Verificar se existe cache para um determinado PDF e prompt
   Future<bool> hasCache(String prompt, List<int> pdfBytes) async {
     if (!_initialized) await init();
+    if (kIsWeb) {
+      AppLogger.w('CacheService', 'Ambiente web detectado, não é possível verificar cache');
+      return false;
+    }
     if (_cacheDir == null) return false;
 
     try {
@@ -97,7 +119,7 @@ class CacheService {
       final cacheFile = File('${_cacheDir!.path}/$cacheKey.json');
       return await cacheFile.exists();
     } catch (e) {
-      debugPrint('Erro ao verificar cache: $e');
+      AppLogger.e('CacheService', 'Erro ao verificar cache', e);
       return false;
     }
   }
@@ -105,6 +127,10 @@ class CacheService {
   // Limpar todo o cache
   Future<bool> clearCache() async {
     if (!_initialized) await init();
+    if (kIsWeb) {
+      AppLogger.w('CacheService', 'Ambiente web detectado, não é possível limpar cache');
+      return false;
+    }
     if (_cacheDir == null) return false;
 
     try {
@@ -115,18 +141,18 @@ class CacheService {
           try {
             if (file is File) {
               await file.delete();
-              debugPrint('Arquivo ${file.path} excluído com sucesso');
+              AppLogger.d('CacheService', 'Arquivo ${file.path} excluído com sucesso');
             }
           } catch (e) {
-            debugPrint('Erro ao excluir arquivo ${file.path}: $e');
+            AppLogger.e('CacheService', 'Erro ao excluir arquivo ${file.path}', e);
           }
         }
-        debugPrint('Cache limpo com sucesso!');
+        AppLogger.i('CacheService', 'Cache limpo com sucesso!');
         return true;
       }
       return false;
     } catch (e) {
-      debugPrint('Erro ao limpar cache: $e');
+      AppLogger.e('CacheService', 'Erro ao limpar cache', e);
       return false;
     }
   }
@@ -134,13 +160,17 @@ class CacheService {
   // Listar todos os arquivos no cache
   Future<List<String>> listCacheFiles() async {
     if (!_initialized) await init();
+    if (kIsWeb) {
+      AppLogger.w('CacheService', 'Ambiente web detectado, não é possível listar arquivos do cache');
+      return [];
+    }
     if (_cacheDir == null) return [];
 
     try {
       final files = await _cacheDir!.list().toList();
       return files.map((file) => file.path).toList();
     } catch (e) {
-      debugPrint('Erro ao listar arquivos do cache: $e');
+      AppLogger.e('CacheService', 'Erro ao listar arquivos do cache', e);
       return [];
     }
   }
@@ -148,6 +178,10 @@ class CacheService {
   // Obter todas as chaves de cache
   Future<List<String>> getAllCacheKeys() async {
     if (!_initialized) await init();
+    if (kIsWeb) {
+      AppLogger.w('CacheService', 'Ambiente web detectado, não é possível obter chaves de cache');
+      return [];
+    }
     if (_cacheDir == null) return [];
 
     try {
@@ -157,7 +191,7 @@ class CacheService {
           .map((file) => file.path.split('/').last.replaceAll('.json', ''))
           .toList();
     } catch (e) {
-      debugPrint('Erro ao obter chaves de cache: $e');
+      AppLogger.e('CacheService', 'Erro ao obter chaves de cache', e);
       return [];
     }
   }
@@ -165,6 +199,10 @@ class CacheService {
   // Obter conteúdo do cache a partir da chave
   Future<String?> getRawCache(String cacheKey) async {
     if (!_initialized) await init();
+    if (kIsWeb) {
+      AppLogger.w('CacheService', 'Ambiente web detectado, não é possível obter conteúdo do cache');
+      return null;
+    }
     if (_cacheDir == null) return null;
 
     try {
@@ -172,13 +210,13 @@ class CacheService {
 
       if (await cacheFile.exists()) {
         final cacheData = jsonDecode(await cacheFile.readAsString());
-        debugPrint('Resultado recuperado do cache: ${cacheFile.path}');
+        AppLogger.i('CacheService', 'Resultado recuperado do cache: ${cacheFile.path}');
         return cacheData['result'];
       }
 
       return null;
     } catch (e) {
-      debugPrint('Erro ao recuperar do cache: $e');
+      AppLogger.e('CacheService', 'Erro ao recuperar do cache', e);
       return null;
     }
   }

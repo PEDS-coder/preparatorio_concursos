@@ -1,1 +1,0 @@
-// Este é um arquivo de exemplo para: user_model.dart
