@@ -176,19 +176,8 @@ class DataLoaderService {
     }
   }
 
-  // Método de compatibilidade para chamadas antigas
-  @Deprecated('Use a versão com parâmetros nomeados em vez desta')
-  Future<void> loadNextPage<T>(
-    String key,
-    Future<Page<T>> Function(int pageNumber, int pageSize) loader,
-    [int pageSize = _defaultPageSize]
-  ) async {
-    return loadNextPage<T>(
-      key: key,
-      loader: loader,
-      pageSize: pageSize,
-    );
-  }
+  // O método de compatibilidade para chamadas antigas foi removido
+  // para evitar conflitos de assinatura. Use a versão com parâmetros nomeados.
 
   /// Carrega uma página específica
   Future<void> _loadPage<T>(

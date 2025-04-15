@@ -266,10 +266,11 @@ class _EditalAddScreenState extends State<EditalAddScreen> {
       });
 
       // Extrair texto do PDF
-      final String textoExtraido = await _pdfProcessor.extractTextFromPdf(
+      final result = await _pdfProcessor.extractTextFromPdf(
         bytes,
         useOcr: _isPdfScanned,
       );
+      final String textoExtraido = result.text;
 
       setState(() {
         _textoEditalController.text = textoExtraido;

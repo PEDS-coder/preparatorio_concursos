@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'base_model.dart';
 
 class Usuario implements BaseModel {
@@ -58,17 +59,23 @@ class Usuario implements BaseModel {
     };
   }
 
+  // Converte o objeto para JSON
+  String toJson() => json.encode(toMap());
+
   // Método para criar um objeto a partir de um Map
   factory Usuario.fromMap(Map<String, dynamic> map) {
     return Usuario(
-      id: map['id'],
-      nome: map['nome'],
-      email: map['email'],
-      senha: map['senha'],
-      nivelAssinatura: map['nivelAssinatura'],
-      avatarId: map['avatarId'],
-      pontosGamificacao: map['pontosGamificacao'],
-      nivelGamificacao: map['nivelGamificacao'],
+      id: map['id'] ?? '',
+      nome: map['nome'] ?? '',
+      email: map['email'] ?? '',
+      senha: map['senha'] ?? '',
+      nivelAssinatura: map['nivelAssinatura'] ?? 'free',
+      avatarId: map['avatarId'] ?? 'default',
+      pontosGamificacao: map['pontosGamificacao'] ?? 0,
+      nivelGamificacao: map['nivelGamificacao'] ?? 1,
     );
   }
+
+  // Cria um objeto a partir de JSON
+  factory Usuario.fromJson(String source) => Usuario.fromMap(json.decode(source));
 }

@@ -160,7 +160,7 @@ class ApiConfigService extends ChangeNotifier implements IApiConfigService {
 
       // Testar a chave da API
       final result = await _iaService!.testApiKey(apiKey, apiType);
-      return result['success'] as bool;
+      return result;
     } catch (e) {
       _logger.error('Erro ao validar chave da API', tag: _tag, error: e);
       return false;

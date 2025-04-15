@@ -8,14 +8,18 @@ import 'package:preparatorio_concursos/core/theme/custom_theme.dart';
 import 'package:preparatorio_concursos/core/utils/logger.dart';
 
 /// Enum para os modos de tema
+///
+/// Este enum foi renomeado de ThemeMode para AppThemeMode para evitar conflitos
+/// com o ThemeMode do Flutter. Ele representa os diferentes modos de tema
+/// disponíveis no aplicativo.
 enum AppThemeMode {
-  /// Tema claro
+  /// Tema claro - Usa cores claras para o fundo e escuras para o texto
   light,
 
-  /// Tema escuro
+  /// Tema escuro - Usa cores escuras para o fundo e claras para o texto
   dark,
 
-  /// Tema do sistema
+  /// Tema do sistema - Segue as configurações do sistema operacional
   system,
 }
 
@@ -54,6 +58,10 @@ class ThemeService extends ChangeNotifier implements IThemeService {
   AppThemeMode get themeMode => _themeMode;
 
   /// Obtém o modo de tema do Flutter
+  ///
+  /// Este método converte o [AppThemeMode] interno para o [ThemeMode] do Flutter,
+  /// permitindo que o aplicativo use o enum interno para gerenciar o tema, mas
+  /// ainda seja compatível com as APIs do Flutter que esperam um [ThemeMode].
   ThemeMode get flutterThemeMode {
     switch (_themeMode) {
       case AppThemeMode.light:
@@ -91,6 +99,12 @@ class ThemeService extends ChangeNotifier implements IThemeService {
   }
 
   /// Define o modo de tema
+  ///
+  /// Este método recebe um [ThemeMode] do Flutter e o converte para o [AppThemeMode]
+  /// interno. Ele também salva a preferência do usuário, registra o evento de mudança
+  /// de tema e notifica os ouvintes sobre a mudança.
+  ///
+  /// @param mode O modo de tema do Flutter a ser definido
   Future<void> setThemeMode(ThemeMode mode) async {
     // Converter o ThemeMode do Flutter para o AppThemeMode
     AppThemeMode appMode;

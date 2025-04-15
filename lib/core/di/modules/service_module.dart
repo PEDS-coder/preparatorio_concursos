@@ -1,5 +1,6 @@
 import 'package:injectable/injectable.dart';
 import 'package:preparatorio_concursos/core/services/advanced_cache_service.dart';
+import 'package:preparatorio_concursos/core/services/api_config_service.dart';
 import 'package:preparatorio_concursos/core/services/background_processor_service.dart';
 import 'package:preparatorio_concursos/core/services/cache_service.dart';
 import 'package:preparatorio_concursos/core/services/data_loader_service.dart';
@@ -113,4 +114,11 @@ abstract class ServiceModule {
     CacheService cacheService,
     Logger logger
   ) => PromptService(cacheService: cacheService, logger: logger);
+
+  // Singleton para o ApiConfigService
+  @singleton
+  ApiConfigService provideApiConfigService(
+    SecureStorageService secureStorage,
+    Logger logger
+  ) => ApiConfigService(secureStorage, logger);
 }

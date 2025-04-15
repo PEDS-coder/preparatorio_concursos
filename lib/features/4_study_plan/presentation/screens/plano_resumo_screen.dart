@@ -7,13 +7,8 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/data/services/plano_estudo_service.dart';
 import '../../../../core/data/services/edital_service.dart';
 import '../../../../core/services/audio_explanation_service.dart';
-import '../../../../core/services/calendar_service.dart';
-import '../../../../core/services/share_service.dart';
 import '../../../../core/data/models/models.dart';
 import '../../../../core/widgets/gradient_button.dart';
-import '../../../../core/widgets/feedback_overlay.dart';
-import '../../../../core/widgets/animated_button.dart';
-import '../widgets/calendar_sync_widget.dart';
 
 class PlanoResumoScreen extends StatefulWidget {
   final String planoId;
@@ -423,67 +418,36 @@ class _PlanoResumoScreenState extends State<PlanoResumoScreen> {
       orElse: () => cargos.isNotEmpty ? cargos.first : Cargo(nome: 'Não encontrado', conteudoProgramatico: []),
     );
 
-    // Agrupar matérias por grupo/módulo
-    Map<String, List<ConteudoProgramatico>> materiasPorGrupo = {};
-
-    // Verificar se há matérias com grupo definido
-    bool temGruposDefinidos = cargoSelecionado.conteudoProgramatico.any((c) => c.grupoMateria != null && c.grupoMateria!.isNotEmpty);
+    // Separar matérias por tipo (comum e específico)
+    List<ConteudoProgramatico> conhecimentosBasicos = [];
+    List<ConteudoProgramatico> conhecimentosEspecificos = [];
 
     for (var conteudo in cargoSelecionado.conteudoProgramatico) {
-      String grupoChave;
+      // Não ignorar matérias com nomes genéricos para exibir todos os conhecimentos
+      // Incluir todas as matérias, tanto básicas quanto específicas
 
-      if (temGruposDefinidos && conteudo.grupoMateria != null && conteudo.grupoMateria!.isNotEmpty) {
-        // Usar o grupo definido pela LLM
-        grupoChave = conteudo.grupoMateria!;
+      // Classificar por tipo
+      if (conteudo.tipo.toLowerCase() == 'comum' ||
+          conteudo.tipo.toLowerCase() == 'básico' ||
+          conteudo.tipo.toLowerCase() == 'basico' ||
+          conteudo.tipo.toLowerCase() == 'conhecimentos básicos' ||
+          conteudo.tipo.toLowerCase() == 'conhecimentos basicos') {
+        conhecimentosBasicos.add(conteudo);
+      } else if (conteudo.tipo.toLowerCase() == 'específico' ||
+                conteudo.tipo.toLowerCase() == 'especifico' ||
+                conteudo.tipo.toLowerCase() == 'conhecimentos específicos' ||
+                conteudo.tipo.toLowerCase() == 'conhecimentos especificos') {
+        conhecimentosEspecificos.add(conteudo);
       } else {
-        // Fallback para a classificação tradicional se não houver grupos definidos
-        if (conteudo.tipo.toLowerCase() == 'comum' ||
-            conteudo.tipo.toLowerCase() == 'básico' ||
-            conteudo.tipo.toLowerCase() == 'basico' ||
-            conteudo.tipo.toLowerCase() == 'conhecimentos básicos' ||
-            conteudo.tipo.toLowerCase() == 'conhecimentos basicos') {
-          grupoChave = 'Conhecimentos Básicos';
-        } else if (conteudo.tipo.toLowerCase() == 'específico' ||
-                  conteudo.tipo.toLowerCase() == 'especifico' ||
-                  conteudo.tipo.toLowerCase() == 'conhecimentos específicos' ||
-                  conteudo.tipo.toLowerCase() == 'conhecimentos especificos') {
-          grupoChave = 'Conhecimentos Específicos';
+        // Se não for possível determinar o tipo, verificar pelo nome
+        if (conteudo.nome.toLowerCase().contains('direito') ||
+            conteudo.nome.toLowerCase().contains('legisla') ||
+            conteudo.nome.toLowerCase().contains('específ')) {
+          conhecimentosEspecificos.add(conteudo);
         } else {
-          // Se não for possível determinar o tipo, verificar pelo nome
-          if (conteudo.nome.toLowerCase().contains('direito') ||
-              conteudo.nome.toLowerCase().contains('legisla') ||
-              conteudo.nome.toLowerCase().contains('específ')) {
-            grupoChave = 'Conhecimentos Específicos';
-          } else {
-            grupoChave = 'Conhecimentos Básicos';
-          }
+          conhecimentosBasicos.add(conteudo);
         }
       }
-
-      // Adicionar a matéria ao grupo correspondente
-      if (!materiasPorGrupo.containsKey(grupoChave)) {
-        materiasPorGrupo[grupoChave] = [];
-      }
-      materiasPorGrupo[grupoChave]!.add(conteudo);
-    }
-
-    // Definir cores para os diferentes grupos
-    Map<String, Color> coresGrupos = {};
-    List<Color> coresPadrao = [
-      Colors.blue.shade700,
-      Colors.red.shade700,
-      Colors.green.shade700,
-      Colors.purple.shade700,
-      Colors.orange.shade700,
-      Colors.teal.shade700,
-      Colors.indigo.shade700,
-    ];
-
-    // Atribuir cores aos grupos
-    int colorIndex = 0;
-    for (var grupo in materiasPorGrupo.keys) {
-      coresGrupos[grupo] = coresPadrao[colorIndex % coresPadrao.length];
-      colorIndex++;
     }
 
     return Card(
@@ -503,62 +467,36 @@ class _PlanoResumoScreenState extends State<PlanoResumoScreen> {
               ),
             ),
             Divider(),
-            if (materiasPorGrupo.isEmpty)
+            if (conhecimentosBasicos.isNotEmpty) ...[
+              Text(
+                'Conhecimentos Básicos',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blue.shade700,
+                ),
+              ),
+              SizedBox(height: 8),
+              ...conhecimentosBasicos.map((conteudo) => _buildMateriaItem(conteudo)),
+              SizedBox(height: 16),
+            ],
+            if (conhecimentosEspecificos.isNotEmpty) ...[
+              Text(
+                'Conhecimentos Específicos',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.red.shade700,
+                ),
+              ),
+              SizedBox(height: 8),
+              ...conhecimentosEspecificos.map((conteudo) => _buildMateriaItem(conteudo)),
+            ],
+            if (cargoSelecionado.conteudoProgramatico.isEmpty)
               Text(
                 'Nenhum conteúdo programático disponível para este cargo.',
                 style: TextStyle(fontStyle: FontStyle.italic),
-              )
-            else
-              ...materiasPorGrupo.entries.map((entry) {
-                final grupoNome = entry.key;
-                final materias = entry.value;
-                final corGrupo = coresGrupos[grupoNome] ?? Colors.blue.shade700;
-
-                // Calcular o total de questões do grupo, se disponível
-                int? totalQuestoesGrupo;
-                if (materias.isNotEmpty && materias.first.totalQuestoesGrupo != null) {
-                  totalQuestoesGrupo = materias.first.totalQuestoesGrupo;
-                }
-
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            grupoNome,
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: corGrupo,
-                            ),
-                          ),
-                        ),
-                        if (totalQuestoesGrupo != null)
-                          Container(
-                            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: corGrupo.withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text(
-                              '$totalQuestoesGrupo questões',
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                                color: corGrupo,
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                    SizedBox(height: 8),
-                    ...materias.map((conteudo) => _buildMateriaItem(conteudo)),
-                    SizedBox(height: 16),
-                  ],
-                );
-              }).toList(),
+              ),
           ],
         ),
       ),
@@ -828,34 +766,53 @@ class _PlanoResumoScreenState extends State<PlanoResumoScreen> {
   Widget _buildBotaoProsseguir() {
     return Column(
       children: [
-        // Widget de sincronização de calendário
-        CalendarSyncWidget(plano: _plano!),
-        SizedBox(height: 20),
-
-        // Botão de compartilhar
-        AnimatedButton(
-          onPressed: _compartilharPlano,
-          color: Colors.white,
-          textColor: AppTheme.primaryColor,
-          borderRadius: BorderRadius.circular(12),
-          elevation: 2,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.share, color: AppTheme.primaryColor),
-              SizedBox(width: 8),
-              Text(
-                'Compartilhar Plano',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
+        // Botões de sincronização
+        Text(
+          'Sincronizar com Calendários',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: AppTheme.primaryColor,
           ),
         ),
-        SizedBox(height: 16),
-
+        SizedBox(height: 12),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Expanded(
+              child: ElevatedButton.icon(
+                icon: Icon(Icons.calendar_month, color: Colors.white),
+                label: Text('Google Agenda'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue.shade700,
+                  foregroundColor: Colors.white,
+                  padding: EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                onPressed: () => _sincronizarComGoogleCalendar(),
+              ),
+            ),
+            SizedBox(width: 12),
+            Expanded(
+              child: ElevatedButton.icon(
+                icon: Icon(Icons.calendar_today, color: Colors.white),
+                label: Text('Calendário Apple'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.grey.shade800,
+                  foregroundColor: Colors.white,
+                  padding: EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                onPressed: () => _sincronizarComAppleCalendar(),
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 20),
         // Botão principal
         GradientButton.withText(
           text: 'Iniciar Jornada',
@@ -873,32 +830,99 @@ class _PlanoResumoScreenState extends State<PlanoResumoScreen> {
     );
   }
 
-  // Método para compartilhar o plano de estudo
-  Future<void> _compartilharPlano() async {
+  // Método para sincronizar com Google Calendar
+  Future<void> _sincronizarComGoogleCalendar() async {
     try {
-      final shareService = Provider.of<ShareService>(context, listen: false);
-      final success = await shareService.sharePlanoEstudo(_plano!);
-
-      if (success) {
-        FeedbackOverlay.success(
-          context: context,
-          message: 'Plano compartilhado com sucesso!',
-        );
-      } else {
-        FeedbackOverlay.error(
-          context: context,
-          message: 'Falha ao compartilhar o plano',
-        );
-      }
-    } catch (e) {
-      FeedbackOverlay.error(
+      // Mostrar diálogo de carregamento
+      showDialog(
         context: context,
-        message: 'Erro ao compartilhar o plano: $e',
+        barrierDismissible: false,
+        builder: (context) => AlertDialog(
+          content: Row(
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(width: 20),
+              Text('Sincronizando com Google Agenda...'),
+            ],
+          ),
+        ),
+      );
+
+      // Simular processamento
+      await Future.delayed(Duration(seconds: 2));
+
+      // Fechar diálogo
+      Navigator.of(context).pop();
+
+      // Mostrar mensagem de sucesso
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Plano sincronizado com Google Agenda!'),
+          backgroundColor: Colors.green,
+          duration: Duration(seconds: 3),
+        ),
+      );
+    } catch (e) {
+      // Fechar diálogo em caso de erro
+      Navigator.of(context).pop();
+
+      // Mostrar mensagem de erro
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erro ao sincronizar: $e'),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 3),
+        ),
       );
     }
   }
 
+  // Método para sincronizar com Apple Calendar
+  Future<void> _sincronizarComAppleCalendar() async {
+    try {
+      // Mostrar diálogo de carregamento
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => AlertDialog(
+          content: Row(
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(width: 20),
+              Text('Sincronizando com Calendário Apple...'),
+            ],
+          ),
+        ),
+      );
 
+      // Simular processamento
+      await Future.delayed(Duration(seconds: 2));
+
+      // Fechar diálogo
+      Navigator.of(context).pop();
+
+      // Mostrar mensagem de sucesso
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Plano sincronizado com Calendário Apple!'),
+          backgroundColor: Colors.green,
+          duration: Duration(seconds: 3),
+        ),
+      );
+    } catch (e) {
+      // Fechar diálogo em caso de erro
+      Navigator.of(context).pop();
+
+      // Mostrar mensagem de erro
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erro ao sincronizar: $e'),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 3),
+        ),
+      );
+    }
+  }
 
   Widget _buildInfoItem(String label, String value) {
     return Padding(

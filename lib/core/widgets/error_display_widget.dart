@@ -22,7 +22,7 @@ class ErrorDisplayWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final errorColor = theme.colorScheme.error;
-    
+
     final content = Column(
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
@@ -58,7 +58,7 @@ class ErrorDisplayWidget extends StatelessWidget {
             icon: const Icon(Icons.refresh),
             label: const Text('Tentar Novamente'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.primaryGradientEnd,
+              backgroundColor: AppTheme.gradientEnd,
               foregroundColor: Colors.white,
             ),
           ),
@@ -76,8 +76,8 @@ class ErrorDisplayWidget extends StatelessWidget {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                AppTheme.darkBackgroundColor,
-                AppTheme.darkBackgroundColor.withOpacity(0.8),
+                AppTheme.darkBackground,
+                AppTheme.darkBackground.withOpacity(0.8),
               ],
             ),
           ),

@@ -246,10 +246,10 @@ class _QuestoesScreenState extends State<QuestoesScreen> {
       // Gerar questões usando o IAService
 
       final resultado = await iaService.gerarQuestoes(
-        _fileContent ?? '',
-        _materiaController.text,
-        _dificuldade,
-        quantidade
+        texto: _fileContent ?? '',
+        materia: _materiaController.text,
+        dificuldade: _dificuldade,
+        quantidade: quantidade
       );
 
       setState(() {

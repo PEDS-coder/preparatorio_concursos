@@ -1,5 +1,6 @@
 import 'package:preparatorio_concursos/core/services/error_handler_service.dart';
 import 'package:preparatorio_concursos/core/utils/logger.dart';
+import 'package:preparatorio_concursos/core/utils/error_handling_extension.dart';
 
 /// Classe base para todos os repositórios
 abstract class BaseRepository {
@@ -13,22 +14,6 @@ abstract class BaseRepository {
     required String tag,
   }) : _tag = tag;
 
-  /// Executa uma operação com tratamento de erro
-  Future<T> runWithErrorHandling<T>(
-    Future<T> Function() operation, {
-    String context = '',
-  }) async {
-    try {
-      return await operation();
-    } catch (e, stackTrace) {
-      logger.error(
-        'Erro em $context',
-        tag: _tag,
-        error: e,
-        stackTrace: stackTrace,
-      );
-      final appException = errorHandler.convertToAppException(e);
-      throw appException;
-    }
-  }
+  /// Tag do repositório
+  String get tag => _tag;
 }

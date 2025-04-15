@@ -5,13 +5,13 @@ import 'package:flutter/material.dart';
 enum FeedbackType {
   /// Feedback de sucesso
   success,
-  
+
   /// Feedback de erro
   error,
-  
+
   /// Feedback de informação
   info,
-  
+
   /// Feedback de aviso
   warning,
 }
@@ -36,7 +36,7 @@ class FeedbackOverlay {
       FeedbackType.info: Colors.blue,
       FeedbackType.warning: Colors.orange,
     };
-    
+
     // Ícones para cada tipo de feedback
     final Map<FeedbackType, IconData> icons = {
       FeedbackType.success: Icons.check_circle,
@@ -44,10 +44,23 @@ class FeedbackOverlay {
       FeedbackType.info: Icons.info,
       FeedbackType.warning: Icons.warning,
     };
-    
+
     // Criar o overlay
     final overlayState = Overlay.of(context);
-    final overlayEntry = OverlayEntry(
+    late OverlayEntry overlayEntry;
+
+    // Definir a função de dismiss
+    void dismissOverlay() {
+      if (overlayEntry.mounted) {
+        overlayEntry.remove();
+        if (onDismiss != null) {
+          onDismiss();
+        }
+      }
+    }
+
+    // Criar a entrada do overlay
+    overlayEntry = OverlayEntry(
       builder: (context) => SafeArea(
         child: Material(
           color: Colors.transparent,
@@ -59,12 +72,7 @@ class FeedbackOverlay {
                 message: message,
                 color: colors[type]!,
                 icon: icon ?? Icon(icons[type]!, color: Colors.white),
-                onDismiss: () {
-                  overlayEntry.remove();
-                  if (onDismiss != null) {
-                    onDismiss();
-                  }
-                },
+                onDismiss: dismissOverlay,
                 dismissible: dismissible,
                 showProgress: showProgress,
               ),
@@ -73,22 +81,17 @@ class FeedbackOverlay {
         ),
       ),
     );
-    
+
     // Inserir o overlay
     overlayState.insert(overlayEntry);
-    
+
     // Remover o overlay após o tempo especificado
     if (!showProgress) {
       await Future.delayed(duration);
-      if (overlayEntry.mounted) {
-        overlayEntry.remove();
-        if (onDismiss != null) {
-          onDismiss();
-        }
-      }
+      dismissOverlay();
     }
   }
-  
+
   /// Exibe um feedback de sucesso
   static Future<void> success({
     required BuildContext context,
@@ -104,7 +107,7 @@ class FeedbackOverlay {
       onDismiss: onDismiss,
     );
   }
-  
+
   /// Exibe um feedback de erro
   static Future<void> error({
     required BuildContext context,
@@ -120,7 +123,7 @@ class FeedbackOverlay {
       onDismiss: onDismiss,
     );
   }
-  
+
   /// Exibe um feedback de informação
   static Future<void> info({
     required BuildContext context,
@@ -136,7 +139,7 @@ class FeedbackOverlay {
       onDismiss: onDismiss,
     );
   }
-  
+
   /// Exibe um feedback de aviso
   static Future<void> warning({
     required BuildContext context,
@@ -152,7 +155,7 @@ class FeedbackOverlay {
       onDismiss: onDismiss,
     );
   }
-  
+
   /// Exibe um feedback de carregamento
   static OverlayEntry loading({
     required BuildContext context,
@@ -194,7 +197,7 @@ class FeedbackOverlay {
         ),
       ),
     );
-    
+
     overlayState.insert(overlayEntry);
     return overlayEntry;
   }
@@ -208,7 +211,7 @@ class _FeedbackCard extends StatefulWidget {
   final VoidCallback onDismiss;
   final bool dismissible;
   final bool showProgress;
-  
+
   const _FeedbackCard({
     Key? key,
     required this.message,
@@ -218,7 +221,7 @@ class _FeedbackCard extends StatefulWidget {
     this.dismissible = true,
     this.showProgress = false,
   }) : super(key: key);
-  
+
   @override
   _FeedbackCardState createState() => _FeedbackCardState();
 }
@@ -226,32 +229,32 @@ class _FeedbackCard extends StatefulWidget {
 class _FeedbackCardState extends State<_FeedbackCard> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
-  
+
   @override
   void initState() {
     super.initState();
-    
+
     // Configurar a animação
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 300),
     );
-    
+
     _animation = CurvedAnimation(
       parent: _controller,
       curve: Curves.easeInOut,
     );
-    
+
     // Iniciar a animação
     _controller.forward();
   }
-  
+
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(

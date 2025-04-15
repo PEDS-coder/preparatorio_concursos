@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:preparatorio_concursos/core/data/services/interfaces/cache_service_interface.dart';
+import 'package:preparatorio_concursos/core/data/services/interfaces/advanced_cache_service_interface.dart';
 import 'package:preparatorio_concursos/core/utils/logger.dart';
 
 /// Classe que representa um item no cache com metadados
@@ -82,9 +82,8 @@ class CacheItem<T> {
 /// - Limpeza automática de itens expirados
 /// - Estatísticas de uso do cache
 ///
-/// O serviço implementa a interface [ICacheService] para compatibilidade com
-/// o restante do aplicativo, mas fornece métodos adicionais para funcionalidades
-/// avançadas.
+/// O serviço implementa a interface [IAdvancedCacheService] para fornecer
+/// funcionalidades avançadas de cache.
 ///
 /// Exemplo de uso:
 /// ```dart
@@ -102,7 +101,7 @@ class CacheItem<T> {
 /// final dados = await cacheService.getFromCache('minha_chave');
 /// ```
 @singleton
-class AdvancedCacheService implements ICacheService {
+class AdvancedCacheService implements IAdvancedCacheService {
   static const String _tag = 'AdvancedCacheService';
 
   /// Tamanho máximo do cache em bytes (50MB)
@@ -352,12 +351,13 @@ class AdvancedCacheService implements ICacheService {
     );
   }
 
+  @override
   /// Salva um item no cache com opções avançadas
   Future<void> saveWithOptions(
     String key,
     String data, {
-    Duration expiration = _defaultExpiration,
-    int priority = _defaultPriority,
+    Duration? expiration,
+    int? priority,
   }) async {
     try {
       // Calcular tamanho do item
@@ -370,8 +370,8 @@ class AdvancedCacheService implements ICacheService {
       final cacheItem = CacheItem<String>(
         data: data,
         createdAt: DateTime.now(),
-        expiresAt: DateTime.now().add(expiration),
-        priority: priority,
+        expiresAt: DateTime.now().add(expiration ?? _defaultExpiration),
+        priority: priority ?? _defaultPriority,
         key: key,
         size: size,
       );

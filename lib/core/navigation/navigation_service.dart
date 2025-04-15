@@ -85,7 +85,7 @@ class NavigationService implements INavigationService {
 
       _logger.debug('Navegando para: ${routeName ?? page.runtimeType}', tag: _tag);
 
-      final route = AnimatedRoute(
+      final route = AnimatedRoute<T>(
         page: page,
         animationType: animationType,
         duration: duration,
@@ -94,14 +94,14 @@ class NavigationService implements INavigationService {
       );
 
       if (clearStack) {
-        return await navigatorKey.currentState!.pushAndRemoveUntil(
+        return await navigatorKey.currentState!.pushAndRemoveUntil<T>(
           route,
           (route) => false,
         );
       } else if (replace) {
-        return await navigatorKey.currentState!.pushReplacement(route);
+        return await navigatorKey.currentState!.pushReplacement<dynamic, T>(route);
       } else {
-        return await navigatorKey.currentState!.push(route);
+        return await navigatorKey.currentState!.push<T>(route);
       }
     } catch (e) {
       _logger.error('Erro ao navegar para: ${routeName ?? page.runtimeType}', tag: _tag, error: e);

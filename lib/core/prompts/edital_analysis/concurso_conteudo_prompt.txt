@@ -19,11 +19,9 @@
 
 2. **Conteúdo Programático do Cargo Selecionado:**
    - Identifique todas as matérias que se aplicam ao cargo alvo
-   - Identifique e PRESERVE a nomenclatura original de divisão usada no edital (Módulos, Grupos, Conhecimentos Básicos/Específicos, etc.)
-   - Mantenha a organização original do edital, respeitando a estrutura e agrupamento das matérias
+   - Mantenha a organização original do edital (conhecimentos básicos/específicos ou outra divisão)
    - Para cada matéria, liste todos os tópicos detalhados
    - Identifique o número de questões por matéria (se disponível no edital)
-   - Identifique o número total de questões por grupo/módulo (se disponível no edital)
    - Identifique se alguma matéria tem peso maior que outras (se disponível no edital)
    - Identifique quais matérias são utilizadas como critério de desempate (se disponível no edital)
 
@@ -80,8 +78,6 @@
       "peso_maior": true,
       "criterio_desempate": false,
       "numero_questoes": 10,
-      "total_questoes_grupo": 35,
-      "grupo_materia": "Módulo I",
       "topicos": [
         "Tópico 1.1",
         "Tópico 1.2",
@@ -94,8 +90,6 @@
       "peso_maior": false,
       "criterio_desempate": true,
       "numero_questoes": 5,
-      "total_questoes_grupo": 45,
-      "grupo_materia": "Módulo II",
       "topicos": [
         "Tópico 2.1",
         "Tópico 2.2",
@@ -113,5 +107,3 @@
 4. Se não conseguir determinar alguma informação, use valores vazios ("") ou nulos (null) conforme apropriado.
 5. Certifique-se de incluir todas as informações sobre pesos de matérias, número de questões e critérios de desempate quando disponíveis no edital.
 6. O campo "numero_questoes" deve ser sempre um número inteiro (não uma string). Se não houver informação, use null.
-7. É CRUCIAL extrair corretamente o número TOTAL de questões da prova e o número de questões por GRUPO (ex: conhecimentos básicos, conhecimentos específicos).
-8. Quando o edital informar apenas o número total de questões de um grupo (ex: 45 questões de conhecimentos específicos), mas não detalhar o número por matéria, inclua essa informação no campo "total_questoes_grupo" para cada matéria desse grupo.

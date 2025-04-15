@@ -4,6 +4,7 @@ import 'package:firebase_performance/firebase_performance.dart';
 import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:preparatorio_concursos/core/data/services/interfaces/analytics_service_interface.dart';
+import 'package:preparatorio_concursos/core/data/services/interfaces/http_method.dart';
 import 'package:preparatorio_concursos/core/utils/logger.dart';
 
 /// Serviço para gerenciar analytics, crashlytics e telemetria de desempenho
@@ -203,16 +204,43 @@ class AnalyticsService implements IAnalyticsService {
   Future<void> stopTrace(Trace trace) async {
     try {
       await trace.stop();
-      _logger.debug('Trace finalizada: ${trace.name}', tag: _tag);
+      _logger.debug('Trace finalizada', tag: _tag);
     } catch (e) {
       _logger.error('Erro ao finalizar trace', tag: _tag, error: e);
     }
   }
 
   /// Inicia uma métrica HTTP
-  HttpMetric startHttpMetric(String url, HttpMethod method) {
+  HttpMetric startHttpMetric(String url, AppHttpMethod method) {
+    // Converter AppHttpMethod para HttpMethod
+    HttpMethod firebaseMethod;
+    switch (method) {
+      case AppHttpMethod.get:
+        firebaseMethod = HttpMethod.Get;
+        break;
+      case AppHttpMethod.post:
+        firebaseMethod = HttpMethod.Post;
+        break;
+      case AppHttpMethod.put:
+        firebaseMethod = HttpMethod.Put;
+        break;
+      case AppHttpMethod.delete:
+        firebaseMethod = HttpMethod.Delete;
+        break;
+      case AppHttpMethod.patch:
+        firebaseMethod = HttpMethod.Patch;
+        break;
+      case AppHttpMethod.options:
+        firebaseMethod = HttpMethod.Options;
+        break;
+      case AppHttpMethod.head:
+        firebaseMethod = HttpMethod.Head;
+        break;
+      default:
+        firebaseMethod = HttpMethod.Get;
+    }
     try {
-      final metric = _performance.newHttpMetric(url, method);
+      final metric = _performance.newHttpMetric(url, firebaseMethod);
       metric.start();
       _logger.debug('Métrica HTTP iniciada: $url', tag: _tag);
       return metric;
@@ -234,7 +262,7 @@ class AnalyticsService implements IAnalyticsService {
       }
 
       await metric.stop();
-      _logger.debug('Métrica HTTP finalizada: ${metric.url}', tag: _tag);
+      _logger.debug('Métrica HTTP finalizada', tag: _tag);
     } catch (e) {
       _logger.error('Erro ao finalizar métrica HTTP', tag: _tag, error: e);
     }

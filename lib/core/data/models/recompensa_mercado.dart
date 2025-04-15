@@ -1,6 +1,4 @@
-import 'base_model.dart';
-
-class RecompensaMercado implements BaseModel {
+class RecompensaMercado {
   final String id;
   final String userId;
   final String titulo;
@@ -93,7 +91,7 @@ class RecompensaMercado implements BaseModel {
   }
 }
 
-class HistoricoMoedas implements BaseModel {
+class HistoricoMoedas {
   final String id;
   final String userId;
   final int quantidade;
@@ -135,27 +133,6 @@ class HistoricoMoedas implements BaseModel {
       origem: map['origem'],
       descricao: map['descricao'],
       data: DateTime.parse(map['data']),
-    );
-  }
-
-  @override
-  HistoricoMoedas copyWith({
-    String? id,
-    String? userId,
-    int? quantidade,
-    String? tipo,
-    String? origem,
-    String? descricao,
-    DateTime? data,
-  }) {
-    return HistoricoMoedas(
-      id: id ?? this.id,
-      userId: userId ?? this.userId,
-      quantidade: quantidade ?? this.quantidade,
-      tipo: tipo ?? this.tipo,
-      origem: origem ?? this.origem,
-      descricao: descricao ?? this.descricao,
-      data: data ?? this.data,
     );
   }
 }

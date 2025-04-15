@@ -1,6 +1,5 @@
 // Arquivo de barril para exportar todos os modelos
 
-export 'base_model.dart';
 export 'usuario.dart';
 export 'edital.dart';
 export 'plano_estudo.dart';

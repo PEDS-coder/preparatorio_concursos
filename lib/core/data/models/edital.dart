@@ -1,14 +1,10 @@
-import 'base_model.dart';
-
-class ConteudoProgramatico implements BaseModel {
+class ConteudoProgramatico {
   final String nome;
   final String tipo; // 'comum' ou 'especifico'
   final List<String> topicos;
   final bool? pesoMaior; // Indica se a matéria tem peso maior na pontuação final
   final bool? criterioDesempate; // Indica se a matéria é critério de desempate
   final int? numeroQuestoes; // Número de questões da matéria na prova
-  final int? totalQuestoesGrupo; // Número total de questões do grupo (conhecimentos básicos/específicos)
-  final String? grupoMateria; // Nome do grupo/módulo ao qual a matéria pertence (ex: "Módulo I", "Conhecimentos Básicos")
 
   ConteudoProgramatico({
     required this.nome,
@@ -17,8 +13,6 @@ class ConteudoProgramatico implements BaseModel {
     this.pesoMaior,
     this.criterioDesempate,
     this.numeroQuestoes,
-    this.totalQuestoesGrupo,
-    this.grupoMateria,
   });
 
   Map<String, dynamic> toMap() {
@@ -29,8 +23,6 @@ class ConteudoProgramatico implements BaseModel {
       'peso_maior': pesoMaior,
       'criterio_desempate': criterioDesempate,
       'numero_questoes': numeroQuestoes,
-      'total_questoes_grupo': totalQuestoesGrupo,
-      'grupo_materia': grupoMateria,
     };
   }
 
@@ -42,8 +34,6 @@ class ConteudoProgramatico implements BaseModel {
       pesoMaior: map['peso_maior'],
       criterioDesempate: map['criterio_desempate'],
       numeroQuestoes: map['numero_questoes'] is int ? map['numero_questoes'] : null,
-      totalQuestoesGrupo: map['total_questoes_grupo'] is int ? map['total_questoes_grupo'] : null,
-      grupoMateria: map['grupo_materia'],
     );
   }
 
@@ -51,32 +41,9 @@ class ConteudoProgramatico implements BaseModel {
   String toString() {
     return nome;
   }
-
-  @override
-  ConteudoProgramatico copyWith({
-    String? nome,
-    String? tipo,
-    List<String>? topicos,
-    bool? pesoMaior,
-    bool? criterioDesempate,
-    int? numeroQuestoes,
-    int? totalQuestoesGrupo,
-    String? grupoMateria,
-  }) {
-    return ConteudoProgramatico(
-      nome: nome ?? this.nome,
-      tipo: tipo ?? this.tipo,
-      topicos: topicos ?? this.topicos,
-      pesoMaior: pesoMaior ?? this.pesoMaior,
-      criterioDesempate: criterioDesempate ?? this.criterioDesempate,
-      numeroQuestoes: numeroQuestoes ?? this.numeroQuestoes,
-      totalQuestoesGrupo: totalQuestoesGrupo ?? this.totalQuestoesGrupo,
-      grupoMateria: grupoMateria ?? this.grupoMateria,
-    );
-  }
 }
 
-class Cargo implements BaseModel {
+class Cargo {
   final String id;
   final String nome;
   final int vagas;
@@ -146,34 +113,9 @@ class Cargo implements BaseModel {
       dataProva: map['dataProva'] != null ? DateTime.parse(map['dataProva']) : null,
     );
   }
-
-  @override
-  Cargo copyWith({
-    String? id,
-    String? nome,
-    int? vagas,
-    double? salario,
-    double? taxaInscricao,
-    String? nivel,
-    String? escolaridade,
-    List<ConteudoProgramatico>? conteudoProgramatico,
-    DateTime? dataProva,
-  }) {
-    return Cargo(
-      id: id ?? this.id,
-      nome: nome ?? this.nome,
-      vagas: vagas ?? this.vagas,
-      salario: salario ?? this.salario,
-      taxaInscricao: taxaInscricao ?? this.taxaInscricao,
-      nivel: nivel ?? this.nivel,
-      escolaridade: escolaridade ?? this.escolaridade,
-      conteudoProgramatico: conteudoProgramatico ?? this.conteudoProgramatico,
-      dataProva: dataProva ?? this.dataProva,
-    );
-  }
 }
 
-class DadosExtraidos implements BaseModel {
+class DadosExtraidos {
   String? titulo;
   String? orgao;
   String? banca;
@@ -229,36 +171,9 @@ class DadosExtraidos implements BaseModel {
       textoCompleto: map['textoCompleto'] ?? '',
     );
   }
-
-  @override
-  DadosExtraidos copyWith({
-    String? titulo,
-    String? orgao,
-    String? banca,
-    DateTime? inicioInscricao,
-    DateTime? fimInscricao,
-    dynamic valorTaxa,
-    String? localProva,
-    String? dataProva,
-    List<Cargo>? cargos,
-    String? textoCompleto,
-  }) {
-    return DadosExtraidos(
-      titulo: titulo ?? this.titulo,
-      orgao: orgao ?? this.orgao,
-      banca: banca ?? this.banca,
-      inicioInscricao: inicioInscricao ?? this.inicioInscricao,
-      fimInscricao: fimInscricao ?? this.fimInscricao,
-      valorTaxa: valorTaxa ?? this.valorTaxa,
-      localProva: localProva ?? this.localProva,
-      dataProva: dataProva ?? this.dataProva,
-      cargos: cargos ?? this.cargos,
-      textoCompleto: textoCompleto ?? this.textoCompleto,
-    );
-  }
 }
 
-class Edital implements BaseModel {
+class Edital {
   final String id;
   final String userId;
   final String nomeConcurso;
@@ -298,27 +213,6 @@ class Edital implements BaseModel {
       dataUpload: DateTime.parse(map['dataUpload']),
       dadosExtraidos: DadosExtraidos.fromMap(map['dadosExtraidos']),
       dadosOriginais: map['dadosOriginais'],
-    );
-  }
-
-  @override
-  Edital copyWith({
-    String? id,
-    String? userId,
-    String? nomeConcurso,
-    String? textoCompleto,
-    DateTime? dataUpload,
-    DadosExtraidos? dadosExtraidos,
-    Map<String, dynamic>? dadosOriginais,
-  }) {
-    return Edital(
-      id: id ?? this.id,
-      userId: userId ?? this.userId,
-      nomeConcurso: nomeConcurso ?? this.nomeConcurso,
-      textoCompleto: textoCompleto ?? this.textoCompleto,
-      dataUpload: dataUpload ?? this.dataUpload,
-      dadosExtraidos: dadosExtraidos ?? this.dadosExtraidos,
-      dadosOriginais: dadosOriginais ?? this.dadosOriginais,
     );
   }
 }

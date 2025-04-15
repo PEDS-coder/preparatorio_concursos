@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
+import 'dart:math' as Math;
 import 'package:flutter/foundation.dart';
 import '../models/flashcard.dart';
 import 'interfaces/ia_service_interface.dart';
@@ -98,8 +99,22 @@ abstract class BaseIAService extends ChangeNotifier implements IAServiceInterfac
 
   @override
   Future<String> callApi(String prompt) async {
-    // Implementação base que será sobrescrita nas classes concretas
-    throw UnimplementedError('Método callApi deve ser implementado nas classes concretas');
+    try {
+      AppLogger.i('BaseIAService', 'Iniciando chamada à API...');
+      AppLogger.d('BaseIAService', 'Prompt: ${prompt.substring(0, Math.min(100, prompt.length))}...');
+
+      // Verificar se a API está configurada
+      if (!isConfigured) {
+        AppLogger.e('BaseIAService', 'API Key não configurada');
+        throw Exception('API Key não configurada');
+      }
+
+      // Implementação base que será sobrescrita nas classes concretas
+      throw UnimplementedError('Método callApi deve ser implementado nas classes concretas');
+    } catch (e) {
+      AppLogger.e('BaseIAService', 'Erro na chamada à API', e);
+      rethrow;
+    }
   }
 
   // Método para analisar JSON da resposta
@@ -221,11 +236,17 @@ abstract class BaseIAService extends ChangeNotifier implements IAServiceInterfac
     }
 
     try {
+      AppLogger.i('BaseIAService', 'Iniciando análise de edital PDF...');
+
       // Carregar o prompt para análise direta de PDF
       final String promptTemplate = await _promptService.loadPdfEditalAnalysisPrompt();
+      AppLogger.i('BaseIAService', 'Prompt carregado com sucesso: ${promptTemplate.substring(0, Math.min(100, promptTemplate.length))}...');
 
       // Implementação específica para cada provedor
-      return await _processarPdf(promptTemplate, pdfBytes, pdfName: pdfName);
+      AppLogger.i('BaseIAService', 'Chamando processamento de PDF...');
+
+      // Implementação abstrata - cada provedor deve implementar seu próprio método
+      return await processarPdf(promptTemplate, pdfBytes, pdfName: pdfName);
     } catch (e) {
       AppLogger.e('BaseIAService', 'Erro ao analisar edital PDF', e);
       rethrow;
@@ -239,19 +260,27 @@ abstract class BaseIAService extends ChangeNotifier implements IAServiceInterfac
     }
 
     try {
+      AppLogger.i('BaseIAService', 'Iniciando extração de cargos do edital...');
+
       // Carregar o prompt para extração de cargos
       String promptTemplate;
       try {
         // Usar o novo prompt para extração de cargos
+        AppLogger.i('BaseIAService', 'Carregando prompt para extração de cargos...');
         promptTemplate = await _promptService.loadCargosEditalPrompt();
+        AppLogger.i('BaseIAService', 'Prompt carregado com sucesso: ${promptTemplate.substring(0, Math.min(100, promptTemplate.length))}...');
       } catch (e) {
         AppLogger.e('BaseIAService', 'Erro ao carregar prompt de cargos', e);
         // Usar prompt de fallback em caso de erro
+        AppLogger.i('BaseIAService', 'Usando prompt de fallback...');
         promptTemplate = await _promptService.loadFallbackBasicInfoPrompt();
       }
 
       // Implementação específica para cada provedor
-      return await _processarPdf(promptTemplate, pdfBytes, pdfName: pdfName);
+      AppLogger.i('BaseIAService', 'Chamando processarPdf para processar o PDF...');
+      final resultado = await processarPdf(promptTemplate, pdfBytes, pdfName: pdfName);
+      AppLogger.i('BaseIAService', 'PDF processado com sucesso!');
+      return resultado;
     } catch (e) {
       AppLogger.e('BaseIAService', 'Erro ao extrair cargos do edital', e);
       rethrow;
@@ -283,7 +312,10 @@ abstract class BaseIAService extends ChangeNotifier implements IAServiceInterfac
       }
 
       // Implementação específica para cada provedor
-      return await _processarPdf(promptTemplate, pdfBytes, pdfName: pdfName);
+      AppLogger.i('BaseIAService', 'Chamando processarPdf para processar o PDF...');
+      final resultado = await processarPdf(promptTemplate, pdfBytes, pdfName: pdfName);
+      AppLogger.i('BaseIAService', 'PDF processado com sucesso!');
+      return resultado;
     } catch (e) {
       AppLogger.e('BaseIAService', 'Erro ao extrair informações básicas do edital', e);
       rethrow;
@@ -291,7 +323,11 @@ abstract class BaseIAService extends ChangeNotifier implements IAServiceInterfac
   }
 
   @override
-  Future<String> extrairConcursoConteudo(Uint8List pdfBytes, String cargoAlvo, {String? pdfName}) async {
+  Future<String> extrairConcursoConteudo({
+    required Uint8List pdfBytes,
+    required String cargoAlvo,
+    String? pdfName,
+  }) async {
     if (!isConfigured) {
       throw Exception('API Key não configurada');
     }
@@ -320,7 +356,10 @@ abstract class BaseIAService extends ChangeNotifier implements IAServiceInterfac
       }
 
       // Implementação específica para cada provedor
-      return await _processarPdf(promptTemplate, pdfBytes, pdfName: pdfName);
+      AppLogger.i('BaseIAService', 'Chamando processarPdf para processar o PDF...');
+      final resultado = await processarPdf(promptTemplate, pdfBytes, pdfName: pdfName);
+      AppLogger.i('BaseIAService', 'PDF processado com sucesso!');
+      return resultado;
     } catch (e) {
       AppLogger.e('BaseIAService', 'Erro ao extrair dados do concurso e conteúdo programático', e);
       rethrow;
@@ -328,7 +367,11 @@ abstract class BaseIAService extends ChangeNotifier implements IAServiceInterfac
   }
 
   @override
-  Future<String> extrairConteudoProgramatico(Uint8List pdfBytes, String cargoAlvo, {String? pdfName}) async {
+  Future<String> extrairConteudoProgramatico({
+    required Uint8List pdfBytes,
+    required String cargoAlvo,
+    String? pdfName,
+  }) async {
     if (!isConfigured) {
       throw Exception('API Key não configurada');
     }
@@ -357,7 +400,10 @@ abstract class BaseIAService extends ChangeNotifier implements IAServiceInterfac
       }
 
       // Implementação específica para cada provedor
-      return await _processarPdf(promptTemplate, pdfBytes, pdfName: pdfName);
+      AppLogger.i('BaseIAService', 'Chamando processarPdf para processar o PDF...');
+      final resultado = await processarPdf(promptTemplate, pdfBytes, pdfName: pdfName);
+      AppLogger.i('BaseIAService', 'PDF processado com sucesso!');
+      return resultado;
     } catch (e) {
       AppLogger.e('BaseIAService', 'Erro ao extrair conteúdo programático do edital', e);
       rethrow;
@@ -447,7 +493,10 @@ OBSERVAÇÃO IMPORTANTE: Este é um resumo de resumos parciais. Mantenha apenas 
   }
 
   @override
-  Future<String> gerarEsquema(String texto, {String? titulo}) async {
+  Future<String> gerarEsquema({
+    required String texto,
+    String? titulo,
+  }) async {
     if (!isConfigured) {
       throw Exception('API Key não configurada');
     }
@@ -507,7 +556,12 @@ OBSERVAÇÃO IMPORTANTE: Você está criando um mapa mental para a parte ${i+1} 
   }
 
   @override
-  Future<String> gerarQuestoes(String texto, String materia, String dificuldade, int quantidade) async {
+  Future<String> gerarQuestoes({
+    required String texto,
+    required String materia,
+    required String dificuldade,
+    required int quantidade,
+  }) async {
     if (!isConfigured) {
       throw Exception('API Key não configurada');
     }
@@ -573,12 +627,12 @@ Crie apenas ${questoesPorParte} questões para esta parte específica do texto.
   }
 
   @override
-  Future<List<Flashcard>> gerarFlashcards(
-    String userId,
+  Future<List<Flashcard>> gerarFlashcards({
+    required String userId,
     String? editalId,
-    String materia,
-    String texto,
-  ) async {
+    required String materia,
+    required String texto,
+  }) async {
     if (!isConfigured) {
       throw Exception('API Key não configurada');
     }
@@ -637,10 +691,8 @@ OBSERVAÇÃO IMPORTANTE: Você está analisando a parte ${i+1} de ${textChunks.l
     }
   }
 
-  // Método para processar PDF - deve ser implementado nas classes concretas
-  Future<String> _processarPdf(String prompt, Uint8List pdfBytes, {String? pdfName}) async {
-    throw UnimplementedError('Método _processarPdf deve ser implementado nas classes concretas');
-  }
+  // Método abstrato para processar PDF - deve ser implementado nas classes concretas
+  Future<String> processarPdf(String prompt, Uint8List pdfBytes, {String? pdfName});
 
   // Método para verificar se o texto está dentro do limite de tokens
   @override

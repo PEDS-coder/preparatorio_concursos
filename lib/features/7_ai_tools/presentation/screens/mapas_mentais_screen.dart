@@ -98,7 +98,10 @@ class _MapasMentaisScreenState extends State<MapasMentaisScreen> {
         }
       }
 
-      final resultado = await iaService.gerarEsquema(texto, titulo: titulo);
+      final resultado = await iaService.gerarEsquema(
+        texto: texto,
+        titulo: titulo,
+      );
 
       setState(() {
         _resultado = resultado;

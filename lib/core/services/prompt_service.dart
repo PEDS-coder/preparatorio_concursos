@@ -1,11 +1,9 @@
 import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:path/path.dart' as path;
-import '../data/services/interfaces/prompt_service_interface.dart';
-import '../utils/logger_adapter.dart';
 
 /// Serviço para gerenciar prompts utilizados nas requisições à LLM
-class PromptService implements PromptServiceInterface {
+class PromptService {
   // Mapa para armazenar os prompts carregados em memória
   final Map<String, String> _promptCache = {};
 
@@ -34,7 +32,7 @@ class PromptService implements PromptServiceInterface {
 
       return promptContent;
     } catch (e) {
-      AppLogger.e('PromptService', 'Erro ao carregar prompt de $promptPath', e);
+      print('Erro ao carregar prompt de $promptPath: $e');
       throw Exception('Não foi possível carregar o prompt: $e');
     }
   }
@@ -64,7 +62,7 @@ class PromptService implements PromptServiceInterface {
         }
       }
     } catch (e) {
-      AppLogger.e('PromptService', 'Erro ao carregar arquivo de $filePath', e);
+      print('Erro ao carregar arquivo de $filePath: $e');
       throw Exception('Não foi possível carregar o arquivo: $e');
     }
   }

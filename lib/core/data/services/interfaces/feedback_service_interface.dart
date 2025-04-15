@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 /// Interface para o serviço de feedback
 abstract class IFeedbackService {
   /// Inicializa o serviço de feedback
-  BetterFeedback initFeedback();
-  
+  BetterFeedback initFeedback(Widget child);
+
   /// Mostra o formulário de feedback
   void showFeedback(BuildContext context);
 }

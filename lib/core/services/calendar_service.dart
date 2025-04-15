@@ -1,15 +1,18 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:add_2_calendar/add_2_calendar.dart';
-import 'package:device_calendar/device_calendar.dart';
+import 'package:add_2_calendar/add_2_calendar.dart' as add2calendar;
+import 'package:device_calendar/device_calendar.dart' as device_calendar;
 import 'package:flutter/foundation.dart';
 import 'package:googleapis/calendar/v3.dart' as google_calendar;
 import 'package:googleapis_auth/auth_io.dart';
 import 'package:injectable/injectable.dart';
+import 'package:preparatorio_concursos/core/data/models/calendar_event.dart';
 import 'package:preparatorio_concursos/core/data/models/plano_estudo.dart';
 import 'package:preparatorio_concursos/core/data/services/interfaces/analytics_service_interface.dart';
 import 'package:preparatorio_concursos/core/data/services/interfaces/calendar_service_interface.dart';
+import 'package:preparatorio_concursos/core/utils/google_calendar_adapter.dart';
 import 'package:preparatorio_concursos/core/utils/logger.dart';
+import 'package:timezone/timezone.dart' as tz;
 import 'package:url_launcher/url_launcher.dart';
 
 /// Serviço para gerenciar a integração com calendários
@@ -24,12 +27,12 @@ class CalendarService implements ICalendarService {
   google_calendar.CalendarApi? _googleCalendarApi;
 
   // Cliente do Device Calendar
-  DeviceCalendarPlugin? _deviceCalendarPlugin;
+  device_calendar.DeviceCalendarPlugin? _deviceCalendarPlugin;
 
   /// Construtor
   CalendarService(this._logger, this._analyticsService) {
     if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
-      _deviceCalendarPlugin = DeviceCalendarPlugin();
+      _deviceCalendarPlugin = device_calendar.DeviceCalendarPlugin();
     }
   }
 
@@ -162,26 +165,28 @@ class CalendarService implements ICalendarService {
           // Obter a data do dia da semana
           final dataEstudo = _getNextWeekday(dia);
 
-          // Criar evento
-          final event = google_calendar.Event()
-            ..summary = materia.nome
-            ..description = 'Estudo de ${materia.nome}'
-            ..start = google_calendar.EventDateTime()
-              ..dateTime = dataEstudo
-              ..timeZone = 'America/Sao_Paulo'
-            ..end = google_calendar.EventDateTime()
-              ..dateTime = dataEstudo.add(const Duration(hours: 2))
-              ..timeZone = 'America/Sao_Paulo'
-            ..reminders = google_calendar.EventReminders()
-              ..useDefault = false
-              ..overrides = [
-                google_calendar.EventReminder()
-                  ..method = 'email'
-                  ..minutes = 24 * 60, // 1 dia antes
-                google_calendar.EventReminder()
-                  ..method = 'popup'
-                  ..minutes = 30, // 30 minutos antes
-              ];
+          // Criar lembretes
+          final reminderList = [
+            GoogleCalendarAdapter.createReminder(
+              method: 'email',
+              minutes: 24 * 60, // 1 dia antes
+            ),
+            GoogleCalendarAdapter.createReminder(
+              method: 'popup',
+              minutes: 30, // 30 minutos antes
+            ),
+          ];
+
+          // Criar evento usando o adaptador
+          final event = GoogleCalendarAdapter.createEvent(
+            summary: materia.nome,
+            description: 'Estudo de ${materia.nome}',
+            startDateTime: dataEstudo,
+            endDateTime: dataEstudo.add(const Duration(hours: 2)),
+            timeZone: 'America/Sao_Paulo',
+            useDefaultReminders: false,
+            reminderOverrides: reminderList,
+          );
 
           await _googleCalendarApi!.events.insert(event, createdCalendar.id!);
         }
@@ -217,7 +222,7 @@ class CalendarService implements ICalendarService {
           final dataEstudo = _getNextWeekday(dia);
 
           // Criar evento
-          final event = Event(
+          final calendarEvent = Add2CalendarEvent(
             title: materia.nome,
             description: 'Estudo de ${materia.nome}',
             startDate: dataEstudo,
@@ -226,8 +231,18 @@ class CalendarService implements ICalendarService {
             location: '',
           );
 
+          // Converter para o formato do Add2Calendar
+          final event = add2calendar.Event(
+            title: calendarEvent.title,
+            description: calendarEvent.description,
+            startDate: calendarEvent.startDate,
+            endDate: calendarEvent.endDate,
+            allDay: calendarEvent.allDay,
+            location: calendarEvent.location,
+          );
+
           // Adicionar ao calendário
-          final success = await Add2Calendar.addEvent2Cal(event);
+          final success = await add2calendar.Add2Calendar.addEvent2Cal(event);
 
           if (!success) {
             _logger.warning('Falha ao adicionar evento ao Apple Calendar', tag: _tag);
@@ -283,13 +298,27 @@ class CalendarService implements ICalendarService {
           final dataEstudo = _getNextWeekday(dia);
 
           // Criar evento
-          final event = Event(
-            calendarId,
+          final calendarEvent = DeviceCalendarEvent(
+            calendarId: calendarId!,
             title: materia.nome,
             description: 'Estudo de ${materia.nome}',
-            start: dataEstudo,
-            end: dataEstudo.add(const Duration(hours: 2)),
+            startDate: dataEstudo,
+            endDate: dataEstudo.add(const Duration(hours: 2)),
           );
+
+          // Converter para o formato do Device Calendar
+          final event = device_calendar.Event(
+            calendarId,
+            title: calendarEvent.title,
+            description: calendarEvent.description,
+          );
+
+          // Configurar datas de início e fim
+          // Convertendo DateTime para TZDateTime
+          final startTZ = tz.TZDateTime.from(calendarEvent.startDate, tz.local);
+          final endTZ = tz.TZDateTime.from(calendarEvent.endDate, tz.local);
+          event.start = startTZ;
+          event.end = endTZ;
 
           // Adicionar ao calendário
           final createEventResult = await _deviceCalendarPlugin?.createOrUpdateEvent(event);

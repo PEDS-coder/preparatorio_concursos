@@ -1,0 +1,13 @@
+Plano de Implementação
+Baseado na análise do código, vou implementar as seguintes modificações para tornar o frontend adaptável à nomenclatura de divisão identificada pela LLM:
+
+Adicionar um campo grupoMateria ao modelo ConteudoProgramatico:
+Este campo armazenará o nome do grupo/módulo ao qual a matéria pertence (ex: "Módulo I", "Conhecimentos Básicos", "Grupo 1", etc.)
+Modificar o prompt para extrair a nomenclatura de divisão usada no edital:
+Instruir a LLM a identificar e preservar a nomenclatura original de divisão do conteúdo programático
+Modificar o método _buildConteudoProgramatico para agrupar matérias dinamicamente:
+Em vez de usar categorias fixas "Conhecimentos Básicos" e "Conhecimentos Específicos", agrupar as matérias pelo campo grupoMateria
+Exibir os nomes dos grupos conforme identificados pela LLM
+Melhorar a exibição do número de questões:
+Usar o campo totalQuestoesGrupo para exibir o número total de questões do grupo
+Calcular e exibir o número estimado de questões para matérias sem número explícito

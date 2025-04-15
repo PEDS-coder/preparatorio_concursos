@@ -145,6 +145,14 @@ class MockIAService extends _i1.Mock implements _i3.IAService {
           as _i5.Future<bool>);
 
   @override
+  _i5.Future<bool> testApiKey(String? apiKey, String? apiType) =>
+      (super.noSuchMethod(
+            Invocation.method(#testApiKey, [apiKey, apiType]),
+            returnValue: _i5.Future<bool>.value(false),
+          )
+          as _i5.Future<bool>);
+
+  @override
   _i5.Future<String> callApiWithPrompt(String? prompt) =>
       (super.noSuchMethod(
             Invocation.method(#callApiWithPrompt, [prompt]),
@@ -170,19 +178,19 @@ class MockIAService extends _i1.Mock implements _i3.IAService {
           as _i5.Future<Map<String, dynamic>?>);
 
   @override
-  _i5.Future<List<_i6.Flashcard>> gerarFlashcards(
-    String? userId,
+  _i5.Future<List<_i6.Flashcard>> gerarFlashcards({
+    required String? userId,
     String? editalId,
-    String? materia,
-    String? texto,
-  ) =>
+    required String? materia,
+    required String? texto,
+  }) =>
       (super.noSuchMethod(
-            Invocation.method(#gerarFlashcards, [
-              userId,
-              editalId,
-              materia,
-              texto,
-            ]),
+            Invocation.method(#gerarFlashcards, [], {
+              #userId: userId,
+              #editalId: editalId,
+              #materia: materia,
+              #texto: texto,
+            }),
             returnValue: _i5.Future<List<_i6.Flashcard>>.value(
               <_i6.Flashcard>[],
             ),
@@ -262,50 +270,50 @@ class MockIAService extends _i1.Mock implements _i3.IAService {
           as _i5.Future<String>);
 
   @override
-  _i5.Future<String> extrairConcursoConteudo(
-    _i7.Uint8List? pdfBytes,
-    String? cargoAlvo, {
+  _i5.Future<String> extrairConcursoConteudo({
+    required _i7.Uint8List? pdfBytes,
+    required String? cargoAlvo,
     String? pdfName,
   }) =>
       (super.noSuchMethod(
-            Invocation.method(
-              #extrairConcursoConteudo,
-              [pdfBytes, cargoAlvo],
-              {#pdfName: pdfName},
-            ),
+            Invocation.method(#extrairConcursoConteudo, [], {
+              #pdfBytes: pdfBytes,
+              #cargoAlvo: cargoAlvo,
+              #pdfName: pdfName,
+            }),
             returnValue: _i5.Future<String>.value(
               _i4.dummyValue<String>(
                 this,
-                Invocation.method(
-                  #extrairConcursoConteudo,
-                  [pdfBytes, cargoAlvo],
-                  {#pdfName: pdfName},
-                ),
+                Invocation.method(#extrairConcursoConteudo, [], {
+                  #pdfBytes: pdfBytes,
+                  #cargoAlvo: cargoAlvo,
+                  #pdfName: pdfName,
+                }),
               ),
             ),
           )
           as _i5.Future<String>);
 
   @override
-  _i5.Future<String> extrairConteudoProgramatico(
-    _i7.Uint8List? pdfBytes,
-    String? cargoAlvo, {
+  _i5.Future<String> extrairConteudoProgramatico({
+    required _i7.Uint8List? pdfBytes,
+    required String? cargoAlvo,
     String? pdfName,
   }) =>
       (super.noSuchMethod(
-            Invocation.method(
-              #extrairConteudoProgramatico,
-              [pdfBytes, cargoAlvo],
-              {#pdfName: pdfName},
-            ),
+            Invocation.method(#extrairConteudoProgramatico, [], {
+              #pdfBytes: pdfBytes,
+              #cargoAlvo: cargoAlvo,
+              #pdfName: pdfName,
+            }),
             returnValue: _i5.Future<String>.value(
               _i4.dummyValue<String>(
                 this,
-                Invocation.method(
-                  #extrairConteudoProgramatico,
-                  [pdfBytes, cargoAlvo],
-                  {#pdfName: pdfName},
-                ),
+                Invocation.method(#extrairConteudoProgramatico, [], {
+                  #pdfBytes: pdfBytes,
+                  #cargoAlvo: cargoAlvo,
+                  #pdfName: pdfName,
+                }),
               ),
             ),
           )
@@ -325,41 +333,47 @@ class MockIAService extends _i1.Mock implements _i3.IAService {
           as _i5.Future<String>);
 
   @override
-  _i5.Future<String> gerarEsquema(String? texto, {String? titulo}) =>
+  _i5.Future<String> gerarEsquema({required String? texto, String? titulo}) =>
       (super.noSuchMethod(
-            Invocation.method(#gerarEsquema, [texto], {#titulo: titulo}),
+            Invocation.method(#gerarEsquema, [], {
+              #texto: texto,
+              #titulo: titulo,
+            }),
             returnValue: _i5.Future<String>.value(
               _i4.dummyValue<String>(
                 this,
-                Invocation.method(#gerarEsquema, [texto], {#titulo: titulo}),
+                Invocation.method(#gerarEsquema, [], {
+                  #texto: texto,
+                  #titulo: titulo,
+                }),
               ),
             ),
           )
           as _i5.Future<String>);
 
   @override
-  _i5.Future<String> gerarQuestoes(
-    String? texto,
-    String? materia,
-    String? dificuldade,
-    int? quantidade,
-  ) =>
+  _i5.Future<String> gerarQuestoes({
+    required String? texto,
+    required String? materia,
+    required String? dificuldade,
+    required int? quantidade,
+  }) =>
       (super.noSuchMethod(
-            Invocation.method(#gerarQuestoes, [
-              texto,
-              materia,
-              dificuldade,
-              quantidade,
-            ]),
+            Invocation.method(#gerarQuestoes, [], {
+              #texto: texto,
+              #materia: materia,
+              #dificuldade: dificuldade,
+              #quantidade: quantidade,
+            }),
             returnValue: _i5.Future<String>.value(
               _i4.dummyValue<String>(
                 this,
-                Invocation.method(#gerarQuestoes, [
-                  texto,
-                  materia,
-                  dificuldade,
-                  quantidade,
-                ]),
+                Invocation.method(#gerarQuestoes, [], {
+                  #texto: texto,
+                  #materia: materia,
+                  #dificuldade: dificuldade,
+                  #quantidade: quantidade,
+                }),
               ),
             ),
           )

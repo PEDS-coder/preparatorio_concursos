@@ -3,18 +3,18 @@ import 'package:provider/provider.dart';
 import 'package:preparatorio_concursos/core/data/models/plano_estudo.dart';
 import 'package:preparatorio_concursos/core/services/calendar_service.dart';
 import 'package:preparatorio_concursos/core/theme/app_theme.dart';
-import 'package:preparatorio_concursos/core/widgets/animated_button.dart';
+import 'package:preparatorio_concursos/features/4_study_plan/presentation/widgets/animated_button.dart';
 import 'package:preparatorio_concursos/core/widgets/feedback_overlay.dart';
 
 /// Widget para sincronização de calendário
 class CalendarSyncWidget extends StatefulWidget {
   final PlanoEstudo plano;
-  
+
   const CalendarSyncWidget({
     Key? key,
     required this.plano,
   }) : super(key: key);
-  
+
   @override
   _CalendarSyncWidgetState createState() => _CalendarSyncWidgetState();
 }
@@ -26,36 +26,36 @@ class _CalendarSyncWidgetState extends State<CalendarSyncWidget> {
   bool _isSyncingGoogle = false;
   bool _isSyncingApple = false;
   bool _isSyncingDevice = false;
-  
+
   @override
   void initState() {
     super.initState();
     _checkCalendarAvailability();
   }
-  
+
   /// Verifica a disponibilidade dos calendários
   Future<void> _checkCalendarAvailability() async {
     final calendarService = Provider.of<CalendarService>(context, listen: false);
-    
+
     final isGoogleCalendarAvailable = await calendarService.isGoogleCalendarAvailable();
     final isAppleCalendarAvailable = await calendarService.isAppleCalendarAvailable();
     final isDeviceCalendarAvailable = await calendarService.isDeviceCalendarAvailable();
-    
+
     setState(() {
       _isGoogleCalendarAvailable = isGoogleCalendarAvailable;
       _isAppleCalendarAvailable = isAppleCalendarAvailable;
       _isDeviceCalendarAvailable = isDeviceCalendarAvailable;
     });
   }
-  
+
   /// Sincroniza com o Google Calendar
   Future<void> _syncWithGoogleCalendar() async {
     setState(() => _isSyncingGoogle = true);
-    
+
     try {
       final calendarService = Provider.of<CalendarService>(context, listen: false);
       final success = await calendarService.syncWithGoogleCalendar(widget.plano);
-      
+
       if (success) {
         FeedbackOverlay.success(
           context: context,
@@ -76,15 +76,15 @@ class _CalendarSyncWidgetState extends State<CalendarSyncWidget> {
       setState(() => _isSyncingGoogle = false);
     }
   }
-  
+
   /// Sincroniza com o Apple Calendar
   Future<void> _syncWithAppleCalendar() async {
     setState(() => _isSyncingApple = true);
-    
+
     try {
       final calendarService = Provider.of<CalendarService>(context, listen: false);
       final success = await calendarService.syncWithAppleCalendar(widget.plano);
-      
+
       if (success) {
         FeedbackOverlay.success(
           context: context,
@@ -105,14 +105,14 @@ class _CalendarSyncWidgetState extends State<CalendarSyncWidget> {
       setState(() => _isSyncingApple = false);
     }
   }
-  
+
   /// Sincroniza com o Device Calendar
   Future<void> _syncWithDeviceCalendar() async {
     setState(() => _isSyncingDevice = true);
-    
+
     try {
       final calendarService = Provider.of<CalendarService>(context, listen: false);
-      
+
       // Verificar permissões
       if (!_isDeviceCalendarAvailable) {
         final permissionGranted = await calendarService.requestDeviceCalendarPermission();
@@ -124,12 +124,12 @@ class _CalendarSyncWidgetState extends State<CalendarSyncWidget> {
           setState(() => _isSyncingDevice = false);
           return;
         }
-        
+
         setState(() => _isDeviceCalendarAvailable = true);
       }
-      
+
       final success = await calendarService.syncWithDeviceCalendar(widget.plano);
-      
+
       if (success) {
         FeedbackOverlay.success(
           context: context,
@@ -150,7 +150,7 @@ class _CalendarSyncWidgetState extends State<CalendarSyncWidget> {
       setState(() => _isSyncingDevice = false);
     }
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -173,8 +173,10 @@ class _CalendarSyncWidgetState extends State<CalendarSyncWidget> {
           children: [
             // Google Calendar
             if (_isGoogleCalendarAvailable)
-              AnimatedButton(
-                onPressed: _isSyncingGoogle ? null : _syncWithGoogleCalendar,
+              CalendarSyncButton(
+                onPressed: _isSyncingGoogle ? null : () async {
+                  await _syncWithGoogleCalendar();
+                },
                 isLoading: _isSyncingGoogle,
                 isEnabled: !_isSyncingGoogle,
                 color: Colors.white,
@@ -200,11 +202,13 @@ class _CalendarSyncWidgetState extends State<CalendarSyncWidget> {
                   ],
                 ),
               ),
-            
+
             // Apple Calendar
             if (_isAppleCalendarAvailable)
-              AnimatedButton(
-                onPressed: _isSyncingApple ? null : _syncWithAppleCalendar,
+              CalendarSyncButton(
+                onPressed: _isSyncingApple ? null : () async {
+                  await _syncWithAppleCalendar();
+                },
                 isLoading: _isSyncingApple,
                 isEnabled: !_isSyncingApple,
                 color: Colors.white,
@@ -230,10 +234,12 @@ class _CalendarSyncWidgetState extends State<CalendarSyncWidget> {
                   ],
                 ),
               ),
-            
+
             // Device Calendar
-            AnimatedButton(
-              onPressed: _isSyncingDevice ? null : _syncWithDeviceCalendar,
+            CalendarSyncButton(
+              onPressed: _isSyncingDevice ? null : () async {
+                await _syncWithDeviceCalendar();
+              },
               isLoading: _isSyncingDevice,
               isEnabled: !_isSyncingDevice,
               color: Colors.white,

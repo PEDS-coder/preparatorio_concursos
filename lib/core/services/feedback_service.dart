@@ -7,6 +7,7 @@ import 'package:injectable/injectable.dart';
 import 'package:firebase_performance/firebase_performance.dart';
 import 'package:preparatorio_concursos/core/data/services/interfaces/analytics_service_interface.dart';
 import 'package:preparatorio_concursos/core/data/services/interfaces/feedback_service_interface.dart';
+import 'package:preparatorio_concursos/core/data/services/interfaces/http_method.dart';
 import 'package:preparatorio_concursos/core/data/services/interfaces/remote_config_service_interface.dart';
 import 'package:preparatorio_concursos/core/utils/logger.dart';
 
@@ -23,8 +24,8 @@ class FeedbackService implements IFeedbackService {
   FeedbackService(this._logger, this._analyticsService, this._remoteConfigService);
 
   /// Inicializa o serviço de feedback
-  BetterFeedback initFeedback() {
-    return BetterFeedback.of(
+  BetterFeedback initFeedback(Widget child) {
+    return BetterFeedback(
       theme: FeedbackThemeData(
         background: Colors.grey[800]!,
         feedbackSheetColor: Colors.grey[900]!,
@@ -37,7 +38,7 @@ class FeedbackService implements IFeedbackService {
           Colors.orange,
         ],
       ),
-      child: Container(),
+      child: child,
     );
   }
 
@@ -83,7 +84,7 @@ class FeedbackService implements IFeedbackService {
         return;
       }
 
-      final metric = _analyticsService.startHttpMetric(url, HttpMethod.post);
+      final metric = _analyticsService.startHttpMetric(url, AppHttpMethod.post);
 
       final response = await http.post(
         Uri.parse(url),

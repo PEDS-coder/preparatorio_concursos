@@ -4,6 +4,7 @@ import 'package:injectable/injectable.dart';
 import 'package:preparatorio_concursos/core/data/models/edital.dart';
 import 'package:preparatorio_concursos/core/data/repositories/base_repository.dart';
 import 'package:preparatorio_concursos/core/services/error_handler_service.dart';
+import 'package:preparatorio_concursos/core/utils/error_handling_extension.dart';
 import 'package:preparatorio_concursos/core/utils/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -24,11 +25,11 @@ class EditalRepository extends BaseRepository {
 
   /// Obtém todos os editais salvos
   Future<List<Edital>> getEditais() async {
-    return runWithErrorHandling<List<Edital>>(
+    return runWithErrorHandlingExt<List<Edital>>(
       () async {
         final prefs = await SharedPreferences.getInstance();
         final editaisJson = prefs.getStringList(_editaisKey) ?? [];
-        
+
         return editaisJson
             .map((json) => Edital.fromJson(json))
             .toList();
@@ -39,11 +40,11 @@ class EditalRepository extends BaseRepository {
 
   /// Salva um edital
   Future<void> saveEdital(Edital edital) async {
-    return runWithErrorHandling<void>(
+    return runWithErrorHandlingExt<void>(
       () async {
         final prefs = await SharedPreferences.getInstance();
         final editais = await getEditais();
-        
+
         // Verificar se o edital já existe
         final index = editais.indexWhere((e) => e.id == edital.id);
         if (index >= 0) {
@@ -51,7 +52,7 @@ class EditalRepository extends BaseRepository {
         } else {
           editais.add(edital);
         }
-        
+
         // Salvar a lista atualizada
         final editaisJson = editais.map((e) => e.toJson()).toList();
         await prefs.setStringList(_editaisKey, editaisJson);
@@ -62,18 +63,18 @@ class EditalRepository extends BaseRepository {
 
   /// Remove um edital
   Future<void> removeEdital(String editalId) async {
-    return runWithErrorHandling<void>(
+    return runWithErrorHandlingExt<void>(
       () async {
         final prefs = await SharedPreferences.getInstance();
         final editais = await getEditais();
-        
+
         // Remover o edital
         editais.removeWhere((e) => e.id == editalId);
-        
+
         // Salvar a lista atualizada
         final editaisJson = editais.map((e) => e.toJson()).toList();
         await prefs.setStringList(_editaisKey, editaisJson);
-        
+
         // Se o edital atual foi removido, limpar a referência
         final currentEditalId = prefs.getString(_currentEditalKey);
         if (currentEditalId == editalId) {
@@ -86,7 +87,7 @@ class EditalRepository extends BaseRepository {
 
   /// Obtém um edital pelo ID
   Future<Edital?> getEditalById(String editalId) async {
-    return runWithErrorHandling<Edital?>(
+    return runWithErrorHandlingExt<Edital?>(
       () async {
         final editais = await getEditais();
         return editais.firstWhere(
@@ -100,7 +101,7 @@ class EditalRepository extends BaseRepository {
 
   /// Define o edital atual
   Future<void> setCurrentEdital(String editalId) async {
-    return runWithErrorHandling<void>(
+    return runWithErrorHandlingExt<void>(
       () async {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString(_currentEditalKey, editalId);
@@ -111,15 +112,15 @@ class EditalRepository extends BaseRepository {
 
   /// Obtém o edital atual
   Future<Edital?> getCurrentEdital() async {
-    return runWithErrorHandling<Edital?>(
+    return runWithErrorHandlingExt<Edital?>(
       () async {
         final prefs = await SharedPreferences.getInstance();
         final currentEditalId = prefs.getString(_currentEditalKey);
-        
+
         if (currentEditalId == null) {
           return null;
         }
-        
+
         return getEditalById(currentEditalId);
       },
       context: 'getCurrentEdital',

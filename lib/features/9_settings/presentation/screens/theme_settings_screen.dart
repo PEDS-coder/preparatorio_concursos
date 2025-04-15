@@ -7,6 +7,9 @@ import 'package:preparatorio_concursos/core/widgets/animated_button.dart';
 import 'package:preparatorio_concursos/core/widgets/feedback_overlay.dart';
 import 'package:preparatorio_concursos/core/widgets/gesture_detector_screen.dart';
 
+// Importar AppThemeMode diretamente
+import 'package:preparatorio_concursos/core/services/theme_service.dart' show AppThemeMode;
+
 /// Tela de configurações de tema
 class ThemeSettingsScreen extends StatefulWidget {
   const ThemeSettingsScreen({Key? key}) : super(key: key);
@@ -19,7 +22,7 @@ class _ThemeSettingsScreenState extends State<ThemeSettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final themeService = Provider.of<ThemeService>(context);
-    
+
     return GestureDetectorScreen(
       enableSwipeBack: true,
       child: Scaffold(
@@ -37,13 +40,13 @@ class _ThemeSettingsScreenState extends State<ThemeSettingsScreen> {
               const SizedBox(height: 8),
               _buildThemeModeSelector(themeService),
               const SizedBox(height: 24),
-              
+
               // Cores
               _buildSectionTitle('Cores'),
               const SizedBox(height: 8),
               _buildColorSelector(themeService),
               const SizedBox(height: 24),
-              
+
               // Botão para restaurar cores padrão
               Center(
                 child: AnimatedButton(
@@ -58,7 +61,7 @@ class _ThemeSettingsScreenState extends State<ThemeSettingsScreen> {
                 ),
               ),
               const SizedBox(height: 24),
-              
+
               // Visualização
               _buildSectionTitle('Visualização'),
               const SizedBox(height: 16),
@@ -69,7 +72,7 @@ class _ThemeSettingsScreenState extends State<ThemeSettingsScreen> {
       ),
     );
   }
-  
+
   /// Constrói o título da seção
   Widget _buildSectionTitle(String title) {
     return Text(
@@ -81,7 +84,7 @@ class _ThemeSettingsScreenState extends State<ThemeSettingsScreen> {
       ),
     );
   }
-  
+
   /// Constrói o seletor de modo de tema
   Widget _buildThemeModeSelector(ThemeService themeService) {
     return AnimatedCard(
@@ -89,13 +92,13 @@ class _ThemeSettingsScreenState extends State<ThemeSettingsScreen> {
       child: Column(
         children: [
           // Tema claro
-          RadioListTile<ThemeService.ThemeMode>(
+          RadioListTile<AppThemeMode>(
             title: const Text('Tema Claro'),
-            value: ThemeService.ThemeMode.light,
+            value: AppThemeMode.light,
             groupValue: themeService.themeMode,
             onChanged: (value) async {
               if (value != null) {
-                await themeService.setThemeMode(value);
+                await themeService.setThemeMode(ThemeMode.light);
                 FeedbackOverlay.success(
                   context: context,
                   message: 'Tema claro ativado',
@@ -104,15 +107,15 @@ class _ThemeSettingsScreenState extends State<ThemeSettingsScreen> {
             },
             secondary: const Icon(Icons.light_mode),
           ),
-          
+
           // Tema escuro
-          RadioListTile<ThemeService.ThemeMode>(
+          RadioListTile<AppThemeMode>(
             title: const Text('Tema Escuro'),
-            value: ThemeService.ThemeMode.dark,
+            value: AppThemeMode.dark,
             groupValue: themeService.themeMode,
             onChanged: (value) async {
               if (value != null) {
-                await themeService.setThemeMode(value);
+                await themeService.setThemeMode(ThemeMode.dark);
                 FeedbackOverlay.success(
                   context: context,
                   message: 'Tema escuro ativado',
@@ -121,15 +124,15 @@ class _ThemeSettingsScreenState extends State<ThemeSettingsScreen> {
             },
             secondary: const Icon(Icons.dark_mode),
           ),
-          
+
           // Tema do sistema
-          RadioListTile<ThemeService.ThemeMode>(
+          RadioListTile<AppThemeMode>(
             title: const Text('Tema do Sistema'),
-            value: ThemeService.ThemeMode.system,
+            value: AppThemeMode.system,
             groupValue: themeService.themeMode,
             onChanged: (value) async {
               if (value != null) {
-                await themeService.setThemeMode(value);
+                await themeService.setThemeMode(ThemeMode.system);
                 FeedbackOverlay.success(
                   context: context,
                   message: 'Tema do sistema ativado',
@@ -142,7 +145,7 @@ class _ThemeSettingsScreenState extends State<ThemeSettingsScreen> {
       ),
     );
   }
-  
+
   /// Constrói o seletor de cores
   Widget _buildColorSelector(ThemeService themeService) {
     // Lista de cores disponíveis
@@ -156,7 +159,7 @@ class _ThemeSettingsScreenState extends State<ThemeSettingsScreen> {
       Colors.teal,
       Colors.indigo,
     ];
-    
+
     final List<Color> secondaryColors = [
       AppTheme.secondaryColor,
       Colors.pink,
@@ -167,7 +170,7 @@ class _ThemeSettingsScreenState extends State<ThemeSettingsScreen> {
       Colors.deepOrange,
       Colors.lightBlue,
     ];
-    
+
     return AnimatedCard(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -190,7 +193,7 @@ class _ThemeSettingsScreenState extends State<ThemeSettingsScreen> {
               itemBuilder: (context, index) {
                 final color = primaryColors[index];
                 final isSelected = themeService.primaryColor.value == color.value;
-                
+
                 return GestureDetector(
                   onTap: () async {
                     await themeService.setPrimaryColor(color);
@@ -230,9 +233,9 @@ class _ThemeSettingsScreenState extends State<ThemeSettingsScreen> {
               },
             ),
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           // Cor secundária
           Text(
             'Cor Secundária',
@@ -250,7 +253,7 @@ class _ThemeSettingsScreenState extends State<ThemeSettingsScreen> {
               itemBuilder: (context, index) {
                 final color = secondaryColors[index];
                 final isSelected = themeService.secondaryColor.value == color.value;
-                
+
                 return GestureDetector(
                   onTap: () async {
                     await themeService.setSecondaryColor(color);
@@ -294,7 +297,7 @@ class _ThemeSettingsScreenState extends State<ThemeSettingsScreen> {
       ),
     );
   }
-  
+
   /// Constrói a visualização do tema
   Widget _buildThemePreview(ThemeService themeService) {
     return AnimatedCard(
@@ -310,7 +313,7 @@ class _ThemeSettingsScreenState extends State<ThemeSettingsScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          
+
           // Botões
           Row(
             children: [
@@ -330,7 +333,7 @@ class _ThemeSettingsScreenState extends State<ThemeSettingsScreen> {
             ],
           ),
           const SizedBox(height: 16),
-          
+
           // Campos de texto
           TextField(
             decoration: InputDecoration(
@@ -340,7 +343,7 @@ class _ThemeSettingsScreenState extends State<ThemeSettingsScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          
+
           // Cards
           Card(
             child: Padding(
@@ -367,7 +370,7 @@ class _ThemeSettingsScreenState extends State<ThemeSettingsScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          
+
           // Ícones
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,

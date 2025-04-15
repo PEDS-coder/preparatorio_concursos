@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
+import 'dart:math' as Math;
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -10,11 +11,13 @@ import '../../utils/logger_adapter.dart';
 
 /// Implementação do serviço de IA para o Gemini
 class GeminiService extends BaseIAService {
+  // Cliente HTTP para testes
+  http.Client? _httpClient;
   // URL base para a API Gemini
   final String _geminiBaseUrl = 'https://generativelanguage.googleapis.com/v1beta/models';
 
   // Serviço de cache
-  final CacheService _cacheService = CacheService();
+  CacheService _cacheService = CacheService();
 
   // Modelos Gemini
   String _geminiModel = 'gemini-2.5-pro-exp-03-25'; // Modelo experimental gratuito
@@ -25,8 +28,12 @@ class GeminiService extends BaseIAService {
     'gemini-2.5-pro-exp-03-25',  // 65.536 tokens de saída
   ];
 
-  // Construtor
-  GeminiService() : super('gemini') {
+  // Construtor que permite injeção de dependências para testes
+  GeminiService({http.Client? httpClient, CacheService? cacheService}) : super('gemini') {
+    _httpClient = httpClient;
+    if (cacheService != null) {
+      _cacheService = cacheService;
+    }
     _carregarChaveAPI();
   }
 
@@ -43,6 +50,58 @@ class GeminiService extends BaseIAService {
       }
     } catch (e) {
       AppLogger.e('GeminiService', 'Erro ao carregar chave API Gemini', e);
+    }
+  }
+
+  @override
+  Future<bool> testApiKey(String apiKey, String apiType) async {
+    try {
+      // Verificar conectividade com a internet antes de validar a chave
+      final bool isConnected = await ConnectivityService.isConnected();
+      if (!isConnected) {
+        return false;
+      }
+
+      // Validar a chave API testando com diferentes modelos
+      final List<String> modelosParaTeste = _geminiModelsAlternatives;
+
+      for (String modelo in modelosParaTeste) {
+        try {
+          final url = '$_geminiBaseUrl/$modelo:generateContent?key=$apiKey';
+          final testBody = jsonEncode({
+            'contents': [
+              {
+                'parts': [
+                  {
+                    'text': 'Olá, teste de conexão.'
+                  }
+                ]
+              }
+            ],
+            'generationConfig': {
+              'maxOutputTokens': 10,
+            }
+          });
+
+          AppLogger.i('GeminiService', 'Testando API Gemini com modelo: $modelo');
+          final response = await http.post(
+            Uri.parse(url),
+            headers: {'Content-Type': 'application/json'},
+            body: testBody,
+          );
+
+          if (response.statusCode == 200) {
+            return true;
+          }
+        } catch (e) {
+          AppLogger.e('GeminiService', 'Erro ao testar chave API Gemini', e);
+        }
+      }
+
+      return false;
+    } catch (e) {
+      AppLogger.e('GeminiService', 'Erro ao testar chave API Gemini', e);
+      return false;
     }
   }
 
@@ -164,31 +223,64 @@ class GeminiService extends BaseIAService {
     }
   }
 
-  // Método para processar PDF
+  // Implementação do método abstrato processarPdf da classe base
+  @override
   Future<String> processarPdf(String prompt, Uint8List pdfBytes, {String? pdfName}) async {
-    return await callGeminiApiWithPdf(prompt, pdfBytes, pdfName: pdfName);
-  }
+    try {
+      // Este método é chamado pelos métodos da classe base BaseIAService
+      AppLogger.i('GeminiService', 'Iniciando processamento de PDF...');
+      AppLogger.i('GeminiService', 'Tamanho do PDF: ${(pdfBytes.length / 1024).toStringAsFixed(2)} KB');
+      AppLogger.i('GeminiService', 'Prompt: ${prompt.substring(0, Math.min(100, prompt.length))}...');
 
-  // Implementação do método _processarPdf da classe base
-  // ignore: unused_element
-  Future<String> _processarPdf(String prompt, Uint8List pdfBytes, {String? pdfName}) async {
-    // Este método é chamado pelos métodos da classe base BaseIAService
-    return await processarPdf(prompt, pdfBytes, pdfName: pdfName);
+      // Verificar se a API está configurada
+      if (!isConfigured) {
+        AppLogger.e('GeminiService', 'API Key não configurada');
+        throw Exception('API Key não configurada');
+      }
+
+      // Chamar a API Gemini com o PDF
+      final resultado = await callGeminiApiWithPdf(prompt, pdfBytes, pdfName: pdfName);
+
+      // Verificar se o resultado é válido
+      if (resultado.isEmpty) {
+        AppLogger.e('GeminiService', 'Resultado vazio da API Gemini');
+        throw Exception('Resultado vazio da API Gemini');
+      }
+
+      AppLogger.i('GeminiService', 'PDF processado com sucesso! Tamanho da resposta: ${resultado.length} caracteres');
+      return resultado;
+    } catch (e) {
+      AppLogger.e('GeminiService', 'Erro ao processar PDF', e);
+      throw Exception('Erro ao processar PDF: $e');
+    }
   }
 
   Future<String> callGeminiApiWithPdf(String prompt, Uint8List pdfBytes, {String? pdfName}) async {
-    // Inicializar o cache se ainda não foi inicializado
-    await initCache();
+    try {
+      AppLogger.i('GeminiService', 'Iniciando callGeminiApiWithPdf...');
 
-    // Verificar se existe cache para este PDF e prompt
-    final cachedResult = await _cacheService.getFromCache(prompt, pdfBytes.toList());
-    if (cachedResult != null) {
-      AppLogger.i('GeminiService', 'Usando resultado do cache para análise do PDF');
-      return cachedResult;
-    }
+      // Inicializar o cache se ainda não foi inicializado
+      await initCache();
+      AppLogger.i('GeminiService', 'Cache inicializado');
 
-    if (!isConfigured) {
-      throw Exception('API Key não configurada');
+      // Verificar se existe cache para este PDF e prompt
+      AppLogger.i('GeminiService', 'Verificando cache para o PDF...');
+      final cachedResult = await _cacheService.getFromCache(prompt, pdfBytes.toList());
+      if (cachedResult != null) {
+        AppLogger.i('GeminiService', 'Usando resultado do cache para análise do PDF');
+        return cachedResult;
+      }
+      AppLogger.i('GeminiService', 'Nenhum resultado em cache encontrado');
+
+      // Verificar se a API está configurada
+      if (!isConfigured) {
+        AppLogger.e('GeminiService', 'API Key não configurada');
+        throw Exception('API Key não configurada');
+      }
+      AppLogger.i('GeminiService', 'API configurada corretamente');
+    } catch (e) {
+      AppLogger.e('GeminiService', 'Erro na inicialização do callGeminiApiWithPdf', e);
+      throw Exception('Erro na inicialização do processamento de PDF: $e');
     }
 
     // Verificar conectividade com a internet antes de fazer a chamada
@@ -207,9 +299,21 @@ class GeminiService extends BaseIAService {
     }
 
     try {
+      // Verificar tamanho do PDF
+      final int pdfSizeKB = (pdfBytes.length / 1024).round();
+      AppLogger.i('GeminiService', 'Tamanho do PDF: $pdfSizeKB KB');
+
+      // Verificar se o PDF não é muito grande
+      if (pdfSizeKB > 20480) { // 20 MB
+        AppLogger.w('GeminiService', 'PDF muito grande ($pdfSizeKB KB). Pode exceder os limites da API.');
+        throw Exception('PDF muito grande ($pdfSizeKB KB). O tamanho máximo recomendado é 20 MB. Tente otimizar o PDF ou dividir em partes menores.');
+      }
+
       // Codificar o PDF em base64
+      AppLogger.i('GeminiService', 'Codificando PDF em base64...');
       final String pdfBase64 = base64Encode(pdfBytes);
       final String pdfMimeType = 'application/pdf';
+      AppLogger.i('GeminiService', 'PDF codificado com sucesso. Tamanho base64: ${pdfBase64.length} caracteres');
 
       final url = '$_geminiBaseUrl/$_geminiModel:generateContent?key=${super.apiKey}';
 
@@ -223,7 +327,7 @@ class GeminiService extends BaseIAService {
       double temperature = 0.0; // Temperatura baixa para extração de dados
       int maxTokens = 64000; // Tokens máximos para o Gemini 2.5 Pro
 
-      AppLogger.i('GeminiService', 'Configurando chamada para Gemini com PDF: temperature=$temperature, maxTokens=$maxTokens');
+      AppLogger.i('GeminiService', 'Configurando chamada para Gemini com PDF: temperature=$temperature, maxTokens=$maxTokens, modelo=$_geminiModel');
 
       // Construir o corpo da requisição
       final Map<String, dynamic> requestBody = {
@@ -274,37 +378,65 @@ class GeminiService extends BaseIAService {
       while (true) {
         try {
           AppLogger.i('GeminiService', 'Enviando PDF para a API Gemini (tentativa ${currentRetry + 1} de $maxRetries)...');
-          final response = await http.post(
+          // Usar o cliente HTTP injetado ou criar um novo
+          final client = _httpClient ?? http.Client();
+          final response = await client.post(
             Uri.parse(url),
             headers: {
               'Content-Type': 'application/json',
             },
             body: body,
           );
+          // Fechar o cliente se não for o injetado
+          if (_httpClient == null) {
+            client.close();
+          }
 
           if (response.statusCode == 200) {
             AppLogger.i('GeminiService', 'Resposta recebida com sucesso do Gemini. Analisando JSON...');
-            final jsonResponse = jsonDecode(response.body);
 
-            // Extrair o texto da resposta
-            String text = '';
-            if (jsonResponse['candidates'] != null &&
-                jsonResponse['candidates'].isNotEmpty &&
-                jsonResponse['candidates'][0]['content'] != null &&
-                jsonResponse['candidates'][0]['content']['parts'] != null &&
-                jsonResponse['candidates'][0]['content']['parts'].isNotEmpty) {
-              text = jsonResponse['candidates'][0]['content']['parts'][0]['text'] ?? '';
+            try {
+              final jsonResponse = jsonDecode(response.body);
+              AppLogger.d('GeminiService', 'JSON decodificado com sucesso');
+
+              // Verificar se há erros na resposta
+              if (jsonResponse['error'] != null) {
+                final errorCode = jsonResponse['error']['code'];
+                final errorMessage = jsonResponse['error']['message'];
+                AppLogger.e('GeminiService', 'Erro na resposta da API Gemini: $errorCode - $errorMessage');
+                throw Exception('Erro na API Gemini: $errorCode - $errorMessage');
+              }
+
+              // Extrair o texto da resposta
+              String text = '';
+              if (jsonResponse['candidates'] != null &&
+                  jsonResponse['candidates'].isNotEmpty &&
+                  jsonResponse['candidates'][0]['content'] != null &&
+                  jsonResponse['candidates'][0]['content']['parts'] != null &&
+                  jsonResponse['candidates'][0]['content']['parts'].isNotEmpty) {
+                text = jsonResponse['candidates'][0]['content']['parts'][0]['text'] ?? '';
+                AppLogger.i('GeminiService', 'Texto extraído com sucesso. Tamanho: ${text.length} caracteres');
+                AppLogger.d('GeminiService', 'Primeiros 200 caracteres: ${text.substring(0, Math.min(200, text.length))}...');
+              } else {
+                AppLogger.e('GeminiService', 'Estrutura de resposta inválida: ${jsonResponse.toString().substring(0, Math.min(500, jsonResponse.toString().length))}...');
+                throw Exception('Estrutura de resposta inválida da API Gemini');
+              }
+
+              if (text.isEmpty) {
+                AppLogger.e('GeminiService', 'Resposta vazia da API Gemini');
+                throw Exception('Resposta vazia da API Gemini');
+              }
+
+              // Salvar no cache para uso futuro
+              await _cacheService.saveToCache(prompt, pdfBytes.toList(), text);
+              AppLogger.i('GeminiService', 'Resposta salva no cache para uso futuro');
+
+              return text;
+            } catch (jsonError) {
+              AppLogger.e('GeminiService', 'Erro ao processar JSON da resposta', jsonError);
+              AppLogger.d('GeminiService', 'Corpo da resposta: ${response.body.substring(0, Math.min(500, response.body.length))}...');
+              throw Exception('Erro ao processar resposta da API Gemini: $jsonError');
             }
-
-            if (text.isEmpty) {
-              throw Exception('Resposta vazia da API Gemini');
-            }
-
-            // Salvar no cache para uso futuro
-            await _cacheService.saveToCache(prompt, pdfBytes.toList(), text);
-            AppLogger.i('GeminiService', 'Resposta salva no cache para uso futuro');
-
-            return text;
           } else {
             AppLogger.e('GeminiService', 'Erro na API Gemini: ${response.statusCode} ${response.body}');
 
@@ -340,7 +472,23 @@ class GeminiService extends BaseIAService {
       }
     } catch (e) {
       AppLogger.e('GeminiService', 'Erro ao processar PDF ou chamar API', e);
-      throw Exception('Não foi possível carregar o prompt: $e');
+
+      // Categorizar o erro para fornecer mensagens mais úteis
+      String errorMessage = 'Não foi possível processar o PDF';
+
+      if (e.toString().contains('quota') || e.toString().contains('limit')) {
+        errorMessage = 'Limite de cota da API Gemini excedido. Tente novamente mais tarde ou use uma chave de API diferente.';
+      } else if (e.toString().contains('invalid') && e.toString().contains('key')) {
+        errorMessage = 'Chave de API Gemini inválida. Verifique suas configurações.';
+      } else if (e.toString().contains('connect')) {
+        errorMessage = 'Erro de conexão com a API Gemini. Verifique sua conexão com a internet.';
+      } else if (e.toString().contains('timeout')) {
+        errorMessage = 'Tempo limite excedido ao processar o PDF. O arquivo pode ser muito grande ou complexo.';
+      } else if (e.toString().contains('muito grande')) {
+        errorMessage = e.toString(); // Usar a mensagem de erro original sobre tamanho do PDF
+      }
+
+      throw Exception('$errorMessage\nDetalhes técnicos: $e');
     }
   }
 
@@ -387,11 +535,17 @@ class GeminiService extends BaseIAService {
       });
 
       AppLogger.i('GeminiService', 'Testando modelo atual: $_geminiModel');
-      final testResponse = await http.post(
+      // Usar o cliente HTTP injetado ou criar um novo
+      final client = _httpClient ?? http.Client();
+      final testResponse = await client.post(
         Uri.parse(testUrl),
         headers: {'Content-Type': 'application/json'},
         body: testBody,
       );
+      // Fechar o cliente se não for o injetado
+      if (_httpClient == null) {
+        client.close();
+      }
 
       if (testResponse.statusCode == 200) {
         modeloValido = true;
@@ -406,11 +560,17 @@ class GeminiService extends BaseIAService {
 
           try {
             final altUrl = '$_geminiBaseUrl/$modelo:generateContent?key=${super.apiKey}';
-            final altResponse = await http.post(
+            // Usar o cliente HTTP injetado ou criar um novo
+            final client = _httpClient ?? http.Client();
+            final altResponse = await client.post(
               Uri.parse(altUrl),
               headers: {'Content-Type': 'application/json'},
               body: testBody,
             );
+            // Fechar o cliente se não for o injetado
+            if (_httpClient == null) {
+              client.close();
+            }
 
             if (altResponse.statusCode == 200) {
               modeloValido = true;
@@ -540,13 +700,19 @@ class GeminiService extends BaseIAService {
     while (true) {
       try {
         AppLogger.i('GeminiService', 'Enviando requisição para a API Gemini (tentativa ${currentRetry + 1} de $maxRetries)...');
-        final response = await http.post(
+        // Usar o cliente HTTP injetado ou criar um novo
+        final client = _httpClient ?? http.Client();
+        final response = await client.post(
           Uri.parse(url),
           headers: {
             'Content-Type': 'application/json',
           },
           body: body,
         );
+        // Fechar o cliente se não for o injetado
+        if (_httpClient == null) {
+          client.close();
+        }
 
         if (response.statusCode == 200) {
           final jsonResponse = jsonDecode(response.body);

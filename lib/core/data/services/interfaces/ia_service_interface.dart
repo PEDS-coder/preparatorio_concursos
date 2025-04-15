@@ -18,6 +18,9 @@ abstract class IAServiceInterface {
   /// Configura a chave de API (método simplificado)
   Future<bool> configurarApiKey(String apiKey);
 
+  /// Testa se a chave de API é válida
+  Future<bool> testApiKey(String apiKey, String apiType);
+
   /// Chama a API com um prompt
   Future<String> callApi(String prompt);
 
@@ -37,27 +40,43 @@ abstract class IAServiceInterface {
   Future<String> extrairInfoBasicasEdital(Uint8List pdfBytes, {String? pdfName});
 
   /// Extrai dados do concurso e conteúdo programático para um cargo específico
-  Future<String> extrairConcursoConteudo(Uint8List pdfBytes, String cargoAlvo, {String? pdfName});
+  Future<String> extrairConcursoConteudo({
+    required Uint8List pdfBytes,
+    required String cargoAlvo,
+    String? pdfName,
+  });
 
   /// Extrai conteúdo programático para um cargo específico
-  Future<String> extrairConteudoProgramatico(Uint8List pdfBytes, String cargoAlvo, {String? pdfName});
+  Future<String> extrairConteudoProgramatico({
+    required Uint8List pdfBytes,
+    required String cargoAlvo,
+    String? pdfName,
+  });
 
   /// Gera um resumo a partir de um texto
   Future<String> gerarResumo(String texto);
 
   /// Gera um esquema/mapa mental a partir de um texto
-  Future<String> gerarEsquema(String texto, {String? titulo});
+  Future<String> gerarEsquema({
+    required String texto,
+    String? titulo,
+  });
 
   /// Gera questões a partir de um texto
-  Future<String> gerarQuestoes(String texto, String materia, String dificuldade, int quantidade);
+  Future<String> gerarQuestoes({
+    required String texto,
+    required String materia,
+    required String dificuldade,
+    required int quantidade,
+  });
 
   /// Gera flashcards a partir de um texto
-  Future<List<Flashcard>> gerarFlashcards(
-    String userId,
+  Future<List<Flashcard>> gerarFlashcards({
+    required String userId,
     String? editalId,
-    String materia,
-    String texto,
-  );
+    required String materia,
+    required String texto,
+  });
 
 
   /// Verifica se o texto está dentro do limite de tokens para o modelo atual

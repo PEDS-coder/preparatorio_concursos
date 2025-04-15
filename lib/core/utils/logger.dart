@@ -18,38 +18,98 @@ enum LogLevel {
   const LogLevel(this.value, this.name);
 }
 
-/// Interface para o logger
-abstract class Logger {
+/// Classe base para o logger
+class Logger {
+  // Nível atual de log (pode ser alterado em tempo de execução)
+  LogLevel _currentLevel = kDebugMode ? LogLevel.debug : LogLevel.info;
+
   /// Define o nível de log atual
-  void setLogLevel(LogLevel level);
+  void setLogLevel(LogLevel level) {
+    _currentLevel = level;
+  }
 
   /// Obtém o nível de log atual
-  LogLevel getLogLevel();
+  LogLevel getLogLevel() {
+    return _currentLevel;
+  }
 
   /// Log detalhado para depuração profunda
-  void verbose(String message, {String? tag, dynamic data});
+  void verbose(String message, {String? tag, dynamic data}) {
+    _log(LogLevel.verbose, message, tag: tag, data: data);
+  }
 
   /// Log de depuração
-  void debug(String message, {String? tag, dynamic data});
+  void debug(String message, {String? tag, dynamic data}) {
+    _log(LogLevel.debug, message, tag: tag, data: data);
+  }
 
   /// Log de informação
-  void info(String message, {String? tag, dynamic data});
+  void info(String message, {String? tag, dynamic data}) {
+    _log(LogLevel.info, message, tag: tag, data: data);
+  }
 
   /// Log de aviso
-  void warning(String message, {String? tag, dynamic data});
+  void warning(String message, {String? tag, dynamic data}) {
+    _log(LogLevel.warning, message, tag: tag, data: data);
+  }
 
   /// Log de erro
-  void error(String message, {String? tag, dynamic error, StackTrace? stackTrace});
+  void error(String message, {String? tag, dynamic error, StackTrace? stackTrace}) {
+    _log(
+      LogLevel.error,
+      message,
+      tag: tag,
+      data: error,
+      stackTrace: stackTrace
+    );
+  }
+
+  /// Método interno para registrar logs
+  void _log(
+    LogLevel level,
+    String message, {
+    String? tag,
+    dynamic data,
+    StackTrace? stackTrace
+  }) {
+    if (level.value < _currentLevel.value) return;
+
+    final timestamp = DateTime.now().toIso8601String();
+    final tagInfo = tag != null ? '/$tag' : '';
+    var logMessage = '[$timestamp] ${level.name}$tagInfo: $message';
+
+    // Adiciona detalhes se disponíveis
+    if (data != null) {
+      String dataStr = data.toString();
+      logMessage += '\nData: $dataStr';
+    }
+
+    // Adiciona stack trace se disponível
+    if (stackTrace != null) {
+      logMessage += '\nStack trace: $stackTrace';
+    }
+
+    // Exibe o log no console
+    if (kDebugMode) {
+      debugPrint(logMessage);
+    }
+  }
 
   /// Limpa os logs armazenados
-  Future<void> clearLogs();
+  Future<void> clearLogs() async {
+    // Implementação básica
+    return;
+  }
 
   /// Obtém os logs armazenados
-  Future<String> getLogs();
+  Future<String> getLogs() async {
+    // Implementação básica
+    return '';
+  }
 }
 
-/// Implementação do logger
-class AppLogger implements Logger {
+/// Implementação avançada do logger
+class AppLogger extends Logger {
   static final AppLogger _instance = AppLogger._internal();
 
   /// Factory para obter a instância singleton
@@ -98,46 +158,10 @@ class AppLogger implements Logger {
     }
   }
 
-  @override
-  void setLogLevel(LogLevel level) {
-    _currentLevel = level;
-  }
+  // Nenhuma necessidade de sobrescrever setLogLevel e getLogLevel
+  // pois estamos estendendo a classe Logger
 
-  @override
-  LogLevel getLogLevel() {
-    return _currentLevel;
-  }
-
-  @override
-  void verbose(String message, {String? tag, dynamic data}) {
-    _log(LogLevel.verbose, message, tag: tag, data: data);
-  }
-
-  @override
-  void debug(String message, {String? tag, dynamic data}) {
-    _log(LogLevel.debug, message, tag: tag, data: data);
-  }
-
-  @override
-  void info(String message, {String? tag, dynamic data}) {
-    _log(LogLevel.info, message, tag: tag, data: data);
-  }
-
-  @override
-  void warning(String message, {String? tag, dynamic data}) {
-    _log(LogLevel.warning, message, tag: tag, data: data);
-  }
-
-  @override
-  void error(String message, {String? tag, dynamic error, StackTrace? stackTrace}) {
-    _log(
-      LogLevel.error,
-      message,
-      tag: tag,
-      data: error,
-      stackTrace: stackTrace
-    );
-  }
+  // Sobrescrevemos os métodos de log para usar nossa implementação personalizada
 
   /// Método interno para registrar logs
   void _log(

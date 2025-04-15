@@ -2,6 +2,7 @@ import 'package:injectable/injectable.dart';
 import 'package:preparatorio_concursos/core/data/models/plano_estudo.dart';
 import 'package:preparatorio_concursos/core/data/repositories/base_repository.dart';
 import 'package:preparatorio_concursos/core/services/error_handler_service.dart';
+import 'package:preparatorio_concursos/core/utils/error_handling_extension.dart';
 import 'package:preparatorio_concursos/core/utils/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -22,11 +23,11 @@ class PlanoEstudoRepository extends BaseRepository {
 
   /// Obtém todos os planos de estudo salvos
   Future<List<PlanoEstudo>> getPlanos() async {
-    return runWithErrorHandling<List<PlanoEstudo>>(
+    return runWithErrorHandlingExt<List<PlanoEstudo>>(
       () async {
         final prefs = await SharedPreferences.getInstance();
         final planosJson = prefs.getStringList(_planosKey) ?? [];
-        
+
         return planosJson
             .map((json) => PlanoEstudo.fromJson(json))
             .toList();
@@ -37,11 +38,11 @@ class PlanoEstudoRepository extends BaseRepository {
 
   /// Salva um plano de estudo
   Future<void> savePlano(PlanoEstudo plano) async {
-    return runWithErrorHandling<void>(
+    return runWithErrorHandlingExt<void>(
       () async {
         final prefs = await SharedPreferences.getInstance();
         final planos = await getPlanos();
-        
+
         // Verificar se o plano já existe
         final index = planos.indexWhere((p) => p.id == plano.id);
         if (index >= 0) {
@@ -49,7 +50,7 @@ class PlanoEstudoRepository extends BaseRepository {
         } else {
           planos.add(plano);
         }
-        
+
         // Salvar a lista atualizada
         final planosJson = planos.map((p) => p.toJson()).toList();
         await prefs.setStringList(_planosKey, planosJson);
@@ -60,18 +61,18 @@ class PlanoEstudoRepository extends BaseRepository {
 
   /// Remove um plano de estudo
   Future<void> removePlano(String planoId) async {
-    return runWithErrorHandling<void>(
+    return runWithErrorHandlingExt<void>(
       () async {
         final prefs = await SharedPreferences.getInstance();
         final planos = await getPlanos();
-        
+
         // Remover o plano
         planos.removeWhere((p) => p.id == planoId);
-        
+
         // Salvar a lista atualizada
         final planosJson = planos.map((p) => p.toJson()).toList();
         await prefs.setStringList(_planosKey, planosJson);
-        
+
         // Se o plano atual foi removido, limpar a referência
         final currentPlanoId = prefs.getString(_currentPlanoKey);
         if (currentPlanoId == planoId) {
@@ -84,7 +85,7 @@ class PlanoEstudoRepository extends BaseRepository {
 
   /// Obtém um plano de estudo pelo ID
   Future<PlanoEstudo?> getPlanoById(String planoId) async {
-    return runWithErrorHandling<PlanoEstudo?>(
+    return runWithErrorHandlingExt<PlanoEstudo?>(
       () async {
         final planos = await getPlanos();
         return planos.firstWhere(
@@ -98,7 +99,7 @@ class PlanoEstudoRepository extends BaseRepository {
 
   /// Define o plano de estudo atual
   Future<void> setCurrentPlano(String planoId) async {
-    return runWithErrorHandling<void>(
+    return runWithErrorHandlingExt<void>(
       () async {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString(_currentPlanoKey, planoId);
@@ -109,15 +110,15 @@ class PlanoEstudoRepository extends BaseRepository {
 
   /// Obtém o plano de estudo atual
   Future<PlanoEstudo?> getCurrentPlano() async {
-    return runWithErrorHandling<PlanoEstudo?>(
+    return runWithErrorHandlingExt<PlanoEstudo?>(
       () async {
         final prefs = await SharedPreferences.getInstance();
         final currentPlanoId = prefs.getString(_currentPlanoKey);
-        
+
         if (currentPlanoId == null) {
           return null;
         }
-        
+
         return getPlanoById(currentPlanoId);
       },
       context: 'getCurrentPlano',
@@ -126,7 +127,7 @@ class PlanoEstudoRepository extends BaseRepository {
 
   /// Obtém planos de estudo por edital
   Future<List<PlanoEstudo>> getPlanosByEdital(String editalId) async {
-    return runWithErrorHandling<List<PlanoEstudo>>(
+    return runWithErrorHandlingExt<List<PlanoEstudo>>(
       () async {
         final planos = await getPlanos();
         return planos.where((p) => p.editalId == editalId).toList();

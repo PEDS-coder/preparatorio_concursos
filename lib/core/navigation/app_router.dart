@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'animated_route.dart';
 import '../../features/0_splash/presentation/screens/splash_screen.dart';
 import '../../features/0_splash/presentation/screens/welcome_screen.dart';
 import '../../features/1_auth/presentation/screens/login_screen.dart';
@@ -24,7 +23,6 @@ import '../../features/7_ai_tools/presentation/screens/questoes_screen.dart';
 import '../../features/7_ai_tools/presentation/screens/mapas_mentais_screen.dart';
 import '../../features/9_settings/presentation/screens/settings_screen.dart';
 import '../../features/9_settings/presentation/screens/audio_explanation_settings_screen.dart';
-import '../../features/9_settings/presentation/screens/theme_settings_screen.dart';
 import '../../features/8_mercado/presentation/screens/adicionar_recompensa_screen.dart';
 import '../../features/8_mercado/presentation/screens/historico_moedas_screen.dart';
 
@@ -36,35 +34,35 @@ class AppRouter {
     switch (settings.name) {
       // Rotas iniciais
       case '/':
-        return AnimatedRoute(page: SplashScreen(), animationType: AnimationType.fade);
+        return MaterialPageRoute(builder: (_) => SplashScreen());
       case '/welcome':
-        return AnimatedRoute(page: WelcomeScreen(), animationType: AnimationType.fadeScale);
+        return MaterialPageRoute(builder: (_) => WelcomeScreen());
       case '/login':
-        return AnimatedRoute(page: LoginScreen(), animationType: AnimationType.fadeSlide);
+        return MaterialPageRoute(builder: (_) => LoginScreen());
       case '/register':
-        return AnimatedRoute(page: RegisterScreen(), animationType: AnimationType.fadeSlide);
+        return MaterialPageRoute(builder: (_) => RegisterScreen());
       case '/api_config':
-        return AnimatedRoute(page: ApiKeyConfigScreen(), animationType: AnimationType.slideRight);
+        return MaterialPageRoute(builder: (_) => ApiKeyConfigScreen());
       case '/dashboard':
-        return AnimatedRoute(page: DashboardScreen(), animationType: AnimationType.fadeScale);
+        return MaterialPageRoute(builder: (_) => DashboardScreen());
 
       // Rotas de editais
       case '/editais':
-        return AnimatedRoute(page: DashboardScreen(initialTabIndex: 1), animationType: AnimationType.fadeScale);
+        return MaterialPageRoute(builder: (_) => DashboardScreen(initialTabIndex: 1));
       case '/edital/add':
-        return AnimatedRoute(page: EditalAddScreen(), animationType: AnimationType.slideRight);
+        return MaterialPageRoute(builder: (_) => EditalAddScreen());
       case '/edital/analyze':
-        return AnimatedRoute(page: EditalAnalyzeScreen(), animationType: AnimationType.slideUp);
+        return MaterialPageRoute(builder: (_) => EditalAnalyzeScreen());
       case '/edital/detalhes':
-        return AnimatedRoute(page: EditalDetailsScreen(editalId: args as String), animationType: AnimationType.fadeSlide);
+        return MaterialPageRoute(builder: (_) => EditalDetailsScreen(editalId: args as String));
       case '/edital/edit':
-        return AnimatedRoute(page: EditalEditScreen(editalId: args as String), animationType: AnimationType.slideRight);
+        return MaterialPageRoute(builder: (_) => EditalEditScreen(editalId: args as String));
       case '/cargo/select':
-        return AnimatedRoute(page: CargoSelectScreen(editalId: (args as Map<String, dynamic>)['editalId']), animationType: AnimationType.slideRight);
+        return MaterialPageRoute(builder: (_) => CargoSelectScreen(editalId: (args as Map<String, dynamic>)['editalId']));
 
       // Rotas de plano de estudo
       case '/plano':
-        return AnimatedRoute(page: DashboardScreen(initialTabIndex: 2), animationType: AnimationType.fadeScale);
+        return MaterialPageRoute(builder: (_) => DashboardScreen(initialTabIndex: 2));
       case '/plano/add':
         Map<String, dynamic> planoArgs;
         if (args is String) {
@@ -74,62 +72,57 @@ class AppRouter {
         } else {
           planoArgs = {'editalId': null, 'cargoIds': <String>[]};
         }
-        return AnimatedRoute(
-          page: PlanoAddScreen(
-            editalId: planoArgs['editalId'],
-            cargoIds: planoArgs['cargoIds'],
-          ),
-          animationType: AnimationType.slideRight,
-        );
+        return MaterialPageRoute(builder: (_) => PlanoAddScreen(
+          editalId: planoArgs['editalId'],
+          cargoIds: planoArgs['cargoIds'],
+        ));
       case '/plano/detalhes':
-        return AnimatedRoute(page: PlanoDetailsScreen(planoId: args as String), animationType: AnimationType.fadeSlide);
+        return MaterialPageRoute(builder: (_) => PlanoDetailsScreen(planoId: args as String));
       case '/plano/resumo':
-        return AnimatedRoute(page: PlanoResumoScreen(planoId: args as String), animationType: AnimationType.fadeScale);
+        return MaterialPageRoute(builder: (_) => PlanoResumoScreen(planoId: args as String));
 
       // Rotas de sessão de estudo
       case '/sessao':
-        return AnimatedRoute(page: DashboardScreen(initialTabIndex: 0), animationType: AnimationType.fadeScale);
+        return MaterialPageRoute(builder: (_) => DashboardScreen(initialTabIndex: 0));
       case '/sessao/iniciar':
-        return AnimatedRoute(page: SessaoScreen(itemId: args as String?), animationType: AnimationType.fadeScale);
+        return MaterialPageRoute(builder: (_) => SessaoScreen(itemId: args as String?));
 
       // Rotas de gamificação
       case '/gamificacao':
-        return AnimatedRoute(page: DashboardScreen(initialTabIndex: 3), animationType: AnimationType.fadeScale);
+        return MaterialPageRoute(builder: (_) => DashboardScreen(initialTabIndex: 3));
       case '/trofeus':
-        return AnimatedRoute(page: TrofeusScreen(), animationType: AnimationType.fadeSlide);
+        return MaterialPageRoute(builder: (_) => TrofeusScreen());
 
       // Rotas de ferramentas IA
       case '/ferramentas':
-        return AnimatedRoute(page: DashboardScreen(initialTabIndex: 4), animationType: AnimationType.fadeScale);
+        return MaterialPageRoute(builder: (_) => DashboardScreen(initialTabIndex: 4));
       case '/flashcards':
-        return AnimatedRoute(page: FlashcardsScreen(), animationType: AnimationType.slideRight);
+        return MaterialPageRoute(builder: (_) => FlashcardsScreen());
       case '/resumos':
-        return AnimatedRoute(page: ResumosScreen(), animationType: AnimationType.slideRight);
+        return MaterialPageRoute(builder: (_) => ResumosScreen());
       case '/questoes':
-        return AnimatedRoute(page: QuestoesScreen(), animationType: AnimationType.slideRight);
+        return MaterialPageRoute(builder: (_) => QuestoesScreen());
       case '/mapas_mentais':
-        return AnimatedRoute(page: MapasMentaisScreen(), animationType: AnimationType.slideRight);
+        return MaterialPageRoute(builder: (_) => MapasMentaisScreen());
 
       // Rotas do Mercado Aprovação
       case '/mercado':
-        return AnimatedRoute(page: DashboardScreen(initialTabIndex: 5), animationType: AnimationType.fadeScale);
+        return MaterialPageRoute(builder: (_) => DashboardScreen(initialTabIndex: 5));
       case '/mercado/adicionar':
-        return AnimatedRoute(page: AdicionarRecompensaScreen(), animationType: AnimationType.slideUp);
+        return MaterialPageRoute(builder: (_) => AdicionarRecompensaScreen());
       case '/mercado/historico':
-        return AnimatedRoute(page: HistoricoMoedasScreen(), animationType: AnimationType.fadeSlide);
+        return MaterialPageRoute(builder: (_) => HistoricoMoedasScreen());
 
       // Configurações
       case '/settings':
-        return AnimatedRoute(page: SettingsScreen(), animationType: AnimationType.slideLeft);
+        return MaterialPageRoute(builder: (_) => SettingsScreen());
       case '/settings/audio_explanations':
-        return AnimatedRoute(page: AudioExplanationSettingsScreen(), animationType: AnimationType.slideRight);
-      case '/settings/theme':
-        return AnimatedRoute(page: ThemeSettingsScreen(), animationType: AnimationType.slideRight);
+        return MaterialPageRoute(builder: (_) => AudioExplanationSettingsScreen());
 
       // Rota padrão para rotas não definidas
       default:
-        return AnimatedRoute(
-          page: Scaffold(
+        return MaterialPageRoute(
+          builder: (_) => Scaffold(
             appBar: AppBar(title: Text('Erro de Navegação')),
             body: Center(
               child: Column(
@@ -152,7 +145,6 @@ class AppRouter {
               ),
             ),
           ),
-          animationType: AnimationType.fade,
         );
     }
   }
