@@ -6,9 +6,19 @@ project(preparatorio_concursos LANGUAGES CXX)
 # the on-disk name of your application.
 set(BINARY_NAME "preparatorio_concursos")
 
+# Incluir configurações personalizadas
+include(${CMAKE_CURRENT_SOURCE_DIR}/app_config.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/firebase_config.cmake)
+
+# Aplicar patch para o Firebase SDK
+include(${CMAKE_CURRENT_SOURCE_DIR}/firebase_sdk_patch.cmake)
+
+# Usar o nome do aplicativo definido anteriormente
+set(APP_BINARY_NAME ${BINARY_NAME})
+
 # Explicitly opt in to modern CMake behaviors to avoid warnings with recent
 # versions of CMake.
-cmake_policy(VERSION 3.14...3.25)
+cmake_policy(VERSION 3.14...4.0)
 
 # Define build configuration option.
 get_property(IS_MULTICONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
@@ -31,6 +41,31 @@ set(CMAKE_CXX_FLAGS_PROFILE "${CMAKE_CXX_FLAGS_RELEASE}")
 
 # Use Unicode for all projects.
 add_definitions(-DUNICODE -D_UNICODE)
+
+# Adicionar definições com base nas configurações do aplicativo
+if(APP_ENABLE_ANALYTICS)
+  add_definitions(-DAPP_ENABLE_ANALYTICS)
+endif()
+
+if(APP_ENABLE_CRASHLYTICS)
+  add_definitions(-DAPP_ENABLE_CRASHLYTICS)
+endif()
+
+if(APP_ENABLE_PERFORMANCE)
+  add_definitions(-DAPP_ENABLE_PERFORMANCE)
+endif()
+
+if(APP_ENABLE_REMOTE_CONFIG)
+  add_definitions(-DAPP_ENABLE_REMOTE_CONFIG)
+endif()
+
+if(APP_DARK_THEME_ENABLED)
+  add_definitions(-DAPP_DARK_THEME_ENABLED)
+endif()
+
+if(APP_HIGH_CONTRAST_ENABLED)
+  add_definitions(-DAPP_HIGH_CONTRAST_ENABLED)
+endif()
 
 # Compilation settings that should be applied to most targets.
 #
@@ -106,3 +141,17 @@ install(DIRECTORY "${PROJECT_BUILD_DIR}/${FLUTTER_ASSET_DIR_NAME}"
 install(FILES "${AOT_LIBRARY}" DESTINATION "${INSTALL_BUNDLE_DATA_DIR}"
   CONFIGURATIONS Profile;Release
   COMPONENT Runtime)
+
+# Adicionar informações de versão do aplicativo
+configure_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/version.rc.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/version.rc"
+  @ONLY
+)
+
+# Exibir informações de configuração
+message(STATUS "Configuração do aplicativo:")
+message(STATUS "  Nome: ${APP_NAME}")
+message(STATUS "  Descrição: ${APP_DESCRIPTION}")
+message(STATUS "  Versão: ${APP_VERSION}")
+message(STATUS "  Empresa: ${APP_COMPANY}")

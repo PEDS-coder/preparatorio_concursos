@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:injectable/injectable.dart';
 import 'package:preparatorio_concursos/core/data/models/plano_estudo.dart';
 import 'package:preparatorio_concursos/core/data/repositories/base_repository.dart';
@@ -14,10 +16,11 @@ class PlanoEstudoRepository extends BaseRepository {
 
   PlanoEstudoRepository({
     required Logger logger,
-    required ErrorHandlerService errorHandler,
+    // Temporariamente removido para evitar problemas de injeção de dependência
+    // required ErrorHandlerService errorHandler,
   }) : super(
           logger: logger,
-          errorHandler: errorHandler,
+          // errorHandler: errorHandler,
           tag: _tag,
         );
 
@@ -29,7 +32,7 @@ class PlanoEstudoRepository extends BaseRepository {
         final planosJson = prefs.getStringList(_planosKey) ?? [];
 
         return planosJson
-            .map((json) => PlanoEstudo.fromJson(json))
+            .map((jsonStr) => PlanoEstudo.fromJson(json.decode(jsonStr)))
             .toList();
       },
       context: 'getPlanos',
@@ -52,7 +55,7 @@ class PlanoEstudoRepository extends BaseRepository {
         }
 
         // Salvar a lista atualizada
-        final planosJson = planos.map((p) => p.toJson()).toList();
+        final planosJson = planos.map((p) => json.encode(p.toJson())).toList();
         await prefs.setStringList(_planosKey, planosJson);
       },
       context: 'savePlano',
@@ -70,7 +73,7 @@ class PlanoEstudoRepository extends BaseRepository {
         planos.removeWhere((p) => p.id == planoId);
 
         // Salvar a lista atualizada
-        final planosJson = planos.map((p) => p.toJson()).toList();
+        final planosJson = planos.map((p) => json.encode(p.toJson())).toList();
         await prefs.setStringList(_planosKey, planosJson);
 
         // Se o plano atual foi removido, limpar a referência

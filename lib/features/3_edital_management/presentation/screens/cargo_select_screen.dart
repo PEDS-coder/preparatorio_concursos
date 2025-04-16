@@ -14,6 +14,7 @@ import '../../../../core/data/models/edital.dart';
 import '../../../../core/utils/edital_analyzer.dart';
 import '../../../../core/widgets/matrix_rain_animation.dart';
 import 'edital_analysis_view_screen.dart';
+import '../../../../features/4_study_plan/presentation/screens/plano_add_screen.dart';
 
 class CargoSelectScreen extends StatefulWidget {
   final String editalId;
@@ -37,14 +38,13 @@ class _CargoSelectScreenState extends State<CargoSelectScreen> {
   bool _showPopupButtons = false;
   String? _lastSelectedCargo;
 
+  // Mapa para armazenar datas e horários de prova dos cargos selecionados
+  Map<String, DateTime?> _datasProvasCargos = {};
+
   @override
   void initState() {
     super.initState();
-
-    // Reproduzir explicação da tela de seleção de cargo
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<AudioExplanationService>(context, listen: false).playCargoSelectExplanation();
-    });
+    // Explicações em áudio foram removidas
   }
 
   @override
@@ -167,7 +167,7 @@ class _CargoSelectScreenState extends State<CargoSelectScreen> {
                   SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      'Selecione o cargo para o qual deseja se preparar. Após a seleção, você poderá ver o conteúdo programático detalhado e criar seu plano de estudos personalizado.',
+                      'Selecione um ou mais cargos para os quais deseja se preparar. Após a seleção, você poderá ver o conteúdo programático detalhado e criar seu plano de estudos personalizado.',
                       style: TextStyle(
                         fontSize: 14,
                         color: Colors.blue.shade900,
@@ -178,6 +178,69 @@ class _CargoSelectScreenState extends State<CargoSelectScreen> {
               ),
             ),
             SizedBox(height: 32),
+
+            // Mostrar cargos selecionados
+            if (_cargosSelecionados.isNotEmpty) ...[
+              Container(
+                padding: EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.green.shade50,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.green.shade200),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(Icons.check_circle, color: Colors.green),
+                        SizedBox(width: 12),
+                        Text(
+                          'Cargos Selecionados (${_cargosSelecionados.length})',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.green.shade800,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 12),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: _cargosSelecionados.map((cargo) => Chip(
+                        label: Text(cargo),
+                        backgroundColor: Colors.green.shade100,
+                        deleteIcon: Icon(Icons.close, size: 18),
+                        onDeleted: () {
+                          setState(() {
+                            _cargosSelecionados.remove(cargo);
+                            if (_lastSelectedCargo == cargo) {
+                              _lastSelectedCargo = _cargosSelecionados.isNotEmpty ? _cargosSelecionados.last : null;
+                              _showPopupButtons = _cargosSelecionados.isNotEmpty;
+                            }
+                          });
+                        },
+                      )).toList(),
+                    ),
+                    SizedBox(height: 12),
+                    if (_cargosSelecionados.length > 1)
+                      ElevatedButton.icon(
+                        onPressed: _continuarParaPlanoEstudo,
+                        icon: Icon(Icons.arrow_forward),
+                        label: Text('Criar Plano de Estudo'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.primaryColor,
+                          foregroundColor: Colors.white,
+                          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 24),
+            ],
 
             // Lista de cargos
             Text(
@@ -297,11 +360,7 @@ class _CargoSelectScreenState extends State<CargoSelectScreen> {
             // Verificar se as datas de prova não colidem
             if (_verificarCompatibilidadeDatas(cargo)) {
               setState(() {
-                // Limpar seleção anterior se houver
-                if (_lastSelectedCargo != null && _lastSelectedCargo != cargoIdentifier) {
-                  _cargosSelecionados.clear();
-                }
-
+                // Adicionar o cargo à lista de selecionados sem limpar os anteriores
                 // Usar o nome do cargo como identificador estável
                 _cargosSelecionados.add(cargoIdentifier);
                 _showPopupButtons = true;
@@ -391,6 +450,12 @@ class _CargoSelectScreenState extends State<CargoSelectScreen> {
               _buildCargoInfoItem('Vagas', _formatarVagas(cargo, edital), Icons.people),
               _buildCargoInfoItem('Salário', 'R\$ ${_formatarSalario(cargo.salario)}', Icons.attach_money),
               _buildCargoInfoItem('Escolaridade', cargo.escolaridade, Icons.school),
+              if (cargo.dataProva != null)
+                _buildCargoInfoItem('Data da Prova', DateFormat('dd-MM-yyyy').format(cargo.dataProva!), Icons.calendar_today),
+              if (cargo.horarioProva != null && cargo.horarioProva!.isNotEmpty)
+                _buildCargoInfoItem('Horário da Prova', cargo.horarioProva!, Icons.access_time),
+              if (cargo.requisitos != null && cargo.requisitos != 'Não informado')
+                _buildCargoInfoItem('Requisitos', cargo.requisitos, Icons.assignment_ind),
               SizedBox(height: 16),
 
             ],
@@ -675,25 +740,49 @@ class _CargoSelectScreenState extends State<CargoSelectScreen> {
           ),
           SizedBox(height: 8),
           Text(
-            'Não foi possível identificar cargos no edital. Você pode continuar com um cargo genérico ou tentar analisar o edital novamente.',
+            'Não foi possível identificar cargos no edital. Isso pode ocorrer quando a API não consegue extrair corretamente os cargos do PDF. Você pode continuar com um cargo genérico ou voltar e tentar analisar o edital novamente.',
             textAlign: TextAlign.center,
             style: TextStyle(color: Colors.amber.shade800),
           ),
           SizedBox(height: 16),
-          ElevatedButton.icon(
-            icon: Icon(Icons.add_circle_outline),
-            label: Text('Usar Cargo Genérico'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.amber.shade600,
-              foregroundColor: Colors.white,
-            ),
-            onPressed: () {
-              // Criar um cargo genérico e continuar
-              setState(() {
-                _cargosSelecionados = ['cargo_generico'];
-              });
-              _continuarParaPlanoEstudo();
-            },
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton.icon(
+                icon: Icon(Icons.add_circle_outline),
+                label: Text('Usar Cargo Genérico'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.amber.shade600,
+                  foregroundColor: Colors.white,
+                ),
+                onPressed: () {
+                  // Criar um cargo genérico e continuar
+                  setState(() {
+                    _cargosSelecionados = ['cargo_generico'];
+                  });
+                  _continuarParaPlanoEstudo();
+                },
+              ),
+              SizedBox(width: 16),
+              OutlinedButton.icon(
+                icon: Icon(Icons.arrow_back),
+                label: Text('Voltar'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: Colors.amber.shade800,
+                  side: BorderSide(color: Colors.amber.shade600),
+                ),
+                onPressed: () {
+                  // Voltar para a tela anterior
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          ),
+          SizedBox(height: 8),
+          Text(
+            'Dica: Você pode tentar selecionar apenas as páginas do PDF que contêm informações sobre os cargos para melhorar a análise.',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 12, color: Colors.grey.shade700, fontStyle: FontStyle.italic),
           ),
         ],
       ),
@@ -1000,13 +1089,14 @@ class _CargoSelectScreenState extends State<CargoSelectScreen> {
       await Future.delayed(Duration(milliseconds: 500));
 
       // Navegar para a tela de criação de plano de estudo com todos os cargos selecionados
-      Navigator.pushReplacementNamed(
+      Navigator.push(
         context,
-        '/plano/add',
-        arguments: {
-          'editalId': widget.editalId,
-          'cargoIds': _cargosSelecionados, // Passar todos os cargos selecionados
-        },
+        MaterialPageRoute(
+          builder: (context) => PlanoAddScreen(
+            editalId: widget.editalId,
+            cargoIds: _cargosSelecionados,
+          ),
+        ),
       );
     } catch (e) {
       setState(() {
@@ -1014,6 +1104,14 @@ class _CargoSelectScreenState extends State<CargoSelectScreen> {
         _errorMessage = 'Erro ao continuar: $e';
       });
     }
+  }
+
+  // O método _verificarCompatibilidadeDatas foi removido para evitar duplicação
+  // A implementação nas linhas 764-872 será usada
+
+  /// Verifica se duas datas são no mesmo dia
+  bool _mesmodia(DateTime data1, DateTime data2) {
+    return data1.year == data2.year && data1.month == data2.month && data1.day == data2.day;
   }
 
   /// Verifica conflitos de datas entre os cargos selecionados
@@ -1028,7 +1126,7 @@ class _CargoSelectScreenState extends State<CargoSelectScreen> {
 
     for (final cargo in cargos) {
       if (cargo.dataProva != null) {
-        final dataStr = DateFormat('dd/MM/yyyy').format(cargo.dataProva!);
+        final dataStr = DateFormat('dd-MM-yyyy').format(cargo.dataProva!);
         cargosPorData.putIfAbsent(dataStr, () => []).add(cargo.nome);
       }
     }

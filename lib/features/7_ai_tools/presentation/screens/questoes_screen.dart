@@ -245,11 +245,8 @@ class _QuestoesScreenState extends State<QuestoesScreen> {
 
       // Gerar questões usando o IAService
 
-      final resultado = await iaService.gerarQuestoes(
-        texto: _fileContent ?? '',
-        materia: _materiaController.text,
-        dificuldade: _dificuldade,
-        quantidade: quantidade
+      final resultado = await iaService.callApiWithPrompt(
+        "Gere $quantidade questões de múltipla escolha sobre ${_materiaController.text} com dificuldade $_dificuldade baseadas no seguinte texto:\n\n${_fileContent ?? ''}"
       );
 
       setState(() {

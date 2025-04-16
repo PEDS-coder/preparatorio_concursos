@@ -11,9 +11,9 @@ class HistoricoMoedasScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context);
     final mercadoService = Provider.of<MercadoService>(context);
-    
+
     final usuario = authService.currentUser;
-    
+
     if (usuario == null) {
       return Scaffold(
         appBar: AppBar(
@@ -28,13 +28,13 @@ class HistoricoMoedasScreen extends StatelessWidget {
         ),
       );
     }
-    
+
     // Obter histórico de moedas do usuário
     final historico = mercadoService.getHistoricoMoedasByUserId(usuario.id);
-    
+
     // Ordenar por data (mais recente primeiro)
     historico.sort((a, b) => b.data.compareTo(a.data));
-    
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Histórico de Moedas'),
@@ -52,7 +52,7 @@ class HistoricoMoedasScreen extends StatelessWidget {
             ),
     );
   }
-  
+
   Widget _buildEmptyState() {
     return Center(
       child: Padding(
@@ -79,17 +79,17 @@ class HistoricoMoedasScreen extends StatelessWidget {
       ),
     );
   }
-  
+
   Widget _buildHistoricoItem(HistoricoMoedas item) {
     final bool isGanho = item.tipo == 'ganho';
     final Color cor = isGanho ? Colors.green : Colors.red;
     final IconData icone = isGanho ? Icons.arrow_upward : Icons.arrow_downward;
     final String sinal = isGanho ? '+' : '-';
-    
+
     // Determinar o ícone baseado na origem
     IconData origemIcone;
     String origemTexto;
-    
+
     switch (item.origem) {
       case 'sessao_estudo':
         origemIcone = Icons.book;
@@ -128,7 +128,7 @@ class HistoricoMoedasScreen extends StatelessWidget {
         origemIcone = Icons.monetization_on;
         origemTexto = 'Transação';
     }
-    
+
     return Card(
       margin: EdgeInsets.only(bottom: 12),
       color: AppTheme.darkCardColor,
@@ -197,7 +197,7 @@ class HistoricoMoedasScreen extends StatelessWidget {
                 ),
                 SizedBox(height: 4),
                 Text(
-                  DateFormat('dd/MM/yyyy HH:mm').format(item.data),
+                  DateFormat('dd-MM-yyyy HH:mm').format(item.data),
                   style: TextStyle(
                     fontSize: 12,
                     color: Colors.white.withOpacity(0.5),

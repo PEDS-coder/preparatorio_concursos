@@ -8,10 +8,12 @@ extension ErrorHandlingExtension on BaseRepository {
     Future<T> Function() function, {
     String? context,
   }) async {
-    return await global_error.runWithErrorHandling<T>(
-      function,
-      errorHandler,
-      context: context ?? tag,
-    );
+    try {
+      return await function();
+    } catch (e) {
+      // Temporariamente simplificado para evitar problemas de injeção de dependência
+      print('Erro em $tag${context != null ? ' ($context)' : ''}: $e');
+      rethrow;
+    }
   }
 }

@@ -4,6 +4,8 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 
+import 'package:injectable/injectable.dart';
+
 /// Enum para os níveis de log
 enum LogLevel {
   verbose(0, 'VERBOSE'),
@@ -18,7 +20,7 @@ enum LogLevel {
   const LogLevel(this.value, this.name);
 }
 
-/// Classe base para o logger
+@singleton
 class Logger {
   // Nível atual de log (pode ser alterado em tempo de execução)
   LogLevel _currentLevel = kDebugMode ? LogLevel.debug : LogLevel.info;

@@ -418,36 +418,67 @@ class _PlanoResumoScreenState extends State<PlanoResumoScreen> {
       orElse: () => cargos.isNotEmpty ? cargos.first : Cargo(nome: 'Não encontrado', conteudoProgramatico: []),
     );
 
-    // Separar matérias por tipo (comum e específico)
-    List<ConteudoProgramatico> conhecimentosBasicos = [];
-    List<ConteudoProgramatico> conhecimentosEspecificos = [];
+    // Agrupar matérias por grupo/módulo
+    Map<String, List<ConteudoProgramatico>> materiasPorGrupo = {};
+
+    // Verificar se há matérias com grupo definido
+    bool temGruposDefinidos = cargoSelecionado.conteudoProgramatico.any((c) => c.grupoMateria != null && c.grupoMateria!.isNotEmpty);
 
     for (var conteudo in cargoSelecionado.conteudoProgramatico) {
-      // Não ignorar matérias com nomes genéricos para exibir todos os conhecimentos
-      // Incluir todas as matérias, tanto básicas quanto específicas
+      String grupoChave;
 
-      // Classificar por tipo
-      if (conteudo.tipo.toLowerCase() == 'comum' ||
-          conteudo.tipo.toLowerCase() == 'básico' ||
-          conteudo.tipo.toLowerCase() == 'basico' ||
-          conteudo.tipo.toLowerCase() == 'conhecimentos básicos' ||
-          conteudo.tipo.toLowerCase() == 'conhecimentos basicos') {
-        conhecimentosBasicos.add(conteudo);
-      } else if (conteudo.tipo.toLowerCase() == 'específico' ||
-                conteudo.tipo.toLowerCase() == 'especifico' ||
-                conteudo.tipo.toLowerCase() == 'conhecimentos específicos' ||
-                conteudo.tipo.toLowerCase() == 'conhecimentos especificos') {
-        conhecimentosEspecificos.add(conteudo);
+      if (temGruposDefinidos && conteudo.grupoMateria != null && conteudo.grupoMateria!.isNotEmpty) {
+        // Usar o grupo definido pela LLM
+        grupoChave = conteudo.grupoMateria!;
       } else {
-        // Se não for possível determinar o tipo, verificar pelo nome
-        if (conteudo.nome.toLowerCase().contains('direito') ||
-            conteudo.nome.toLowerCase().contains('legisla') ||
-            conteudo.nome.toLowerCase().contains('específ')) {
-          conhecimentosEspecificos.add(conteudo);
+        // Fallback para a classificação tradicional se não houver grupos definidos
+        if (conteudo.tipo.toLowerCase() == 'comum' ||
+            conteudo.tipo.toLowerCase() == 'básico' ||
+            conteudo.tipo.toLowerCase() == 'basico' ||
+            conteudo.tipo.toLowerCase() == 'conhecimentos básicos' ||
+            conteudo.tipo.toLowerCase() == 'conhecimentos basicos') {
+          grupoChave = 'Conhecimentos Básicos';
+        } else if (conteudo.tipo.toLowerCase() == 'específico' ||
+                  conteudo.tipo.toLowerCase() == 'especifico' ||
+                  conteudo.tipo.toLowerCase() == 'conhecimentos específicos' ||
+                  conteudo.tipo.toLowerCase() == 'conhecimentos especificos') {
+          grupoChave = 'Conhecimentos Específicos';
         } else {
-          conhecimentosBasicos.add(conteudo);
+          // Se não for possível determinar o tipo, verificar pelo nome
+          if (conteudo.nome.toLowerCase().contains('direito') ||
+              conteudo.nome.toLowerCase().contains('legisla') ||
+              conteudo.nome.toLowerCase().contains('específ')) {
+            grupoChave = 'Conhecimentos Específicos';
+          } else {
+            grupoChave = 'Conhecimentos Básicos';
+          }
         }
       }
+
+      // Adicionar a matéria ao grupo correspondente
+      if (!materiasPorGrupo.containsKey(grupoChave)) {
+        materiasPorGrupo[grupoChave] = [];
+      }
+      materiasPorGrupo[grupoChave]!.add(conteudo);
+    }
+
+    // Definir cores para os diferentes grupos
+    Map<String, Color> coresGrupos = {};
+    List<Color> coresPadrao = [
+      Colors.blue.shade700,
+      Colors.red.shade700,
+      Colors.green.shade700,
+      Colors.purple.shade700,
+      Colors.orange.shade700,
+      Colors.teal.shade700,
+      Colors.indigo.shade700,
+    ];
+
+    // Atribuir cores aos grupos
+    int colorIndex = 0;
+    for (var grupo in materiasPorGrupo.keys) {
+      coresGrupos[grupo] = coresPadrao[colorIndex % coresPadrao.length];
+      colorIndex++;
     }
 
     return Card(
@@ -467,36 +498,62 @@ class _PlanoResumoScreenState extends State<PlanoResumoScreen> {
               ),
             ),
             Divider(),
-            if (conhecimentosBasicos.isNotEmpty) ...[
-              Text(
-                'Conhecimentos Básicos',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.blue.shade700,
-                ),
-              ),
-              SizedBox(height: 8),
-              ...conhecimentosBasicos.map((conteudo) => _buildMateriaItem(conteudo)),
-              SizedBox(height: 16),
-            ],
-            if (conhecimentosEspecificos.isNotEmpty) ...[
-              Text(
-                'Conhecimentos Específicos',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.red.shade700,
-                ),
-              ),
-              SizedBox(height: 8),
-              ...conhecimentosEspecificos.map((conteudo) => _buildMateriaItem(conteudo)),
-            ],
-            if (cargoSelecionado.conteudoProgramatico.isEmpty)
+            if (materiasPorGrupo.isEmpty)
               Text(
                 'Nenhum conteúdo programático disponível para este cargo.',
                 style: TextStyle(fontStyle: FontStyle.italic),
-              ),
+              )
+            else
+              ...materiasPorGrupo.entries.map((entry) {
+                final grupoNome = entry.key;
+                final materias = entry.value;
+                final corGrupo = coresGrupos[grupoNome] ?? Colors.blue.shade700;
+
+                // Calcular o total de questões do grupo, se disponível
+                int? totalQuestoesGrupo;
+                if (materias.isNotEmpty && materias.first.totalQuestoesGrupo != null) {
+                  totalQuestoesGrupo = materias.first.totalQuestoesGrupo;
+                }
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            grupoNome,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: corGrupo,
+                            ),
+                          ),
+                        ),
+                        if (totalQuestoesGrupo != null)
+                          Container(
+                            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: corGrupo.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              '$totalQuestoesGrupo questões',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                                color: corGrupo,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                    SizedBox(height: 8),
+                    ...materias.map((conteudo) => _buildMateriaItem(conteudo)),
+                    SizedBox(height: 16),
+                  ],
+                );
+              }).toList(),
           ],
         ),
       ),
@@ -519,7 +576,7 @@ class _PlanoResumoScreenState extends State<PlanoResumoScreen> {
 
     // Verificar se há informações sobre número de questões
     if (numeroQuestoes != null && numeroQuestoes > 0) {
-      infoAdicional += '${numeroQuestoes} questões';
+      infoAdicional += '$numeroQuestoes questões';
     } else {
       // Tentar extrair o número de questões do nome da matéria
       final RegExp regexQuestoes = RegExp(r'\(([0-9]+)\s*quest[\u00f5o]es\)', caseSensitive: false);
@@ -531,6 +588,13 @@ class _PlanoResumoScreenState extends State<PlanoResumoScreen> {
         } catch (e) {
           // Ignorar erro de parsing
         }
+      } else if (conteudo.totalQuestoesGrupo != null) {
+        // Se temos o total de questões do grupo, podemos estimar com base nisso
+        // Verificar se há outras matérias no mesmo grupo com número de questões definido
+        // Isso seria implementado com uma lógica mais complexa que requer acesso a todas as matérias do grupo
+        // Por enquanto, usamos uma estimativa simples
+        numeroQuestoes = 5; // Valor estimado para matérias sem número explícito
+        infoAdicional += '$numeroQuestoes questões (estimado)';
       } else if (isEspecifica) {
         // Para matérias específicas sem número de questões, estimar com base no tipo
         // Isso é apenas uma estimativa para exibição, não afeta o plano de estudos
@@ -958,7 +1022,7 @@ class _PlanoResumoScreenState extends State<PlanoResumoScreen> {
   }
 
   String _formatarData(DateTime data) {
-    return DateFormat('dd/MM/yyyy').format(data);
+    return DateFormat('dd-MM-yyyy').format(data);
   }
 
   String _formatarValor(dynamic valor) {
@@ -1509,4 +1573,5 @@ class _PlanoResumoScreenState extends State<PlanoResumoScreen> {
     debugPrint('  Nenhuma informação sobre cotas encontrada');
     return 'Não informado';
   }
+
 }

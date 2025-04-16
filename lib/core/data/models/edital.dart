@@ -5,6 +5,8 @@ class ConteudoProgramatico {
   final bool? pesoMaior; // Indica se a matéria tem peso maior na pontuação final
   final bool? criterioDesempate; // Indica se a matéria é critério de desempate
   final int? numeroQuestoes; // Número de questões da matéria na prova
+  final int? totalQuestoesGrupo; // Número total de questões do grupo (conhecimentos básicos/específicos)
+  final String? grupoMateria; // Nome do grupo/módulo ao qual a matéria pertence (ex: "Módulo I", "Conhecimentos Básicos")
 
   ConteudoProgramatico({
     required this.nome,
@@ -13,6 +15,8 @@ class ConteudoProgramatico {
     this.pesoMaior,
     this.criterioDesempate,
     this.numeroQuestoes,
+    this.totalQuestoesGrupo,
+    this.grupoMateria,
   });
 
   Map<String, dynamic> toMap() {
@@ -23,6 +27,8 @@ class ConteudoProgramatico {
       'peso_maior': pesoMaior,
       'criterio_desempate': criterioDesempate,
       'numero_questoes': numeroQuestoes,
+      'total_questoes_grupo': totalQuestoesGrupo,
+      'grupo_materia': grupoMateria,
     };
   }
 
@@ -34,6 +40,8 @@ class ConteudoProgramatico {
       pesoMaior: map['peso_maior'],
       criterioDesempate: map['criterio_desempate'],
       numeroQuestoes: map['numero_questoes'] is int ? map['numero_questoes'] : null,
+      totalQuestoesGrupo: map['total_questoes_grupo'] is int ? map['total_questoes_grupo'] : null,
+      grupoMateria: map['grupo_materia'],
     );
   }
 
@@ -51,8 +59,10 @@ class Cargo {
   final double taxaInscricao;
   final String nivel;
   final String escolaridade;
+  final String requisitos;
   final List<ConteudoProgramatico> conteudoProgramatico;
   final DateTime? dataProva;
+  final String? horarioProva;
 
   Cargo({
     required this.nome,
@@ -62,8 +72,10 @@ class Cargo {
     this.taxaInscricao = 0.0,
     this.nivel = 'Não informado',
     this.escolaridade = 'Não informado',
+    this.requisitos = 'Não informado',
     required this.conteudoProgramatico,
     this.dataProva,
+    this.horarioProva,
   });
 
   Map<String, dynamic> toMap() {
@@ -75,8 +87,10 @@ class Cargo {
       'taxaInscricao': taxaInscricao,
       'nivel': nivel,
       'escolaridade': escolaridade,
+      'requisitos': requisitos,
       'conteudoProgramatico': conteudoProgramatico.map((m) => m.toMap()).toList(),
       'dataProva': dataProva?.toIso8601String(),
+      'horarioProva': horarioProva,
     };
   }
 
@@ -109,8 +123,10 @@ class Cargo {
       taxaInscricao: map['taxaInscricao'] is num ? (map['taxaInscricao'] as num).toDouble() : 0.0,
       nivel: map['nivel'] ?? 'Não informado',
       escolaridade: map['escolaridade'] ?? 'Não informado',
+      requisitos: map['requisitos'] ?? 'Não informado',
       conteudoProgramatico: materias,
       dataProva: map['dataProva'] != null ? DateTime.parse(map['dataProva']) : null,
+      horarioProva: map['horarioProva'],
     );
   }
 }
@@ -215,4 +231,9 @@ class Edital {
       dadosOriginais: map['dadosOriginais'],
     );
   }
+
+  // Métodos para serialização JSON
+  Map<String, dynamic> toJson() => toMap();
+
+  factory Edital.fromJson(Map<String, dynamic> json) => Edital.fromMap(json);
 }

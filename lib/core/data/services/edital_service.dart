@@ -125,6 +125,35 @@ class EditalService extends ChangeNotifier {
 
         // Processar o número de questões
         int? numeroQuestoes;
+        int? totalQuestoesGrupo;
+        String? grupoMateria;
+
+        // Processar o grupo da matéria
+        if (itemMap.containsKey('grupo_materia')) {
+          grupoMateria = itemMap['grupo_materia'] as String?;
+          print('  Grupo da matéria: $grupoMateria');
+        }
+
+        // Processar o número total de questões do grupo
+        if (itemMap.containsKey('total_questoes_grupo')) {
+          var totalQuestoesValue = itemMap['total_questoes_grupo'];
+          if (totalQuestoesValue is int) {
+            totalQuestoesGrupo = totalQuestoesValue;
+            print('  Total de questões do grupo (processado como int): $totalQuestoesGrupo');
+          } else if (totalQuestoesValue is String) {
+            try {
+              totalQuestoesGrupo = int.tryParse(totalQuestoesValue);
+              print('  Total de questões do grupo (convertido de string): $totalQuestoesGrupo');
+            } catch (e) {
+              print('  Erro ao converter total de questões do grupo de string: $e');
+            }
+          } else if (totalQuestoesValue is double) {
+            totalQuestoesGrupo = totalQuestoesValue.toInt();
+            print('  Total de questões do grupo (convertido de double): $totalQuestoesGrupo');
+          }
+        }
+
+        // Processar o número de questões da matéria
         if (itemMap.containsKey('numero_questoes')) {
           var numQuestoesValue = itemMap['numero_questoes'];
           if (numQuestoesValue is int) {
@@ -153,6 +182,8 @@ class EditalService extends ChangeNotifier {
             pesoMaior: itemMap['peso_maior'] as bool?,
             criterioDesempate: itemMap['criterio_desempate'] as bool?,
             numeroQuestoes: numeroQuestoes,
+            totalQuestoesGrupo: totalQuestoesGrupo,
+            grupoMateria: grupoMateria,
           ),
         );
 

@@ -1,5 +1,5 @@
-import 'package:firebase_performance/firebase_performance.dart';
-import 'http_method.dart';
+import 'package:preparatorio_concursos/core/data/services/interfaces/http_method.dart';
+import 'package:preparatorio_concursos/core/mocks/firebase_mocks.dart';
 
 /// Interface para o serviço de analytics
 abstract class IAnalyticsService {

@@ -4,7 +4,7 @@ import 'package:feedback/feedback.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:injectable/injectable.dart';
-import 'package:firebase_performance/firebase_performance.dart';
+// Importação do Firebase removida
 import 'package:preparatorio_concursos/core/data/services/interfaces/analytics_service_interface.dart';
 import 'package:preparatorio_concursos/core/data/services/interfaces/feedback_service_interface.dart';
 import 'package:preparatorio_concursos/core/data/services/interfaces/http_method.dart';

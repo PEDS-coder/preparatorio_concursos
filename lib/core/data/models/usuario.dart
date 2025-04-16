@@ -60,7 +60,11 @@ class Usuario implements BaseModel {
   }
 
   // Converte o objeto para JSON
-  String toJson() => json.encode(toMap());
+  @override
+  Map<String, dynamic> toJson() => toMap();
+
+  // Converte o objeto para JSON string
+  String toJsonString() => json.encode(toMap());
 
   // Método para criar um objeto a partir de um Map
   factory Usuario.fromMap(Map<String, dynamic> map) {

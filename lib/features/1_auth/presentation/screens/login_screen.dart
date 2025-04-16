@@ -24,10 +24,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
-    // Reproduzir explicação da tela de login
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<AudioExplanationService>(context, listen: false).playLoginExplanation();
-    });
+    // Explicações em áudio foram removidas
   }
 
   @override

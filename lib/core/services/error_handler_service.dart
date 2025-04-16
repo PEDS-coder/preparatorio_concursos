@@ -4,44 +4,47 @@ import 'package:flutter/foundation.dart';
 import '../exceptions/app_exception.dart';
 import '../utils/logger.dart';
 
+import 'package:injectable/injectable.dart';
+
 /// Interface para o serviço de tratamento de erros
 abstract class ErrorHandlerServiceInterface {
   /// Captura e processa uma exceção
   Future<void> handleException(dynamic error, {StackTrace? stackTrace, String? context});
-  
+
   /// Converte uma exceção em uma AppException
   AppException convertToAppException(dynamic error, {StackTrace? stackTrace, String? context});
-  
+
   /// Registra uma exceção no sistema de logs
   void logException(AppException exception, {String? context});
-  
+
   /// Exibe uma mensagem de erro para o usuário
   void showErrorMessage(String message);
 }
 
 /// Implementação do serviço de tratamento de erros
+@singleton
 class ErrorHandlerService implements ErrorHandlerServiceInterface {
   final Logger _logger;
-  
+
   ErrorHandlerService(this._logger);
-  
+
   @override
   Future<void> handleException(dynamic error, {StackTrace? stackTrace, String? context}) async {
     // Converte o erro para uma AppException
     final appException = convertToAppException(error, stackTrace: stackTrace, context: context);
-    
+
     // Registra a exceção
     logException(appException, context: context);
-    
+
     // Exibe uma mensagem de erro para o usuário
     showErrorMessage(_getUserFriendlyMessage(appException));
   }
-  
+
   @override
   AppException convertToAppException(dynamic error, {StackTrace? stackTrace, String? context}) {
     // Captura a stack trace se não for fornecida
     stackTrace ??= StackTrace.current;
-    
+
     // Converte diferentes tipos de erro para AppException
     if (error is AppException) {
       // Já é uma AppException, apenas retorna
@@ -76,11 +79,11 @@ class ErrorHandlerService implements ErrorHandlerServiceInterface {
       );
     }
   }
-  
+
   @override
   void logException(AppException exception, {String? context}) {
     final contextInfo = context != null ? ' [Contexto: $context]' : '';
-    
+
     // Log com nível apropriado baseado no tipo de exceção
     if (exception is NetworkException) {
       _logger.warning('${exception.toString()}$contextInfo');
@@ -97,7 +100,7 @@ class ErrorHandlerService implements ErrorHandlerServiceInterface {
     } else {
       _logger.error('${exception.toString()}$contextInfo');
     }
-    
+
     // Em modo de desenvolvimento, imprime a stack trace completa
     if (kDebugMode) {
       print('Exception details: ${exception.toString()}');
@@ -106,7 +109,7 @@ class ErrorHandlerService implements ErrorHandlerServiceInterface {
       }
     }
   }
-  
+
   @override
   void showErrorMessage(String message) {
     // Esta implementação será substituída por uma que usa o sistema de UI
@@ -114,10 +117,10 @@ class ErrorHandlerService implements ErrorHandlerServiceInterface {
     if (kDebugMode) {
       print('ERROR: $message');
     }
-    
+
     // Aqui seria implementada a lógica para mostrar um snackbar, dialog, etc.
   }
-  
+
   /// Retorna uma mensagem amigável para o usuário com base no tipo de exceção
   String _getUserFriendlyMessage(AppException exception) {
     if (exception is NetworkException) {

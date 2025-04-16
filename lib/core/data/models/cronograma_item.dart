@@ -40,6 +40,9 @@ class CronogramaItem implements BaseModel {
     };
   }
 
+  @override
+  Map<String, dynamic> toJson() => toMap();
+
   factory CronogramaItem.fromMap(Map<String, dynamic> map) {
     return CronogramaItem(
       id: map['id'],

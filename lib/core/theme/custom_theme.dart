@@ -22,7 +22,7 @@ class CustomTheme {
       onSurface: Colors.white,
       onError: Colors.white,
     );
-    
+
     return ThemeData(
       colorScheme: colorScheme,
       brightness: Brightness.dark,
@@ -31,7 +31,7 @@ class CustomTheme {
       cardColor: surfaceColor,
       dividerColor: Colors.white12,
       shadowColor: Colors.black,
-      
+
       // AppBar
       appBarTheme: AppBarTheme(
         backgroundColor: surfaceColor,
@@ -43,10 +43,10 @@ class CustomTheme {
           fontWeight: FontWeight.bold,
         ),
         iconTheme: IconThemeData(
-          color: primaryColor,
+          color: Colors.white,
         ),
       ),
-      
+
       // Botões
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -63,7 +63,7 @@ class CustomTheme {
           ),
         ),
       ),
-      
+
       // Botões de texto
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
@@ -78,7 +78,7 @@ class CustomTheme {
           ),
         ),
       ),
-      
+
       // Botões de contorno
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
@@ -94,7 +94,7 @@ class CustomTheme {
           ),
         ),
       ),
-      
+
       // Campos de texto
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
@@ -119,7 +119,7 @@ class CustomTheme {
         labelStyle: TextStyle(color: Colors.white70),
         hintStyle: TextStyle(color: Colors.white38),
       ),
-      
+
       // Cards
       cardTheme: CardTheme(
         color: surfaceColor,
@@ -129,7 +129,7 @@ class CustomTheme {
         ),
         margin: EdgeInsets.all(8),
       ),
-      
+
       // Diálogos
       dialogTheme: DialogTheme(
         backgroundColor: surfaceColor,
@@ -138,7 +138,7 @@ class CustomTheme {
           borderRadius: BorderRadius.circular(16),
         ),
       ),
-      
+
       // Snackbars
       snackBarTheme: SnackBarThemeData(
         backgroundColor: surfaceColor,
@@ -148,7 +148,7 @@ class CustomTheme {
         ),
         behavior: SnackBarBehavior.floating,
       ),
-      
+
       // Tabs
       tabBarTheme: TabBarTheme(
         labelColor: primaryColor,
@@ -157,13 +157,13 @@ class CustomTheme {
           borderSide: BorderSide(color: primaryColor, width: 2),
         ),
       ),
-      
+
       // Ícones
       iconTheme: IconThemeData(
         color: Colors.white,
         size: 24,
       ),
-      
+
       // Textos
       textTheme: TextTheme(
         displayLarge: TextStyle(
@@ -226,7 +226,7 @@ class CustomTheme {
       ),
     );
   }
-  
+
   /// Tema claro com gradientes vibrantes
   static ThemeData lightTheme({
     Color primaryColor = const Color(0xFF2196F3),
@@ -247,7 +247,7 @@ class CustomTheme {
       onSurface: Colors.black,
       onError: Colors.white,
     );
-    
+
     return ThemeData(
       colorScheme: colorScheme,
       brightness: Brightness.light,
@@ -256,7 +256,7 @@ class CustomTheme {
       cardColor: surfaceColor,
       dividerColor: Colors.black12,
       shadowColor: Colors.black26,
-      
+
       // AppBar
       appBarTheme: AppBarTheme(
         backgroundColor: primaryColor,
@@ -271,7 +271,7 @@ class CustomTheme {
           color: Colors.white,
         ),
       ),
-      
+
       // Botões
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -288,7 +288,7 @@ class CustomTheme {
           ),
         ),
       ),
-      
+
       // Botões de texto
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
@@ -303,7 +303,7 @@ class CustomTheme {
           ),
         ),
       ),
-      
+
       // Botões de contorno
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
@@ -319,7 +319,7 @@ class CustomTheme {
           ),
         ),
       ),
-      
+
       // Campos de texto
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
@@ -344,7 +344,7 @@ class CustomTheme {
         labelStyle: TextStyle(color: Colors.black54),
         hintStyle: TextStyle(color: Colors.black38),
       ),
-      
+
       // Cards
       cardTheme: CardTheme(
         color: surfaceColor,
@@ -354,7 +354,7 @@ class CustomTheme {
         ),
         margin: EdgeInsets.all(8),
       ),
-      
+
       // Diálogos
       dialogTheme: DialogTheme(
         backgroundColor: surfaceColor,
@@ -363,7 +363,7 @@ class CustomTheme {
           borderRadius: BorderRadius.circular(16),
         ),
       ),
-      
+
       // Snackbars
       snackBarTheme: SnackBarThemeData(
         backgroundColor: Colors.grey[800],
@@ -373,7 +373,7 @@ class CustomTheme {
         ),
         behavior: SnackBarBehavior.floating,
       ),
-      
+
       // Tabs
       tabBarTheme: TabBarTheme(
         labelColor: primaryColor,
@@ -382,13 +382,13 @@ class CustomTheme {
           borderSide: BorderSide(color: primaryColor, width: 2),
         ),
       ),
-      
+
       // Ícones
       iconTheme: IconThemeData(
         color: Colors.black87,
         size: 24,
       ),
-      
+
       // Textos
       textTheme: TextTheme(
         displayLarge: TextStyle(

@@ -1,10 +1,8 @@
-import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
-import 'package:firebase_performance/firebase_performance.dart';
 import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:preparatorio_concursos/core/data/services/interfaces/analytics_service_interface.dart';
 import 'package:preparatorio_concursos/core/data/services/interfaces/http_method.dart';
+import 'package:preparatorio_concursos/core/mocks/firebase_mocks.dart';
 import 'package:preparatorio_concursos/core/utils/logger.dart';
 
 /// Serviço para gerenciar analytics, crashlytics e telemetria de desempenho
@@ -188,6 +186,7 @@ class AnalyticsService implements IAnalyticsService {
   }
 
   /// Inicia uma trace de desempenho
+  @override
   Trace startTrace(String name) {
     try {
       final trace = _performance.newTrace(name);
@@ -201,6 +200,7 @@ class AnalyticsService implements IAnalyticsService {
   }
 
   /// Para uma trace de desempenho
+  @override
   Future<void> stopTrace(Trace trace) async {
     try {
       await trace.stop();
@@ -211,6 +211,7 @@ class AnalyticsService implements IAnalyticsService {
   }
 
   /// Inicia uma métrica HTTP
+  @override
   HttpMetric startHttpMetric(String url, AppHttpMethod method) {
     // Converter AppHttpMethod para HttpMethod
     HttpMethod firebaseMethod;
@@ -251,6 +252,7 @@ class AnalyticsService implements IAnalyticsService {
   }
 
   /// Para uma métrica HTTP
+  @override
   Future<void> stopHttpMetric(HttpMetric metric, {int? responseCode, int? responseSize}) async {
     try {
       if (responseCode != null) {

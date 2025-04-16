@@ -67,8 +67,8 @@ class AppTheme {
   // Cores para o tema escuro moderno
   static const Color darkOnPrimary = Colors.white;
   static const Color darkOnSecondary = Colors.white;
-  static const Color darkOnBackground = Color(0xFFF5F5F5); // Cinza mais claro para melhor contraste
-  static const Color darkOnSurface = Color(0xFFF5F5F5); // Cinza mais claro para melhor contraste
+  static const Color darkOnBackground = Color(0xFFFFFFFF); // Branco para melhor contraste
+  static const Color darkOnSurface = Color(0xFFFFFFFF); // Branco para melhor contraste
 
   // Tema claro
   static final ThemeData lightTheme = CustomTheme.lightTheme(

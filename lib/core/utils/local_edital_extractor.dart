@@ -7,6 +7,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:flutter/services.dart';
 import '../data/models/edital.dart';
 import 'pdf_processor_simple.dart';
+import 'package:preparatorio_concursos/core/utils/cargo_converter.dart';
 
 /// Classe para extração local de dados de editais de concursos públicos
 /// Utiliza o sistema de extração Python implementado localmente
@@ -178,106 +179,10 @@ class LocalEditalExtractor {
 
       // Extrair cargos
       List<Cargo> cargos = [];
-
-      // Processar cargos
       if (dados['cargos'] != null && dados['cargos'] is List) {
-        final List<dynamic> cargosList = dados['cargos'];
-
-        for (var cargoData in cargosList) {
-          // Extrair informações do cargo
-          final String nome = cargoData['nome'] ?? 'Cargo não especificado';
-
-          // Extrair vagas
-          int vagas = 0;
-          if (dados['vagas'] != null && dados['vagas'][nome] != null) {
-            vagas = dados['vagas'][nome]['total'] ?? 0;
-          }
-
-          // Extrair salário
-          double salario = 0.0;
-          if (cargoData['remuneracao'] != null) {
-            salario = _parseValorMonetario(cargoData['remuneracao']);
-          }
-
-          // Extrair escolaridade/requisitos
-          final String escolaridade = cargoData['requisitos'] ?? 'Não especificado';
-
-          // Extrair conteúdo programático
-          List<ConteudoProgramatico> conteudoProgramatico = [];
-
-          // Adicionar conhecimentos básicos
-          if (dados['conteudo_programatico'] != null &&
-              dados['conteudo_programatico']['conhecimentos_basicos'] != null) {
-
-            final List<dynamic> conhecimentosBasicos =
-                dados['conteudo_programatico']['conhecimentos_basicos'];
-
-            for (var disciplina in conhecimentosBasicos) {
-              conteudoProgramatico.add(
-                ConteudoProgramatico(
-                  nome: disciplina['disciplina'] ?? 'Disciplina não especificada',
-                  tipo: 'comum',
-                  topicos: List<String>.from(disciplina['topicos'] ?? []),
-                )
-              );
-            }
-          }
-
-          // Adicionar conhecimentos específicos
-          if (dados['conteudo_programatico'] != null &&
-              dados['conteudo_programatico']['conhecimentos_especificos'] != null &&
-              dados['conteudo_programatico']['conhecimentos_especificos'][nome] != null) {
-
-            final List<dynamic> conhecimentosEspecificos =
-                dados['conteudo_programatico']['conhecimentos_especificos'][nome];
-
-            for (var disciplina in conhecimentosEspecificos) {
-              conteudoProgramatico.add(
-                ConteudoProgramatico(
-                  nome: disciplina['disciplina'] ?? 'Disciplina não especificada',
-                  tipo: 'específico',
-                  topicos: List<String>.from(disciplina['topicos'] ?? []),
-                )
-              );
-            }
-          }
-
-          // Se não houver conteúdo programático, adicionar disciplinas padrão
-          if (conteudoProgramatico.isEmpty) {
-            conteudoProgramatico = [
-              ConteudoProgramatico(
-                nome: 'Língua Portuguesa',
-                tipo: 'comum',
-                topicos: ['Interpretação de texto', 'Gramática', 'Ortografia'],
-              ),
-              ConteudoProgramatico(
-                nome: 'Matemática',
-                tipo: 'comum',
-                topicos: ['Raciocínio lógico', 'Operações básicas'],
-              ),
-              ConteudoProgramatico(
-                nome: 'Conhecimentos Gerais',
-                tipo: 'comum',
-                topicos: ['Atualidades', 'História', 'Geografia'],
-              ),
-            ];
-          }
-
-          // Criar objeto Cargo
-          cargos.add(
-            Cargo(
-              id: DateTime.now().millisecondsSinceEpoch.toString() + nome,
-              nome: nome,
-              vagas: vagas,
-              salario: salario,
-              escolaridade: escolaridade,
-              dataProva: null, // Será preenchido depois se disponível
-              conteudoProgramatico: conteudoProgramatico,
-            )
-          );
-        }
+        // NOVO: usar sempre o conversor centralizado
+        cargos = CargoConverter.converterCargos(List<Map<String, dynamic>>.from(dados['cargos']));
       }
-
       // Se não houver cargos, criar um cargo genérico
       if (cargos.isEmpty) {
         cargos = [
@@ -678,7 +583,7 @@ class LocalEditalExtractor {
 
       // Padrão 2: NOME_DO_CARGO - Requisitos/Atribuições
       RegExp(
-        r'(\p{Lu}[\p{Lu}\s]{3,50})\s*[-:]\s*(?:requisitos|atribui[çc][\u00f5o]es|descri[çc][\u00e3a]o)',
+        r'(\p{Lu}[\p{Lu}\s]{3,50})\s*[-:]\s*(?:requisitos|atribui[çc][\u00f5o]es|descri[çc][\u00e7c][\u00e3a]o)',
         caseSensitive: false,
         unicode: true
       ),

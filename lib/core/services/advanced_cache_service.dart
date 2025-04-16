@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:preparatorio_concursos/core/data/services/interfaces/advanced_cache_service_interface.dart';
 import 'package:preparatorio_concursos/core/utils/logger.dart';
 
 /// Classe que representa um item no cache com metadados
@@ -82,9 +81,6 @@ class CacheItem<T> {
 /// - Limpeza automática de itens expirados
 /// - Estatísticas de uso do cache
 ///
-/// O serviço implementa a interface [IAdvancedCacheService] para fornecer
-/// funcionalidades avançadas de cache.
-///
 /// Exemplo de uso:
 /// ```dart
 /// final cacheService = getIt<AdvancedCacheService>();
@@ -101,7 +97,7 @@ class CacheItem<T> {
 /// final dados = await cacheService.getFromCache('minha_chave');
 /// ```
 @singleton
-class AdvancedCacheService implements IAdvancedCacheService {
+class AdvancedCacheService {
   static const String _tag = 'AdvancedCacheService';
 
   /// Tamanho máximo do cache em bytes (50MB)
@@ -341,7 +337,6 @@ class AdvancedCacheService implements IAdvancedCacheService {
     return utf8.encode(data).length;
   }
 
-  @override
   Future<void> saveToCache(String key, String data) async {
     return saveWithOptions(
       key,
@@ -351,7 +346,6 @@ class AdvancedCacheService implements IAdvancedCacheService {
     );
   }
 
-  @override
   /// Salva um item no cache com opções avançadas
   Future<void> saveWithOptions(
     String key,
@@ -400,7 +394,6 @@ class AdvancedCacheService implements IAdvancedCacheService {
     }
   }
 
-  @override
   Future<String?> getFromCache(String key) async {
     try {
       // Verificar se o item existe no cache em memória
@@ -442,7 +435,6 @@ class AdvancedCacheService implements IAdvancedCacheService {
     }
   }
 
-  @override
   Future<void> removeFromCache(String key) async {
     try {
       // Verificar se o item existe no cache em memória
@@ -475,7 +467,6 @@ class AdvancedCacheService implements IAdvancedCacheService {
     }
   }
 
-  @override
   Future<void> clearCache() async {
     try {
       // Limpar cache em memória

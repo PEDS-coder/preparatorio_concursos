@@ -103,10 +103,7 @@ class _PlanoAddScreenState extends State<PlanoAddScreen> {
     // Definir respostas como confirmadas automaticamente
     _respostasConfirmadas = true;
 
-    // Reproduzir explicação da tela de questionário
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<AudioExplanationService>(context, listen: false).playQuestionnaireExplanation();
-    });
+    // Explicações em áudio foram removidas
   }
 
   // Verifica se a API LLM está configurada
@@ -923,7 +920,7 @@ class _PlanoAddScreenState extends State<PlanoAddScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              '${initialDate.day.toString().padLeft(2, '0')}/${initialDate.month.toString().padLeft(2, '0')}/${initialDate.year}',
+              '${initialDate.day.toString().padLeft(2, '0')}-${initialDate.month.toString().padLeft(2, '0')}-${initialDate.year}',
             ),
             Icon(Icons.calendar_today, size: 18),
           ],

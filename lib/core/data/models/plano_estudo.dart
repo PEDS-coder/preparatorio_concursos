@@ -121,4 +121,13 @@ class PlanoEstudo {
       metadados: map['metadados'] != null ? Map<String, dynamic>.from(map['metadados']) : {},
     );
   }
+
+  // Métodos para serialização JSON
+  Map<String, dynamic> toJson() => toMap();
+
+  factory PlanoEstudo.fromJson(Map<String, dynamic> json) => PlanoEstudo.fromMap(json);
+
+  // Getters para compatibilidade com código existente
+  String get titulo => metadados['titulo'] ?? 'Plano de Estudo';
+  List<dynamic> get materias => metadados['materias'] ?? [];
 }

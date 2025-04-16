@@ -31,6 +31,9 @@ class Flashcard implements BaseModel {
     };
   }
 
+  @override
+  Map<String, dynamic> toJson() => toMap();
+
   factory Flashcard.fromMap(Map<String, dynamic> map) {
     return Flashcard(
       id: map['id'],

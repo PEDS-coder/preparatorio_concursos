@@ -68,6 +68,11 @@ class SessaoEstudo implements BaseModel {
     );
   }
 
+  // Métodos para serialização JSON
+  Map<String, dynamic> toJson() => toMap();
+
+  factory SessaoEstudo.fromJson(Map<String, dynamic> json) => SessaoEstudo.fromMap(json);
+
   SessaoEstudo copyWith({
     String? id,
     String? planoId,

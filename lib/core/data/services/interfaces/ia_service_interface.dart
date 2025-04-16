@@ -21,6 +21,15 @@ abstract class IAServiceInterface {
   /// Testa se a chave de API é válida
   Future<bool> testApiKey(String apiKey, String apiType);
 
+  /// Testa a conexão com a API
+  Future<bool> testApiConnection();
+
+  /// Configura as credenciais OAuth
+  Future<Map<String, dynamic>> configureOAuth(String clientId, String clientSecret);
+
+  /// Autentica com o Google usando OAuth
+  Future<Map<String, dynamic>> authenticateWithGoogle();
+
   /// Chama a API com um prompt
   Future<String> callApi(String prompt);
 

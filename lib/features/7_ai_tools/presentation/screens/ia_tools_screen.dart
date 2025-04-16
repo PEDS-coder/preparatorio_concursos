@@ -105,10 +105,10 @@ class _IAToolsScreenState extends State<IAToolsScreen> with SingleTickerProvider
           }
 
           final flashcards = await iaService.gerarFlashcards(
-            userId: usuario.id,
-            editalId: null, // editalId opcional
-            materia: _materiaController.text,
-            texto: _textController.text,
+            usuario.id,
+            null, // editalId opcional
+            _materiaController.text,
+            _textController.text,
           );
 
           resultado = 'Foram gerados ${flashcards.length} flashcards:\n\n';
@@ -125,7 +125,9 @@ class _IAToolsScreenState extends State<IAToolsScreen> with SingleTickerProvider
           break;
 
         case 'esquema':
-          resultado = await iaService.gerarEsquema(texto: _textController.text);
+          resultado = await iaService.callApiWithPrompt(
+            "Gere um esquema/mapa mental no formato markdown para o seguinte texto. Use o título: Mapa Mental\n\n${_textController.text}"
+          );
           break;
       }
 

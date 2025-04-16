@@ -1,9 +1,9 @@
 import 'dart:convert';
-import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:preparatorio_concursos/core/data/services/interfaces/analytics_service_interface.dart';
 import 'package:preparatorio_concursos/core/data/services/interfaces/remote_config_service_interface.dart';
+import 'package:preparatorio_concursos/core/mocks/firebase_mocks.dart';
 import 'package:preparatorio_concursos/core/utils/logger.dart';
 
 /// Serviço para gerenciar configurações remotas
@@ -152,10 +152,15 @@ class RemoteConfigService implements IRemoteConfigService {
 
   /// Verifica se o aplicativo precisa ser atualizado
   bool get needsUpdate {
-    final minVersion = getString('min_app_version');
-    final currentVersion = '1.0.0'; // TODO: Obter versão atual do aplicativo
+    try {
+      final minVersion = getString('min_app_version');
+      final currentVersion = '1.0.0'; // TODO: Obter versão atual do aplicativo
 
-    return _compareVersions(currentVersion, minVersion) < 0;
+      return _compareVersions(currentVersion, minVersion) < 0;
+    } catch (e) {
+      _logger.error('Erro ao verificar necessidade de atualização', tag: _tag, error: e);
+      return false; // Em caso de erro, não exigir atualização
+    }
   }
 
   /// Verifica se a atualização é forçada
@@ -177,20 +182,25 @@ class RemoteConfigService implements IRemoteConfigService {
 
   /// Compara duas versões
   int _compareVersions(String version1, String version2) {
-    final v1 = version1.split('.');
-    final v2 = version2.split('.');
+    try {
+      final v1 = version1.split('.');
+      final v2 = version2.split('.');
 
-    for (var i = 0; i < v1.length && i < v2.length; i++) {
-      final num1 = int.parse(v1[i]);
-      final num2 = int.parse(v2[i]);
+      for (var i = 0; i < v1.length && i < v2.length; i++) {
+        final num1 = int.tryParse(v1[i]) ?? 0;
+        final num2 = int.tryParse(v2[i]) ?? 0;
 
-      if (num1 < num2) {
-        return -1;
-      } else if (num1 > num2) {
-        return 1;
+        if (num1 < num2) {
+          return -1;
+        } else if (num1 > num2) {
+          return 1;
+        }
       }
-    }
 
-    return v1.length.compareTo(v2.length);
+      return v1.length.compareTo(v2.length);
+    } catch (e) {
+      _logger.error('Erro ao comparar versões: $version1 vs $version2', tag: _tag, error: e);
+      return 0; // Considerar versões iguais em caso de erro
+    }
   }
 }

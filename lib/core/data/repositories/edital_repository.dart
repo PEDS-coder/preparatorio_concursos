@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:injectable/injectable.dart';
@@ -16,10 +17,11 @@ class EditalRepository extends BaseRepository {
 
   EditalRepository({
     required Logger logger,
-    required ErrorHandlerService errorHandler,
+    // Temporariamente removido para evitar problemas de injeção de dependência
+    // required ErrorHandlerService errorHandler,
   }) : super(
           logger: logger,
-          errorHandler: errorHandler,
+          // errorHandler: errorHandler,
           tag: _tag,
         );
 
@@ -31,7 +33,7 @@ class EditalRepository extends BaseRepository {
         final editaisJson = prefs.getStringList(_editaisKey) ?? [];
 
         return editaisJson
-            .map((json) => Edital.fromJson(json))
+            .map((jsonStr) => Edital.fromJson(json.decode(jsonStr)))
             .toList();
       },
       context: 'getEditais',
@@ -54,7 +56,7 @@ class EditalRepository extends BaseRepository {
         }
 
         // Salvar a lista atualizada
-        final editaisJson = editais.map((e) => e.toJson()).toList();
+        final editaisJson = editais.map((e) => json.encode(e.toJson())).toList();
         await prefs.setStringList(_editaisKey, editaisJson);
       },
       context: 'saveEdital',
@@ -72,7 +74,7 @@ class EditalRepository extends BaseRepository {
         editais.removeWhere((e) => e.id == editalId);
 
         // Salvar a lista atualizada
-        final editaisJson = editais.map((e) => e.toJson()).toList();
+        final editaisJson = editais.map((e) => json.encode(e.toJson())).toList();
         await prefs.setStringList(_editaisKey, editaisJson);
 
         // Se o edital atual foi removido, limpar a referência

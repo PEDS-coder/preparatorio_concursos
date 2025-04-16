@@ -1,6 +1,6 @@
-**Tarefa:** Extrair APENAS informações sobre os cargos disponíveis em um edital de concurso público e apresentar o resultado em formato JSON.
+**Tarefa:** Extrair APENAS informações detalhadas sobre os cargos disponíveis em um edital de concurso público e apresentar o resultado em formato JSON.
 
-**Contexto:** Você está analisando um edital de concurso público. Sua tarefa é extrair APENAS as informações essenciais sobre os cargos disponíveis, sem incluir outras informações do concurso ou o conteúdo programático detalhado.
+**Contexto:** Você está analisando um edital de concurso público. Sua tarefa é extrair APENAS as informações essenciais sobre os cargos disponíveis, incluindo detalhes específicos sobre requisitos, datas e horários das provas.
 
 **Instruções Detalhadas:**
 
@@ -11,6 +11,8 @@
      - Número de vagas (se for apenas cadastro de reserva, indique explicitamente)
      - Remuneração/salário (valor numérico sem símbolos, ex: 5000.00)
      - Requisitos/escolaridade mínima (seja específico sobre o nível: superior, médio, etc.)
+     - Requisitos específicos (formação, registro profissional, experiência, etc.)
+     - Data e horário da prova para este cargo específico (se disponível)
      - Área/especialidade (se aplicável)
 
 2. **Formate a Saída em JSON:**
@@ -26,6 +28,9 @@
       "cadastro_reserva": false,
       "salario": 5000.00,
       "escolaridade": "Nível Superior",
+      "requisitos": "Graduação em Ciência da Computação, Sistemas de Informação ou áreas afins. Registro no conselho profissional.",
+      "data_prova": "2023-10-15",
+      "horario_prova": "13:00",
       "area": "Tecnologia da Informação"
     },
     {
@@ -34,6 +39,9 @@
       "cadastro_reserva": true,
       "salario": 3500.00,
       "escolaridade": "Nível Superior",
+      "requisitos": "Graduação em Ciências Contábeis. Registro no CRC.",
+      "data_prova": "2023-10-15",
+      "horario_prova": "08:00",
       "area": "Contabilidade"
     },
     {
@@ -42,6 +50,9 @@
       "cadastro_reserva": false,
       "salario": 2500.00,
       "escolaridade": "Nível Médio",
+      "requisitos": "Ensino Médio completo",
+      "data_prova": "2023-10-22",
+      "horario_prova": "13:00",
       "area": "Administrativa"
     }
   ]
@@ -57,3 +68,8 @@
 6. Se houver vários cargos com o mesmo título base (ex: "Analista") mas com diferentes especialidades, liste-os como cargos separados com seus nomes completos (ex: "Analista em Tecnologia da Informação", "Analista em Contabilidade").
 7. Se um cargo tiver apenas cadastro de reserva (sem vagas imediatas), defina "vagas" como 0 e "cadastro_reserva" como true.
 8. Se não conseguir determinar alguma informação, use valores vazios ("") ou nulos (null) conforme apropriado.
+9. É EXTREMAMENTE IMPORTANTE que você inclua a lista de cargos no campo "cargos" do JSON, e não em outros campos como "cargos_disponiveis" ou similares.
+10. Certifique-se de que a lista de cargos não esteja vazia. Se não conseguir identificar cargos específicos, inclua pelo menos um cargo genérico com nome "Cargo Genérico".
+11. Verifique se o JSON final é válido e se a lista de cargos está presente e não vazia.
+12. Sempre inclua o campo "cargos" no JSON, mesmo que não encontre cargos específicos.
+13. IMPORTANTE: Extraia as datas e horários específicos das provas para cada cargo, pois isso será usado para verificar conflitos de horários.

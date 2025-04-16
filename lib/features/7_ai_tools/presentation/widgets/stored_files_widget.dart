@@ -142,7 +142,7 @@ class StoredFilesWidget extends StatelessWidget {
                 },
               ),
             ],
-            if ((showUploaded && uploadedDocs.isEmpty) && 
+            if ((showUploaded && uploadedDocs.isEmpty) &&
                 (showGenerated && generatedFiles.isEmpty))
               Center(
                 child: Padding(
@@ -229,7 +229,7 @@ class StoredFilesWidget extends StatelessWidget {
   }
 
   String _formatDate(DateTime date) {
-    final formatter = DateFormat('dd/MM/yyyy HH:mm');
+    final formatter = DateFormat('dd-MM-yyyy HH:mm');
     return formatter.format(date);
   }
 
@@ -261,7 +261,7 @@ class StoredFilesWidget extends StatelessWidget {
     // Implementação de download específica para cada plataforma
     // No web, isso pode ser feito com o pacote universal_html
     // Em plataformas nativas, pode ser feito com o pacote path_provider e share_plus
-    
+
     // Por enquanto, apenas mostrar um snackbar
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(

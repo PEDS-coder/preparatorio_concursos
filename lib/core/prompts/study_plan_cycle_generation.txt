@@ -98,6 +98,14 @@ Para criar o ciclo de estudos, siga estas regras de priorização:
    - Avançado: +2 pontos
    - Especialista: +1 ponto
 
+**Distribuição de Questões para Matérias sem Número Explícito:**
+Quando o edital não especificar o número exato de questões para determinadas matérias, mas informar o total de questões de um grupo (ex: 45 questões de conhecimentos específicos), siga este procedimento:
+1. Identifique o número total de questões do grupo (campo "total_questoes_grupo")
+2. Subtraia o número de questões já atribuídas a matérias com número explícito
+3. Divida o resultado pelo número de matérias restantes sem número explícito
+4. Atribua esse valor calculado como número de questões para cada matéria sem número explícito
+5. Use essa distribuição para calcular a pontuação de prioridade
+
 **Eficácia das Ferramentas de Estudo (escala 1-10):**
 1. Plataformas de Questões: 10
 2. Flashcards: 9

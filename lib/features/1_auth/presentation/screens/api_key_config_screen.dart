@@ -30,14 +30,7 @@ class _ApiKeyConfigScreenState extends State<ApiKeyConfigScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-
-    // Reproduzir explicação da tela de configuração da API
-    Future.delayed(Duration(milliseconds: 500), () {
-      print('Tentando reproduzir áudio da tela de configuração da API');
-      final audioService = Provider.of<AudioExplanationService>(context, listen: false);
-      audioService.playApiConfigExplanation();
-      print('Chamada para reproduzir áudio da API concluída');
-    });
+    // Explicações em áudio foram removidas
   }
 
   @override
@@ -85,11 +78,15 @@ class _ApiKeyConfigScreenState extends State<ApiKeyConfigScreen> {
       );
 
       try {
-        // Validar a chave do LLM (Gemini ou OpenAI)
+        // Validar a chave do LLM (Gemini)
         final iaService = Provider.of<IAService>(context, listen: false);
+
+        // Usar o serviço Gemini Official
+        iaService.setApiType('gemini_official');
+
         final llmResult = await iaService.setApiKey(
           _apiKeyController.text.trim(),
-          _selectedApiType,
+          'gemini_official',
         );
 
         // Fechar o SnackBar de validação
@@ -305,6 +302,79 @@ class _ApiKeyConfigScreenState extends State<ApiKeyConfigScreen> {
                           ],
                         ),
                         SizedBox(height: 16),
+                        // Opções de autenticação
+                        Text(
+                          'Método de Autenticação',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: isDarkMode ? Colors.white : Colors.black87,
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        // Opção de autenticação OAuth
+                        InkWell(
+                          onTap: () {
+                            Navigator.pushNamed(context, '/oauth_config');
+                          },
+                          child: Container(
+                            padding: EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                            decoration: BoxDecoration(
+                              color: Colors.blue.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: Colors.blue.withOpacity(0.3)),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(Icons.account_circle, color: Colors.blue),
+                                SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Autenticação com Google (Recomendado)',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: isDarkMode ? Colors.white : Colors.black87,
+                                        ),
+                                      ),
+                                      SizedBox(height: 4),
+                                      Text(
+                                        'Use sua conta Google para autenticar com a API Gemini',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: isDarkMode ? Colors.white70 : Colors.black54,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Icon(Icons.arrow_forward_ios, size: 16, color: Colors.blue),
+                              ],
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 16),
+                        Text(
+                          'OU',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: isDarkMode ? Colors.white70 : Colors.black54,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        SizedBox(height: 16),
+                        Text(
+                          'Chave API',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: isDarkMode ? Colors.white : Colors.black87,
+                          ),
+                        ),
+                        SizedBox(height: 8),
                         TextFormField(
                           controller: _apiKeyController,
                           decoration: InputDecoration(
@@ -456,22 +526,13 @@ class _ApiKeyConfigScreenState extends State<ApiKeyConfigScreen> {
                           ),
                         ),
                         SizedBox(height: 16),
-                        // Botão para limpar o cache
+                        // Botão para configurações avançadas do MCP
                         ElevatedButton(
-                          onPressed: () async {
-                            final iaService = Provider.of<IAService>(context, listen: false);
-                            final result = await iaService.clearCache();
-
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(result ? 'Cache limpo com sucesso!' : 'Erro ao limpar o cache'),
-                                backgroundColor: result ? Colors.green : Colors.red,
-                                duration: Duration(seconds: 2),
-                              ),
-                            );
+                          onPressed: () {
+                            Navigator.pushNamed(context, '/mcp_config');
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.orange,
+                            backgroundColor: Colors.blue,
                             padding: EdgeInsets.symmetric(vertical: 16),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
@@ -480,10 +541,10 @@ class _ApiKeyConfigScreenState extends State<ApiKeyConfigScreen> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.cleaning_services, color: Colors.white),
+                              Icon(Icons.settings_suggest, color: Colors.white),
                               SizedBox(width: 8),
                               Text(
-                                'Limpar Cache de Análises',
+                                'Configurações Avançadas (MCP)',
                                 style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                               ),
                             ],

@@ -18,28 +18,28 @@ class MercadoTab extends StatefulWidget {
 
 class _MercadoTabState extends State<MercadoTab> with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  
+
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
   }
-  
+
   @override
   void dispose() {
     _tabController.dispose();
     super.dispose();
   }
-  
+
   @override
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context);
     final mercadoService = Provider.of<MercadoService>(context);
     final sessaoService = Provider.of<SessaoEstudoService>(context);
-    
+
     final usuario = authService.currentUser;
     final isPremium = authService.isPremium;
-    
+
     if (usuario == null) {
       return Center(
         child: Text(
@@ -49,16 +49,16 @@ class _MercadoTabState extends State<MercadoTab> with SingleTickerProviderStateM
         ),
       );
     }
-    
+
     // Obter recompensas do usuário
     final recompensasNaoResgatadas = mercadoService.getRecompensasNaoResgatadas(usuario.id);
     final recompensasResgatadas = mercadoService.getRecompensasResgatadas(usuario.id);
-    
+
     // Obter estatísticas
     final horasEstudadas = sessaoService.calcularTempoTotalEstudo(usuario.id) / 60;
     final streakAtual = mercadoService.getStreakAtual(usuario.id);
     final horasSemanais = mercadoService.getHorasEstudoSemanais(usuario.id);
-    
+
     return SingleChildScrollView(
       padding: EdgeInsets.all(16),
       child: Column(
@@ -82,15 +82,15 @@ class _MercadoTabState extends State<MercadoTab> with SingleTickerProviderStateM
             ),
           ),
           SizedBox(height: 24),
-          
+
           // Saldo de moedas
           _buildSaldoCard(usuario.pontosGamificacao),
           SizedBox(height: 24),
-          
+
           // Estatísticas
           _buildEstatisticasRow(horasEstudadas, streakAtual, horasSemanais),
           SizedBox(height: 24),
-          
+
           // Botão para adicionar recompensa
           GradientButton(
             onPressed: () {
@@ -110,7 +110,7 @@ class _MercadoTabState extends State<MercadoTab> with SingleTickerProviderStateM
             fullWidth: true,
           ),
           SizedBox(height: 24),
-          
+
           // Abas de recompensas
           Container(
             decoration: BoxDecoration(
@@ -136,7 +136,7 @@ class _MercadoTabState extends State<MercadoTab> with SingleTickerProviderStateM
                       recompensasNaoResgatadas.isEmpty
                           ? _buildEmptyState('Você ainda não tem recompensas disponíveis')
                           : _buildRecompensasList(recompensasNaoResgatadas, mercadoService, true),
-                      
+
                       // Aba de recompensas resgatadas
                       recompensasResgatadas.isEmpty
                           ? _buildEmptyState('Você ainda não resgatou nenhuma recompensa')
@@ -151,7 +151,7 @@ class _MercadoTabState extends State<MercadoTab> with SingleTickerProviderStateM
       ),
     );
   }
-  
+
   Widget _buildSaldoCard(int saldo) {
     return ModernCard(
       child: Padding(
@@ -213,7 +213,7 @@ class _MercadoTabState extends State<MercadoTab> with SingleTickerProviderStateM
       ),
     );
   }
-  
+
   Widget _buildEstatisticasRow(double horasEstudadas, int streakAtual, double horasSemanais) {
     return Row(
       children: [
@@ -246,7 +246,7 @@ class _MercadoTabState extends State<MercadoTab> with SingleTickerProviderStateM
       ],
     );
   }
-  
+
   Widget _buildEstatisticaCard(String titulo, String valor, IconData icone, Color cor) {
     return ModernCard(
       child: Padding(
@@ -282,7 +282,7 @@ class _MercadoTabState extends State<MercadoTab> with SingleTickerProviderStateM
       ),
     );
   }
-  
+
   Widget _buildEmptyState(String mensagem) {
     return Center(
       child: Padding(
@@ -309,7 +309,7 @@ class _MercadoTabState extends State<MercadoTab> with SingleTickerProviderStateM
       ),
     );
   }
-  
+
   Widget _buildRecompensasList(List<RecompensaMercado> recompensas, MercadoService mercadoService, bool podeResgatar) {
     return ListView.builder(
       padding: EdgeInsets.all(16),
@@ -320,14 +320,14 @@ class _MercadoTabState extends State<MercadoTab> with SingleTickerProviderStateM
       },
     );
   }
-  
+
   Widget _buildRecompensaCard(RecompensaMercado recompensa, MercadoService mercadoService, bool podeResgatar) {
     final usuario = Provider.of<AuthService>(context).currentUser;
     final saldoSuficiente = usuario != null && usuario.pontosGamificacao >= recompensa.custoMoedas;
-    
+
     Color categoriaColor;
     IconData categoriaIcon;
-    
+
     switch (recompensa.categoria) {
       case 'pequena':
         categoriaColor = Colors.green;
@@ -345,7 +345,7 @@ class _MercadoTabState extends State<MercadoTab> with SingleTickerProviderStateM
         categoriaColor = Colors.blue;
         categoriaIcon = Icons.emoji_events;
     }
-    
+
     return Card(
       margin: EdgeInsets.only(bottom: 16),
       color: AppTheme.darkCardColor,
@@ -432,7 +432,7 @@ class _MercadoTabState extends State<MercadoTab> with SingleTickerProviderStateM
                       ),
                       SizedBox(width: 4),
                       Text(
-                        'Resgatado em ${DateFormat('dd/MM/yyyy').format(recompensa.dataResgate!)}',
+                        'Resgatado em ${DateFormat('dd-MM-yyyy').format(recompensa.dataResgate!)}',
                         style: TextStyle(
                           color: Colors.green,
                           fontSize: 12,
@@ -485,7 +485,7 @@ class _MercadoTabState extends State<MercadoTab> with SingleTickerProviderStateM
       ),
     );
   }
-  
+
   Future<bool> _confirmarResgate(BuildContext context, RecompensaMercado recompensa) async {
     return await showDialog<bool>(
           context: context,
@@ -536,7 +536,7 @@ class _MercadoTabState extends State<MercadoTab> with SingleTickerProviderStateM
         ) ??
         false;
   }
-  
+
   Future<bool> _confirmarExclusao(BuildContext context) async {
     return await showDialog<bool>(
           context: context,

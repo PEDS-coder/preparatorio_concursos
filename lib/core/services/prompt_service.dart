@@ -113,8 +113,15 @@ class PromptService {
   }
 
   /// Carrega um prompt para extração apenas dos cargos do edital
+  @deprecated
   Future<String> loadCargosEditalPrompt() async {
-    return await loadPrompt('lib/core/prompts/edital_analysis/cargos_prompt.txt');
+    // Este método está obsoleto e não deve mais ser utilizado.
+    throw UnimplementedError('Use loadCargosDetalhadosPrompt() para garantir extração completa dos cargos.');
+  }
+
+  /// Carrega um prompt para extração detalhada dos cargos do edital
+  Future<String> loadCargosDetalhadosPrompt() async {
+    return await loadPrompt('lib/core/prompts/edital_analysis/cargos_detalhados_prompt.txt');
   }
 
   /// Carrega um prompt para extração de dados do concurso e conteúdo programático

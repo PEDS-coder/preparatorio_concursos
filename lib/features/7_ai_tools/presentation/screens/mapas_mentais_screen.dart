@@ -98,9 +98,8 @@ class _MapasMentaisScreenState extends State<MapasMentaisScreen> {
         }
       }
 
-      final resultado = await iaService.gerarEsquema(
-        texto: texto,
-        titulo: titulo,
+      final resultado = await iaService.callApiWithPrompt(
+        "Gere um esquema/mapa mental no formato markdown para o seguinte texto. Use o título: ${titulo}\n\n${texto}"
       );
 
       setState(() {

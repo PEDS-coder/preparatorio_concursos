@@ -22,6 +22,9 @@ class Trofeu implements BaseModel {
     };
   }
 
+  @override
+  Map<String, dynamic> toJson() => toMap();
+
   factory Trofeu.fromMap(Map<String, dynamic> map) {
     return Trofeu(
       id: map['id'],
@@ -65,6 +68,9 @@ class UsuarioTrofeu implements BaseModel {
       'dataConquista': dataConquista.toIso8601String(),
     };
   }
+
+  @override
+  Map<String, dynamic> toJson() => toMap();
 
   factory UsuarioTrofeu.fromMap(Map<String, dynamic> map) {
     return UsuarioTrofeu(

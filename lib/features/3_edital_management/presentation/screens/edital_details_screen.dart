@@ -538,6 +538,6 @@ class _EditalDetailsScreenState extends State<EditalDetailsScreen> with SingleTi
 
   String _formatDate(DateTime? date) {
     if (date == null) return 'N/A';
-    return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
+    return '${date.day.toString().padLeft(2, '0')}-${date.month.toString().padLeft(2, '0')}-${date.year}';
   }
 }

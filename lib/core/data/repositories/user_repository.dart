@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:injectable/injectable.dart';
 import 'package:preparatorio_concursos/core/data/models/usuario.dart';
 import 'package:preparatorio_concursos/core/data/repositories/base_repository.dart';
@@ -13,10 +15,11 @@ class UserRepository extends BaseRepository {
 
   UserRepository({
     required Logger logger,
-    required ErrorHandlerService errorHandler,
+    // Temporariamente removido para evitar problemas de injeção de dependência
+    // required ErrorHandlerService errorHandler,
   }) : super(
           logger: logger,
-          errorHandler: errorHandler,
+          // errorHandler: errorHandler,
           tag: _tag,
         );
 
@@ -31,7 +34,7 @@ class UserRepository extends BaseRepository {
           return null;
         }
 
-        return Usuario.fromJson(userJson);
+        return Usuario.fromJson(json.decode(userJson));
       },
       context: 'getUser',
     );
@@ -42,7 +45,7 @@ class UserRepository extends BaseRepository {
     return runWithErrorHandlingExt<void>(
       () async {
         final prefs = await SharedPreferences.getInstance();
-        await prefs.setString(_userKey, user.toJson());
+        await prefs.setString(_userKey, json.encode(user.toJson()));
       },
       context: 'saveUser',
     );

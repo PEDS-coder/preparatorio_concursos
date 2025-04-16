@@ -1,4 +1,6 @@
+import 'dart:io';
 import 'package:injectable/injectable.dart';
+import 'package:preparatorio_concursos/core/data/services/interfaces/secure_storage_service_interface.dart';
 import 'package:preparatorio_concursos/core/services/advanced_cache_service.dart';
 import 'package:preparatorio_concursos/core/services/api_config_service.dart';
 import 'package:preparatorio_concursos/core/services/background_processor_service.dart';
@@ -10,6 +12,7 @@ import 'package:preparatorio_concursos/core/services/input_validation_service.da
 import 'package:preparatorio_concursos/core/services/prompt_service.dart';
 import 'package:preparatorio_concursos/core/services/secure_storage_service.dart';
 import 'package:preparatorio_concursos/core/services/security_service.dart';
+import 'package:preparatorio_concursos/core/services/temp_secure_storage_service.dart';
 import 'package:preparatorio_concursos/core/utils/logger.dart';
 
 @module
@@ -49,12 +52,18 @@ abstract class ServiceModule {
 
   // Singleton para o SecureStorageService
   @singleton
-  SecureStorageService provideSecureStorageService(Logger logger) =>
-      SecureStorageService(logger);
+  ISecureStorageService provideSecureStorageService(Logger logger) {
+    // Usar implementação temporária no Windows para evitar problemas com o flutter_secure_storage
+    if (Platform.isWindows) {
+      return TempSecureStorageService(logger);
+    } else {
+      return SecureStorageService(logger);
+    }
+  }
 
   // Singleton para o SecurityService
   @singleton
-  SecurityService provideSecurityService(SecureStorageService secureStorage, Logger logger) =>
+  SecurityService provideSecurityService(ISecureStorageService secureStorage, Logger logger) =>
       SecurityService(secureStorage, logger);
 
   // Singleton para o InputValidationService
@@ -64,7 +73,7 @@ abstract class ServiceModule {
 
   // Singleton para o AnalyticsService
   @singleton
-  AnalyticsService provideAnalyticsService(Logger logger) =>
+  IAnalyticsService provideAnalyticsService(Logger logger) =>
       AnalyticsService(logger);
 
   // Singleton para o RemoteConfigService
@@ -118,7 +127,7 @@ abstract class ServiceModule {
   // Singleton para o ApiConfigService
   @singleton
   ApiConfigService provideApiConfigService(
-    SecureStorageService secureStorage,
+    ISecureStorageService secureStorage,
     Logger logger
   ) => ApiConfigService(secureStorage, logger);
 }
