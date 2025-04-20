@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/auth/auth_service.dart';
-import '../../../../core/data/services/ia_service.dart';
+import '../../../../core/data/services/interfaces/ia_service_interface.dart';
 import '../../../../core/data/services/edital_service.dart';
 import '../../../../core/theme/app_theme.dart';
 
@@ -25,7 +25,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
     // Verificar se o usuário está autenticado
     final authService = Provider.of<AuthService>(context, listen: false);
-    final iaService = Provider.of<IAService>(context, listen: false);
+    final iaService = Provider.of<IAServiceInterface>(context, listen: false);
     final isAuthenticated = authService.isAuthenticated;
 
     // Verificar se a API Key já foi configurada

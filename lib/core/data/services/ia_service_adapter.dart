@@ -24,6 +24,11 @@ class IAServiceAdapter implements IAServiceInterface {
   }
 
   @override
+  void setApiType(String apiType) {
+    _iaService.setApiType(apiType);
+  }
+
+  @override
   Future<void> initCache() {
     return _iaService.initCache();
   }
@@ -133,7 +138,7 @@ class IAServiceAdapter implements IAServiceInterface {
     return _iaService.clearCache();
   }
 
-  // Método adicional para acessar o método extrairCargosDetalhados do IAService
+  @override
   Future<String> extrairCargosDetalhados(Uint8List pdfBytes, {String? pdfName}) {
     return _iaService.extrairCargosDetalhados(pdfBytes, pdfName: pdfName);
   }

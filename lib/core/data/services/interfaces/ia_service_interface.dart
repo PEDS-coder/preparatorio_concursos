@@ -18,6 +18,9 @@ abstract class IAServiceInterface {
   /// Configura a chave de API (método simplificado)
   Future<bool> configurarApiKey(String apiKey);
 
+  /// Define o tipo de API a ser usado
+  void setApiType(String apiType);
+
   /// Testa se a chave de API é válida
   Future<bool> testApiKey(String apiKey, String apiType);
 
@@ -36,6 +39,12 @@ abstract class IAServiceInterface {
   /// Chama a API com um prompt (método público para uso em outros serviços)
   Future<String> callApiWithPrompt(String prompt);
 
+  /// Analisa um texto
+  Future<String> analisarTexto(String texto, {String? prompt});
+
+  /// Gera um texto a partir de um prompt
+  Future<String> gerarTexto(String prompt);
+
   /// Gera uma resposta em formato JSON
   Future<Map<String, dynamic>?> gerarRespostaJson(String prompt);
 
@@ -47,6 +56,9 @@ abstract class IAServiceInterface {
 
   /// Extrai informações básicas de um edital
   Future<String> extrairInfoBasicasEdital(Uint8List pdfBytes, {String? pdfName});
+
+  /// Extrai cargos detalhados de um edital
+  Future<String> extrairCargosDetalhados(Uint8List pdfBytes, {String? pdfName});
 
   /// Extrai dados do concurso e conteúdo programático para um cargo específico
   Future<String> extrairConcursoConteudo({
