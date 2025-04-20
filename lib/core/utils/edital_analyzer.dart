@@ -332,8 +332,32 @@ class EditalAnalyzer {
       // Log para depuração
       _log('Estrutura do JSON recebido: ${dadosJson.keys.join(', ')}');
 
-      // Criar e retornar o objeto DadosExtraidos
-      return DadosExtraidos.fromMap(dadosJson);
+      // Processar dados da prova se existirem
+      DadosProva? dadosProva;
+      if (dadosJson.containsKey('prova')) {
+        _log('Dados da prova encontrados');
+        dadosProva = DadosProva.fromMap(dadosJson['prova']);
+      }
+
+      // Processar cotas se existirem
+      List<DadosCota>? cotas;
+      if (dadosJson.containsKey('cotas')) {
+        _log('Dados de cotas encontrados');
+        final cotasJson = dadosJson['cotas'];
+        if (cotasJson is List) {
+          cotas = cotasJson
+              .map((cotaJson) => DadosCota.fromMap(cotaJson))
+              .toList();
+          _log('${cotas.length} cotas processadas');
+        }
+      }
+
+      // Adicionar dados da prova e cotas ao objeto DadosExtraidos
+      final dadosExtraidos = DadosExtraidos.fromMap(dadosJson);
+      dadosExtraidos.dadosProva = dadosProva;
+      dadosExtraidos.cotas = cotas;
+
+      return dadosExtraidos;
     } catch (e, stackTrace) {
       _log('Erro ao converter para DadosExtraidos: $e\nStackTrace: $stackTrace');
       throw EditalAnalysisException('Erro ao converter dados extraídos: $e');

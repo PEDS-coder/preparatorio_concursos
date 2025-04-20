@@ -1,6 +1,6 @@
-**Tarefa:** Extrair o conteúdo programático específico para um cargo selecionado e distribuir o número de questões entre as matérias a partir de um arquivo PDF de edital, apresentando o resultado em formato JSON.
+**Tarefa:** Extrair o conteúdo programático específico para um cargo selecionado, informações sobre cotas e distribuir o número de questões entre as matérias a partir de um arquivo PDF de edital, apresentando o resultado em formato JSON.
 
-**Contexto:** Você está analisando diretamente um arquivo PDF de um edital de concurso público para um usuário que já selecionou um cargo específico. As informações básicas do concurso (título, órgão, banca) e do cargo (nome, vagas, escolaridade) já foram extraídas anteriormente. Sua tarefa agora é extrair o conteúdo programático detalhado aplicável ao cargo selecionado e distribuir corretamente o número de questões entre as matérias.
+**Contexto:** Você está analisando diretamente um arquivo PDF de um edital de concurso público para um usuário que já selecionou um cargo específico. As informações básicas do concurso (título, órgão, banca) e do cargo (nome, vagas, escolaridade) já foram extraídas anteriormente. Sua tarefa agora é extrair o conteúdo programático detalhado aplicável ao cargo selecionado, informações sobre cotas e reserva de vagas, e distribuir corretamente o número de questões entre as matérias.
 
 **Cargo Alvo:**
 [CARGO_ALVO]
@@ -24,7 +24,19 @@
    - Critérios de aprovação
    - Critérios de desempate
 
-3. **Distribuição de Questões:**
+3. **Informações sobre Cotas e Reserva de Vagas:**
+   - Identifique TODAS as categorias de cotas mencionadas no edital
+   - PRESERVE EXATAMENTE as nomenclaturas originais usadas no edital para cada tipo de cota
+   - Extraia os percentuais ou números absolutos de vagas reservadas para cada categoria
+   - Inclua quaisquer condições especiais ou critérios para concorrer às cotas
+   - Exemplos de nomenclaturas que devem ser preservadas exatamente como aparecem no edital:
+     * "Negros (Pretos e Pardos)"
+     * "Minorias Étnico-Raciais (população indígena, quilombolas, ciganos, povos/comunidades tradicionais)"
+     * "Pessoas com Deficiência (PcD)"
+     * "Hipossuficientes"
+     * Qualquer outra nomenclatura específica usada no edital
+
+4. **Distribuição de Questões:**
    - Identifique o número total de questões da prova
    - Para cada matéria, verifique se o edital especifica explicitamente o número de questões
    - Para matérias sem número explícito de questões, distribua as questões restantes de forma equânime
@@ -42,6 +54,26 @@
     "criterios_aprovacao": "Descrição dos critérios de aprovação",
     "criterios_desempate": ["Matéria 1", "Matéria 2", "Idade"]
   },
+  "cotas": [
+    {
+      "nome": "Negros (Pretos e Pardos)",
+      "percentual": 20,
+      "numero_vagas": 5,
+      "criterios": "Autodeclaração e procedimento de heteroidentificação"
+    },
+    {
+      "nome": "Pessoas com Deficiência (PcD)",
+      "percentual": 10,
+      "numero_vagas": 2,
+      "criterios": "Laudo médico atestando a espécie e o grau da deficiência"
+    },
+    {
+      "nome": "Minorias Étnico-Raciais (população indígena, quilombolas, ciganos, povos/comunidades tradicionais)",
+      "percentual": 5,
+      "numero_vagas": 1,
+      "criterios": "Declaração de pertencimento étnico"
+    }
+  ],
   "conteudo_programatico": [
     {
       "nome": "Nome da Disciplina/Matéria 1",
@@ -104,6 +136,9 @@
 9. Para matérias sem número explícito de questões, distribua as questões restantes de forma equânime e marque o campo "questoes_estimadas" como true.
 10. Se a divisão não for exata, distribua as questões restantes uma a uma entre as matérias sem número explícito, na ordem em que aparecem no edital.
 11. Certifique-se de que a soma do número de questões de todas as matérias seja igual ao número total de questões da prova.
+12. É ABSOLUTAMENTE ESSENCIAL preservar as nomenclaturas exatas das cotas conforme aparecem no edital. Não padronize ou simplifique os nomes das categorias de cotas.
+13. Para cada categoria de cota, inclua o percentual (quando disponível) e o número absoluto de vagas (quando disponível). Se apenas um deles estiver disponível, use null para o outro.
+14. Inclua os critérios específicos para concorrer a cada tipo de cota, exatamente como descritos no edital.
 
 **Exemplo de Distribuição de Questões:**
 Se o edital prevê 80 questões no total, com 10 questões para cada uma das matérias A, B, C e D (total de 40 questões explicitamente distribuídas), e há mais 6 matérias (E, F, G, H, I e J) sem número explícito de questões, você deve:

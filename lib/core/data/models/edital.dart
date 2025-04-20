@@ -146,6 +146,8 @@ class DadosExtraidos {
   String? dataProva;
   List<Cargo> cargos;
   String textoCompleto;
+  DadosProva? dadosProva;
+  List<DadosCota>? cotas;
 
   DadosExtraidos({
     this.titulo,
@@ -158,6 +160,8 @@ class DadosExtraidos {
     this.localProva,
     required this.cargos,
     this.textoCompleto = '',
+    this.dadosProva,
+    this.cotas,
   });
 
   Map<String, dynamic> toMap() {
@@ -172,6 +176,8 @@ class DadosExtraidos {
       'cargos': cargos.map((cargo) => cargo.toMap()).toList(),
       'localProva': localProva,
       'textoCompleto': textoCompleto,
+      'dadosProva': dadosProva?.toMap(),
+      'cotas': cotas?.map((cota) => cota.toMap()).toList(),
     };
   }
 
@@ -189,6 +195,80 @@ class DadosExtraidos {
           : [],
       localProva: map['localProva'],
       textoCompleto: map['textoCompleto'] ?? '',
+      dadosProva: map['dadosProva'] != null ? DadosProva.fromMap(map['dadosProva']) : null,
+      cotas: map['cotas'] != null
+          ? List<DadosCota>.from(map['cotas'].map((x) => DadosCota.fromMap(x)))
+          : null,
+    );
+  }
+}
+
+class DadosProva {
+  final int? totalQuestoes;
+  final List<String>? formato; // ["objetiva", "discursiva", ...]
+  final String? temaDiscursiva;
+  final String? criteriosAprovacao;
+  final List<String>? criteriosDesempate;
+
+  DadosProva({
+    this.totalQuestoes,
+    this.formato,
+    this.temaDiscursiva,
+    this.criteriosAprovacao,
+    this.criteriosDesempate,
+  });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'total_questoes': totalQuestoes,
+      'formato': formato,
+      'tema_discursiva': temaDiscursiva,
+      'criterios_aprovacao': criteriosAprovacao,
+      'criterios_desempate': criteriosDesempate,
+    };
+  }
+
+  factory DadosProva.fromMap(Map<String, dynamic> map) {
+    return DadosProva(
+      totalQuestoes: map['total_questoes'] is int ? map['total_questoes'] : null,
+      formato: map['formato'] != null ? List<String>.from(map['formato']) : null,
+      temaDiscursiva: map['tema_discursiva'],
+      criteriosAprovacao: map['criterios_aprovacao'],
+      criteriosDesempate: map['criterios_desempate'] != null
+          ? List<String>.from(map['criterios_desempate'])
+          : null,
+    );
+  }
+}
+
+class DadosCota {
+  final String nome; // Nome exato da cota conforme aparece no edital
+  final int? percentual; // Percentual de vagas reservadas
+  final int? numeroVagas; // Número absoluto de vagas reservadas
+  final String? criterios; // Critérios para concorrer à cota
+
+  DadosCota({
+    required this.nome,
+    this.percentual,
+    this.numeroVagas,
+    this.criterios,
+  });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'nome': nome,
+      'percentual': percentual,
+      'numero_vagas': numeroVagas,
+      'criterios': criterios,
+    };
+  }
+
+  factory DadosCota.fromMap(Map<String, dynamic> map) {
+    return DadosCota(
+      nome: map['nome'] ?? 'Não informado',
+      percentual: map['percentual'] is int ? map['percentual'] : null,
+      numeroVagas: map['numero_vagas'] is int ? map['numero_vagas'] : null,
+      criterios: map['criterios'],
     );
   }
 }
