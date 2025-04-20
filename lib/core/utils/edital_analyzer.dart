@@ -75,41 +75,69 @@ class EditalAnalyzer {
       // Enviar o PDF diretamente para a LLM sem extração prévia
       _reportProgress(0.2, 'Enviando PDF diretamente para a LLM...');
 
-      // Enviar o PDF diretamente para a API
-      final String? resultado = await iaService.analisarEditalPdf(pdfBytes);
+      try {
+        // Enviar o PDF diretamente para a API
+        final String? resultado = await iaService.analisarEditalPdf(pdfBytes);
 
-      if (resultado == null || resultado.isEmpty) {
-        _log('Resultado da análise do PDF vazio');
-        throw EditalAnalysisException('A análise do PDF falhou. Verifique se a API está configurada corretamente.');
-      }
-
-      _reportProgress(0.7, 'Processando resultado da análise...');
-      _log('Resultado da análise recebido. Processando resposta...');
-
-      // Processar o resultado (preferencialmente JSON)
-      dadosExtraidosMap = _processarRespostaLLM(resultado);
-
-      if (dadosExtraidosMap != null) {
-        _log('Processamento da resposta bem-sucedido!');
-
-        // Adicionar o texto completo ao resultado se disponível
-        if (textoEdital != null && textoEdital.isNotEmpty) {
-          dadosExtraidosMap['textoCompleto'] = textoEdital;
+        if (resultado == null || resultado.isEmpty) {
+          _log('Resultado da análise do PDF vazio');
+          throw EditalAnalysisException('A análise do PDF falhou. Verifique se a API está configurada corretamente.');
         }
 
-        _reportProgress(0.9, 'Convertendo dados para formato final...');
+        _reportProgress(0.7, 'Processando resultado da análise...');
+        _log('Resultado da análise recebido. Processando resposta...');
 
-        // Retornar os dados extraídos pela LLM
+        // Processar o resultado (preferencialmente JSON)
+        dadosExtraidosMap = _processarRespostaLLM(resultado);
+
+        if (dadosExtraidosMap != null) {
+          _log('Processamento da resposta bem-sucedido!');
+
+          // Adicionar o texto completo ao resultado se disponível
+          if (textoEdital != null && textoEdital.isNotEmpty) {
+            dadosExtraidosMap['textoCompleto'] = textoEdital;
+          }
+
+          _reportProgress(0.9, 'Convertendo dados para formato final...');
+
+          // Retornar os dados extraídos pela LLM
+          return _converterParaDadosExtraidos(dadosExtraidosMap);
+        } else {
+          // Se a análise com LLM falhou, criar dados padrão
+          _log('Processamento da resposta falhou, criando dados padrão');
+          dadosExtraidosMap = _criarDadosPadrao('Falha ao processar resposta da API');
+          return _converterParaDadosExtraidos(dadosExtraidosMap);
+        }
+      } catch (apiError) {
+        _log('Erro ao chamar a API: $apiError');
+        // Criar dados padrão em caso de erro na API
+        dadosExtraidosMap = _criarDadosPadrao('Erro na API: ${apiError.toString()}');
         return _converterParaDadosExtraidos(dadosExtraidosMap);
-      } else {
-        // Se a análise com LLM falhou, lançar uma exceção
-        throw EditalAnalysisException('A extração de cargos falhou. Verifique se a API está configurada corretamente.');
       }
     } catch (e, stackTrace) {
       _log('Erro na análise principal: $e\nStackTrace: $stackTrace');
       _reportProgress(1.0, 'Falha na análise.');
-      throw EditalAnalysisException('Falha ao analisar o edital: $e');
+
+      // Criar dados padrão em caso de erro geral
+      dadosExtraidosMap = _criarDadosPadrao('Erro: ${e.toString()}');
+      return _converterParaDadosExtraidos(dadosExtraidosMap);
     }
+  }
+
+  /// Cria dados padrão para casos de erro
+  Map<String, dynamic> _criarDadosPadrao(String mensagemErro) {
+    return {
+      'titulo': 'Erro ao analisar edital',
+      'banca': 'Não identificada',
+      'cargos': [
+        {
+          'nome': mensagemErro,
+          'vagas': 0,
+          'salario': 0.0,
+          'escolaridade': 'Não identificada'
+        }
+      ]
+    };
   }
 
   //============================================================================
