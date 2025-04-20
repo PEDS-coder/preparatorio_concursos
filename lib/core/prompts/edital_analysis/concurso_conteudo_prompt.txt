@@ -1,6 +1,6 @@
-**Tarefa:** Extrair informações detalhadas sobre um concurso público e o conteúdo programático específico para um cargo selecionado, apresentando o resultado em formato JSON.
+**Tarefa:** Extrair informações detalhadas sobre um concurso público e o conteúdo programático específico para um cargo selecionado a partir de um arquivo PDF de edital, apresentando o resultado em formato JSON.
 
-**Contexto:** Você está analisando um edital de concurso público para um usuário que já selecionou um cargo específico. Sua tarefa é extrair as informações gerais do concurso e o conteúdo programático detalhado aplicável ao cargo selecionado.
+**Contexto:** Você está analisando diretamente um arquivo PDF de um edital de concurso público para um usuário que já selecionou um cargo específico. Sua tarefa é extrair as informações gerais do concurso e o conteúdo programático detalhado aplicável ao cargo selecionado diretamente do PDF, sem extração prévia de texto.
 
 **Cargo Alvo:**
 [CARGO_ALVO]

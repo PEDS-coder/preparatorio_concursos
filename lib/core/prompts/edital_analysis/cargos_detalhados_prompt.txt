@@ -1,6 +1,6 @@
-**Tarefa:** Extrair APENAS informações detalhadas sobre os cargos disponíveis em um edital de concurso público e apresentar o resultado em formato JSON.
+**Tarefa:** Extrair APENAS informações detalhadas sobre os cargos disponíveis em um edital de concurso público fornecido em formato PDF e apresentar o resultado em formato JSON.
 
-**Contexto:** Você está analisando um edital de concurso público. Sua tarefa é extrair APENAS as informações essenciais sobre os cargos disponíveis, incluindo detalhes específicos sobre requisitos, datas e horários das provas.
+**Contexto:** Você está analisando diretamente um arquivo PDF de um edital de concurso público. Sua tarefa é extrair APENAS as informações essenciais sobre os cargos disponíveis diretamente do PDF, sem extração prévia de texto, incluindo detalhes específicos sobre requisitos, datas e horários das provas.
 
 **Instruções Detalhadas:**
 

@@ -1,6 +1,6 @@
-**Tarefa:** Extrair informações básicas de um edital de concurso público e apresentar o resultado em formato YAML.
+**Tarefa:** Extrair informações básicas de um edital de concurso público fornecido em formato PDF e apresentar o resultado em formato JSON.
 
-**Contexto:** Você está analisando um edital de concurso público. Sua tarefa é extrair as informações essenciais sobre o concurso e os cargos disponíveis, sem incluir o conteúdo programático detalhado.
+**Contexto:** Você está analisando diretamente um arquivo PDF de um edital de concurso público. Sua tarefa é extrair as informações essenciais sobre o concurso e os cargos disponíveis diretamente do PDF, sem extração prévia de texto e sem incluir o conteúdo programático detalhado.
 
 **Instruções Detalhadas:**
 
@@ -24,50 +24,60 @@
      - Carga horária (se disponível)
      - Área/especialidade (se aplicável)
 
-3. **Formate a Saída em YAML:**
-   Organize as informações extraídas no seguinte formato YAML:
+3. **Formate a Saída em JSON:**
+   Organize as informações extraídas no seguinte formato JSON:
 
-```yaml
-titulo_concurso: "Nome completo do concurso"
-orgao_responsavel: "Nome do órgão responsável"
-banca_organizadora: "Nome da banca organizadora"
-periodo_inscricoes:
-  inicio: "DD/MM/AAAA"
-  fim: "DD/MM/AAAA"
-taxas_por_nivel:
-  nivel_superior: 00.00
-  nivel_medio: 00.00
-  # Use os nomes específicos dos cargos se as taxas variarem por cargo
-  # Por exemplo: analista: 00.00, tecnico: 00.00
-local_prova: "Locais onde as provas serão realizadas"
-data_provas: "DD/MM/AAAA" # Se disponível
-cotas:
-  negros: 20 # Percentual (apenas o número)
-  pcd: 10 # Percentual para Pessoas com Deficiência
-  indigenas: 5 # Se aplicável
-cargos:
-  - nome: "Nome exato do cargo 1"
-    vagas: 00 # Use 0 para "Cadastro de Reserva"
-    cadastro_reserva: true # Adicione este campo se for apenas cadastro de reserva
-    salario: 0000.00
-    escolaridade: "Nível Superior em [área específica]" # Seja explícito sobre o nível
-    carga_horaria: "XX horas semanais" # Se disponível
-    area: "Especialidade ou área do cargo" # Se aplicável
-  - nome: "Nome exato do cargo 2"
-    vagas: 00
-    salario: 0000.00
-    escolaridade: "Nível Médio Completo" # Seja explícito sobre o nível
-    carga_horaria: "XX horas semanais" # Se disponível
-  # Continue para todos os cargos
+```json
+{
+  "titulo_concurso": "Nome completo do concurso",
+  "orgao_responsavel": "Nome do órgão responsável",
+  "banca_organizadora": "Nome da banca organizadora",
+  "periodo_inscricoes": {
+    "inicio": "DD/MM/AAAA",
+    "fim": "DD/MM/AAAA"
+  },
+  "taxas_por_nivel": {
+    "nivel_superior": 00.00,
+    "nivel_medio": 00.00
+  },
+  "local_prova": "Locais onde as provas serão realizadas",
+  "data_provas": "DD/MM/AAAA",
+  "cotas": {
+    "negros": 20,
+    "pcd": 10,
+    "indigenas": 5
+  },
+  "cargos": [
+    {
+      "nome": "Nome exato do cargo 1",
+      "vagas": 00,
+      "cadastro_reserva": true,
+      "salario": 0000.00,
+      "escolaridade": "Nível Superior em [área específica]",
+      "carga_horaria": "XX horas semanais",
+      "area": "Especialidade ou área do cargo"
+    },
+    {
+      "nome": "Nome exato do cargo 2",
+      "vagas": 00,
+      "salario": 0000.00,
+      "escolaridade": "Nível Médio Completo",
+      "carga_horaria": "XX horas semanais"
+    }
+  ]
+}
 ```
 
 **Observações Importantes:**
 - NÃO inclua o conteúdo programático (matérias e tópicos) nesta resposta.
 - Seja preciso com os nomes dos cargos, exatamente como aparecem no edital.
 - Seja explícito sobre o nível de escolaridade de cada cargo (superior, médio, técnico, etc.).
-- Se alguma informação não estiver disponível no edital, use "Não informado" ou deixe em branco.
+- Se alguma informação não estiver disponível no edital, use null para valores numéricos e "Não informado" para strings.
 - Se houver diferentes valores de taxa de inscrição para diferentes cargos ou níveis, especifique cada um.
 - Certifique-se de listar TODOS os cargos disponíveis no concurso.
 - Para cadastro de reserva, defina vagas como 0 e adicione o campo cadastro_reserva: true.
-- Não agrupe os cargos por nível de escolaridade no YAML - liste cada cargo individualmente.
+- Não agrupe os cargos por nível de escolaridade - liste cada cargo individualmente.
 - Inclua informações sobre cotas e reserva de vagas, com os percentuais específicos quando disponíveis.
+- Forneça sua resposta EXCLUSIVAMENTE em formato JSON válido.
+- Não inclua texto introdutório, explicações ou comentários fora do JSON.
+- Não inclua delimitadores de código (```json) na sua resposta final.

@@ -1,0 +1,199 @@
+**Tarefa:** Converter as informações de um concurso público e seu conteúdo programático do formato Markdown para um JSON estruturado.
+
+**Contexto:** Você recebeu informações detalhadas sobre um concurso público e o conteúdo programático específico para um cargo em formato Markdown. Sua tarefa é converter essas informações para um formato JSON estruturado que será utilizado por um aplicativo de preparação para concursos.
+
+**Instruções Detalhadas:**
+
+1. Analise cuidadosamente o conteúdo Markdown fornecido.
+2. Extraia todas as informações relevantes sobre o concurso, cargo e conteúdo programático.
+3. Organize essas informações no formato JSON especificado abaixo.
+4. Preserve EXATAMENTE a nomenclatura original e a estrutura hierárquica do conteúdo programático.
+5. Não omita nenhuma informação presente no Markdown original.
+6. Converta os valores textuais para os tipos de dados apropriados no JSON (números, booleanos, etc.).
+
+**Formato do JSON de Saída:**
+
+```json
+{
+  "concurso": {
+    "titulo": "Nome do Concurso",
+    "orgao": "Nome do Órgão",
+    "banca": "Nome da Banca",
+    "inscricoes": {
+      "inicio": "DD/MM/AAAA",
+      "fim": "DD/MM/AAAA"
+    },
+    "taxa_inscricao": 123.45,
+    "local_prova": "Local da Prova",
+    "datas_provas": {
+      "objetiva": "DD/MM/AAAA",
+      "discursiva": "DD/MM/AAAA"
+    },
+    "cotas": [
+      {
+        "nome": "Pessoas com Deficiência (PCD)",
+        "percentual": "10%",
+        "descricao": "10% das vagas providas durante o prazo de validade"
+      },
+      {
+        "nome": "Candidatos negros (pretos e pardos)",
+        "percentual": "20%",
+        "descricao": "20% das vagas providas durante o prazo de validade"
+      },
+      {
+        "nome": "Minorias étnico-raciais",
+        "percentual": "10%",
+        "descricao": "10% das vagas providas durante o prazo de validade",
+        "subgrupos": ["população indígena", "quilombolas", "ciganos", "povos/comunidades tradicionais"]
+      }
+    ],
+    "total_questoes_prova": 100,
+    "duracao_prova": "4h30min",
+    "criterios_aprovacao": "Mínimo de 12 questões no Módulo I, 25 questões no Módulo II e 45 questões no total",
+    "criterios_reprovacao": "Nota inferior a 20 pontos na discursiva",
+    "pontuacao_prova_discursiva": "40 pontos"
+  },
+  "cargo": {
+    "nome": "Nome do Cargo Selecionado",
+    "nivel": "Superior",
+    "vagas": 10,
+    "cadastro_reserva": false,
+    "escolaridade": "Nível de escolaridade exigido"
+  },
+  "prova": {
+    "total_questoes": 80,
+    "formato": "Objetiva e Discursiva",
+    "tema_discursiva": "Tema da prova discursiva (se houver)",
+    "pontuacao_discursiva": "40 pontos",
+    "duracao": "4 horas e 30 minutos",
+    "criterios_aprovacao": "Mínimo de 12 questões no Módulo I, 25 questões no Módulo II e 45 questões no total",
+    "criterios_reprovacao": "Nota inferior a 20 pontos na discursiva",
+    "criterios_desempate": [
+      {
+        "ordem": 1,
+        "descricao": "Tiver idade igual ou superior a 60 (sessenta) anos"
+      },
+      {
+        "ordem": 2,
+        "descricao": "Obtiver a maior nota na Prova Objetiva"
+      },
+      {
+        "ordem": 3,
+        "descricao": "Obtiver a maior nota na Redação (Prova Discursiva)"
+      },
+      {
+        "ordem": 4,
+        "descricao": "Obtiver o maior número de acertos no Módulo II da Prova Objetiva"
+      },
+      {
+        "ordem": 5,
+        "descricao": "Tiver exercido efetivamente a função de jurado"
+      },
+      {
+        "ordem": 6,
+        "descricao": "Persistindo o empate, terá preferência o candidato mais velho"
+      }
+    ]
+  },
+  "conteudo_programatico": [
+    {
+      "nome": "LÍNGUA PORTUGUESA",
+      "tipo": "comum",
+      "peso_maior": false,
+      "criterio_desempate": false,
+      "numero_questoes": null,
+      "total_questoes_grupo": null,
+      "grupo_materia": "MÓDULO I",
+      "topicos": [
+        "Interpretação e Compreensão de texto",
+        "Organização estrutural dos textos",
+        "Marcas de textualidade: coesão, coerência e intertextualidade"
+      ]
+    },
+    {
+      "nome": "NOÇÕES DE SUSTENTABILIDADE",
+      "tipo": "comum",
+      "peso_maior": false,
+      "criterio_desempate": false,
+      "numero_questoes": null,
+      "total_questoes_grupo": null,
+      "grupo_materia": "MÓDULO I",
+      "topicos": [
+        "Do Meio Ambiente (Constituição Federal de 1988, Art. 225)",
+        "Conceito de Desenvolvimento Sustentável (Relatório Brundtland)"
+      ]
+    },
+    {
+      "nome": "DIREITO CONSTITUCIONAL",
+      "tipo": "especifico",
+      "peso_maior": false,
+      "criterio_desempate": false,
+      "numero_questoes": null,
+      "total_questoes_grupo": null,
+      "grupo_materia": "MÓDULO II",
+      "topicos": [
+        "Constituição: conceito, objeto, elementos e classificações",
+        "Supremacia da Constituição",
+        "Poder Constituinte"
+      ]
+    }
+  ]
+}
+```
+
+**Regras de Conversão:**
+
+1. **Tipos de Dados:**
+   - Converta valores numéricos para números (int ou float)
+   - Converta "Sim"/"Não" para booleanos (true/false)
+   - Mantenha strings para textos
+   - Use null para valores "Não informado" ou ausentes
+
+2. **Campos Específicos:**
+   - Para o campo "tipo" no conteúdo programático:
+     - "Conhecimento Comum" → "comum"
+     - "Conhecimento Específico" → "especifico"
+   - Para os campos "peso_maior" e "criterio_desempate":
+     - "Sim" → true
+     - "Não" → false
+   - Para o campo "numero_questoes":
+     - Se for um número, converta para inteiro
+     - Se for "Não informado", use null
+   - Para o campo "cadastro_reserva" no cargo:
+     - Se "Cadastro Reserva: Sim", defina como true
+     - Caso contrário, defina como false
+
+3. **Estrutura Hierárquica:**
+   - Preserve a estrutura hierárquica do conteúdo programático
+   - Agrupe matérias pelo campo "grupo_materia"
+   - Mantenha a ordem original das matérias e tópicos
+
+**Markdown de Entrada:**
+
+[MARKDOWN_CONTENT]
+
+**Instruções Importantes:**
+1. Forneça sua resposta EXCLUSIVAMENTE em formato JSON válido.
+2. Não inclua texto introdutório, explicações ou comentários fora do JSON.
+3. PRESERVE EXATAMENTE a organização original e nomenclatura do conteúdo programático.
+4. Se não conseguir determinar alguma informação, use valores vazios ("") ou nulos (null) conforme apropriado.
+5. Certifique-se de incluir todas as informações sobre pesos de matérias, número de questões e critérios de desempate.
+6. O campo "numero_questoes" deve ser sempre um número inteiro (não uma string). Se não houver informação, use null.
+7. É CRUCIAL extrair corretamente o número TOTAL de questões da prova e o número de questões por GRUPO.
+8. Quando o edital informar apenas o número total de questões de um grupo, inclua essa informação no campo "total_questoes_grupo" para cada matéria desse grupo.
+9. O número total de questões da prova DEVE ser incluído no campo "total_questoes_prova" dentro do objeto "concurso".
+10. IMPORTANTE: Use EXATAMENTE a mesma nomenclatura do edital para os grupos de matérias no campo "grupo_materia".
+11. Certifique-se de listar TODAS as matérias que se aplicam ao cargo selecionado, sem omitir nenhuma.
+12. CRUCIAL: Quando o edital apresentar subgrupos (ex: "Módulo II - Conhecimentos Específicos"), use APENAS o grupo principal ("Módulo II") como valor para o campo "grupo_materia".
+13. Não inclua delimitadores de código (```json) na sua resposta final.
+14. Certifique-se de que o JSON seja válido e bem formatado.
+
+**IMPORTANTE SOBRE VALORES AUSENTES:**
+- Use null para valores ausentes, não strings vazias ou "Não informado"
+- Para vagas de cadastro de reserva, use 0 para o número de vagas e adicione "cadastro_reserva": true
+
+**IMPORTANTE SOBRE A RESPOSTA:**
+- A saída deve conter **APENAS** o código JSON, sem nenhum texto adicional
+- Certifique-se de que a resposta seja um JSON válido e bem formatado
+- Comece sua resposta diretamente com o JSON, sem introdução ou explicação
+- NÃO inclua delimitadores de código (```json) na sua resposta
