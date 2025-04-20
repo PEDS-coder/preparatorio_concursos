@@ -4,9 +4,10 @@ import 'package:http/http.dart' as http;
 import 'package:preparatorio_concursos/core/data/services/base_ia_service.dart';
 import 'package:preparatorio_concursos/core/data/models/flashcard.dart';
 import 'package:preparatorio_concursos/core/services/prompt_service.dart';
+import 'package:preparatorio_concursos/core/utils/app_logger.dart';
 
-/// Implementação do serviço de IA para o Gemini
-class GeminiService extends BaseIAService {
+/// Implementação oficial do serviço de IA para o Gemini
+class GeminiOfficialService extends BaseIAService {
   final String _geminiBaseUrl = 'https://generativelanguage.googleapis.com/v1beta/models';
   String _geminiModel = 'gemini-2.5-pro-exp-03-25';
   final List<String> _geminiModelsAlternatives = [
@@ -15,13 +16,13 @@ class GeminiService extends BaseIAService {
 
   final PromptService _promptService = PromptService();
 
-  GeminiService() : super('gemini');
+  GeminiOfficialService() : super('gemini_official');
 
   @override
   bool get isConfigured => apiKey_ != null && apiKey_!.isNotEmpty;
 
   @override
-  String get apiType => 'gemini';
+  String get apiType => 'gemini_official';
 
   @override
   String? get apiKey => apiKey_;
