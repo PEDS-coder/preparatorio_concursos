@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../../../../core/theme/app_theme.dart';
-import '../../../../core/data/services/ia_service.dart';
+import '../../../../core/data/services/interfaces/ia_service_interface.dart';
 import '../../../../core/services/api_config_service.dart';
 import '../../../../core/services/audio_explanation_service.dart';
 import 'api_info_screen.dart';
@@ -40,7 +40,7 @@ class _ApiKeyConfigScreenState extends State<ApiKeyConfigScreen> {
   }
 
   Future<void> _loadSavedApiKey() async {
-    final iaService = Provider.of<IAService>(context, listen: false);
+    final iaService = Provider.of<IAServiceInterface>(context, listen: false);
     final apiKey = iaService.apiKey;
     final apiType = iaService.apiType;
 
@@ -79,7 +79,7 @@ class _ApiKeyConfigScreenState extends State<ApiKeyConfigScreen> {
 
       try {
         // Validar a chave do LLM (Gemini)
-        final iaService = Provider.of<IAService>(context, listen: false);
+        final iaService = Provider.of<IAServiceInterface>(context, listen: false);
 
         // Usar o serviço Gemini Official
         iaService.setApiType('gemini_official');

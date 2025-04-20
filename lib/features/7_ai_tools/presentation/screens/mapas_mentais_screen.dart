@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/auth/auth_service.dart';
-import '../../../../core/data/services/ia_service.dart';
+import '../../../../core/data/services/interfaces/ia_service_interface.dart';
 import '../../../../core/data/services/plano_estudo_service.dart';
 import '../../../../core/widgets/gradient_button.dart';
 import '../../../../core/widgets/styled_text_field.dart';
@@ -73,7 +73,7 @@ class _MapasMentaisScreenState extends State<MapasMentaisScreen> {
     });
 
     try {
-      final iaService = Provider.of<IAService>(context, listen: false);
+      final iaService = Provider.of<IAServiceInterface>(context, listen: false);
 
       if (!iaService.isConfigured) {
         setState(() {
