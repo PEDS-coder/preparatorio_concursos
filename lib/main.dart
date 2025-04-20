@@ -9,6 +9,7 @@ import 'core/di/service_locator.dart';
 import 'core/data/services/services.dart';
 import 'core/data/services/interfaces/ia_service_interface.dart';
 import 'core/data/services/interfaces/analytics_service_interface.dart';
+import 'core/data/services/ia_service_factory.dart';
 import 'core/data/services/interfaces/secure_storage_service_interface.dart';
 import 'core/services/temp_secure_storage_service.dart';
 import 'core/data/services/document_storage_service.dart';
@@ -74,8 +75,9 @@ void main() async {
   final planoEstudoService = PlanoEstudoService();
   final sessaoEstudoService = SessaoEstudoService();
   final gamificacaoService = GamificacaoService(authService);
-  // Tentar obter do service locator primeiro
-  final iaService = getIt.isRegistered<IAService>() ? getIt.get<IAService>() : IAService();
+  // Usar a fábrica de serviços de IA para obter a implementação correta
+  final iaServiceFactory = IAServiceFactory();
+  final iaService = await iaServiceFactory.getDefaultService();
   final apiConfigService = getIt.isRegistered<ApiConfigService>()
       ? getIt.get<ApiConfigService>()
       : ApiConfigService(
@@ -162,7 +164,7 @@ void main() async {
         ChangeNotifierProvider.value(value: planoEstudoService),
         ChangeNotifierProvider.value(value: sessaoEstudoService),
         ChangeNotifierProvider.value(value: gamificacaoService),
-        ChangeNotifierProvider.value(value: iaService),
+        Provider.value(value: iaService),
         ChangeNotifierProvider.value(value: apiConfigService),
         ChangeNotifierProvider.value(value: audioExplanationService),
         ChangeNotifierProvider.value(value: documentStorageService),
@@ -171,7 +173,7 @@ void main() async {
         Provider.value(value: remoteConfigService),
         Provider.value(value: documentClassifierService),
       ],
-      child: PreparatorioConcursosApp(),
+      child: ConcursosIAApp(),
     ),
   );
   } catch (e) {

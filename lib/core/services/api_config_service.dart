@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../data/services/ia_service.dart';
+import '../data/services/interfaces/ia_service_interface.dart';
 import '../data/services/interfaces/secure_storage_service_interface.dart';
 import '../utils/logger.dart';
 import 'connectivity_service.dart';
@@ -12,7 +12,7 @@ class ApiConfigService extends ChangeNotifier {
   bool _isLlmConfigured = false;
   bool _isVerifyingConfig = false;
   String? _configErrorMessage;
-  IAService? _iaService;
+  IAServiceInterface? _iaService;
 
   final ISecureStorageService _secureStorage;
   final Logger _logger;
@@ -26,7 +26,7 @@ class ApiConfigService extends ChangeNotifier {
   }
 
   /// Define o serviço de IA para verificação proativa
-  void setIAService(IAService iaService) {
+  void setIAService(IAServiceInterface iaService) {
     _iaService = iaService;
   }
 

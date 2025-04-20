@@ -2,13 +2,13 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
-import '../data/services/ia_service.dart';
+import '../data/services/interfaces/ia_service_interface.dart';
 import '../data/models/materia.dart';
 import '../data/models/assunto.dart';
 
 /// Serviço para classificar documentos e identificar matéria/assunto
 class DocumentClassifierService {
-  final IAService _iaService;
+  final IAServiceInterface _iaService;
 
   DocumentClassifierService(this._iaService);
 

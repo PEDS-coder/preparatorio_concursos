@@ -1,11 +1,11 @@
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
-import 'ia_service.dart';
+
 import 'interfaces/ia_service_interface.dart';
 import '../../data/models/flashcard.dart';
 
 class IAServiceAdapter implements IAServiceInterface {
-  final IAService _iaService;
+  final IAServiceInterface _iaService;
 
   IAServiceAdapter(this._iaService);
 
