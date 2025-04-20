@@ -125,10 +125,10 @@ class _FlashcardsScreenState extends State<FlashcardsScreen> with SingleTickerPr
       }
 
       final flashcards = await iaService.gerarFlashcards(
-        usuario.id,
-        null, // editalId opcional
-        materia,
-        texto,
+        userId: usuario.id,
+        editalId: null, // editalId opcional
+        materia: materia,
+        texto: texto,
       );
 
       String resultado = 'Foram gerados ${flashcards.length} flashcards:\n\n';

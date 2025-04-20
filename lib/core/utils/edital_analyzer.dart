@@ -56,6 +56,7 @@ class EditalAnalyzer {
 
   /// Analisa um edital e extrai apenas os cargos disponíveis (primeira etapa do novo fluxo)
   /// Retorna um objeto DadosExtraidos com apenas os cargos preenchidos
+  /// Envia o PDF diretamente para a LLM sem extração prévia de texto
   Future<DadosExtraidos> analisarEdital([String? textoEdital, Uint8List? pdfBytes]) async {
     _reportProgress(0.05, 'Iniciando análise...');
     Map<String, dynamic>? dadosExtraidosMap;
@@ -66,26 +67,36 @@ class EditalAnalyzer {
         throw EditalAnalysisException('PDF do edital não fornecido. A análise direta de edital requer o arquivo PDF.');
       }
 
-      // Usar a API LLM para extração apenas dos cargos (novo fluxo)
-      _reportProgress(0.1, 'Extraindo cargos do edital...');
+      _reportProgress(0.1, 'Preparando PDF para envio direto à LLM...');
 
-      // Extrair cargos do edital com informações detalhadas (datas e horários das provas)
-      dadosExtraidosMap = await _extrairCargosDetalhados(pdfBytes);
+      // Enviar o PDF diretamente para a LLM sem extração prévia
+      _reportProgress(0.2, 'Enviando PDF diretamente para a LLM...');
+
+      // Enviar o PDF diretamente para a API
+      final String? resultado = await iaService.analisarEditalPdf(pdfBytes);
+
+      if (resultado == null || resultado.isEmpty) {
+        _log('Resultado da análise do PDF vazio');
+        throw EditalAnalysisException('A análise do PDF falhou. Verifique se a API está configurada corretamente.');
+      }
+
+      _reportProgress(0.7, 'Processando resultado da análise...');
+      _log('Resultado da análise recebido. Processando resposta...');
+
+      // Processar o resultado (JSON ou YAML)
+      dadosExtraidosMap = _processarRespostaYaml(resultado);
 
       if (dadosExtraidosMap != null) {
-        _log('Extração de cargos bem-sucedida!');
+        _log('Processamento da resposta bem-sucedido!');
 
         // Adicionar o texto completo ao resultado se disponível
         if (textoEdital != null && textoEdital.isNotEmpty) {
           dadosExtraidosMap['textoCompleto'] = textoEdital;
         }
 
-        // NÃO ARMAZENE pdfBytes NO MAP (para evitar problemas de log/memória)
-        // dadosExtraidosMap['pdfBytes'] = base64Encode(pdfBytes); // Linha propositalmente comentada
-
         _reportProgress(0.9, 'Convertendo dados para formato final...');
 
-        // Retornar os dados extraídos pelo LLM
+        // Retornar os dados extraídos pela LLM
         return _converterParaDadosExtraidos(dadosExtraidosMap);
       } else {
         // Se a análise com LLM falhou, lançar uma exceção
@@ -343,7 +354,7 @@ class EditalAnalyzer {
       _reportProgress(0.1, 'Extraindo dados do concurso e conteúdo programático para o cargo: $cargoAlvo...');
 
       // Chamar a API para extrair os dados do concurso e conteúdo programático
-      final String? resultado = await iaService.extrairConcursoConteudo(pdfBytes, cargoAlvo);
+      final String? resultado = await iaService.extrairConcursoConteudo(pdfBytes: pdfBytes, cargoAlvo: cargoAlvo);
 
       if (resultado == null || resultado.isEmpty) {
         _log('Resultado da extração de dados do concurso e conteúdo programático vazio');
@@ -367,7 +378,7 @@ class EditalAnalyzer {
       _reportProgress(0.1, 'Extraindo conteúdo programático para o cargo: $cargoAlvo...');
 
       // Chamar a API para extrair o conteúdo programático
-      final String? resultado = await iaService.extrairConteudoProgramatico(pdfBytes, cargoAlvo);
+      final String? resultado = await iaService.extrairConteudoProgramatico(pdfBytes: pdfBytes, cargoAlvo: cargoAlvo);
 
       if (resultado == null || resultado.isEmpty) {
         _log('Resultado da extração de conteúdo programático vazio');

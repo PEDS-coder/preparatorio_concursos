@@ -105,10 +105,10 @@ class _IAToolsScreenState extends State<IAToolsScreen> with SingleTickerProvider
           }
 
           final flashcards = await iaService.gerarFlashcards(
-            usuario.id,
-            null, // editalId opcional
-            _materiaController.text,
-            _textController.text,
+            userId: usuario.id,
+            editalId: null, // editalId opcional
+            materia: _materiaController.text,
+            texto: _textController.text,
           );
 
           resultado = 'Foram gerados ${flashcards.length} flashcards:\n\n';
