@@ -96,4 +96,10 @@ abstract class IAServiceInterface {
 
   /// Limpa o cache
   Future<bool> clearCache();
+
+  /// Gera um plano de estudos para um cargo específico
+  Future<String> gerarPlanoEstudos({
+    required String cargoAlvo,
+    required Map<String, dynamic> dadosCargo,
+  });
 }

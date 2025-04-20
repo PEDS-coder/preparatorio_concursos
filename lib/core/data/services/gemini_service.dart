@@ -269,6 +269,45 @@ class GeminiService extends BaseIAService {
     return await callGeminiApiWithPdf(prompt, pdfBytes, pdfName: pdfName);
   }
 
+  @override
+  Future<String> gerarPlanoEstudos({required String cargoAlvo, required Map<String, dynamic> dadosCargo}) async {
+    if (!isConfigured) throw Exception('API Key não configurada');
+
+    try {
+      // Carregar o prompt para geração de ciclo de estudos
+      final promptTemplate = await _promptService.loadStudyPlanCycleGenerationPrompt();
+
+      // Preparar os dados para o prompt
+      final DateTime dataInicio = DateTime.now();
+      final DateTime dataFim = dataInicio.add(Duration(days: 90)); // 3 meses por padrão
+      final int totalDias = dataFim.difference(dataInicio).inDays;
+
+      // Extrair apenas as matérias do cargo
+      final List<String> materias = dadosCargo['materias'] as List<String>? ?? [];
+
+      // Personalizar o prompt com os dados do cargo
+      final Map<String, String> variables = {
+        'dados_concurso': json.encode(dadosCargo),
+        'data_inicio': '${dataInicio.day}/${dataInicio.month}/${dataInicio.year}',
+        'data_fim': '${dataFim.day}/${dataFim.month}/${dataFim.year}',
+        'total_dias': totalDias.toString(),
+        'disponibilidade_semanal': 'Segunda a Sexta: 2 horas por dia\nSábado e Domingo: 4 horas por dia',
+        'horarios_especificos': 'Segunda a Sexta: 19h às 21h\nSábado e Domingo: 14h às 18h',
+        'materias_cargo': materias.join(', '),
+        'proficiencia_materias': materias.map((m) => '$m: Iniciante').join('\n'),
+        'ferramentas_estudo': 'Videoaulas, PDFs/Livros, Plataformas de Questões',
+        'peso_materias': materias.map((m) => '$m: 1').join('\n'),
+        'criterios_desempate': 'Português, Legislação',
+        'numero_questoes': materias.map((m) => '$m: 10').join('\n'),
+      };
+
+      final prompt = _promptService.customizePrompt(promptTemplate, variables);
+      return await callApi(prompt);
+    } catch (e) {
+      throw Exception('Erro ao gerar plano de estudos: $e');
+    }
+  }
+
   Future<String> callGeminiApiWithPdf(String prompt, Uint8List pdfBytes, {String? pdfName}) async {
     if (!isConfigured) {
       throw Exception('API Key não configurada');

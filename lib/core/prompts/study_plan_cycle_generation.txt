@@ -14,17 +14,14 @@ Crie um plano de estudo personalizado com ciclos de estudo para concurso públic
 **Horários Específicos por Dia:**
 {{horarios_especificos}}
 
-**Conteúdo Programático:**
-{{conteudo_programatico}}
+**Matérias do Cargo:**
+{{materias_cargo}}
 
 **Proficiência nas Matérias:**
 {{proficiencia_materias}}
 
 **Ferramentas de Estudo Disponíveis:**
 {{ferramentas_estudo}}
-
-**Recompensas:**
-{{recompensas}}
 
 **Informações Adicionais:**
 - Peso das matérias: {{peso_materias}}
@@ -43,15 +40,13 @@ Crie um ciclo de estudos detalhado em formato JSON com a seguinte estrutura:
           "ordem": 1,
           "materia": "Nome da Matéria",
           "duracao_minutos": 90,
-          "ferramenta": "Nome da Ferramenta",
-          "foco": "Descrição do foco de estudo para este bloco"
+          "ferramenta": "Nome da Ferramenta"
         },
         {
           "ordem": 2,
           "materia": "Nome da Matéria",
           "duracao_minutos": 60,
-          "ferramenta": "Nome da Ferramenta",
-          "foco": "Descrição do foco de estudo para este bloco"
+          "ferramenta": "Nome da Ferramenta"
         }
       ]
     },
@@ -62,8 +57,7 @@ Crie um ciclo de estudos detalhado em formato JSON com a seguinte estrutura:
           "ordem": 1,
           "materia": "Nome da Matéria",
           "duracao_minutos": 120,
-          "ferramenta": "Nome da Ferramenta",
-          "foco": "Descrição do foco de estudo para este bloco"
+          "ferramenta": "Nome da Ferramenta"
         }
       ]
     }
@@ -71,8 +65,7 @@ Crie um ciclo de estudos detalhado em formato JSON com a seguinte estrutura:
   "materias_prioritarias": [
     {
       "nome": "Nome da Matéria",
-      "pontuacao_prioridade": 31,
-      "estrategia": "Breve descrição da estratégia para esta matéria"
+      "pontuacao_prioridade": 31
     }
   ],
   "recomendacoes_gerais": [
@@ -118,13 +111,11 @@ Quando o edital não especificar o número exato de questões para determinadas 
 A ferramenta "Lei seca" (leitura direta da legislação) deve ser utilizada APENAS para matérias jurídicas como Direito Constitucional, Direito Administrativo, Direito Civil, Direito Penal, Direito Processual, Legislação específica, etc. Não utilize esta ferramenta para matérias não-jurídicas como Matemática, Português, Raciocínio Lógico, Informática, etc.
 
 **Diretrizes para o Ciclo de Estudos:**
-1. Crie um único ciclo com dias suficientes para que o usuário veja ao menos uma vez cada matéria e use ao menos uma vez cada ferramenta de estudo disponível.
+1. Crie um único ciclo com dias suficientes para que o usuário estude cada matéria e use cada ferramenta de estudo disponível.
 2. Aloque mais tempo para matérias com maior pontuação de prioridade.
 3. Alterne entre matérias teóricas e práticas para evitar fadiga mental.
 4. Alterne entre ferramentas de estudo, priorizando as mais eficazes.
 5. Cada bloco de estudo deve ter entre 60 e 150 minutos.
 6. Distribua as matérias de forma que disciplinas similares não fiquem em sequência.
-7. Alterne entre disciplinas que usam diferentes hemisférios cerebrais (ex: alternar entre matérias de exatas e humanas).
-8. Inclua pequenos intervalos entre os blocos (não é necessário especificar no JSON).
 
 Sua resposta deve conter APENAS o JSON, sem texto introdutório ou explicativo.
