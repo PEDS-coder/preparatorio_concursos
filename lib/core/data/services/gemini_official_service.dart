@@ -362,8 +362,7 @@ class GeminiOfficialService extends BaseIAService {
           'temperature': 0.0,
           'maxOutputTokens': 65536,
           'topP': 0.2,
-        },
-        'thinking': true
+        }
       };
       final body = jsonEncode(requestBody);
 
