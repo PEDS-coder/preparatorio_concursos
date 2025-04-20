@@ -4,6 +4,8 @@ import 'package:flutter/foundation.dart';
 import 'package:yaml/yaml.dart';
 
 /// Classe para processar e corrigir YAML, especialmente para lidar com respostas de LLM
+/// @deprecated Esta classe é mantida apenas para compatibilidade com o fallback YAML.
+/// O processamento principal agora é feito com JSON através da classe JsonProcessor.
 class YamlProcessor {
   /// Processa uma string YAML e retorna um Map<String, dynamic>
   static Map<String, dynamic>? processYaml(String yamlStr) {

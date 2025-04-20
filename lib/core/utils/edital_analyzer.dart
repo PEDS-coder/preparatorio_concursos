@@ -257,6 +257,7 @@ class EditalAnalyzer {
   }
 
   /// Converte um documento YAML para Map<String, dynamic>
+  /// @deprecated Este método é mantido apenas para compatibilidade com o fallback YAML
   Map<String, dynamic> _convertYamlToMap(dynamic yamlDoc) {
     if (yamlDoc is YamlMap) {
       final Map<String, dynamic> result = {};
@@ -272,6 +273,7 @@ class EditalAnalyzer {
   }
 
   /// Converte um valor YAML para um tipo Dart apropriado
+  /// @deprecated Este método é mantido apenas para compatibilidade com o fallback YAML
   dynamic _convertYamlValue(dynamic value) {
     if (value is YamlMap) {
       return _convertYamlToMap(value);
@@ -283,6 +285,7 @@ class EditalAnalyzer {
   }
 
   /// Limpa a resposta YAML para garantir que seja válida
+  /// @deprecated Este método é mantido apenas para compatibilidade com o fallback YAML
   String _limparRespostaYaml(String resposta) {
     // Remover qualquer texto antes do início do YAML
     final yamlStartRegex = RegExp(r'```yaml\s*|```\s*|---\s*', multiLine: true);
@@ -312,6 +315,7 @@ class EditalAnalyzer {
   }
 
   /// Corrige YAML malformado
+  /// @deprecated Este método é mantido apenas para compatibilidade com o fallback YAML
   String _corrigirYamlMalformado(String yamlStr) {
     // Implementação simplificada para corrigir problemas comuns em YAML
     // Apenas retorna o YAML original, pois o processamento foi simplificado para priorizar JSON

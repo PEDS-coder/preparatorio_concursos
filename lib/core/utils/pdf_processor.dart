@@ -64,6 +64,8 @@ class PdfProcessingResult {
 }
 
 /// Classe para processamento avançado de PDFs
+/// @deprecated Esta classe é mantida apenas para compatibilidade com fluxos antigos.
+/// No novo fluxo, o PDF é enviado diretamente para a LLM sem extração prévia de texto.
 class PdfProcessor {
   static const String _tag = 'PdfProcessor';
 

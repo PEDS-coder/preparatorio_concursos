@@ -67,25 +67,15 @@ class PromptService {
     }
   }
 
-  /// Carrega um prompt para análise de edital (método tradicional)
-  Future<String> loadTraditionalEditalAnalysisPrompt() async {
-    return await loadPrompt('lib/core/prompts/edital_analysis/traditional_prompt.txt');
-  }
-
   /// Carrega um prompt para análise comparativa de edital
   Future<String> loadComparativeEditalAnalysisPrompt() async {
     return await loadPrompt('lib/core/prompts/edital_analysis/comparative_prompt.txt');
   }
 
-  /// Carrega um prompt para análise de edital em texto simples
-  Future<String> loadSimpleEditalAnalysisPrompt() async {
-    return await loadPrompt('lib/core/prompts/edital_analysis/simple_prompt.txt');
-  }
-
-  /// Carrega um prompt para análise de edital em formato YAML
-  Future<String> loadYamlEditalAnalysisPrompt() async {
-    return await loadPrompt('lib/core/prompts/edital_analysis/yaml_prompt.txt');
-  }
+  /// Métodos obsoletos removidos:
+  /// - loadTraditionalEditalAnalysisPrompt()
+  /// - loadSimpleEditalAnalysisPrompt()
+  /// - loadYamlEditalAnalysisPrompt()
 
   /// Carrega um prompt para análise de edital em formato JSON
   Future<String> loadJsonEditalAnalysisPrompt() async {
