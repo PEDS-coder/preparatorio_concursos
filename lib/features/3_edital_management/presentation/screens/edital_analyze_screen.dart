@@ -8,7 +8,7 @@ import 'dart:convert';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/auth/auth_service.dart';
 import '../../../../core/data/services/edital_service.dart';
-import '../../../../core/data/services/ia_service.dart';
+import '../../../../core/data/services/interfaces/ia_service_interface.dart';
 import '../../../../core/services/api_config_service.dart';
 import '../../../../core/services/audio_explanation_service.dart';
 import '../../../../core/data/models/models.dart';
@@ -155,7 +155,7 @@ class _EditalAnalyzeScreenState extends State<EditalAnalyzeScreen> {
     }
 
     final apiConfigService = Provider.of<ApiConfigService>(context, listen: false);
-    final iaService = Provider.of<IAService>(context, listen: false);
+    final iaService = Provider.of<IAServiceInterface>(context, listen: false);
 
     // Verificar se o IAService está configurado
     if (!iaService.isConfigured) {
@@ -300,7 +300,7 @@ class _EditalAnalyzeScreenState extends State<EditalAnalyzeScreen> {
 
   Future<void> _analisarEdital(Uint8List pdfBytes) async {
     try {
-      final iaService = Provider.of<IAService>(context, listen: false);
+      final iaService = Provider.of<IAServiceInterface>(context, listen: false);
       final apiConfigService = Provider.of<ApiConfigService>(context, listen: false);
 
       // Verificar se o IAService está configurado

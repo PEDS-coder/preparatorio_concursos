@@ -4,7 +4,7 @@ import 'dart:math' show min;
 import 'package:flutter/foundation.dart';
 import 'package:yaml/yaml.dart';
 import '../data/models/edital.dart';
-import '../data/services/ia_service.dart';
+import '../data/services/interfaces/ia_service_interface.dart';
 import '../services/prompt_service.dart';
 import 'pdf_processor.dart';
 import 'text_utils.dart';
@@ -32,7 +32,7 @@ class IAConfigurationException extends EditalAnalysisException {
 /// Utiliza a API LLM (Gemini ou OpenAI) para extrair informações de editais
 class EditalAnalyzer {
   // Serviços
-  final IAService iaService;
+  final IAServiceInterface iaService;
   final PromptService _promptService = PromptService();
 
   // Callback para reportar progresso
