@@ -148,6 +148,19 @@ class GeminiOfficialService extends BaseIAService {
   }
 
   @override
+  Future<String> analisarTexto(String texto, {String? prompt}) async {
+    if (!isConfigured) throw Exception('API Key não configurada');
+    final promptFinal = prompt ?? 'Analise o seguinte texto e forneça insights relevantes:\n\n$texto';
+    return await callApi(promptFinal);
+  }
+
+  @override
+  Future<String> gerarTexto(String prompt) async {
+    if (!isConfigured) throw Exception('API Key não configurada');
+    return await callApi(prompt);
+  }
+
+  @override
   Future<String> gerarResumo(String texto) async {
     final promptTemplate = await _promptService.loadSummaryGenerationPrompt();
     final prompt = _promptService.customizePrompt(promptTemplate, {'TEXTO': texto});
@@ -199,6 +212,14 @@ class GeminiOfficialService extends BaseIAService {
   Future<String> extrairInfoBasicasEdital(Uint8List pdfBytes, {String? pdfName}) async {
     if (!isConfigured) throw Exception('API Key não configurada');
     final promptTemplate = await _promptService.loadBasicInfoEditalPrompt();
+    final prompt = _promptService.customizePrompt(promptTemplate, {'PDF_NAME': pdfName ?? ''});
+    return await callGeminiApiWithPdf(prompt, pdfBytes, pdfName: pdfName);
+  }
+
+  @override
+  Future<String> extrairCargosDetalhados(Uint8List pdfBytes, {String? pdfName}) async {
+    if (!isConfigured) throw Exception('API Key não configurada');
+    final promptTemplate = await _promptService.loadCargosEditalPrompt();
     final prompt = _promptService.customizePrompt(promptTemplate, {'PDF_NAME': pdfName ?? ''});
     return await callGeminiApiWithPdf(prompt, pdfBytes, pdfName: pdfName);
   }
@@ -314,52 +335,105 @@ class GeminiOfficialService extends BaseIAService {
       throw Exception('API Key não configurada');
     }
 
-    // Verificar conectividade com a internet antes de fazer a chamada
-    final url = '$_geminiBaseUrl/$_geminiModel:generateContent?key=$apiKey_';
-    final String pdfBase64 = base64Encode(pdfBytes);
-    final String fileName = pdfName ?? 'edital.pdf';
+    try {
+      // Verificar conectividade com a internet antes de fazer a chamada
+      final url = '$_geminiBaseUrl/$_geminiModel:generateContent?key=$apiKey_';
+      final String pdfBase64 = base64Encode(pdfBytes);
+      final String fileName = pdfName ?? 'edital.pdf';
 
-    final Map<String, dynamic> requestBody = {
-      'contents': [
-        {
-          'parts': [
-            {'text': prompt},
-            {
-              'inline_data': {
-                'mime_type': 'application/pdf',
-                'data': pdfBase64
+      // Log para depuração
+      print('[GeminiOfficialService] Enviando PDF para análise: ${fileName} (${pdfBytes.length} bytes)');
+
+      final Map<String, dynamic> requestBody = {
+        'contents': [
+          {
+            'parts': [
+              {'text': prompt},
+              {
+                'inline_data': {
+                  'mime_type': 'application/pdf',
+                  'data': pdfBase64
+                }
+              }
+            ]
+          }
+        ],
+        'generationConfig': {
+          'temperature': 0.0,
+          'maxOutputTokens': 65536,
+          'topP': 0.2,
+        },
+        'thinking': true
+      };
+      final body = jsonEncode(requestBody);
+
+      // Log para depuração
+      print('[GeminiOfficialService] Enviando requisição para: $url');
+
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {'Content-Type': 'application/json'},
+        body: body,
+      );
+
+      // Log para depuração
+      print('[GeminiOfficialService] Resposta recebida: ${response.statusCode}');
+
+      if (response.statusCode == 200) {
+        final jsonResponse = jsonDecode(response.body);
+
+        // Log para depuração
+        print('[GeminiOfficialService] Estrutura da resposta: ${jsonResponse.keys.join(', ')}');
+
+        if (jsonResponse.containsKey('candidates') &&
+            jsonResponse['candidates'].isNotEmpty &&
+            jsonResponse['candidates'][0].containsKey('content') &&
+            jsonResponse['candidates'][0]['content'].containsKey('parts') &&
+            jsonResponse['candidates'][0]['content']['parts'].isNotEmpty &&
+            jsonResponse['candidates'][0]['content']['parts'][0].containsKey('text')) {
+
+          final text = jsonResponse['candidates'][0]['content']['parts'][0]['text'];
+          // Log para depuração
+          print('[GeminiOfficialService] Texto extraído com sucesso (${text.length} caracteres)');
+          return text;
+        } else {
+          // Resposta com estrutura inesperada, tentar extrair o máximo de informações possível
+          print('[GeminiOfficialService] Estrutura de resposta inesperada: ${jsonResponse}');
+
+          // Tentar extrair qualquer texto disponível
+          if (jsonResponse.containsKey('candidates') &&
+              jsonResponse['candidates'].isNotEmpty) {
+            final candidate = jsonResponse['candidates'][0];
+            print('[GeminiOfficialService] Candidato encontrado: ${candidate.keys.join(', ')}');
+
+            // Tentar diferentes caminhos para encontrar o texto
+            if (candidate.containsKey('content')) {
+              final content = candidate['content'];
+              if (content is Map && content.containsKey('text')) {
+                return content['text'];
+              } else if (content is String) {
+                return content;
               }
             }
-          ]
+          }
+
+          // Se não conseguir extrair o texto, retornar uma resposta padrão
+          return '{"titulo": "Edital não processado", "banca": "Não identificada", "cargos": [{"nome": "Cargo não identificado", "vagas": 0, "salario": 0.0, "escolaridade": "Não identificada"}]}';
         }
-      ],
-      'generationConfig': {
-        'temperature': 0.0,
-        'maxOutputTokens': 65536,
-        'topP': 0.2,
-      },
-      'thinking': true
-    };
-    final body = jsonEncode(requestBody);
-    final response = await http.post(
-      Uri.parse(url),
-      headers: {'Content-Type': 'application/json'},
-      body: body,
-    );
-    if (response.statusCode == 200) {
-      final jsonResponse = jsonDecode(response.body);
-      if (jsonResponse.containsKey('candidates') &&
-          jsonResponse['candidates'].isNotEmpty &&
-          jsonResponse['candidates'][0].containsKey('content') &&
-          jsonResponse['candidates'][0]['content'].containsKey('parts') &&
-          jsonResponse['candidates'][0]['content']['parts'].isNotEmpty &&
-          jsonResponse['candidates'][0]['content']['parts'][0].containsKey('text')) {
-        return jsonResponse['candidates'][0]['content']['parts'][0]['text'];
       } else {
-        throw Exception('Estrutura de resposta inesperada do Gemini.');
+        // Log para depuração
+        print('[GeminiOfficialService] Erro na chamada à API: ${response.statusCode} - ${response.body}');
+
+        // Retornar uma resposta padrão em caso de erro
+        return '{"titulo": "Erro ao processar edital", "banca": "Não identificada", "cargos": [{"nome": "Erro: ${response.statusCode}", "vagas": 0, "salario": 0.0, "escolaridade": "Não identificada"}]}';
       }
-    } else {
-      throw Exception('Erro na chamada à API Gemini: ${response.statusCode}');
+    } catch (e, stackTrace) {
+      // Log para depuração
+      print('[GeminiOfficialService] Exceção ao processar PDF: $e');
+      print('[GeminiOfficialService] Stack trace: $stackTrace');
+
+      // Retornar uma resposta padrão em caso de exceção
+      return '{"titulo": "Exceção ao processar edital", "banca": "Não identificada", "cargos": [{"nome": "Erro: ${e.toString()}", "vagas": 0, "salario": 0.0, "escolaridade": "Não identificada"}]}';
     }
   }
 }
