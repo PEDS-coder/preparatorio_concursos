@@ -5,6 +5,7 @@ class ConteudoProgramatico {
   final bool? pesoMaior; // Indica se a matéria tem peso maior na pontuação final
   final bool? criterioDesempate; // Indica se a matéria é critério de desempate
   final int? numeroQuestoes; // Número de questões da matéria na prova
+  final bool? questoesEstimadas; // Indica se o número de questões foi estimado ou está explícito no edital
   final int? totalQuestoesGrupo; // Número total de questões do grupo (conhecimentos básicos/específicos)
   final String? grupoMateria; // Nome do grupo/módulo ao qual a matéria pertence (ex: "Módulo I", "Conhecimentos Básicos")
 
@@ -15,6 +16,7 @@ class ConteudoProgramatico {
     this.pesoMaior,
     this.criterioDesempate,
     this.numeroQuestoes,
+    this.questoesEstimadas,
     this.totalQuestoesGrupo,
     this.grupoMateria,
   });
@@ -27,6 +29,7 @@ class ConteudoProgramatico {
       'peso_maior': pesoMaior,
       'criterio_desempate': criterioDesempate,
       'numero_questoes': numeroQuestoes,
+      'questoes_estimadas': questoesEstimadas,
       'total_questoes_grupo': totalQuestoesGrupo,
       'grupo_materia': grupoMateria,
     };
@@ -40,6 +43,7 @@ class ConteudoProgramatico {
       pesoMaior: map['peso_maior'],
       criterioDesempate: map['criterio_desempate'],
       numeroQuestoes: map['numero_questoes'] is int ? map['numero_questoes'] : null,
+      questoesEstimadas: map['questoes_estimadas'],
       totalQuestoesGrupo: map['total_questoes_grupo'] is int ? map['total_questoes_grupo'] : null,
       grupoMateria: map['grupo_materia'],
     );

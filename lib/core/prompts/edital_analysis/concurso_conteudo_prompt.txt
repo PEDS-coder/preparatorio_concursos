@@ -1,23 +1,13 @@
-**Tarefa:** Extrair informações detalhadas sobre um concurso público e o conteúdo programático específico para um cargo selecionado a partir de um arquivo PDF de edital, apresentando o resultado em formato JSON.
+**Tarefa:** Extrair o conteúdo programático específico para um cargo selecionado e distribuir o número de questões entre as matérias a partir de um arquivo PDF de edital, apresentando o resultado em formato JSON.
 
-**Contexto:** Você está analisando diretamente um arquivo PDF de um edital de concurso público para um usuário que já selecionou um cargo específico. Sua tarefa é extrair as informações gerais do concurso e o conteúdo programático detalhado aplicável ao cargo selecionado diretamente do PDF, sem extração prévia de texto.
+**Contexto:** Você está analisando diretamente um arquivo PDF de um edital de concurso público para um usuário que já selecionou um cargo específico. As informações básicas do concurso (título, órgão, banca) e do cargo (nome, vagas, escolaridade) já foram extraídas anteriormente. Sua tarefa agora é extrair o conteúdo programático detalhado aplicável ao cargo selecionado e distribuir corretamente o número de questões entre as matérias.
 
 **Cargo Alvo:**
 [CARGO_ALVO]
 
 **Instruções Detalhadas:**
 
-1. **Informações Gerais do Concurso:**
-   - Título/nome do concurso
-   - Órgão responsável
-   - Banca organizadora
-   - Período de inscrições (data de início e fim)
-   - Valor da taxa de inscrição
-   - Local das provas
-   - Datas das provas (objetiva, subjetiva e outras, se houver)
-   - Informações sobre cotas e reserva de vagas (percentuais para negros, PCD, indígenas, etc.)
-
-2. **Conteúdo Programático do Cargo Selecionado:**
+1. **Conteúdo Programático do Cargo Selecionado:**
    - Identifique todas as matérias que se aplicam ao cargo alvo
    - Identifique e PRESERVE a nomenclatura original de divisão usada no edital (Módulos, Grupos, Conhecimentos Básicos/Específicos, etc.)
    - Mantenha a organização original do edital, respeitando a estrutura e agrupamento das matérias
@@ -27,45 +17,24 @@
    - Identifique se alguma matéria tem peso maior que outras (se disponível no edital)
    - Identifique quais matérias são utilizadas como critério de desempate (se disponível no edital)
 
-3. **Informações sobre a Prova:**
+2. **Informações sobre a Prova:**
    - Número total de questões
    - Formato da prova (objetiva, subjetiva, discursiva)
    - Tema da prova subjetiva/discursiva (se houver)
    - Critérios de aprovação
    - Critérios de desempate
 
+3. **Distribuição de Questões:**
+   - Identifique o número total de questões da prova
+   - Para cada matéria, verifique se o edital especifica explicitamente o número de questões
+   - Para matérias sem número explícito de questões, distribua as questões restantes de forma equânime
+   - Se a divisão não for exata, distribua as questões restantes uma a uma entre as matérias sem número explícito, na ordem em que aparecem no edital
+
 4. **Formate a Saída em JSON:**
    Organize as informações extraídas no seguinte formato JSON:
 
 ```json
 {
-  "concurso": {
-    "titulo": "Nome do Concurso",
-    "orgao": "Nome do Órgão",
-    "banca": "Nome da Banca",
-    "inscricoes": {
-      "inicio": "DD/MM/AAAA",
-      "fim": "DD/MM/AAAA"
-    },
-    "taxa_inscricao": 123.45,
-    "local_prova": "Local da Prova",
-    "datas_provas": {
-      "objetiva": "DD/MM/AAAA",
-      "subjetiva": "DD/MM/AAAA",
-      "outras": []
-    },
-    "cotas": {
-      "negros": 20,
-      "pcd": 10,
-      "indigenas": 5
-    }
-  },
-  "cargo": {
-    "nome": "Nome do Cargo Selecionado",
-    "vagas": 10,
-    "cadastro_reserva": false,
-    "escolaridade": "Nível de escolaridade exigido"
-  },
   "prova": {
     "total_questoes": 100,
     "formato": ["objetiva", "discursiva"],
@@ -80,6 +49,7 @@
       "peso_maior": true,
       "criterio_desempate": false,
       "numero_questoes": 10,
+      "questoes_estimadas": false,
       "total_questoes_grupo": 35,
       "grupo_materia": "Módulo I",
       "topicos": [
@@ -94,11 +64,27 @@
       "peso_maior": false,
       "criterio_desempate": true,
       "numero_questoes": 5,
+      "questoes_estimadas": false,
       "total_questoes_grupo": 45,
       "grupo_materia": "Módulo II",
       "topicos": [
         "Tópico 2.1",
         "Tópico 2.2",
+        "..."
+      ]
+    },
+    {
+      "nome": "Nome da Disciplina/Matéria 3",
+      "tipo": "comum",
+      "peso_maior": false,
+      "criterio_desempate": false,
+      "numero_questoes": 7,
+      "questoes_estimadas": true,
+      "total_questoes_grupo": 35,
+      "grupo_materia": "Módulo I",
+      "topicos": [
+        "Tópico 3.1",
+        "Tópico 3.2",
         "..."
       ]
     }
@@ -115,3 +101,13 @@
 6. O campo "numero_questoes" deve ser sempre um número inteiro (não uma string). Se não houver informação, use null.
 7. É CRUCIAL extrair corretamente o número TOTAL de questões da prova e o número de questões por GRUPO (ex: conhecimentos básicos, conhecimentos específicos).
 8. Quando o edital informar apenas o número total de questões de um grupo (ex: 45 questões de conhecimentos específicos), mas não detalhar o número por matéria, inclua essa informação no campo "total_questoes_grupo" para cada matéria desse grupo.
+9. Para matérias sem número explícito de questões, distribua as questões restantes de forma equânime e marque o campo "questoes_estimadas" como true.
+10. Se a divisão não for exata, distribua as questões restantes uma a uma entre as matérias sem número explícito, na ordem em que aparecem no edital.
+11. Certifique-se de que a soma do número de questões de todas as matérias seja igual ao número total de questões da prova.
+
+**Exemplo de Distribuição de Questões:**
+Se o edital prevê 80 questões no total, com 10 questões para cada uma das matérias A, B, C e D (total de 40 questões explicitamente distribuídas), e há mais 6 matérias (E, F, G, H, I e J) sem número explícito de questões, você deve:
+1. Calcular questões restantes: 80 - 40 = 40 questões
+2. Dividir igualmente: 40 ÷ 6 = 6 questões para cada matéria, com resto 4
+3. Distribuir o resto: matérias E, F, G e H recebem +1 questão cada
+4. Resultado final: A=10, B=10, C=10, D=10, E=7 (estimado), F=7 (estimado), G=7 (estimado), H=7 (estimado), I=6 (estimado), J=6 (estimado)
