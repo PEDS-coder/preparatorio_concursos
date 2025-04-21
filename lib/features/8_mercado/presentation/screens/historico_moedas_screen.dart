@@ -197,7 +197,7 @@ class HistoricoMoedasScreen extends StatelessWidget {
                 ),
                 SizedBox(height: 4),
                 Text(
-                  DateFormat('dd-MM-yyyy HH:mm').format(item.data),
+                  DateFormat('dd/MM/yyyy HH:mm').format(item.data),
                   style: TextStyle(
                     fontSize: 12,
                     color: Colors.white.withOpacity(0.5),

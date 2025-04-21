@@ -8,6 +8,7 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/auth/auth_service.dart';
 import '../../../../core/data/services/edital_service.dart';
 import '../../../../core/data/services/ia_service.dart';
+import '../../../../core/data/services/interfaces/ia_service_interface.dart';
 import '../../../../core/services/audio_explanation_service.dart';
 import '../../../../core/data/models/models.dart';
 import '../../../../core/data/models/edital.dart';
@@ -15,6 +16,7 @@ import '../../../../core/utils/edital_analyzer.dart';
 import '../../../../core/widgets/matrix_rain_animation.dart';
 import 'edital_analysis_view_screen.dart';
 import '../../../../features/4_study_plan/presentation/screens/plano_add_screen.dart';
+import '../../../../features/4_study_plan/presentation/screens/plano_questionario_screen.dart';
 
 class CargoSelectScreen extends StatefulWidget {
   final String editalId;
@@ -179,68 +181,8 @@ class _CargoSelectScreenState extends State<CargoSelectScreen> {
             ),
             SizedBox(height: 32),
 
-            // Mostrar cargos selecionados
-            if (_cargosSelecionados.isNotEmpty) ...[
-              Container(
-                padding: EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.green.shade50,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.green.shade200),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(Icons.check_circle, color: Colors.green),
-                        SizedBox(width: 12),
-                        Text(
-                          'Cargos Selecionados (${_cargosSelecionados.length})',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.green.shade800,
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 12),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: _cargosSelecionados.map((cargo) => Chip(
-                        label: Text(cargo),
-                        backgroundColor: Colors.green.shade100,
-                        deleteIcon: Icon(Icons.close, size: 18),
-                        onDeleted: () {
-                          setState(() {
-                            _cargosSelecionados.remove(cargo);
-                            if (_lastSelectedCargo == cargo) {
-                              _lastSelectedCargo = _cargosSelecionados.isNotEmpty ? _cargosSelecionados.last : null;
-                              _showPopupButtons = _cargosSelecionados.isNotEmpty;
-                            }
-                          });
-                        },
-                      )).toList(),
-                    ),
-                    SizedBox(height: 12),
-                    if (_cargosSelecionados.length > 1)
-                      ElevatedButton.icon(
-                        onPressed: _continuarParaPlanoEstudo,
-                        icon: Icon(Icons.arrow_forward),
-                        label: Text('Criar Plano de Estudo'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppTheme.primaryColor,
-                          foregroundColor: Colors.white,
-                          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-              SizedBox(height: 24),
-            ],
+            // Seção de cargos selecionados removida conforme solicitado
+
 
             // Lista de cargos
             Text(
@@ -356,26 +298,15 @@ class _CargoSelectScreenState extends State<CargoSelectScreen> {
               _lastSelectedCargo = null;
             });
           } else {
-            // Permitir seleção de múltiplos cargos
-            // Verificar se as datas de prova não colidem
-            if (_verificarCompatibilidadeDatas(cargo)) {
-              setState(() {
-                // Adicionar o cargo à lista de selecionados sem limpar os anteriores
-                // Usar o nome do cargo como identificador estável
-                _cargosSelecionados.add(cargoIdentifier);
-                _showPopupButtons = true;
-                _lastSelectedCargo = cargoIdentifier;
-              });
-            } else {
-              // Mostrar mensagem de erro
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Este cargo tem data de prova que conflita com outro cargo já selecionado.'),
-                  backgroundColor: Colors.red,
-                  duration: Duration(seconds: 3),
-                ),
-              );
-            }
+            // Permitir apenas um cargo por vez
+            setState(() {
+              // Limpar seleções anteriores
+              _cargosSelecionados.clear();
+              // Adicionar apenas o cargo atual
+              _cargosSelecionados.add(cargoIdentifier);
+              _showPopupButtons = true;
+              _lastSelectedCargo = cargoIdentifier;
+            });
           }
         },
         borderRadius: BorderRadius.circular(12),
@@ -408,50 +339,27 @@ class _CargoSelectScreenState extends State<CargoSelectScreen> {
               if (isSelecionado && _showPopupButtons)
                 Container(
                   margin: EdgeInsets.only(top: 16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      // Botão para adicionar mais cargos
-                      Expanded(
-                        child: ElevatedButton.icon(
-                          onPressed: () {
-                            setState(() {
-                              _showPopupButtons = false;
-                            });
-                          },
-                          icon: Icon(Icons.add_circle_outline, size: 16),
-                          label: Text('Adicionar Mais', style: TextStyle(fontSize: 12)),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.amber.shade600,
-                            foregroundColor: Colors.white,
-                            padding: EdgeInsets.symmetric(vertical: 8),
-                          ),
-                        ),
+                  child: Center(
+                    // Botão para continuar para o plano de estudo
+                    child: ElevatedButton.icon(
+                      onPressed: _isLoading ? null : _continuarParaPlanoEstudo,
+                      icon: Icon(Icons.arrow_forward, size: 16),
+                      label: Text('Criar Plano', style: TextStyle(fontSize: 14)),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.primaryColor,
+                        foregroundColor: Colors.white,
+                        padding: EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+                        disabledBackgroundColor: Colors.grey.shade300,
                       ),
-                      SizedBox(width: 8),
-                      // Botão para continuar para o plano de estudo
-                      Expanded(
-                        child: ElevatedButton.icon(
-                          onPressed: _isLoading ? null : _continuarParaPlanoEstudo,
-                          icon: Icon(Icons.arrow_forward, size: 16),
-                          label: Text('Criar Plano', style: TextStyle(fontSize: 12)),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppTheme.primaryColor,
-                            foregroundColor: Colors.white,
-                            padding: EdgeInsets.symmetric(vertical: 8),
-                            disabledBackgroundColor: Colors.grey.shade300,
-                          ),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
               SizedBox(height: 12),
-              _buildCargoInfoItem('Vagas', _formatarVagas(cargo, edital), Icons.people),
+              // Vagas removidas conforme solicitado
               _buildCargoInfoItem('Salário', 'R\$ ${_formatarSalario(cargo.salario)}', Icons.attach_money),
               _buildCargoInfoItem('Escolaridade', cargo.escolaridade, Icons.school),
               if (cargo.dataProva != null)
-                _buildCargoInfoItem('Data da Prova', DateFormat('dd-MM-yyyy').format(cargo.dataProva!), Icons.calendar_today),
+                _buildCargoInfoItem('Data da Prova', DateFormat('dd/MM/yyyy').format(cargo.dataProva!), Icons.calendar_today),
               if (cargo.horarioProva != null && cargo.horarioProva!.isNotEmpty)
                 _buildCargoInfoItem('Horário da Prova', cargo.horarioProva!, Icons.access_time),
               if (cargo.requisitos != null && cargo.requisitos != 'Não informado')
@@ -954,12 +862,15 @@ class _CargoSelectScreenState extends State<CargoSelectScreen> {
   }
 
   Future<void> _continuarParaPlanoEstudo() async {
+    print('_continuarParaPlanoEstudo iniciado');
     if (_cargosSelecionados.isEmpty) {
+      print('Nenhum cargo selecionado');
       setState(() {
         _errorMessage = 'Selecione pelo menos um cargo para continuar';
       });
       return;
     }
+    print('Cargos selecionados: $_cargosSelecionados');
 
     setState(() {
       _isLoading = true;
@@ -970,13 +881,19 @@ class _CargoSelectScreenState extends State<CargoSelectScreen> {
 
     try {
       // Obter o edital
+      print('Obtendo serviços e edital');
       final editalService = Provider.of<EditalService>(context, listen: false);
-      final iaService = Provider.of<IAService>(context, listen: false);
+      // Usar o Provider.value para obter o IAService
+      final iaService = Provider.of<IAServiceInterface>(context, listen: false);
+      print('IAService obtido: ${iaService != null}');
       final edital = editalService.getEditalById(widget.editalId);
+      print('Edital ID: ${widget.editalId}');
+      print('Edital encontrado: ${edital != null}');
 
       if (edital == null) {
         throw Exception('Edital não encontrado');
       }
+      print('Nome do concurso: ${edital.nomeConcurso}');
 
       // Verificar conflito de datas entre os cargos selecionados
       if (_cargosSelecionados.length > 1) {
@@ -1034,48 +951,72 @@ class _CargoSelectScreenState extends State<CargoSelectScreen> {
       }
 
       // Segunda etapa: extrair dados do concurso e conteúdo programático para o cargo selecionado
+      bool extraiuConteudo = false;
       if (_cargosSelecionados.length == 1) {
-        setState(() {
-          _progressMessage = 'Extraindo dados do concurso e conteúdo programático para o cargo selecionado...';
-          _progressValue = 0.3;
-        });
+        // Verificar se a API LLM está configurada
+        print('Verificando se a API LLM está configurada');
+        // Verificar se o método isConfigured existe e está disponível
+        bool isConfigured = false;
+        try {
+          isConfigured = iaService.isConfigured;
+          print('API LLM configurada: $isConfigured');
+        } catch (e) {
+          print('Erro ao verificar configuração da API LLM: $e');
+          isConfigured = false;
+        }
 
-        // Obter o nome do cargo selecionado
-        final String cargoNome = _cargosSelecionados.first;
+        if (isConfigured) {
+          setState(() {
+            _progressMessage = 'Extraindo dados do concurso e conteúdo programático para o cargo selecionado...';
+            _progressValue = 0.3;
+          });
 
-        // Obter os bytes do PDF do edital
-        final String? pdfBytesBase64 = edital.dadosOriginais?['pdfBytes'];
-        if (pdfBytesBase64 != null) {
-          // Decodificar os bytes do PDF
-          final Uint8List pdfBytes = base64Decode(pdfBytesBase64);
+          try {
+            // Obter o nome do cargo selecionado
+            final String cargoNome = _cargosSelecionados.first;
 
-          // Criar analisador de edital
-          final editalAnalyzer = EditalAnalyzer(
-            iaService: iaService,
-            onProgress: (progress, message) {
-              setState(() {
-                _progressValue = 0.3 + (progress * 0.6); // Mapear o progresso para 30%-90%
-                _progressMessage = message;
-              });
-            },
-          );
+            // Obter os bytes do PDF do edital
+            final String? pdfBytesBase64 = edital.dadosOriginais?['pdfBytes'];
+            if (pdfBytesBase64 != null) {
+              // Decodificar os bytes do PDF
+              final Uint8List pdfBytes = base64Decode(pdfBytesBase64);
 
-          // Extrair dados do concurso e conteúdo programático para o cargo selecionado (novo fluxo)
-          final conteudoProgramatico = await editalAnalyzer.extrairConcursoConteudo(pdfBytes, cargoNome);
+              // Criar analisador de edital
+              final editalAnalyzer = EditalAnalyzer(
+                iaService: iaService,
+                onProgress: (progress, message) {
+                  setState(() {
+                    _progressValue = 0.3 + (progress * 0.6); // Mapear o progresso para 30%-90%
+                    _progressMessage = message;
+                  });
+                },
+              );
 
-          if (conteudoProgramatico != null) {
-            setState(() {
-              _progressMessage = 'Atualizando conteúdo programático...';
-              _progressValue = 0.9;
-            });
+              // Extrair dados do concurso e conteúdo programático para o cargo selecionado (novo fluxo)
+              final conteudoProgramatico = await editalAnalyzer.extrairConcursoConteudo(pdfBytes, cargoNome);
 
-            // Atualizar o conteúdo programático do cargo no edital
-            await editalService.atualizarConteudoProgramaticoCargo(
-              edital.id,
-              cargoNome,
-              conteudoProgramatico,
-            );
+              if (conteudoProgramatico != null) {
+                setState(() {
+                  _progressMessage = 'Atualizando conteúdo programático...';
+                  _progressValue = 0.9;
+                });
+
+                // Atualizar o conteúdo programático do cargo no edital
+                await editalService.atualizarConteudoProgramaticoCargo(
+                  edital.id,
+                  cargoNome,
+                  conteudoProgramatico,
+                );
+                extraiuConteudo = true;
+              }
+            }
+          } catch (e) {
+            // Registrar o erro, mas continuar com a navegação
+            print('Erro ao extrair conteúdo programático: $e');
+            // Não definir _errorMessage para não interromper o fluxo
           }
+        } else {
+          print('API LLM não configurada. Pulando extração de conteúdo programático.');
         }
       }
 
@@ -1088,21 +1029,88 @@ class _CargoSelectScreenState extends State<CargoSelectScreen> {
       // Pequeno delay para mostrar o indicador de progresso
       await Future.delayed(Duration(milliseconds: 500));
 
-      // Navegar para a tela de criação de plano de estudo com todos os cargos selecionados
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => PlanoAddScreen(
-            editalId: widget.editalId,
-            cargoIds: _cargosSelecionados,
+      // Preparar dados para a tela de questionário
+      // Usar o editalService que já foi obtido anteriormente
+
+      if (edital != null) {
+        // Preparar dados do edital
+        String dataProvaFormatada = edital.dadosExtraidos.dataProva ?? 'Não informado';
+
+        Map<String, dynamic> dadosEdital = {
+          'id': edital.id,
+          'nomeConcurso': edital.nomeConcurso,
+          'orgao': edital.dadosExtraidos.orgao ?? 'Não informado',
+          'banca': edital.dadosExtraidos.banca ?? 'Não informado',
+          'dataProva': dataProvaFormatada,
+        };
+
+        // Preparar dados do cargo
+        String cargoNome = _cargosSelecionados.isNotEmpty ? _cargosSelecionados.first : 'Não informado';
+        Cargo? cargo;
+        try {
+          if (edital.dadosExtraidos.cargos.isNotEmpty) {
+            cargo = edital.dadosExtraidos.cargos.firstWhere(
+              (c) => c.nome == cargoNome,
+              orElse: () => edital.dadosExtraidos.cargos.first,
+            );
+          }
+        } catch (e) {
+          print('Erro ao buscar cargo: $e');
+        }
+
+        Map<String, dynamic> dadosCargo = {
+          'cargo': cargoNome,
+          'materias': cargo != null ?
+              cargo.conteudoProgramatico.map((m) => m.nome).toList() :
+              ['Língua Portuguesa', 'Raciocínio Lógico', 'Conhecimentos Gerais'],
+        };
+
+        print('Navegando para PlanoQuestionarioScreen');
+        print('Dados do Edital: $dadosEdital');
+        print('Dados do Cargo: $dadosCargo');
+
+        // Navegar para a tela de questionário
+        print('Tentando navegar para PlanoQuestionarioScreen');
+        try {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => PlanoQuestionarioScreen(
+                dadosEdital: dadosEdital,
+                dadosCargo: dadosCargo,
+              ),
+            ),
+          );
+          print('Navegação para PlanoQuestionarioScreen bem-sucedida');
+        } catch (e) {
+          print('Erro ao navegar para PlanoQuestionarioScreen: $e');
+        }
+      } else {
+        // Fallback: navegar para a tela de criação de plano de estudo diretamente
+        print('Edital não encontrado. Navegando para PlanoAddScreen como fallback');
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PlanoAddScreen(
+              editalId: widget.editalId,
+              cargoIds: _cargosSelecionados,
+            ),
           ),
-        ),
-      );
+        );
+      }
     } catch (e) {
+      print('Erro ao continuar para plano de estudo: $e');
       setState(() {
         _isLoading = false;
         _errorMessage = 'Erro ao continuar: $e';
       });
+    } finally {
+      // Garantir que o indicador de carregamento seja removido
+      if (_isLoading) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -1126,7 +1134,7 @@ class _CargoSelectScreenState extends State<CargoSelectScreen> {
 
     for (final cargo in cargos) {
       if (cargo.dataProva != null) {
-        final dataStr = DateFormat('dd-MM-yyyy').format(cargo.dataProva!);
+        final dataStr = DateFormat('dd/MM/yyyy').format(cargo.dataProva!);
         cargosPorData.putIfAbsent(dataStr, () => []).add(cargo.nome);
       }
     }

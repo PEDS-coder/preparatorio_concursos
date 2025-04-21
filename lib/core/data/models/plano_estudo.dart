@@ -57,6 +57,7 @@ class PlanoEstudo {
   final DateTime dataInicio;
   final DateTime dataFim;
   final Map<String, int> horasSemanais; // {'segunda': 2, 'terca': 3, ...}
+  final Map<String, List<int>>? horariosEspecificos; // {'segunda': [18, 19, 20], 'terca': [19, 20], ...}
   final List<String> ferramentas;
   final List<MateriaProficiencia> materiasProficiencia;
   final List<RecompensaConfig> recompensas;
@@ -72,6 +73,7 @@ class PlanoEstudo {
     required this.dataInicio,
     required this.dataFim,
     required this.horasSemanais,
+    this.horariosEspecificos,
     required this.ferramentas,
     required this.materiasProficiencia,
     required this.recompensas,
@@ -95,6 +97,15 @@ class PlanoEstudo {
       'sessoesEstudo': sessoesEstudo.map((s) => s.toMap()).toList(),
     };
 
+    // Adicionar horários específicos se existirem
+    if (horariosEspecificos != null) {
+      final horariosMap = <String, List<dynamic>>{};
+      for (var entry in horariosEspecificos!.entries) {
+        horariosMap[entry.key] = entry.value.toList();
+      }
+      map['horariosEspecificos'] = horariosMap;
+    }
+
     // Adicionar metadados
     map['metadados'] = metadados;
 
@@ -102,6 +113,17 @@ class PlanoEstudo {
   }
 
   factory PlanoEstudo.fromMap(Map<String, dynamic> map) {
+    // Processar horários específicos se existirem
+    Map<String, List<int>>? horariosEspecificos;
+    if (map['horariosEspecificos'] != null) {
+      horariosEspecificos = {};
+      (map['horariosEspecificos'] as Map<String, dynamic>).forEach((key, value) {
+        if (value is List) {
+          horariosEspecificos![key] = List<int>.from(value);
+        }
+      });
+    }
+
     return PlanoEstudo(
       id: map['id'],
       userId: map['userId'],
@@ -111,6 +133,7 @@ class PlanoEstudo {
       dataInicio: DateTime.parse(map['dataInicio']),
       dataFim: DateTime.parse(map['dataFim']),
       horasSemanais: Map<String, int>.from(map['horasSemanais']),
+      horariosEspecificos: horariosEspecificos,
       ferramentas: List<String>.from(map['ferramentas']),
       materiasProficiencia: List<MateriaProficiencia>.from(
           map['materiasProficiencia']?.map((x) => MateriaProficiencia.fromMap(x))),
@@ -130,4 +153,39 @@ class PlanoEstudo {
   // Getters para compatibilidade com código existente
   String get titulo => metadados['titulo'] ?? 'Plano de Estudo';
   List<dynamic> get materias => metadados['materias'] ?? [];
+
+  // Método copyWith para criar uma cópia com alterações
+  PlanoEstudo copyWith({
+    String? id,
+    String? userId,
+    String? editalId,
+    List<String>? cargoIds,
+    DateTime? dataCriacao,
+    DateTime? dataInicio,
+    DateTime? dataFim,
+    Map<String, int>? horasSemanais,
+    Map<String, List<int>>? horariosEspecificos,
+    List<String>? ferramentas,
+    List<MateriaProficiencia>? materiasProficiencia,
+    List<RecompensaConfig>? recompensas,
+    List<SessaoEstudo>? sessoesEstudo,
+    Map<String, dynamic>? metadados,
+  }) {
+    return PlanoEstudo(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      editalId: editalId ?? this.editalId,
+      cargoIds: cargoIds ?? this.cargoIds,
+      dataCriacao: dataCriacao ?? this.dataCriacao,
+      dataInicio: dataInicio ?? this.dataInicio,
+      dataFim: dataFim ?? this.dataFim,
+      horasSemanais: horasSemanais ?? this.horasSemanais,
+      horariosEspecificos: horariosEspecificos ?? this.horariosEspecificos,
+      ferramentas: ferramentas ?? this.ferramentas,
+      materiasProficiencia: materiasProficiencia ?? this.materiasProficiencia,
+      recompensas: recompensas ?? this.recompensas,
+      sessoesEstudo: sessoesEstudo ?? this.sessoesEstudo,
+      metadados: metadados ?? this.metadados,
+    );
+  }
 }

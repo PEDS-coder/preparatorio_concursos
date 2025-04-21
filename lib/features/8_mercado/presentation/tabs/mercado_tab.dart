@@ -432,7 +432,7 @@ class _MercadoTabState extends State<MercadoTab> with SingleTickerProviderStateM
                       ),
                       SizedBox(width: 4),
                       Text(
-                        'Resgatado em ${DateFormat('dd-MM-yyyy').format(recompensa.dataResgate!)}',
+                        'Resgatado em ${DateFormat('dd/MM/yyyy').format(recompensa.dataResgate!)}',
                         style: TextStyle(
                           color: Colors.green,
                           fontSize: 12,

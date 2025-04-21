@@ -229,7 +229,7 @@ class StoredFilesWidget extends StatelessWidget {
   }
 
   String _formatDate(DateTime date) {
-    final formatter = DateFormat('dd-MM-yyyy HH:mm');
+    final formatter = DateFormat('dd/MM/yyyy HH:mm');
     return formatter.format(date);
   }
 

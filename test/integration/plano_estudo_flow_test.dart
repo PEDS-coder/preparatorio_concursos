@@ -35,7 +35,7 @@ void main() {
     mockEditalService = MockEditalService();
     mockPlanoEstudoService = MockPlanoEstudoService();
     mockIAService = MockIAService();
-    
+
     // Criar um edital de teste
     mockEdital = Edital(
       id: 'edital_id',
@@ -46,7 +46,7 @@ void main() {
       linkEdital: 'https://example.com/edital',
       cargos: [],
     );
-    
+
     // Criar cargos de teste
     mockCargos = [
       Cargo(
@@ -71,21 +71,29 @@ void main() {
         },
       ),
     ];
-    
+
     // Adicionar cargos ao edital
     mockEdital = mockEdital.copyWith(cargos: mockCargos);
-    
+
     // Criar um plano de estudo de teste
     mockPlano = PlanoEstudo(
       id: 'plano_id',
-      titulo: 'Plano de Estudo de Teste',
+      userId: 'user_id',
       editalId: 'edital_id',
       cargoIds: ['cargo1'],
+      dataCriacao: DateTime.now(),
       dataInicio: DateTime.now(),
       dataFim: DateTime.now().add(Duration(days: 90)),
-      materias: [],
-      calendario: {},
-      preferencias: {},
+      horasSemanais: {'segunda': 2, 'terca': 2, 'quarta': 2, 'quinta': 2, 'sexta': 2, 'sabado': 1, 'domingo': 1},
+      horariosEspecificos: null,
+      ferramentas: ['Resumos', 'Flashcards'],
+      materiasProficiencia: [],
+      recompensas: [],
+      sessoesEstudo: [],
+      metadados: {
+        'titulo': 'Plano de Estudo de Teste',
+        'materias': [],
+      },
     );
   });
 
@@ -143,7 +151,7 @@ void main() {
 
       // Selecionar o cargo (simulação)
       // Na prática, precisaríamos modificar a tela para torná-la mais testável
-      
+
       // Pressionar o botão de continuar
       await tester.tap(find.text('Continuar'));
       await tester.pumpAndSettle();
@@ -151,13 +159,13 @@ void main() {
       // Verificar se a navegação para a tela de criação de plano ocorreu
       // Isso depende da implementação da navegação
       // Como estamos usando um MaterialApp isolado para o teste, a navegação não funcionará completamente
-      
+
       // Simular a criação do plano
       // Na prática, precisaríamos modificar a tela para torná-la mais testável
-      
+
       // Verificar se o plano foi criado
       expect(mockPlanoEstudoService.gerarPlanoPersonalizado, isNotNull);
-      
+
       // Nota: Testes de integração completos são mais adequados para testes de dispositivo real
       // ou emulador usando o pacote integration_test do Flutter
     });

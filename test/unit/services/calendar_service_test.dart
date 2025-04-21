@@ -44,18 +44,19 @@ void main() {
       // Arrange
       final plano = PlanoEstudo(
         id: 'test_id',
-        titulo: 'Test Plano',
         userId: 'user_id',
         editalId: 'edital_id',
         cargoIds: ['cargo_id'],
+        dataCriacao: DateTime.now(),
         dataInicio: DateTime.now(),
         dataFim: DateTime.now().add(const Duration(days: 30)),
-        horasSemanais: {'1': 2, '2': 2, '3': 2, '4': 2, '5': 2, '6': 2, '7': 2},
+        horasSemanais: {'segunda': 2, 'terca': 2, 'quarta': 2, 'quinta': 2, 'sexta': 2, 'sabado': 1, 'domingo': 1},
+        horariosEspecificos: null,
         ferramentas: ['Resumos', 'Flashcards'],
+        materiasProficiencia: [],
         recompensas: [],
         sessoesEstudo: [],
-        materias: [],
-        metadados: {},
+        metadados: {'titulo': 'Test Plano', 'materias': []},
       );
 
       // Act

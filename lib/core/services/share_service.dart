@@ -211,7 +211,7 @@ class ShareService implements IShareService {
 
   /// Formata uma data
   String _formatDate(DateTime date) {
-    return '${date.day.toString().padLeft(2, '0')}-${date.month.toString().padLeft(2, '0')}-${date.year}';
+    return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
   }
 
   /// Formata o tipo de recompensa

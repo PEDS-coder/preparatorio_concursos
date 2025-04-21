@@ -20,16 +20,25 @@ void main() {
   setUp(() {
     mockPlanoEstudoService = MockPlanoEstudoService();
     mockEditalService = MockEditalService();
-    
+
     // Criar um plano de estudo de teste
     mockPlano = PlanoEstudo(
       id: 'plano_id',
-      titulo: 'Plano de Estudo de Teste',
+      userId: 'user_id',
       editalId: 'edital_id',
       cargoIds: ['cargo_id'],
+      dataCriacao: DateTime.now(),
       dataInicio: DateTime.now(),
       dataFim: DateTime.now().add(Duration(days: 90)),
-      materias: [
+      horasSemanais: {'segunda': 2, 'terca': 2, 'quarta': 2, 'quinta': 2, 'sexta': 2, 'sabado': 1, 'domingo': 1},
+      horariosEspecificos: null,
+      ferramentas: ['Resumos', 'Flashcards'],
+      materiasProficiencia: [],
+      recompensas: [],
+      sessoesEstudo: [],
+      metadados: {
+        'titulo': 'Plano de Estudo de Teste',
+        'materias': [
         Materia(
           id: 'materia1',
           nome: 'Português',
@@ -112,7 +121,7 @@ void main() {
 
       // Verificar se o calendário está presente
       expect(find.text('Calendário de Estudos'), findsOneWidget);
-      
+
       // Verificar se os dias da semana estão presentes
       expect(find.text('Seg'), findsOneWidget);
       expect(find.text('Ter'), findsOneWidget);

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/navigation/bottom_navigation_helper.dart';
 import '../../../../core/data/services/edital_service.dart';
 import '../../../../core/data/models/models.dart';
 import '../../../../core/data/models/edital.dart';
@@ -9,10 +10,12 @@ import 'cargo_select_screen.dart';
 class EditalAnalysisViewScreen extends StatefulWidget {
   final String editalId;
   final List<String>? cargosSelecionados;
+  final bool showBottomNavigationBar;
 
   EditalAnalysisViewScreen({
     required this.editalId,
     this.cargosSelecionados,
+    this.showBottomNavigationBar = true,
   });
 
   @override
@@ -266,7 +269,12 @@ class _EditalAnalysisViewScreenState extends State<EditalAnalysisViewScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: _buildBottomNavigation(),
+      bottomNavigationBar: widget.showBottomNavigationBar
+          ? BottomNavigationHelper.buildBottomNavigationBar(
+              context,
+              currentIndex: 1, // Índice do Meu Edital
+            )
+          : _buildBottomNavigation(),
     );
   }
 
@@ -1016,7 +1024,7 @@ class _EditalAnalysisViewScreenState extends State<EditalAnalysisViewScreen> {
   String _formatDate(DateTime? date) {
     if (date == null) return 'Não informado';
     try {
-      return '${date.day.toString().padLeft(2, '0')}-${date.month.toString().padLeft(2, '0')}-${date.year}';
+      return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
     } catch (e) {
       return 'Data inválida';
     }
