@@ -1,0 +1,79 @@
+# Log de Navegação
+
+## Problema
+Na página de seleção do cargo, ao clicar no cargo escolhido, a aplicação não está navegando para a página de questionário.
+
+## Análise
+1. O problema parece estar relacionado ao uso do NavigationService.
+2. O NavigationService está sendo registrado corretamente no GetIt, mas há um problema com a chave do navegador.
+3. No arquivo app.dart, a aplicação está usando uma chave de navegador diferente da que está definida no NavigationService.
+
+## Solução Implementada
+1. Modificamos o método _continuarParaPlanoEstudo() na tela CargoSelectScreen para usar diretamente o Navigator.push() em vez de tentar usar o NavigationService.
+2. Modificamos o botão de visualização do edital na barra de ações para usar diretamente o Navigator.push().
+3. Restauramos a chave de navegador original no arquivo app.dart.
+
+## Alterações Realizadas
+
+### 1. Arquivo `cargo_select_screen.dart`
+Modificamos o método `_continuarParaPlanoEstudo()` para usar diretamente o `Navigator.push()` em vez de tentar usar o `NavigationService`:
+
+```dart
+// Navegar para a tela de questionário
+print('Tentando navegar para PlanoQuestionarioScreen');
+try {
+  // Usar diretamente o Navigator.push para evitar problemas com o NavigationService
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => PlanoQuestionarioScreen(
+        dadosEdital: dadosEdital,
+        dadosCargo: dadosCargo,
+      ),
+    ),
+  );
+  print('Navegação para PlanoQuestionarioScreen via Navigator bem-sucedida');
+} catch (e) {
+  print('Erro ao navegar para PlanoQuestionarioScreen: $e');
+}
+```
+
+Também modificamos o botão de visualização do edital na barra de ações para usar diretamente o `Navigator.push()`:
+
+```dart
+// Navegar para a tela de visualização do edital com os cargos selecionados
+Navigator.push(
+  context,
+  MaterialPageRoute(
+    builder: (context) => EditalAnalysisViewScreen(
+      editalId: widget.editalId,
+      cargosSelecionados: _cargosSelecionados,
+    ),
+  ),
+);
+```
+
+### 2. Arquivo `app.dart`
+Restauramos a chave de navegador original no arquivo `app.dart`:
+
+```dart
+// Chave global para o navegador
+final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
+```
+
+E modificamos o `MaterialApp` para usar a chave `_navigatorKey`:
+
+```dart
+navigatorKey: _navigatorKey,
+```
+
+## Resultados do Teste
+A aplicação foi iniciada com sucesso e está disponível em http://localhost:65451. Agora, ao clicar no botão "Criar Plano" na tela de seleção de cargo, a aplicação deve navegar corretamente para a tela de questionário.
+
+## Conclusão
+O problema estava relacionado ao uso do NavigationService. A solução mais simples e eficaz foi usar diretamente o Navigator.push() em vez de tentar usar o NavigationService. Isso garante que a navegação funcione corretamente, independentemente de problemas com o serviço de navegação.
+
+## Recomendações para o Futuro
+1. Considerar uma solução mais completa para unificar a navegação em toda a aplicação.
+2. Garantir que a mesma chave de navegador seja usada em toda a aplicação.
+3. Implementar testes de navegação para garantir que a navegação funcione corretamente em todas as telas.

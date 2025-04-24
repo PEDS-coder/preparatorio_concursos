@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'dart:io';
 import '../../models/flashcard.dart';
 
 /// Interface para serviços de IA
@@ -114,4 +115,20 @@ abstract class IAServiceInterface {
     required String cargoAlvo,
     required Map<String, dynamic> dadosCargo,
   });
+
+  /// Analisa um edital na primeira chamada (primeira etapa)
+  /// Extrai informações básicas e cargos
+  Future<Map<String, dynamic>> analisarEditalPrimeiraChamada(
+    List<File> files,
+    Function(String, double) onProgress,
+  );
+
+  /// Analisa um edital na segunda chamada (segunda etapa)
+  /// Extrai informações detalhadas do cargo selecionado
+  Future<Map<String, dynamic>> analisarEditalSegundaChamada(
+    String editalId,
+    String cargoId,
+    String cargoNome,
+    Function(String, double) onProgress,
+  );
 }

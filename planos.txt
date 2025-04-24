@@ -1,0 +1,55 @@
+# Plano de Implementação
+
+## Problemas Identificados
+1. A segunda chamada à API não está sendo realizada antes da navegação para a tela de questionário
+2. As matérias do cargo não estão sendo apresentadas na tela de questionário
+3. A navegação não está intuitiva, com passos desnecessários
+
+## Soluções Planejadas
+1. Corrigir a extração do conteúdo programático
+   - Modificar o método `_continuarParaPlanoEstudo()` para garantir que a chamada à API seja realizada
+   - Adicionar logs para verificar o funcionamento da API
+   - Garantir que o conteúdo programático seja armazenado corretamente
+
+2. Corrigir a exibição das matérias na tela de questionário
+   - Modificar a tela `PlanoQuestionarioScreen` para exibir as matérias
+   - Garantir que as matérias sejam passadas corretamente
+
+3. Melhorar a navegação
+   - Simplificar o fluxo de navegação
+   - Adicionar o botão "Criar Plano" diretamente na tela de análise do edital
+
+## Progresso
+- [x] Implementar solução para o problema 1
+  - Adicionados logs detalhados para rastrear a extração do conteúdo programático
+  - Modificado o método `_continuarParaPlanoEstudo()` para garantir que a chamada à API seja realizada corretamente
+  - Adicionada verificação para garantir que o conteúdo programático seja extraído e armazenado corretamente
+
+- [x] Implementar solução para o problema 2
+  - Modificada a tela `PlanoQuestionarioScreen` para exibir corretamente as matérias
+  - Adicionada conversão de tipos para garantir que as matérias sejam tratadas como strings
+  - Adicionados logs para rastrear o fluxo de dados das matérias
+
+- [x] Implementar solução para o problema 3
+  - Adicionado botão "Criar Plano" diretamente na tela de análise do edital
+  - Implementado método `_navegarParaQuestionario()` para navegar diretamente para a tela de questionário
+  - Simplificado o fluxo de navegação, eliminando a tela intermediária
+
+- [x] Corrigir erro de compilação no método `_navegarParaQuestionario()`
+  - Corrigido o método `_navegarParaQuestionario()` no arquivo `edital_analysis_view_screen.dart`
+  - Alterado `edital.cargos` para `edital.dadosExtraidos.cargos`
+  - Alterado `edital.cargos.first` para `edital.dadosExtraidos.cargos.first`
+
+- [x] Corrigir o fluxo da aplicação para seguir o padrão desejado
+  - Modificada a tela de Splash para redirecionar diretamente para o Login
+  - Modificado o `app_router.dart` para redirecionar a rota `/plano/add` para a tela de seleção de cargo
+  - Melhorado o feedback visual na tela de seleção de cargo para indicar a segunda chamada à API
+  - Atualizadas as mensagens de progresso no método `_continuarParaPlanoEstudo()` para maior clareza
+  - Garantido que a segunda chamada à API seja sempre realizada antes de mostrar a tela de questionário
+
+- [x] Migrar funcionalidades do `edital_analysis_view_screen.dart` para `edital_details_screen.dart`
+  - Adicionadas as funcionalidades de visualização detalhada do conteúdo programático ao `edital_details_screen.dart`
+  - Adicionado o método `_navegarParaQuestionario()` ao `edital_details_screen.dart`
+  - Adicionado o agrupamento de cargos por categoria ao `edital_details_screen.dart`
+  - Atualizadas todas as referências ao `EditalAnalysisViewScreen` para usar o `EditalDetailsScreen`
+  - Removido o arquivo `edital_analysis_view_screen.dart` após a migração completa

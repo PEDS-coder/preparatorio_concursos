@@ -1,0 +1,36 @@
+import 'package:flutter/material.dart';
+
+/// Widget que exibe uma mensagem de erro
+class ErrorMessageWidget extends StatelessWidget {
+  final String errorMessage;
+
+  const ErrorMessageWidget({
+    Key? key,
+    required this.errorMessage,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.only(top: 24),
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.red.shade50,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.red.shade200),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.error_outline, color: Colors.red),
+          SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              errorMessage,
+              style: TextStyle(color: Colors.red.shade700),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

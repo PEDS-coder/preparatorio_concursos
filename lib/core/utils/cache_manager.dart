@@ -17,14 +17,28 @@ class CacheManager {
 
   /// Retorna o diretório de cache
   static Future<Directory> _getCacheDirectory() async {
-    final appDir = await getApplicationDocumentsDirectory();
-    final cacheDir = Directory('${appDir.path}/$_cacheDir');
+    try {
+      // Tentar usar o diretório temporário em vez do diretório de documentos
+      // para evitar problemas de permissão
+      final tempDir = await getTemporaryDirectory();
+      final cacheDir = Directory('${tempDir.path}/$_cacheDir');
 
-    if (!await cacheDir.exists()) {
-      await cacheDir.create(recursive: true);
+      if (!await cacheDir.exists()) {
+        await cacheDir.create(recursive: true);
+      }
+
+      return cacheDir;
+    } catch (e) {
+      // Fallback para o diretório de documentos
+      final appDir = await getApplicationDocumentsDirectory();
+      final cacheDir = Directory('${appDir.path}/$_cacheDir');
+
+      if (!await cacheDir.exists()) {
+        await cacheDir.create(recursive: true);
+      }
+
+      return cacheDir;
     }
-
-    return cacheDir;
   }
 
   /// Verifica se existe um cache para o arquivo

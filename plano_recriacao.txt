@@ -1,0 +1,183 @@
+# PLANO DE RECRIAÇÃO DA APLICAÇÃO CONCURSOS IA
+
+## OBJETIVO
+Recriar a aplicação Concursos IA em uma nova pasta (C:\Users\plini\Desktop\concursos_ia\concurso_ia) para evitar problemas com o OneDrive e garantir o funcionamento correto.
+
+## FUNCIONALIDADES DA APLICAÇÃO ORIGINAL
+
+### Fluxo Principal
+1. Tela de Splash
+2. Tela de Boas-vindas
+3. Página de login
+4. Configuração da API (Google Gemini ou OpenAI)
+5. Upload de arquivos do edital
+6. Seleção de cargo
+7. Perguntas sobre horários disponíveis e proficiência nas matérias
+8. Apresentação do plano de estudos personalizado
+9. Dashboard principal
+
+### Funcionalidades Principais
+- **Autenticação de Usuário**: Login, registro e recuperação de senha
+- **Integração com IA**: Processamento de editais e geração de planos de estudo personalizados
+- **Gestão de Editais**: Upload, análise e armazenamento de editais de concursos
+- **Plano de Estudos**: Criação e visualização de planos personalizados
+- **Sessões de Estudo**: Agendamento e acompanhamento de sessões
+- **Gamificação**: Sistema de recompensas, troféus e mercado virtual
+- **Estatísticas e Progresso**: Acompanhamento do desempenho do usuário
+
+### Design e UI
+- Tema escuro e claro
+- Gradientes e elementos visuais modernos
+- Cards informativos
+- Gráficos e visualizações de dados
+- Calendário de estudos
+
+### Integrações
+- Google Gemini API
+- OpenAI API
+- Armazenamento local para dados do usuário
+- Armazenamento seguro para chaves de API
+
+## REQUISITOS PARA RECRIAÇÃO
+
+### Estrutura de Pastas
+- Arquitetura limpa com separação de camadas (features, core, etc.)
+- Organização por funcionalidades
+
+### Dependências
+- Flutter SDK
+- Provider para gerenciamento de estado
+- GetIt para injeção de dependências
+- HTTP para chamadas de API
+- SharedPreferences para armazenamento local
+- Flutter Secure Storage para armazenamento seguro
+- Intl para internacionalização
+- Table Calendar para o calendário de estudos
+
+### Serviços
+- Serviço de Autenticação
+- Serviço de IA
+- Serviço de Edital
+- Serviço de Plano de Estudo
+- Serviço de Sessão de Estudo
+- Serviço de Gamificação
+- Serviço de Estatísticas
+
+## PLANO DE RECRIAÇÃO (ORDEM CRONOLÓGICA)
+
+### FASE 1: CONFIGURAÇÃO INICIAL
+1. Criar a estrutura de pastas básica
+2. Configurar o pubspec.yaml com as dependências necessárias
+3. Implementar o tema da aplicação (cores, estilos, etc.)
+4. Configurar o sistema de navegação (rotas)
+
+### FASE 2: IMPLEMENTAÇÃO DOS SERVIÇOS CORE
+5. Implementar o serviço de configuração local
+6. Implementar o serviço de armazenamento seguro
+7. Implementar o serviço de autenticação
+8. Implementar o serviço de IA (integração com APIs)
+9. Implementar o serviço de injeção de dependências
+
+### FASE 3: IMPLEMENTAÇÃO DOS MODELOS DE DADOS
+10. Implementar os modelos de usuário
+11. Implementar os modelos de edital
+12. Implementar os modelos de plano de estudo
+13. Implementar os modelos de sessão de estudo
+14. Implementar os modelos de gamificação
+
+### FASE 4: IMPLEMENTAÇÃO DAS TELAS INICIAIS
+15. Implementar a tela de splash
+16. Implementar a tela de boas-vindas
+17. Implementar a tela de login
+18. Implementar a tela de configuração da API
+
+### FASE 5: IMPLEMENTAÇÃO DO FLUXO DE CRIAÇÃO DE PLANO
+19. Implementar a tela de upload de edital
+20. Implementar a tela de seleção de cargo
+21. Implementar a tela de perguntas sobre horários e proficiência
+22. Implementar a tela de apresentação do plano de estudos
+
+### FASE 6: IMPLEMENTAÇÃO DO DASHBOARD E FUNCIONALIDADES PRINCIPAIS
+23. Implementar o dashboard principal
+24. Implementar a visualização de editais
+25. Implementar o gerenciamento de planos de estudo
+26. Implementar o sistema de sessões de estudo
+27. Implementar as ferramentas de IA
+
+### FASE 7: IMPLEMENTAÇÃO DE FUNCIONALIDADES AVANÇADAS
+28. Implementar o sistema de gamificação
+29. Implementar o mercado virtual
+30. Implementar as estatísticas e visualizações de progresso
+31. Implementar o calendário de estudos
+
+### FASE 8: TESTES E AJUSTES FINAIS
+32. Testar o fluxo completo da aplicação
+33. Corrigir problemas encontrados
+34. Otimizar o desempenho
+35. Realizar ajustes finais de UI/UX
+
+## PROGRESSO ATUAL
+- Análise da aplicação original concluída
+- Identificação das funcionalidades principais concluída
+- Elaboração do plano de recriação concluída
+- Fase 1: Configuração Inicial concluída
+  - Estrutura de pastas básica criada
+  - pubspec.yaml configurado
+  - Tema da aplicação implementado
+  - Sistema de navegação configurado
+- Fase 2: Implementação dos Serviços Core concluída
+  - Serviço de configuração local implementado
+  - Serviço de armazenamento seguro implementado
+  - Serviço de autenticação implementado
+  - Serviço de IA implementado
+  - Serviço de injeção de dependências implementado
+- Fase 3: Implementação dos Modelos de Dados concluída
+  - Modelos de usuário implementados
+  - Modelos de edital implementados
+  - Modelos de plano de estudo implementados
+  - Modelos de sessão de estudo implementados
+  - Modelos de gamificação implementados
+- Fase 4: Implementação das Telas Iniciais concluída
+  - Tela de splash implementada
+  - Tela de boas-vindas implementada
+  - Tela de login implementada
+  - Tela de configuração da API implementada
+- Fase 5: Implementação do Fluxo de Criação de Plano concluída
+  - Tela de upload de edital implementada
+  - Tela de análise de edital implementada
+  - Tela de seleção de cargo implementada
+  - Tela de configuração do plano implementada
+  - Tela de geração do plano implementada
+  - Tela de resumo do plano implementada
+- Fase 6: Implementação do Dashboard concluída
+  - Dashboard principal implementado
+  - Abas do dashboard implementadas
+- Sistema de navegação atualizado para incluir todas as telas
+
+## IMPLEMENTAÇÃO DE FUNCIONALIDADES AVANÇADAS
+- Sistema de gamificação implementado
+  - Tela de troféus e conquistas
+- Mercado virtual implementado
+  - Tela de recompensas e histórico
+- Ferramentas de IA implementadas
+  - Flashcards
+  - Resumos
+  - Questões
+  - Mapas mentais
+- Sessões de estudo implementadas
+  - Tela de sessão com temporizador
+  - Integração com ferramentas de IA
+
+## PRÓXIMOS PASSOS
+- Fase 8: Testes e Ajustes Finais
+  - Testar o fluxo completo da aplicação
+  - Corrigir problemas encontrados
+  - Otimizar o desempenho
+
+## PROBLEMAS CORRIGIDOS
+- Corrigido o problema com o parâmetro 'bottom' no GradientAppBar
+- Habilitado o suporte para Windows desktop no projeto
+- Corrigido o arquivo pubspec.yaml para remover referências a assets que não existem
+- Implementadas todas as telas principais da aplicação
+- Atualizado o sistema de navegação para incluir todas as rotas
+- Melhorado o tratamento de erros na aplicação

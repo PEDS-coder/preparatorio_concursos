@@ -1,0 +1,56 @@
+import 'package:flutter/material.dart';
+import '../../../../../core/theme/app_theme.dart';
+
+/// Widget que exibe a barra de navegação inferior com botões de ação
+class BottomNavigationWidget extends StatelessWidget {
+  final VoidCallback onBackPressed;
+  final VoidCallback onCreatePlanPressed;
+
+  const BottomNavigationWidget({
+    Key? key,
+    required this.onBackPressed,
+    required this.onCreatePlanPressed,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: Offset(0, -5),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            OutlinedButton.icon(
+              onPressed: onBackPressed,
+              icon: Icon(Icons.arrow_back),
+              label: Text('Voltar'),
+              style: OutlinedButton.styleFrom(
+                side: BorderSide(color: AppTheme.primaryColor),
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              ),
+            ),
+            ElevatedButton.icon(
+              onPressed: onCreatePlanPressed,
+              icon: Icon(Icons.auto_awesome),
+              label: Text('Criar Plano'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.primaryColor,
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

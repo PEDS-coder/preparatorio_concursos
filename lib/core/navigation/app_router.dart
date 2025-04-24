@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../core/data/services/edital_service.dart';
 import '../../features/0_splash/presentation/screens/splash_screen.dart';
 import '../../features/0_splash/presentation/screens/welcome_screen.dart';
 import '../../features/1_auth/presentation/screens/login_screen.dart';
@@ -13,7 +15,7 @@ import '../../features/3_edital_management/presentation/screens/edital_details_s
 import '../../features/3_edital_management/presentation/screens/edital_edit_screen.dart';
 import '../../features/3_edital_management/presentation/screens/edital_analyze_screen.dart';
 import '../../features/3_edital_management/presentation/screens/cargo_select_screen.dart';
-import '../../features/4_study_plan/presentation/screens/plano_add_screen.dart';
+import '../../features/4_study_plan/presentation/screens/plano_questionario_screen.dart';
 import '../../features/4_study_plan/presentation/screens/plano_details_screen.dart';
 import '../../features/4_study_plan/presentation/screens/plano_resumo_screen.dart';
 import '../../features/5_study_session/presentation/screens/sessao_screen.dart';
@@ -70,18 +72,24 @@ class AppRouter {
       case '/plano':
         return MaterialPageRoute(builder: (_) => DashboardScreen(initialTabIndex: 2));
       case '/plano/add':
-        Map<String, dynamic> planoArgs;
-        if (args is String) {
-          planoArgs = {'editalId': args, 'cargoIds': <String>[]};
-        } else if (args is Map<String, dynamic>) {
-          planoArgs = args;
-        } else {
-          planoArgs = {'editalId': null, 'cargoIds': <String>[]};
-        }
-        return MaterialPageRoute(builder: (_) => PlanoAddScreen(
-          editalId: planoArgs['editalId'],
-          cargoIds: planoArgs['cargoIds'],
-        ));
+        // Navegar para a tela de seleção de cargo primeiro, seguindo o fluxo correto:
+        // Splash > Login > Configuração da API > Carregamento do Edital > Escolha de Cargo > Questionário > Resumo do Plano > Dashboard
+        return MaterialPageRoute(builder: (context) {
+          String editalId;
+          if (args is String) {
+            editalId = args;
+          } else if (args is Map<String, dynamic> && args.containsKey('editalId')) {
+            editalId = args['editalId'] as String;
+          } else {
+            return Scaffold(
+              appBar: AppBar(title: Text('Erro')),
+              body: Center(child: Text('ID do edital não fornecido')),
+            );
+          }
+
+          // Redirecionar para a tela de seleção de cargo
+          return CargoSelectScreen(editalId: editalId);
+        });
       case '/plano/detalhes':
         return MaterialPageRoute(builder: (_) => PlanoDetailsScreen(planoId: args as String));
       case '/plano/resumo':

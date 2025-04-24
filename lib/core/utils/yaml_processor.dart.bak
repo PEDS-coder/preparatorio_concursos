@@ -1,0 +1,360 @@
+import 'dart:convert';
+import 'dart:math';
+import 'package:flutter/foundation.dart';
+import 'package:yaml/yaml.dart';
+
+/// Classe para processar e corrigir YAML, especialmente para lidar com respostas de LLM
+class YamlProcessor {
+  /// Processa uma string YAML e retorna um Map<String, dynamic>
+  static Map<String, dynamic>? processYaml(String yamlStr) {
+    try {
+      // Limpar e pré-processar o YAML
+      String processedYaml = _preProcessYaml(yamlStr);
+
+      // Tentar fazer o parsing do YAML
+      try {
+        final yamlDoc = loadYaml(processedYaml);
+        final Map<String, dynamic> result = _convertYamlToMap(yamlDoc);
+        return result;
+      } catch (e) {
+        debugPrint('YamlProcessor: Erro no parsing inicial: $e');
+
+        // Tentar corrigir problemas comuns
+        processedYaml = _fixCommonYamlIssues(processedYaml);
+
+        try {
+          final yamlDoc = loadYaml(processedYaml);
+          final Map<String, dynamic> result = _convertYamlToMap(yamlDoc);
+          debugPrint('YamlProcessor: YAML corrigido com sucesso!');
+          return result;
+        } catch (e) {
+          debugPrint('YamlProcessor: Falha após correções: $e');
+
+          // Tentar processar o YAML por partes
+          return _processYamlInChunks(yamlStr);
+        }
+      }
+    } catch (e) {
+      debugPrint('YamlProcessor: Erro geral no processamento: $e');
+      return null;
+    }
+  }
+
+  /// Pré-processa o YAML para remover delimitadores e corrigir problemas básicos
+  static String _preProcessYaml(String yamlStr) {
+    // Remover delimitadores de código
+    final yamlStartRegex = RegExp(r'```yaml\s*|```\s*|---\s*', multiLine: true);
+    final yamlEndRegex = RegExp(r'\s*```', multiLine: true);
+
+    String cleanYaml = yamlStr;
+
+    // Remover delimitadores de início
+    final startMatch = yamlStartRegex.firstMatch(cleanYaml);
+    if (startMatch != null) {
+      cleanYaml = cleanYaml.substring(startMatch.end);
+    }
+
+    // Remover delimitadores de fim
+    final endMatches = yamlEndRegex.allMatches(cleanYaml).toList();
+    if (endMatches.isNotEmpty) {
+      final endMatch = endMatches.last;
+      cleanYaml = cleanYaml.substring(0, endMatch.start);
+    }
+
+    // Remover linhas vazias no início e fim
+    cleanYaml = cleanYaml.trim();
+
+    return cleanYaml;
+  }
+
+  /// Corrige problemas comuns em YAML
+  static String _fixCommonYamlIssues(String yamlStr) {
+    // Dividir o YAML em linhas
+    final List<String> lines = yamlStr.split('\n');
+    final List<String> fixedLines = [];
+
+    // Verificar cada linha
+    for (int i = 0; i < lines.length; i++) {
+      String line = lines[i];
+
+      // Pular linhas vazias
+      if (line.trim().isEmpty) {
+        fixedLines.add('');
+        continue;
+      }
+
+      // Pular linhas de comentário
+      if (line.trim().startsWith('#')) {
+        fixedLines.add(line);
+        continue;
+      }
+
+      // Verificar se a linha tem aspas não fechadas
+      if (_hasUnclosedQuotes(line)) {
+        line = _fixUnclosedQuotes(line);
+      }
+
+      // Verificar se a linha tem dois pontos sem espaço
+      if (line.contains(':') && !line.contains(': ') && !line.contains('://')) {
+        line = line.replaceAll(':', ': ');
+      }
+
+      // Corrigir indentação
+      line = _fixIndentation(line);
+
+      // Corrigir linhas muito longas (especialmente em tópicos de conteúdo programático)
+      if (line.length > 1000 && line.contains('-')) {
+        // Dividir linhas muito longas em múltiplas linhas
+        List<String> splitLines = _splitLongLine(line);
+        fixedLines.addAll(splitLines);
+      } else {
+        fixedLines.add(line);
+      }
+    }
+
+    return fixedLines.join('\n');
+  }
+
+  /// Verifica se uma linha tem aspas não fechadas
+  static bool _hasUnclosedQuotes(String line) {
+    int count = 0;
+    bool inEscape = false;
+
+    for (int i = 0; i < line.length; i++) {
+      if (line[i] == '\\' && !inEscape) {
+        inEscape = true;
+      } else if (line[i] == '"' && !inEscape) {
+        count++;
+        inEscape = false;
+      } else {
+        inEscape = false;
+      }
+    }
+
+    return count % 2 != 0;
+  }
+
+  /// Corrige aspas não fechadas
+  static String _fixUnclosedQuotes(String line) {
+    if (_hasUnclosedQuotes(line)) {
+      return '$line"';
+    }
+    return line;
+  }
+
+  /// Corrige a indentação de uma linha
+  static String _fixIndentation(String line) {
+    // Contar espaços no início da linha
+    int indentLevel = 0;
+    for (int j = 0; j < line.length; j++) {
+      if (line[j] == ' ') {
+        indentLevel++;
+      } else {
+        break;
+      }
+    }
+
+    // Garantir que a indentação seja múltipla de 2
+    if (indentLevel % 2 != 0) {
+      return ' ' + line;
+    }
+
+    return line;
+  }
+
+  /// Divide uma linha muito longa em múltiplas linhas
+  static List<String> _splitLongLine(String line) {
+    // Identificar a indentação
+    int indentLevel = 0;
+    for (int j = 0; j < line.length; j++) {
+      if (line[j] == ' ') {
+        indentLevel++;
+      } else {
+        break;
+      }
+    }
+
+    String indent = ' ' * indentLevel;
+    List<String> result = [];
+
+    // Dividir a linha em partes menores
+    int maxLength = 100;
+    int startPos = 0;
+
+    while (startPos < line.length) {
+      int endPos = startPos + maxLength;
+      if (endPos >= line.length) {
+        endPos = line.length;
+      } else {
+        // Procurar um espaço para quebrar a linha
+        int spacePos = line.lastIndexOf(' ', endPos);
+        if (spacePos > startPos) {
+          endPos = spacePos;
+        }
+      }
+
+      // Adicionar a parte da linha
+      if (startPos == 0) {
+        result.add(line.substring(startPos, endPos));
+      } else {
+        result.add('$indent  ${line.substring(startPos, endPos).trim()}');
+      }
+
+      startPos = endPos + 1;
+    }
+
+    return result;
+  }
+
+  /// Processa o YAML em partes para lidar com documentos complexos
+  static Map<String, dynamic>? _processYamlInChunks(String yamlStr) {
+    try {
+      // Dividir o YAML em seções principais
+      Map<String, dynamic> result = {};
+
+      // Identificar seções de primeiro nível
+      List<String> lines = yamlStr.split('\n');
+      int currentIndex = 0;
+
+      while (currentIndex < lines.length) {
+        // Encontrar a próxima linha de primeiro nível (sem indentação)
+        int nextSectionStart = _findNextSectionStart(lines, currentIndex + 1);
+
+        if (nextSectionStart == -1) {
+          nextSectionStart = lines.length;
+        }
+
+        // Extrair a seção atual
+        List<String> sectionLines = lines.sublist(currentIndex, nextSectionStart);
+        String sectionYaml = sectionLines.join('\n');
+
+        // Processar a seção
+        _processSectionYaml(sectionYaml, result);
+
+        // Avançar para a próxima seção
+        currentIndex = nextSectionStart;
+      }
+
+      return result;
+    } catch (e) {
+      debugPrint('YamlProcessor: Erro ao processar YAML em partes: $e');
+
+      // Último recurso: tentar extrair apenas as informações básicas
+      return _extractBasicInfo(yamlStr);
+    }
+  }
+
+  /// Encontra o início da próxima seção de primeiro nível
+  static int _findNextSectionStart(List<String> lines, int startIndex) {
+    for (int i = startIndex; i < lines.length; i++) {
+      String line = lines[i].trim();
+
+      // Pular linhas vazias e comentários
+      if (line.isEmpty || line.startsWith('#')) {
+        continue;
+      }
+
+      // Se a linha não tem indentação e contém ':', é o início de uma nova seção
+      if (!lines[i].startsWith(' ') && line.contains(':')) {
+        return i;
+      }
+    }
+
+    return -1; // Não encontrou mais seções
+  }
+
+  /// Processa uma seção do YAML e adiciona ao resultado
+  static void _processSectionYaml(String sectionYaml, Map<String, dynamic> result) {
+    try {
+      // Extrair a chave da seção
+      int colonIndex = sectionYaml.indexOf(':');
+      if (colonIndex == -1) return;
+
+      String key = sectionYaml.substring(0, colonIndex).trim();
+      String value = sectionYaml.substring(colonIndex + 1).trim();
+
+      // Tentar processar o valor como YAML
+      try {
+        if (value.isNotEmpty) {
+          final yamlDoc = loadYaml(value);
+          result[key] = _convertYamlValue(yamlDoc);
+        } else {
+          // Se o valor estiver vazio, tentar processar o restante como um objeto
+          String remainingYaml = sectionYaml.substring(colonIndex + 1);
+          if (remainingYaml.trim().isNotEmpty) {
+            try {
+              final yamlDoc = loadYaml(remainingYaml);
+              result[key] = _convertYamlValue(yamlDoc);
+            } catch (e) {
+              // Se falhar, armazenar como string
+              result[key] = remainingYaml.trim();
+            }
+          } else {
+            result[key] = null;
+          }
+        }
+      } catch (e) {
+        // Se falhar o parsing, armazenar como string
+        result[key] = value;
+      }
+    } catch (e) {
+      debugPrint('YamlProcessor: Erro ao processar seção: $e');
+    }
+  }
+
+  /// Extrai informações básicas do YAML quando outros métodos falham
+  static Map<String, dynamic> _extractBasicInfo(String yamlStr) {
+    Map<String, dynamic> result = {};
+
+    // Padrões para extrair informações básicas
+    final RegExp titleRegex = RegExp(r'titulo[_:].*?[\'"](.+?)[\'"]', caseSensitive: false);
+    final RegExp orgaoRegex = RegExp(r'orgao[_:].*?[\'"](.+?)[\'"]', caseSensitive: false);
+    final RegExp bancaRegex = RegExp(r'banca[_:].*?[\'"](.+?)[\'"]', caseSensitive: false);
+
+    // Extrair título
+    final titleMatch = titleRegex.firstMatch(yamlStr);
+    if (titleMatch != null && titleMatch.groupCount >= 1) {
+      result['titulo_concurso'] = titleMatch.group(1);
+    }
+
+    // Extrair órgão
+    final orgaoMatch = orgaoRegex.firstMatch(yamlStr);
+    if (orgaoMatch != null && orgaoMatch.groupCount >= 1) {
+      result['orgao_responsavel'] = orgaoMatch.group(1);
+    }
+
+    // Extrair banca
+    final bancaMatch = bancaRegex.firstMatch(yamlStr);
+    if (bancaMatch != null && bancaMatch.groupCount >= 1) {
+      result['banca_organizadora'] = bancaMatch.group(1);
+    }
+
+    return result;
+  }
+
+  /// Converte um documento YAML para Map<String, dynamic>
+  static Map<String, dynamic> _convertYamlToMap(dynamic yamlDoc) {
+    if (yamlDoc is YamlMap) {
+      final Map<String, dynamic> result = {};
+      for (final entry in yamlDoc.entries) {
+        final key = entry.key.toString();
+        final value = _convertYamlValue(entry.value);
+        result[key] = value;
+      }
+      return result;
+    } else {
+      throw Exception('Documento YAML inválido: não é um mapa');
+    }
+  }
+
+  /// Converte um valor YAML para um tipo Dart apropriado
+  static dynamic _convertYamlValue(dynamic value) {
+    if (value is YamlMap) {
+      return _convertYamlToMap(value);
+    } else if (value is YamlList) {
+      return value.map((item) => _convertYamlValue(item)).toList();
+    } else {
+      return value;
+    }
+  }
+}

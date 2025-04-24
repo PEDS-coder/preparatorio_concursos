@@ -1,12 +1,14 @@
 import 'dart:convert';
 import 'dart:typed_data';
+import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:preparatorio_concursos/core/data/services/base_ia_service.dart';
 import 'package:preparatorio_concursos/core/data/models/flashcard.dart';
 import 'package:preparatorio_concursos/core/services/prompt_service.dart';
+import 'ia_service_implementations.dart';
 
 /// Implementação do serviço de IA para o Gemini
-class GeminiService extends BaseIAService {
+class GeminiService extends BaseIAService with IAServiceImplementations {
   final String _geminiBaseUrl = 'https://generativelanguage.googleapis.com/v1beta/models';
   String _geminiModel = 'gemini-2.5-pro-exp-03-25';
   final List<String> _geminiModelsAlternatives = [
@@ -77,6 +79,36 @@ class GeminiService extends BaseIAService {
   @override
   Future<Map<String, dynamic>> authenticateWithGoogle() async {
     throw UnimplementedError('authenticateWithGoogle não implementado');
+  }
+
+  @override
+  Future<String> analisarTexto(String texto, {String? prompt}) async {
+    if (!isConfigured) {
+      throw Exception('API Key não configurada');
+    }
+
+    final String promptFinal = prompt ?? 'Analise o seguinte texto e forneça insights relevantes:\n\n$texto';
+    return await callApi(promptFinal);
+  }
+
+  @override
+  Future<String> gerarTexto(String prompt) async {
+    if (!isConfigured) {
+      throw Exception('API Key não configurada');
+    }
+
+    return await callApi(prompt);
+  }
+
+  @override
+  Future<String> extrairCargosDetalhados(Uint8List pdfBytes, {String? pdfName}) async {
+    if (!isConfigured) {
+      throw Exception('API Key não configurada');
+    }
+
+    final promptTemplate = await _promptService.loadCargosDetalhadosPrompt();
+    final prompt = _promptService.customizePrompt(promptTemplate, {'PDF_NAME': pdfName ?? ''});
+    return await callGeminiApiWithPdf(prompt, pdfBytes, pdfName: pdfName);
   }
 
   @override

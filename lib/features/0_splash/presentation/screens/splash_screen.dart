@@ -42,9 +42,9 @@ class _SplashScreenState extends State<SplashScreen> {
       }
     }
 
-    // Sempre começar pela tela de boas-vindas para garantir o fluxo completo
-    // Isso força o usuário a passar pelo login e configuração da API
-    Navigator.pushReplacementNamed(context, '/welcome');
+    // Redirecionar diretamente para a tela de login conforme o fluxo desejado:
+    // Splash > Login > Configuração da API > Carregamento do Edital > Escolha de Cargo > Questionário > Resumo do Plano > Dashboard
+    Navigator.pushReplacementNamed(context, '/login');
   }
 
   @override

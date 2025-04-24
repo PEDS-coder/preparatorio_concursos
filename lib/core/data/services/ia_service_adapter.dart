@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 
 import 'interfaces/ia_service_interface.dart';
@@ -146,5 +147,23 @@ class IAServiceAdapter implements IAServiceInterface {
   @override
   Future<String> gerarPlanoEstudos({required String cargoAlvo, required Map<String, dynamic> dadosCargo}) {
     return _iaService.gerarPlanoEstudos(cargoAlvo: cargoAlvo, dadosCargo: dadosCargo);
+  }
+
+  @override
+  Future<Map<String, dynamic>> analisarEditalPrimeiraChamada(
+    List<File> files,
+    Function(String, double) onProgress,
+  ) {
+    return _iaService.analisarEditalPrimeiraChamada(files, onProgress);
+  }
+
+  @override
+  Future<Map<String, dynamic>> analisarEditalSegundaChamada(
+    String editalId,
+    String cargoId,
+    String cargoNome,
+    Function(String, double) onProgress,
+  ) {
+    return _iaService.analisarEditalSegundaChamada(editalId, cargoId, cargoNome, onProgress);
   }
 }

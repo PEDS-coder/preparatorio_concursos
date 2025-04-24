@@ -1,0 +1,17 @@
+# Implementações Realizadas
+
+## 16/04/2025
+
+### Melhorias na Tela "Meu Edital"
+
+1. **Posicionamento dos Checkboxes de Progresso**
+   - Modificado o layout para exibir os checkboxes de progresso de estudo acima dos nomes das matérias e tópicos
+   - Adicionado parâmetro `showAbove: true` ao widget ProgressoEstudoWidget
+
+2. **Limpeza de Formatação de Strings**
+   - Melhorado o método `_limparFormatacaoString` para remover colchetes e formatações indesejadas nas informações de cotas
+   - Implementado tratamento recursivo para garantir que todos os colchetes sejam removidos
+
+3. **Unificação de Grupos de Matérias**
+   - Implementada lógica para unificar subdivisões de grupos (ex: "Módulo II" e "Módulo II - Conhecimentos Específicos")
+   - Adicionado mapeamento de grupos similares para exibição unificada no conteúdo programático

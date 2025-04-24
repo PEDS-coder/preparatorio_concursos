@@ -1,0 +1,286 @@
+# ANALISADOR DE EDITAIS DE CONCURSO - INFORMAÇÕES DETALHADAS
+
+Você está recebendo um arquivo PDF de um edital de concurso público brasileiro e o nome de um cargo específico. Sua tarefa é analisar diretamente este documento PDF e extrair todas as informações relevantes sobre o concurso e o cargo escolhido em formato JSON.
+
+Editais de concursos públicos frequentemente estruturam o conteúdo programático de maneiras variadas. Alguns exemplos de estruturas comuns incluem:
+
+- Divisão em "Conhecimentos Básicos" e "Conhecimentos Específicos"
+- Divisão em "Módulos" (Módulo I, Módulo II, etc.)
+- Divisão em "Grupos" (Grupo I, Grupo II, etc.)
+- Divisão em "Partes" (Parte I, Parte II, etc.)
+- Divisão em "Blocos" (Bloco I, Bloco II, etc.)
+- Divisão por áreas de conhecimento sem agrupamento explícito
+
+Além disso, conhecimentos básicos podem ser comuns a todos os cargos, aplicáveis apenas a alguns níveis ou áreas, ou ter exceções. Conhecimentos específicos são geralmente vinculados a um cargo ou área. Sua tarefa é analisar o texto do edital, identificar o cargo alvo e determinar *precisamente* quais seções de conhecimentos se aplicam a ele, listando todas as matérias/tópicos correspondentes.
+
+Atenção à Estrutura: Editais organizam isso de formas variadas:
+* Alguns têm uma seção básica comum a todos e específicas separadas por cargo.
+* Alguns têm básicos comuns exceto para certos cargos.
+* Alguns agrupam cargos e compartilham blocos de conhecimento específico entre eles.
+* Alguns listam tudo de forma única para cada cargo.
+
+EXEMPLOS:
+
+Exemplo 1:
+Grupo de Matérias Básicas/Gerais (que pode ter nomenclaturas variadas):
+Matéria A (Para Todos os Cargos)
+Matéria B (Para Todos os Cargos)
+Matéria C (Para Todos os Cargos)
+Isto significa que as Matérias A, B e C se aplicam a todos cargos previstos no edital.
+
+Exemplo 2:
+Grupo de Matérias Básicas/Gerais (que pode ter nomenclaturas variadas):
+Matéria A (Para Todos os Cargos de Nível Superior)
+Matéria B (Para Todos os Cargos de Nível Superior)
+Matéria C (Para Todos os Cargos de Nível Superior)
+Isto significa que as Matérias A, B e C se aplicam a todos cargos com requisitos de escolaridade DE NÍVEL SUPERIOR previstos no edital, mas não se aplicam a cargos de outros níveis como nível básico/fundamental e nível médio.
+
+Exemplo 3:
+Grupo de Matérias Básicas/Gerais Para Todos os Cargos (que pode ter nomenclaturas variadas):
+Matéria A (Para Todos os Cargos)
+Matéria B (Para Todos os Cargos)
+Matéria C (Para Todos os Cargos, Exceto Para o Cargo 1)
+Isto significa que as Matérias A, B se aplicam a todos cargos, incluindo o Cargo 1, mas a Matéria C não se aplica ao Cargo 1.
+
+Exemplo 4:
+Grupo de Matérias Básicas/Gerais Para Todos os Cargos (que pode ter nomenclaturas variadas):
+Matéria A (Para Todos os Cargos)
+Matéria B (Para Todos os Cargos)
+Matéria C (Apenas/Somente Para o Cargo 1)
+Isto significa que as Matérias A, B se aplicam a todos cargos, incluindo o Cargo 1, mas a Matéria C só se aplica ao Cargo 1 e a nenhum outro.
+
+MUITO IMPORTANTE: Se o edital apresenta uma seção chamada "CONHECIMENTOS ESPECÍFICOS" que contém várias disciplinas/matérias, você NUNCA deve criar uma única matéria chamada "CONHECIMENTOS ESPECÍFICOS". Em vez disso, você deve listar cada disciplina/matéria individualmente.
+
+INCORRETO (NÃO FAÇA ISSO):
+```
+CONHECIMENTOS ESPECÍFICOS (40 questões)
+```
+
+CORRETO (FAÇA ASSIM):
+```
+DIREITO CONSTITUCIONAL (10 questões)
+DIREITO ADMINISTRATIVO (10 questões)
+DIREITO CIVIL (10 questões)
+DIREITO PROCESSUAL CIVIL (10 questões)
+```
+
+Você deve ser capaz de entender todas essas possibilidades e identificar a lógica aplicada ao edital encaminhado para determinar exatamente quais são as matérias que serão cobradas na prova objetiva do CARGO ALVO.
+
+
+**CARGO ALVO:**
+[CARGO_ALVO]
+
+**INSTRUÇÕES IMPORTANTES:**
+1. Analise o conteúdo do PDF do edital de concurso público fornecido.
+2. Extraia as seguintes informações:
+
+   **Informações Gerais do Concurso:**
+   - Título completo do concurso
+   - Órgão responsável
+   - Banca organizadora
+   - Período de inscrição (data de início e fim)
+   - Data da prova
+   - Local(is) de realização das provas
+   - Taxa de inscrição (valor)
+   - Formato da prova (objetiva, discursiva, etc.)
+   - Total de questões da prova
+   - Duração da prova
+   - Critérios de aprovação
+   - Critérios de reprovação
+   - Critérios de desempate (na ordem exata do edital)
+   - Informações sobre cotas (preservando as nomenclaturas exatas do edital)
+   - Tema da prova subjetiva/discursiva (se houver)
+
+   **Conteúdo Programático do Cargo Escolhido:**
+   - Lista completa de todas as matérias que se aplicam ao cargo alvo
+   - Para cada matéria, liste todos os assuntos/tópicos específicos
+
+3. Forneça sua resposta EXCLUSIVAMENTE em formato JSON válido.
+4. Não inclua texto introdutório, explicações ou comentários fora do JSON.
+
+**ESTRUTURA DO JSON A SER GERADO:**
+
+```json
+{
+  "concurso": {
+    "titulo": "Nome completo do concurso",
+    "orgao": "Nome do órgão responsável",
+    "banca": "Nome da banca organizadora",
+    "inscricoes": {
+      "inicio": "01/01/2025",
+      "fim": "31/01/2025",
+      "taxa": 120.00
+    },
+    "prova": {
+      "data": "15/03/2025",
+      "local": "Todas as capitais do País",
+      "total_questoes": 80,
+      "formato": ["objetiva", "discursiva"],
+      "duracao": "4 horas",
+      "tema_discursiva": "Redação em gênero dissertativo-argumentativo",
+      "criterios_aprovacao": "Pontuação mínima de 60% na prova objetiva",
+      "criterios_reprovacao": "Menos de 50% de acertos na prova objetiva",
+      "criterios_desempate": [
+        "Maior nota na prova de conhecimentos específicos",
+        "Maior nota na prova de língua portuguesa",
+        "Maior idade"
+      ]
+    },
+    "cotas": [
+      {
+        "nome": "Negros (Pretos e Pardos)",
+        "percentual": 20
+      },
+      {
+        "nome": "Pessoas com Deficiência",
+        "percentual": 5
+      }
+    ]
+  },
+  "cargo": {
+    "nome": "A07 - ANALISTA DO MPU / DIREITO",
+    "conteudo_programatico": {
+      "materias": [
+        {
+          "nome": "Língua Portuguesa",
+          "tipo": "basico",
+          "grupo_materia": "MÓDULO I",
+          "numero_questoes": 15,
+          "assuntos": [
+            "Compreensão e interpretação de textos",
+            "Tipologia textual",
+            "Ortografia oficial",
+            "Acentuação gráfica",
+            "Emprego das classes de palavras",
+            "Emprego do sinal indicativo de crase",
+            "Sintaxe da oração e do período",
+            "Pontuação",
+            "Concordância nominal e verbal",
+            "Regência nominal e verbal",
+            "Significação das palavras",
+            "Redação de correspondências oficiais"
+          ]
+        },
+        {
+          "nome": "Raciocínio Lógico",
+          "tipo": "basico",
+          "grupo_materia": "MÓDULO I",
+          "numero_questoes": 10,
+          "assuntos": [
+            "Estruturas lógicas",
+            "Lógica de argumentação",
+            "Diagramas lógicos",
+            "Álgebra",
+            "Combinações, arranjos e permutações"
+          ]
+        },
+        {
+          "nome": "Direito Constitucional",
+          "tipo": "especifico",
+          "grupo_materia": "MÓDULO II",
+          "numero_questoes": 15,
+          "assuntos": [
+            "Constituição: princípios fundamentais",
+            "Direitos e garantias fundamentais",
+            "Organização do Estado",
+            "Organização dos poderes",
+            "Defesa do Estado e das instituições democráticas",
+            "Tributação e orçamento",
+            "Ordem econômica e financeira",
+            "Ordem social"
+          ]
+        },
+        {
+          "nome": "Direito Administrativo",
+          "tipo": "especifico",
+          "grupo_materia": "MÓDULO II",
+          "numero_questoes": 10,
+          "assuntos": [
+            "Administração pública",
+            "Princípios básicos da administração",
+            "Atos administrativos",
+            "Poderes e deveres dos administradores públicos",
+            "Improbidade administrativa"
+          ]
+        }
+      ]
+    }
+  }
+}
+```
+
+**IMPORTANTE SOBRE AS INFORMAÇÕES GERAIS:**
+- Extraia o título COMPLETO do concurso, exatamente como aparece no edital
+- Identifique corretamente o órgão responsável pelo concurso
+- Identifique a banca organizadora do concurso
+- Extraia o período de inscrição com datas de início e fim no formato DD/MM/AAAA
+- Identifique a data da prova no formato DD/MM/AAAA
+- Extraia o valor da taxa de inscrição como número, não como string
+- Identifique os locais onde as provas serão realizadas
+- Extraia o formato da prova (objetiva, discursiva, prática, etc.)
+- Identifique o número total de questões da prova
+- Extraia a duração da prova
+- Identifique os critérios de aprovação mencionados no edital
+- Identifique os critérios de reprovação/eliminação mencionados no edital
+- Extraia os critérios de desempate na ordem em que aparecem no edital
+- Extraia o tema da prova subjetiva/discursiva, se houver
+
+**IMPORTANTE SOBRE AS COTAS:**
+- Preserve EXATAMENTE as nomenclaturas utilizadas no edital para as cotas
+- Extraia os percentuais de vagas reservadas para cada tipo de cota
+- Inclua todas as cotas mencionadas no edital
+
+**IMPORTANTE SOBRE O CONTEÚDO PROGRAMÁTICO:**
+- Analise cuidadosamente a estrutura do conteúdo programático no edital
+- Identifique TODAS as matérias que se aplicam ao cargo alvo
+- Para cada matéria, liste TODOS os assuntos/tópicos específicos
+- Preserve a estrutura original do conteúdo programático (divisões em conhecimentos básicos/específicos, módulos, grupos, etc.)
+- Certifique-se de incluir APENAS as matérias e tópicos que se aplicam ao cargo alvo
+- Verifique se há matérias comuns a todos os cargos e matérias específicas do cargo alvo
+
+**IMPORTANTE SOBRE O FORMATO DAS MATÉRIAS:**
+
+INCORRETO (NÃO FAÇA ISSO):
+```json
+{
+  "nome": "CONHECIMENTOS ESPECÍFICOS",
+  "tipo": "especifico",
+  "grupo_materia": "MÓDULO II",
+  "numero_questoes": 40
+}
+```
+
+CORRETO (FAÇA ASSIM):
+```json
+[
+  {
+    "nome": "DIREITO CONSTITUCIONAL",
+    "tipo": "especifico",
+    "grupo_materia": "MÓDULO II",
+    "numero_questoes": 10
+  },
+  {
+    "nome": "DIREITO ADMINISTRATIVO",
+    "tipo": "especifico",
+    "grupo_materia": "MÓDULO II",
+    "numero_questoes": 10
+  },
+  {
+    "nome": "DIREITO CIVIL",
+    "tipo": "especifico",
+    "grupo_materia": "MÓDULO II",
+    "numero_questoes": 10
+  },
+  {
+    "nome": "DIREITO PROCESSUAL CIVIL",
+    "tipo": "especifico",
+    "grupo_materia": "MÓDULO II",
+    "numero_questoes": 10
+  }
+]
+```
+
+- Sempre detalhe as matérias específicas em vez de usar categorias genéricas
+- Inclua o número de questões para cada matéria quando disponível no edital
+- Classifique corretamente o tipo de matéria ("basico" ou "especifico")
+- Inclua o grupo ou módulo ao qual a matéria pertence conforme a estrutura do edital

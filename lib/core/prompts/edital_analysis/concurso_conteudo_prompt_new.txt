@@ -1,0 +1,176 @@
+**Tarefa:** Extrair informações detalhadas sobre um concurso público e o conteúdo programático completo específico para um cargo selecionado, apresentando o resultado em formato JSON estruturado.
+
+**Contexto:** Você está analisando um edital de concurso público para um usuário que já selecionou um cargo específico. Sua tarefa é extrair as informações gerais do concurso e o conteúdo programático detalhado aplicável ao cargo selecionado, preservando EXATAMENTE a estrutura e nomenclatura original utilizada no edital.
+
+Editais de concursos públicos frequentemente estruturam o conteúdo programático de maneiras variadas. Alguns exemplos de estruturas comuns incluem:
+
+- Divisão em "Conhecimentos Básicos" e "Conhecimentos Específicos"
+- Divisão em "Módulos" (Módulo I, Módulo II, etc.)
+- Divisão em "Grupos" (Grupo I, Grupo II, etc.)
+- Divisão em "Partes" (Parte I, Parte II, etc.)
+- Divisão em "Blocos" (Bloco I, Bloco II, etc.)
+- Divisão por áreas de conhecimento sem agrupamento explícito
+
+**Atenção à Estrutura:** Editais organizam isso de formas variadas:
+
+Alguns têm uma seção básica comum a todos e específicas separadas por cargo.
+
+Alguns têm básicos comuns exceto para certos cargos.
+
+Alguns agrupam cargos e compartilham blocos de conhecimento específico entre eles.
+
+Alguns listam tudo de forma única para cada cargo.
+
+**EXEMPLOS:**
+
+**Exemplo 1:**
+Grupo de Matérias Básicas/Gerais (que pode ter nomenclaturas variadas):
+Matéria A (Para Todos os Cargos)
+Matéria B (Para Todos os Cargos)
+Matéria C (Para Todos os Cargos)
+Isto significa que as Matérias A, B e C se aplicam a todos cargos previstos no edital.
+
+**Exemplo 2:**
+Grupo de Matérias Básicas/Gerais (que pode ter nomenclaturas variadas):
+Matéria A (Para Todos os Cargos de Nível Superior)
+Matéria B (Para Todos os Cargos de Nível Superior)
+Matéria C (Para Todos os Cargos de Nível Superior)
+Isto significa que as Matérias A, B e C se aplicam a todos cargos com requisitos de escolaridade DE NÍVEL SUPERIOR previstos no edital, mas não se aplicam a cargos de outros níveis como nível básico/fundamental e nível médio.
+
+**Exemplo 3:**
+Grupo de Matérias Básicas/Gerais Para Todos os Cargos (que pode ter nomenclaturas variadas):
+Matéria A (Para Todos os Cargos)
+Matéria B (Para Todos os Cargos)
+Matéria C (Para Todos os Cargos, Exceto Para o Cargo 1)
+Isto significa que as Matérias A, B se aplicam a todos cargos, incluindo o Cargo 1, mas a Matéria C não se aplica ao Cargo 1.
+
+**Exemplo 4:**
+Grupo de Matérias Básicas/Gerais Para Todos os Cargos (que pode ter nomenclaturas variadas):
+Matéria A (Para Todos os Cargos)
+Matéria B (Para Todos os Cargos)
+Matéria C (Apenas/Somente Para o Cargo 1)
+Isto significa que as Matérias A, B se aplicam a todos cargos, incluindo o Cargo 1, mas a Matéria C só se aplica ao Cargo 1 e a nenhum outro.
+
+**MUITO IMPORTANTE:** Se o edital apresenta uma seção chamada "CONHECIMENTOS ESPECÍFICOS" que contém várias disciplinas/matérias, você NUNCA deve criar uma única matéria chamada "CONHECIMENTOS ESPECÍFICOS". Em vez disso, você deve listar cada disciplina/matéria individualmente.
+
+**INCORRETO (NÃO FAÇA ISSO):**
+
+CONHECIMENTOS ESPECÍFICOS (40 questões)
+
+
+**CORRETO (FAÇA ASSIM):**
+
+DIREITO CONSTITUCIONAL (10 questões)
+DIREITO ADMINISTRATIVO (10 questões)
+DIREITO CIVIL (10 questões)
+DIREITO PROCESSUAL CIVIL (10 questões)
+
+
+Você deve ser capaz de entender todas essas possibilidades e identificar a lógica aplicada ao edital encaminhado para determinar exatamente quais são as matérias que serão cobradas na prova objetiva do CARGO ALVO.
+
+**Cargo Alvo:**
+[CARGO_ALVO]
+
+**Instruções Detalhadas:**
+
+**Informações Gerais do Concurso:**
+- Data da prova
+- Valor da taxa de inscrição
+- Formato da prova (objetiva, subjetiva, discursiva)
+- Tema da prova subjetiva/discursiva (se houver)
+- Critérios de aprovação (ex: pontuação mínima)
+- Critérios de reprovação (ex: pontuação mínima)
+- Duração da prova (ex: 4 horas)
+- Critérios de desempate (na ordem exata do edital)
+
+**Conteúdo Programático do Cargo Selecionado:**
+- Analise o edital completo para entender a estrutura do conteúdo programático
+- Identifique TODAS as matérias que se aplicam ao cargo alvo, sem omitir nenhuma
+- Identifique todas as matérias de conhecimentos básicos que se aplicam ao cargo alvo
+- Identifique todas as matérias de conhecimentos específicos que se aplicam ao cargo alvo
+- IMPORTANTE: Analise cuidadosamente como o conteúdo programático está organizado no edital
+- Identifique e PRESERVE EXATAMENTE a nomenclatura original de divisão usada no edital (seja "Módulo I/Módulo II", "Conhecimentos Básicos/Específicos", "Grupo I/II/III/IV" ou qualquer outra estrutura)
+- Mantenha a organização original do edital, respeitando a estrutura e agrupamento das matérias
+- IMPORTANTE: Quando o edital apresentar subgrupos (ex: "Módulo II - Conhecimentos Específicos"), identifique o grupo principal ("Módulo II") e use-o como valor para o campo "grupo_materia"
+- Para cada matéria, liste TODOS os tópicos detalhados conforme aparecem no edital
+- Preserve o texto exato dos tópicos conforme apresentado no edital
+- Identifique se há matérias com peso maior na pontuação final (que valem mais pontos)
+- Identifique se há matérias que são utilizadas como critério de desempate
+- Não omita nenhum tópico ou matéria aplicável ao cargo
+- Não inclua matérias ou tópicos que não se aplicam ao cargo alvo
+
+**Formate a Saída em JSON:**
+Organize as informações extraídas no seguinte formato JSON:
+
+```json
+{
+  "prova": {
+    "formato": ["objetiva", "discursiva"],
+    "tema_discursiva": "Tema da prova discursiva (se houver)",
+    "criterios_aprovacao": "Mínimo de 12 questões no Módulo I, 25 questões no Módulo II e 45 questões no total",
+    "criterios_reprovacao": "Nota inferior a 20 pontos na discursiva",
+    "duracao": "4h30min",
+    "data_prova": "DD/MM/AAAA",
+    "taxa_inscricao": 123.45,
+    "criterios_desempate": [
+      "Tiver idade igual ou superior a 60 (sessenta) anos",
+      "Obtiver a maior nota na Prova Objetiva",
+      "Obtiver a maior nota na Redação (Prova Discursiva)",
+      "Obtiver o maior número de acertos no Módulo II da Prova Objetiva",
+      "Tiver exercido efetivamente a função de jurado",
+      "Persistindo o empate, terá preferência o candidato mais velho"
+    ]
+  },
+  "conteudo_programatico": [
+    {
+      "nome": "LÍNGUA PORTUGUESA",
+      "tipo": "comum",
+      "peso_maior": false,
+      "criterio_desempate": false,
+      "grupo_materia": "MÓDULO I",
+      "topicos": [
+        "Interpretação e Compreensão de texto",
+        "Organização estrutural dos textos",
+        "Marcas de textualidade: coesão, coerência e intertextualidade"
+      ]
+    },
+    {
+      "nome": "NOÇÕES DE SUSTENTABILIDADE",
+      "tipo": "comum",
+      "peso_maior": false,
+      "criterio_desempate": false,
+      "grupo_materia": "MÓDULO I",
+      "topicos": [
+        "Do Meio Ambiente (Constituição Federal de 1988, Art. 225)",
+        "Conceito de Desenvolvimento Sustentável (Relatório Brundtland)"
+      ]
+    },
+    {
+      "nome": "DIREITO CONSTITUCIONAL",
+      "tipo": "especifico",
+      "peso_maior": false,
+      "criterio_desempate": false,
+      "grupo_materia": "MÓDULO II",
+      "topicos": [
+        "Constituição: conceito, objeto, elementos e classificações",
+        "Supremacia da Constituição",
+        "Poder Constituinte"
+      ]
+    }
+  ]
+}
+```
+
+**Instruções Importantes:**
+1. Forneça sua resposta EXCLUSIVAMENTE em formato JSON válido.
+2. Não inclua texto introdutório, explicações ou comentários fora do JSON.
+3. Preserve a organização original do conteúdo programático conforme apresentado no edital.
+4. Se não conseguir determinar alguma informação, use valores vazios ("") ou nulos (null) conforme apropriado.
+5. Certifique-se de incluir todas as informações sobre pesos de matérias e critérios de desempate quando disponíveis no edital.
+6. É CRUCIAL extrair corretamente a data da prova, taxa de inscrição, formato da prova, tema da prova subjetiva (se houver), critérios de aprovação e reprovação, duração da prova e critérios de desempate.
+7. EXTREMAMENTE IMPORTANTE: Use o nome EXATO do cargo como aparece no edital, sem alterações, abreviações ou simplificações. Mantenha a grafia, pontuação e formatação original do nome do cargo.
+8. NUNCA inclua "Conhecimentos Específicos" como nome de uma disciplina/matéria. "Conhecimentos Específicos" é apenas um cabeçalho de seção que agrupa várias disciplinas específicas. Você DEVE listar cada disciplina/matéria específica individualmente com seu nome correto.
+9. Use "comum" para conhecimentos básicos e "especifico" para conhecimentos específicos.
+10. Para "peso_maior", use true se a matéria tiver peso maior na pontuação final, false caso contrário.
+11. Para "criterio_desempate", use true se a matéria for utilizada como critério de desempate, false caso contrário.
+12. Não inclua delimitadores de código (```json) na sua resposta final.

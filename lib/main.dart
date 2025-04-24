@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:provider/single_child_widget.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -23,6 +24,8 @@ import 'core/services/theme_service.dart';
 import 'core/services/remote_config_service.dart';
 import 'core/utils/cache_manager.dart';
 import 'core/utils/logger.dart';
+import 'core/navigation/navigation_service.dart';
+import 'core/di/service_locator.config.dart' as config;
 import 'app.dart';
 
 void main() async {
@@ -71,7 +74,7 @@ void main() async {
 
   // Criar instâncias dos outros serviços
   // Tentar usar o service locator quando possível
-  final editalService = EditalService();
+  final editalService = getIt.isRegistered<EditalService>() ? getIt.get<EditalService>() : EditalService();
   final planoEstudoService = PlanoEstudoService();
   final sessaoEstudoService = SessaoEstudoService();
   final gamificacaoService = GamificacaoService(authService);
@@ -156,6 +159,9 @@ void main() async {
     // Continuar mesmo com erro
   }
 
+  // Desabilitar a verificação de tipo do Provider para permitir o uso de IAServiceInterface
+  Provider.debugCheckInvalidValueType = null;
+
   runApp(
     MultiProvider(
       providers: [
@@ -164,7 +170,8 @@ void main() async {
         ChangeNotifierProvider.value(value: planoEstudoService),
         ChangeNotifierProvider.value(value: sessaoEstudoService),
         ChangeNotifierProvider.value(value: gamificacaoService),
-        Provider.value(value: iaService),
+        // Usar InheritedProvider em vez de Provider.value para IAServiceInterface
+        InheritedProvider.value(value: iaService),
         ChangeNotifierProvider.value(value: apiConfigService),
         ChangeNotifierProvider.value(value: audioExplanationService),
         ChangeNotifierProvider.value(value: documentStorageService),
@@ -173,7 +180,7 @@ void main() async {
         Provider.value(value: remoteConfigService),
         Provider.value(value: documentClassifierService),
       ],
-      child: ConcursosIAApp(),
+      child: PreparatorioConcursosApp(),
     ),
   );
   } catch (e) {

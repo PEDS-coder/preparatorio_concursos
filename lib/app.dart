@@ -2,7 +2,7 @@ import 'package:flutter/material.dart' as flutter;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'core/navigation/app_router.dart';
-import 'core/navigation/navigation_service.dart';
+import 'core/data/services/interfaces/navigation_service_interface.dart';
 import 'core/theme/app_theme.dart';
 import 'core/auth/auth_service.dart';
 import 'core/data/services/interfaces/analytics_service_interface.dart';
@@ -16,8 +16,7 @@ class PreparatorioConcursosApp extends StatelessWidget {
   // Construtor
   PreparatorioConcursosApp({Key? key}) : super(key: key);
 
-  // Chave global para o navegador
-  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
+  // Não precisamos mais de uma chave global aqui, vamos usar a do NavigationService
 
   @override
   Widget build(BuildContext context) {
@@ -31,8 +30,8 @@ class PreparatorioConcursosApp extends StatelessWidget {
         ? getIt<RemoteConfigService>()
         : null;
 
-    final navigationService = getIt.isRegistered<NavigationService>()
-        ? getIt<NavigationService>()
+    final navigationService = getIt.isRegistered<INavigationService>()
+        ? getIt<INavigationService>()
         : null;
 
     // Usar o ThemeService do Provider
@@ -46,7 +45,7 @@ class PreparatorioConcursosApp extends StatelessWidget {
             theme: themeService.lightTheme,
             darkTheme: themeService.darkTheme,
             themeMode: themeService.flutterThemeMode,
-            navigatorKey: _navigatorKey,
+            navigatorKey: navigationService?.navigatorKey,
             onGenerateRoute: AppRouter.generateRoute,
             initialRoute: '/',
             debugShowCheckedModeBanner: false,

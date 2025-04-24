@@ -1,0 +1,79 @@
+**Tarefa:** Extrair informações básicas de um edital de concurso público fornecido em formato PDF e apresentar o resultado em formato JSON.
+
+**Contexto:** Você está analisando diretamente um arquivo PDF de um edital de concurso público. Sua tarefa é extrair as informações essenciais sobre o concurso e os cargos disponíveis diretamente do PDF, sem extração prévia de texto e sem incluir o conteúdo programático detalhado.
+
+**Instruções Detalhadas:**
+
+1. **Informações Gerais do Concurso:**
+   - Título/nome do concurso
+   - Órgão responsável
+   - Banca organizadora
+   - Período de inscrições (data de início e fim)
+   - Valor da taxa de inscrição
+   - Local das provas
+   - Informações sobre cotas e reserva de vagas (percentuais para negros, PCD, indígenas, etc.)
+
+2. **Informações dos Cargos:**
+   - Liste todos os cargos disponíveis no concurso
+   - Para cada cargo, extraia:
+     - Nome exato e completo do cargo EXATAMENTE como aparece no edital, mantendo a grafia, pontuação e formatação original, incluindo área/especialidade quando aplicável
+     - Salário/remuneração
+     - Requisitos/escolaridade mínima (seja específico sobre o nível: superior, médio, etc.)
+     - Área/especialidade (se aplicável)
+
+3. **Formate a Saída em JSON:**
+   Organize as informações extraídas no seguinte formato JSON:
+
+```json
+{
+  "titulo_concurso": "Nome completo do concurso",
+  "orgao_responsavel": "Nome do órgão responsável",
+  "banca_organizadora": "Nome da banca organizadora",
+  "periodo_inscricoes": {
+    "inicio": "DD/MM/AAAA",
+    "fim": "DD/MM/AAAA"
+  },
+  "taxa_inscricao": 123.45,
+  "local_prova": "Local da prova",
+  "cotas": [
+    {
+      "nome": "Pessoas com Deficiência (PCD)",
+      "percentual": 10,
+      "criterios": "Laudo médico atestando a espécie e o grau da deficiência"
+    },
+    {
+      "nome": "Candidatos negros (pretos e pardos)",
+      "percentual": 20,
+      "criterios": "Autodeclaração e procedimento de heteroidentificação"
+    }
+  ],
+  "cargos": [
+    {
+      "nome": "Nome exato do cargo 1",
+      "salario": 0000.00,
+      "escolaridade": "Nível Superior em [área específica]",
+      "area": "Especialidade ou área do cargo"
+    },
+    {
+      "nome": "Nome exato do cargo 2",
+      "salario": 0000.00,
+      "escolaridade": "Nível Médio Completo"
+    }
+  ]
+}
+```
+
+**Observações Importantes:**
+- NÃO inclua o conteúdo programático (matérias e tópicos) nesta resposta.
+- EXTREMAMENTE IMPORTANTE: Extraia o nome COMPLETO e ESPECÍFICO de cada cargo EXATAMENTE como aparece no edital, mantendo a grafia, pontuação e formatação original. NÃO altere, abrevie ou simplifique os nomes dos cargos.
+- Seja explícito sobre o nível de escolaridade de cada cargo (superior, médio, técnico, etc.).
+- Se alguma informação não estiver disponível no edital, use null para valores numéricos e "Não informado" para strings.
+- Certifique-se de listar TODOS os cargos disponíveis no concurso.
+- Não agrupe os cargos por nível de escolaridade - liste cada cargo individualmente.
+- É ABSOLUTAMENTE ESSENCIAL preservar as nomenclaturas exatas das cotas conforme aparecem no edital. Não padronize ou simplifique os nomes das categorias de cotas.
+- Para cada categoria de cota, inclua o percentual (quando disponível) e os critérios específicos para concorrer a cada tipo de cota, exatamente como descritos no edital.
+- Certifique-se de incluir TODAS as informações sobre o período de inscrições, taxa de inscrição e local das provas.
+- NÃO inclua informações sobre o número de vagas dos cargos.
+- Forneça sua resposta EXCLUSIVAMENTE em formato JSON válido.
+- Não inclua texto introdutório, explicações ou comentários fora do JSON.
+- Não inclua delimitadores de código (```json) na sua resposta final.

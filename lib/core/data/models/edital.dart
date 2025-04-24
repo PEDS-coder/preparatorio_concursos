@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 class ConteudoProgramatico {
   final String nome;
   final String tipo; // 'comum' ou 'especifico'
@@ -182,13 +184,52 @@ class DadosExtraidos {
   }
 
   factory DadosExtraidos.fromMap(Map<String, dynamic> map) {
+    // Função auxiliar para parsear datas com tratamento de erro
+    DateTime? parseDataSegura(dynamic valor) {
+      if (valor == null) return null;
+
+      try {
+        // Se for string, tentar parsear
+        if (valor is String) {
+          // Verificar se é formato ISO
+          if (valor.contains('T') || valor.contains('-')) {
+            return DateTime.parse(valor);
+          }
+
+          // Verificar se é formato DD/MM/YYYY
+          final regexBarra = RegExp(r'^(\d{1,2})/(\d{1,2})/(\d{4})$');
+          final matchBarra = regexBarra.firstMatch(valor);
+          if (matchBarra != null) {
+            final dia = int.parse(matchBarra.group(1)!);
+            final mes = int.parse(matchBarra.group(2)!);
+            final ano = int.parse(matchBarra.group(3)!);
+            return DateTime(ano, mes, dia);
+          }
+
+          // Formato não reconhecido
+          print('Formato de data não reconhecido: $valor');
+          return null;
+        }
+
+        // Se já for DateTime, retornar diretamente
+        if (valor is DateTime) {
+          return valor;
+        }
+
+        return null;
+      } catch (e) {
+        print('Erro ao parsear data: $e, valor: $valor');
+        return null;
+      }
+    }
+
     return DadosExtraidos(
-      titulo: map['titulo'],
-      orgao: map['orgao'],
-      banca: map['banca'],
+      titulo: map['titulo'] ?? map['titulo_concurso'],
+      orgao: map['orgao'] ?? map['orgao_responsavel'],
+      banca: map['banca'] ?? map['banca_organizadora'],
       dataProva: map['dataProva'],
-      inicioInscricao: map['inicioInscricao'] != null ? DateTime.parse(map['inicioInscricao']) : null,
-      fimInscricao: map['fimInscricao'] != null ? DateTime.parse(map['fimInscricao']) : null,
+      inicioInscricao: parseDataSegura(map['inicioInscricao']),
+      fimInscricao: parseDataSegura(map['fimInscricao']),
       valorTaxa: map['valorTaxa'] is num ? (map['valorTaxa'] as num).toDouble() : 0.0,
       cargos: map['cargos'] != null
           ? List<Cargo>.from(map['cargos'].map((x) => Cargo.fromMap(x)))
@@ -281,6 +322,7 @@ class Edital {
   final DateTime dataUpload;
   DadosExtraidos dadosExtraidos;
   Map<String, dynamic>? dadosOriginais; // Dados originais extraídos pela IA
+  Uint8List? pdfBytes; // Bytes do PDF do edital
 
   Edital({
     required this.id,
@@ -290,6 +332,7 @@ class Edital {
     required this.dataUpload,
     required this.dadosExtraidos,
     this.dadosOriginais,
+    this.pdfBytes,
   });
 
   Map<String, dynamic> toMap() {
@@ -301,6 +344,8 @@ class Edital {
       'dataUpload': dataUpload.toIso8601String(),
       'dadosExtraidos': dadosExtraidos.toMap(),
       'dadosOriginais': dadosOriginais,
+      // Não incluir pdfBytes no toMap para evitar serialização de dados binários grandes
+      // Os bytes do PDF são armazenados apenas em memória durante a execução do aplicativo
     };
   }
 

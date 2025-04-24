@@ -1,8 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/navigation/bottom_navigation_helper.dart';
 import '../../../../core/data/services/edital_service.dart';
+import '../../../../core/data/models/models.dart';
 import '../../../../core/data/models/edital.dart';
+import '../../../../core/navigation/navigation_service.dart';
+import '../../../../core/di/service_locator.dart';
+import '../../../../core/utils/logger.dart';
+import 'cargo_select_screen.dart';
+import '../../../4_study_plan/presentation/screens/plano_questionario_screen.dart';
+import '../widgets/edital_details/edital_header_widget.dart';
+import '../widgets/edital_details/bottom_navigation_widget.dart';
+import '../widgets/edital_details/resumo_tab_widget.dart';
+import '../widgets/edital_details/cargos_tab_widget.dart';
+import '../widgets/edital_details/conteudo_tab_widget.dart';
+import '../../domain/services/cargo_grouping_service.dart';
+import '../../domain/services/conteudo_programatico_service.dart';
 
 class EditalDetailsScreen extends StatefulWidget {
   final String editalId;

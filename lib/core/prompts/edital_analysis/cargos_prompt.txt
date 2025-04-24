@@ -1,0 +1,61 @@
+# ANALISADOR DE EDITAIS DE CONCURSO - EXTRAÇÃO DE CARGOS
+
+Você está recebendo um arquivo PDF de um edital de concurso público brasileiro. Sua tarefa é analisar diretamente este documento PDF e extrair APENAS as informações sobre os cargos em formato JSON.
+
+**INSTRUÇÕES IMPORTANTES:**
+1. Analise o conteúdo do PDF do edital de concurso público fornecido.
+2. Extraia APENAS as seguintes informações:
+   - Lista de todos os cargos com nome, salário e escolaridade
+3. É ABSOLUTAMENTE CRUCIAL que você identifique e extraia TODOS OS CARGOS mencionados no edital, não apenas um.
+4. ATENÇÃO: O edital contém múltiplos cargos! Você deve extrair TODOS eles, incluindo diferentes áreas e especialidades.
+5. Forneça sua resposta EXCLUSIVAMENTE em formato JSON válido.
+6. Não inclua texto introdutório, explicações ou comentários fora do JSON.
+7. Garanta que os campos numéricos (salário) sejam realmente números no JSON, não strings.
+8. Certifique-se de que o JSON gerado seja válido e possa ser processado por um parser JSON padrão.
+
+**ESTRUTURA DO JSON A SER GERADO:**
+
+Sua resposta DEVE ser um objeto JSON com uma única chave "cargos" que contém um array de objetos, onde cada objeto representa um cargo com as propriedades "nome", "salario" e "escolaridade":
+
+{
+  "cargos": [
+    {
+      "nome": "A07 - ANALISTA DO MPU / DIREITO",
+      "salario": 13994.78,
+      "escolaridade": "Nível Superior em Direito"
+    },
+    {
+      "nome": "CARGO 301: Técnico Judiciário - Área Administrativa",
+      "salario": 8529.77,
+      "escolaridade": "Nível Médio Completo"
+    }
+  ]
+}
+
+
+**IMPORTANTE SOBRE OS CARGOS:**
+- É ABSOLUTAMENTE ESSENCIAL que você extraia TODOS os cargos mencionados no edital, não apenas um
+- Procure por seções como "DOS CARGOS" ou tabelas que listam os cargos
+- Examine cuidadosamente todo o documento para identificar todos os cargos, incluindo anexos e apêndices
+- Inclua todos os cargos, mesmo que tenham conteúdo programático similar
+- Verifique se há cargos de níveis diferentes (como Analista e Técnico) e inclua todos eles
+- Certifique-se de incluir todas as especialidades e áreas para cada cargo
+- Inclua o código ou identificador do cargo EXATAMENTE como aparece no edital (ex: "A07 - ANALISTA DO MPU / DIREITO")
+- Extraia o salário exato para cada cargo (como número, não como string)
+- Se o salário não for especificado, use null (não use strings como "Não informado")
+- Extraia a escolaridade exigida para cada cargo (como string)
+- Se a escolaridade não for especificada, use null (não use strings como "Não informado")
+
+**ATENÇÃO:**
+- Não inclua nenhuma outra informação além dos dados dos cargos (nome, salário e escolaridade)
+- Não inclua o campo "vagas" nem qualquer informação sobre quantidade de vagas em hipótese alguma
+- Não inclua o conteúdo programático dos cargos
+- Não inclua informações sobre o concurso (título, órgão, banca, etc.)
+- Não inclua informações sobre as provas
+- Não inclua informações sobre as inscrições
+- Não inclua informações sobre cotas
+- Forneça APENAS a lista de cargos conforme a estrutura JSON especificada
+- Certifique-se de que o JSON gerado seja válido e não contenha erros de sintaxe
+- Não use aspas simples (') em vez de aspas duplas (") no JSON
+- Não use vírgulas extras no final de listas ou objetos
+- Não use comentários dentro do JSON

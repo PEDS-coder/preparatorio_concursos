@@ -1,12 +1,14 @@
 import 'dart:typed_data';
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/data/services/interfaces/ia_service_interface.dart';
 import '../../../core/utils/logger.dart';
 import '../../data/models/flashcard.dart';
+import 'ia_service_implementations.dart';
 
-class IAService extends ChangeNotifier implements IAServiceInterface {
+class IAService extends ChangeNotifier with IAServiceImplementations implements IAServiceInterface {
   final Logger _logger = Logger();
   String _apiKey = '';
   String _apiType = 'gemini'; // Padrão para Gemini

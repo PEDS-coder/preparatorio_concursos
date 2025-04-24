@@ -26,9 +26,9 @@ class EditalService extends ChangeNotifier {
   }
 
   // Adicionar um novo edital
-  Future<Edital> addEdital(String userId, String nomeConcurso, String textoCompleto, DadosExtraidos dadosExtraidos, {Map<String, dynamic>? dadosOriginais}) async {
+  Future<Edital> addEdital(String userId, String nomeConcurso, String textoCompleto, DadosExtraidos dadosExtraidos, {Map<String, dynamic>? dadosOriginais, String? id}) async {
     final edital = Edital(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      id: id ?? DateTime.now().millisecondsSinceEpoch.toString(),
       userId: userId,
       nomeConcurso: nomeConcurso,
       textoCompleto: textoCompleto,

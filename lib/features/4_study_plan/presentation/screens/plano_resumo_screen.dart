@@ -76,8 +76,8 @@ class _PlanoResumoScreenState extends State<PlanoResumoScreen> {
     logger.logApresentacao(_plano!.id, 'gerando_sessoes_estudo', 'Gerando sessões de estudo para o plano');
 
     // Gerar sessões de estudo para o plano
-    planoService.gerarSessoesParaPlano(_plano!.id).then((sucesso) {
-      if (sucesso) {
+    planoService.gerarSessoesParaPlano(_plano!.id).then((sessoes) {
+      if (sessoes.isNotEmpty) {
         // Recarregar o plano com as novas sessões
         final planoAtualizado = planoService.getPlanoById(_plano!.id);
         if (planoAtualizado != null) {
@@ -545,7 +545,8 @@ class _PlanoResumoScreenState extends State<PlanoResumoScreen> {
     }
 
     // Calcular horas totais usando o novo método
-    int horasTotais = planoService.calcularTotalHoras(_plano!.id);
+    double horasTotais = planoService.calcularTotalHoras(_plano!.id);
+    int horasTotaisInt = horasTotais.round();
 
     // Calcular horas por semana
     int horasSemanais = 0;
@@ -563,14 +564,18 @@ class _PlanoResumoScreenState extends State<PlanoResumoScreen> {
     double horasPorDia = horasSemanais / 7;
 
     // Calcular horas por matéria usando o novo método
-    Map<String, int> horasPorMateria = planoService.calcularHorasPorMateria(_plano!.id);
+    Map<String, double> horasPorMateria = planoService.calcularHorasPorMateria(_plano!.id);
+    Map<String, int> horasPorMateriaInt = {};
+    horasPorMateria.forEach((materia, horas) {
+      horasPorMateriaInt[materia] = horas.round();
+    });
 
     // Registrar dados do resumo do plano
     logger.logApresentacao(_plano!.id, 'resumo_plano', {
       'horas_totais': horasTotais,
       'horas_semanais': horasSemanais,
       'horas_por_dia': horasPorDia,
-      'horas_por_materia': horasPorMateria,
+      'horas_por_materia': horasPorMateriaInt,
     });
 
     // Formatar o período
@@ -579,10 +584,10 @@ class _PlanoResumoScreenState extends State<PlanoResumoScreen> {
     // Usar o novo widget de resumo do plano
     return ResumoPlanoSection(
       periodo: periodo,
-      horasTotais: horasTotais,
+      horasTotais: horasTotaisInt,
       horasSemanais: horasSemanais,
       horasPorDia: horasPorDia,
-      horasPorMateria: horasPorMateria,
+      horasPorMateria: horasPorMateriaInt,
     );
   }
 

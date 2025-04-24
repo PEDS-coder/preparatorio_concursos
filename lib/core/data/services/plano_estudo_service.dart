@@ -466,4 +466,69 @@ class PlanoEstudoService extends ChangeNotifier {
 
     return false;
   }
+
+  // Gerar sessões para um plano de estudo
+  Future<List<SessaoEstudo>> gerarSessoesParaPlano(String planoId) async {
+    final plano = getPlanoById(planoId);
+    if (plano == null) {
+      throw Exception('Plano não encontrado');
+    }
+
+    // Gerar sessões de estudo com base no plano
+    final List<SessaoEstudo> sessoes = _gerarSessoesEstudo(
+      plano.userId,
+      plano.dataInicio,
+      plano.dataFim,
+      plano.horasSemanais,
+      plano.materiasProficiencia,
+      plano.ferramentas,
+      horariosEspecificos: plano.metadados['horariosEspecificos'] as Map<String, List<int>>?,
+    );
+
+    // Atualizar o ID do plano nas sessões
+    for (int i = 0; i < sessoes.length; i++) {
+      sessoes[i] = sessoes[i].copyWith(planoId: planoId);
+    }
+
+    return sessoes;
+  }
+
+  // Calcular o total de horas de estudo de um plano
+  double calcularTotalHoras(String planoId) {
+    final plano = getPlanoById(planoId);
+    if (plano == null) {
+      return 0.0;
+    }
+
+    // Calcular o total de horas com base nas sessões de estudo
+    double totalHoras = 0.0;
+    for (final sessao in plano.sessoesEstudo) {
+      totalHoras += sessao.duracaoMinutos / 60.0;
+    }
+
+    return totalHoras;
+  }
+
+  // Calcular horas por matéria em um plano
+  Map<String, double> calcularHorasPorMateria(String planoId) {
+    final plano = getPlanoById(planoId);
+    if (plano == null) {
+      return {};
+    }
+
+    // Calcular horas por matéria
+    final Map<String, double> horasPorMateria = {};
+    for (final sessao in plano.sessoesEstudo) {
+      final materia = sessao.materia;
+      final horas = sessao.duracaoMinutos / 60.0;
+
+      if (horasPorMateria.containsKey(materia)) {
+        horasPorMateria[materia] = horasPorMateria[materia]! + horas;
+      } else {
+        horasPorMateria[materia] = horas;
+      }
+    }
+
+    return horasPorMateria;
+  }
 }

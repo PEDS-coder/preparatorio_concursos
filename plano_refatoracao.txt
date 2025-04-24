@@ -1,0 +1,88 @@
+# Plano de Refatoração
+
+## Análise Inicial
+- edital_details_screen.dart: 1331 linhas
+- edital_analyze_screen.dart: 767 linhas
+- cargo_select_screen.dart: 1067 linhas
+
+## Princípios de Refatoração
+1. **SOLID**: Aplicar princípios SOLID, especialmente SRP (Princípio da Responsabilidade Única)
+2. **DRY**: Eliminar código duplicado
+3. **KISS**: Simplificar código complexo
+4. **YAGNI**: Remover funcionalidades não utilizadas
+
+## Estratégia de Refatoração
+1. Extrair widgets reutilizáveis para arquivos separados
+2. Extrair lógica de negócios para classes de serviço
+3. Separar componentes de UI por responsabilidade
+4. Criar mixins para comportamentos compartilhados
+5. Utilizar padrões de design como Builder e Factory
+
+## Plano para edital_details_screen.dart (1331 linhas)
+1. Extrair widgets de UI:
+   - EditalHeaderWidget
+   - EditalTabsWidget
+   - ConteudoProgramaticoWidget
+   - CargoListWidget
+   - ResumoEditalWidget
+   - BottomNavigationWidget
+
+2. Extrair lógica de negócios:
+   - CargoGroupingService (para agrupar cargos)
+   - ConteudoProgramaticoService (para gerenciar conteúdo programático)
+
+## Plano para edital_analyze_screen.dart (767 linhas)
+1. Extrair widgets de UI:
+   - PdfUploadWidget
+   - AnalysisProgressWidget
+   - ErrorMessageWidget
+   - InstructionsWidget
+
+2. Extrair lógica de negócios:
+   - PdfUploadService
+   - EditalAnalysisService
+
+## Plano para cargo_select_screen.dart (1067 linhas)
+1. Extrair widgets de UI:
+   - CargoCardWidget
+   - CargoInfoItemWidget
+   - ProgressIndicatorWidget
+   - ActionButtonsWidget
+
+2. Extrair lógica de negócios:
+   - CargoSelectionService
+   - ApiCallService
+
+## Ordem de Implementação
+1. ✅ Começar com edital_details_screen.dart (maior arquivo)
+   - Extraído widget EditalHeaderWidget
+   - Extraído widget BottomNavigationWidget
+   - Extraído widget ResumoTabWidget
+   - Extraído widget CargosTabWidget
+   - Extraído widget ConteudoTabWidget
+   - Extraído serviço ConteudoProgramaticoService
+   - Refatorado o arquivo principal para usar os componentes extraídos
+   - Reduzido o tamanho do arquivo de 1331 linhas para 700 linhas
+
+2. ✅ Continuar com cargo_select_screen.dart
+   - Extraído widget CargoCardWidget
+   - Extraído widget CargoInfoItemWidget
+   - Extraído widget ProgressIndicatorWidget
+   - Extraído widget NoCargosMessageWidget
+   - Extraído widget ErrorMessageWidget
+   - Extraído serviço CargoSelectionService
+   - Refatorado o arquivo principal para usar os componentes extraídos
+   - Reduzido o tamanho do arquivo de 1067 linhas para aproximadamente 400 linhas
+
+3. ✅ Finalizar com edital_analyze_screen.dart
+   - Extraído widget PdfUploadWidget
+   - Extraído widget AnalysisProgressWidget
+   - Extraído widget InstructionsWidget
+   - Extraído widget ExampleEditalWidget
+   - Extraído widget AnalyzeButtonWidget
+   - Extraído serviço EditalAnalysisService
+   - Refatorado o arquivo principal para usar os componentes extraídos
+   - Reduzido o tamanho do arquivo de 767 linhas para aproximadamente 300 linhas
+
+## Conclusão
+A refatoração dos três arquivos foi concluída com sucesso, seguindo os princípios SOLID, especialmente o Princípio da Responsabilidade Única (SRP). Os componentes foram extraídos para arquivos separados, tornando o código mais modular, legível e manutencionável. A redução significativa no tamanho dos arquivos principais facilitará o desenvolvimento futuro e a depuração de problemas.
