@@ -38,7 +38,6 @@ class CargoSelectionScreen extends StatelessWidget {
                       style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 8),
-                    _infoRow(Icons.work, 'Vagas: ${cargo.vagas}'),
                     _infoRow(Icons.monetization_on, 'Salário: R\$ ${cargo.salario.toStringAsFixed(2)}'),
                     _infoRow(Icons.school, 'Escolaridade: ${cargo.escolaridade}'),
                     if ((cargo.requisitos).isNotEmpty)

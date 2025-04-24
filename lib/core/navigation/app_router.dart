@@ -16,7 +16,7 @@ import '../../features/3_edital_management/presentation/screens/edital_edit_scre
 import '../../features/3_edital_management/presentation/screens/edital_analyze_screen.dart';
 import '../../features/3_edital_management/presentation/screens/cargo_select_screen.dart';
 import '../../features/4_study_plan/presentation/screens/plano_questionario_screen.dart';
-import '../../features/4_study_plan/presentation/screens/plano_details_screen.dart';
+// Removido import de plano_details_screen.dart (não utilizado)
 import '../../features/4_study_plan/presentation/screens/plano_resumo_screen.dart';
 import '../../features/5_study_session/presentation/screens/sessao_screen.dart';
 import '../../features/6_gamification/presentation/screens/trofeus_screen.dart';
@@ -90,8 +90,7 @@ class AppRouter {
           // Redirecionar para a tela de seleção de cargo
           return CargoSelectScreen(editalId: editalId);
         });
-      case '/plano/detalhes':
-        return MaterialPageRoute(builder: (_) => PlanoDetailsScreen(planoId: args as String));
+      // Rota '/plano/detalhes' removida (não utilizada)
       case '/plano/resumo':
         return MaterialPageRoute(builder: (_) => PlanoResumoScreen(planoId: args as String));
 

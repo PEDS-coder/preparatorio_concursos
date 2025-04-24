@@ -39,7 +39,7 @@ Crie um ciclo de estudos detalhado em formato JSON com a seguinte estrutura:
         {
           "ordem": 1,
           "materia": "Nome da Matéria",
-          "duracao_minutos": 90,
+          "duracao_minutos": 60,
           "ferramenta": "Nome da Ferramenta"
         },
         {
@@ -56,12 +56,14 @@ Crie um ciclo de estudos detalhado em formato JSON com a seguinte estrutura:
         {
           "ordem": 1,
           "materia": "Nome da Matéria",
-          "duracao_minutos": 120,
+          "duracao_minutos": 60,
           "ferramenta": "Nome da Ferramenta"
         }
       ]
     }
   ],
+  "duracao_total_ciclo": 7,
+  "total_blocos_ciclo": 15,
   "materias_prioritarias": [
     {
       "nome": "Nome da Matéria",
@@ -78,44 +80,56 @@ Crie um ciclo de estudos detalhado em formato JSON com a seguinte estrutura:
 Para criar o ciclo de estudos, siga estas regras de priorização:
 
 **Sistema de Pontuação para Priorização de Matérias:**
-1. Matérias com peso maior no edital: +10 pontos
-2. Matérias com peso menor no edital: +1 ponto
-3. Matérias com mais questões na prova: +8 pontos
-4. Matérias com menos questões na prova: +1 ponto
-5. Matérias que são critérios de desempate: +5 pontos
-6. Matérias que não são critérios de desempate: +0 pontos
-7. Proficiência do estudante:
-   - Iniciante: +10 pontos
-   - Básico: +8 pontos
-   - Intermediário: +5 pontos
-   - Avançado: +2 pontos
-   - Especialista: +1 ponto
 
-**Distribuição de Questões para Matérias sem Número Explícito:**
-Quando o edital não especificar o número exato de questões para determinadas matérias, mas informar o total de questões de um grupo (ex: 45 questões de conhecimentos específicos), siga este procedimento:
-1. Identifique o número total de questões do grupo (campo "total_questoes_grupo")
-2. Subtraia o número de questões já atribuídas a matérias com número explícito
-3. Divida o resultado pelo número de matérias restantes sem número explícito
-4. Atribua esse valor calculado como número de questões para cada matéria sem número explícito
-5. Use essa distribuição para calcular a pontuação de prioridade
+Todas as matérias começam com pontuação incial de 0 pontos e recebem pontos adicionais com base nas seguintes regras:
+1. Matérias com peso maior no edital: +2 pontos
+2. Matérias com peso menor no edital: +1 ponto
+3. Matérias com mais questões na prova: +2 pontos
+4. Matérias com menos questões na prova: +1 ponto
+5. Matérias que são critérios de desempate: +2 pontos
+6. Matérias que não são critérios de desempate: +1 pontos
+7. Proficiência do estudante:
+   - Iniciante: +5 pontos
+   - Básico: +4 pontos
+   - Intermediário: +3 pontos
+   - Avançado: +2 pontos
+   - Especialista: +1 pontos
+
+OBS: Se não houver indicação de matérias com maior o menor peso, atribua +1 ponto para todas as matérias.
+A soma dos pontos de cada matéria é sua Pontuação Final de Prioridade.
+
+**Distribuição de Horas por Matéria:**
+    * Calcule a Pontuação Final de Prioridade de cada matéria e a pontuação total (soma de todas as matérias).
+    * Para cada matéria, calcule a porcentagem que sua Pontuação Final de Prioridade representa do total de pontos.
+    * **Distribua as horas totais disponíveis *dentro de um ciclo completo*** proporcionalmente a essa porcentagem para cada matéria. (O total de horas no ciclo dependerá dos dias disponíveis informados).
+    * Arredonde a duração calculada para cada matéria para o valores múltiplos de 60 minutos, buscando manter a proporção geral.
+    * Certifique-se de que cada matéria seja estudada pelo menos uma vez durante o ciclo.
+
 
 **Eficácia das Ferramentas de Estudo (escala 1-10):**
 1. Plataformas de Questões: 10
 2. Flashcards: 9
-3. PDFs/Livros: 8
-4. Videoaulas: 7
-5. Resumos: 6
-6. Audioaulas: 5
+3. Lei Seca: 8
+4. PDFs/Livros: 7
+5. Videoaulas: 6
+6. Resumos: 5
+7. Audioaulas: 4
 
 **Nota sobre a ferramenta "Lei seca":**
-A ferramenta "Lei seca" (leitura direta da legislação) deve ser utilizada APENAS para matérias jurídicas como Direito Constitucional, Direito Administrativo, Direito Civil, Direito Penal, Direito Processual, Legislação específica, etc. Não utilize esta ferramenta para matérias não-jurídicas como Matemática, Português, Raciocínio Lógico, Informática, etc.
+A ferramenta "Lei Seca" (leitura direta da legislação) deve ser utilizada APENAS para matérias jurídicas como Direito Constitucional, Direito Administrativo, Direito Civil, Direito Penal, Direito Processual, Legislação específica, etc. Não utilize esta ferramenta para matérias não-jurídicas como Matemática, Português, Raciocínio Lógico, Informática, etc.
 
 **Diretrizes para o Ciclo de Estudos:**
 1. Crie um único ciclo com dias suficientes para que o usuário estude cada matéria e use cada ferramenta de estudo disponível.
-2. Aloque mais tempo para matérias com maior pontuação de prioridade.
-3. Alterne entre matérias teóricas e práticas para evitar fadiga mental.
+2. Distribua as matérias de forma que cada uma seja estudada pelo menos uma vez durante o ciclo.
+3. Alterne entre matérias teóricas (Direito, Administração Pública) e práticas/lógicas (Português - questões, Raciocínio Lógico).
 4. Alterne entre ferramentas de estudo, priorizando as mais eficazes.
-5. Cada bloco de estudo deve ter entre 60 e 150 minutos.
-6. Distribua as matérias de forma que disciplinas similares não fiquem em sequência.
+5. Cada bloco de estudo deve ter 60 minutos. Um período de 60 minutos de estudos é considerado um bloco de estudos.
+6. Evite colocar matérias muito similares em sequência no mesmo dia (ex: Constitucional seguido de Administrativo, se possível).
+7. Alterne disciplinas que exigem diferentes tipos de processamento cognitivo.
+8. Inclua blocos específicos para resolução de questões.
+9. O ciclo não precisa necessariamente ter uma duração específica (exemplo: uma semana ou quinze dias), mas deve ter duração suficiente para atender todas as regras acima.
+10. Certifique-se de que o ciclo de estudos seja equilibrado e otimizado para o estudo eficaz.
+11. O JSON final deve indicar a duração total do ciclo em dias no campo "duracao_total_ciclo"
+12. O JSON final deve incluir a quantidade total de blocos de estudos do ciclo no campo "total_blocos_ciclo".
 
 Sua resposta deve conter APENAS o JSON, sem texto introdutório ou explicativo.

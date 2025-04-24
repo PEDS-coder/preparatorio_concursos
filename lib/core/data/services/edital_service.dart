@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/foundation.dart';
 import '../models/edital.dart';
@@ -26,7 +27,7 @@ class EditalService extends ChangeNotifier {
   }
 
   // Adicionar um novo edital
-  Future<Edital> addEdital(String userId, String nomeConcurso, String textoCompleto, DadosExtraidos dadosExtraidos, {Map<String, dynamic>? dadosOriginais, String? id}) async {
+  Future<Edital> addEdital(String userId, String nomeConcurso, String textoCompleto, DadosExtraidos dadosExtraidos, {Map<String, dynamic>? dadosOriginais, String? id, Uint8List? pdfBytes, String? nomeArquivo}) async {
     final edital = Edital(
       id: id ?? DateTime.now().millisecondsSinceEpoch.toString(),
       userId: userId,
@@ -35,6 +36,8 @@ class EditalService extends ChangeNotifier {
       dataUpload: DateTime.now(),
       dadosExtraidos: dadosExtraidos,
       dadosOriginais: dadosOriginais,
+      pdfBytes: pdfBytes,
+      nomeArquivo: nomeArquivo,
     );
 
     _editais.add(edital);

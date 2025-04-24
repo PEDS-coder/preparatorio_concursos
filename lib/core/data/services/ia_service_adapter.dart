@@ -166,4 +166,9 @@ class IAServiceAdapter implements IAServiceInterface {
   ) {
     return _iaService.analisarEditalSegundaChamada(editalId, cargoId, cargoNome, onProgress);
   }
+
+  @override
+  Future<String> processarPdf(String prompt, Uint8List pdfBytes, {String? pdfName}) {
+    return _iaService.processarPdf(prompt, pdfBytes, pdfName: pdfName);
+  }
 }

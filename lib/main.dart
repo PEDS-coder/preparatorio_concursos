@@ -4,6 +4,7 @@ import 'package:provider/single_child_widget.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'core/mocks/firebase_config.dart';
 import 'core/auth/auth_service.dart';
 import 'core/auth/google_oauth_service.dart';
 import 'core/di/service_locator.dart';

@@ -30,6 +30,21 @@ class IAConfigurationException extends EditalAnalysisException {
 
 /// Analisador de editais de concursos públicos
 /// Utiliza a API LLM (Gemini ou OpenAI) para extrair informações de editais
+///
+/// Esta é a implementação padrão do analisador de editais, que envia o PDF diretamente para a LLM
+/// sem extração prévia de texto, conforme requisito de não extrair dados do PDF antes do envio à LLM.
+///
+/// IMPORTANTE: Esta é a classe padrão para análise de editais. Todas as implementações alternativas
+/// (EditalAnalyzerFixed, EditalAnalyzerFixed2, EditalAnalyzerSimplified) foram movidas para a pasta
+/// de código obsoleto.
+///
+/// Fluxo de análise:
+/// 1. O usuário seleciona um arquivo PDF de edital
+/// 2. O PDF é enviado diretamente para a LLM sem extração prévia de texto
+/// 3. A LLM extrai as informações básicas e cargos do edital
+/// 4. O usuário seleciona um cargo
+/// 5. O PDF e o cargo selecionado são enviados para a LLM para extrair informações detalhadas
+/// 6. As informações são processadas e armazenadas no modelo de dados
 class EditalAnalyzer {
   // Serviços
   final IAServiceInterface iaService;
@@ -169,6 +184,7 @@ class EditalAnalyzer {
   }
 
   /// Extrai o conteúdo programático para um cargo específico (segunda etapa - método antigo)
+  @deprecated
   Future<Map<String, dynamic>?> extrairConteudoProgramatico(Uint8List pdfBytes, String cargoAlvo) async {
     try {
       _reportProgress(0.1, 'Extraindo conteúdo programático para o cargo: $cargoAlvo...');

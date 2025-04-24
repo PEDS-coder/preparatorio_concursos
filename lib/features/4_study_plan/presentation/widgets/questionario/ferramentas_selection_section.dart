@@ -40,23 +40,23 @@ class FerramentasSelectionSection extends StatelessWidget {
   }
 
   Widget _buildFerramentasGrid(BuildContext context) {
+    // Ferramentas mencionadas no prompt de ciclo de estudos
     final ferramentas = [
-      {'id': 'Videoaulas', 'nome': 'Videoaulas', 'icone': Icons.play_circle_outline},
-      {'id': 'Resumos', 'nome': 'Resumos', 'icone': Icons.description_outlined},
       {'id': 'Questões', 'nome': 'Questões', 'icone': Icons.quiz_outlined},
       {'id': 'Flashcards', 'nome': 'Flashcards', 'icone': Icons.flip_outlined},
-      {'id': 'Mapas Mentais', 'nome': 'Mapas Mentais', 'icone': Icons.account_tree_outlined},
-      {'id': 'Leitura', 'nome': 'Leitura', 'icone': Icons.menu_book_outlined},
-      {'id': 'Podcasts', 'nome': 'Podcasts', 'icone': Icons.headset_outlined},
-      {'id': 'Simulados', 'nome': 'Simulados', 'icone': Icons.assignment_outlined},
+      {'id': 'PDFs/Livros', 'nome': 'PDFs/Livros', 'icone': Icons.menu_book_outlined},
+      {'id': 'Videoaulas', 'nome': 'Videoaulas', 'icone': Icons.play_circle_outline},
+      {'id': 'Resumos', 'nome': 'Resumos', 'icone': Icons.description_outlined},
+      {'id': 'Audioaulas', 'nome': 'Audioaulas', 'icone': Icons.headset_outlined},
+      {'id': 'Lei Seca', 'nome': 'Lei Seca', 'icone': Icons.gavel_outlined},
     ];
 
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 4,
-        childAspectRatio: 0.8,
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: MediaQuery.of(context).size.width > 600 ? 6 : 3,
+        childAspectRatio: 1.2,
         crossAxisSpacing: 10,
         mainAxisSpacing: 10,
       ),

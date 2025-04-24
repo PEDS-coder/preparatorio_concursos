@@ -88,18 +88,24 @@ class PromptService {
   }
 
   /// Carrega um prompt para extração de informações básicas do edital
+  @deprecated
   Future<String> loadBasicInfoEditalPrompt() async {
-    return await loadPrompt('lib/core/prompts/edital_analysis/basic_info_prompt.txt');
+    // Este método está obsoleto e não deve mais ser utilizado.
+    throw UnimplementedError('Use loadPdfEditalAnalysisPrompt() para análise direta de PDF.');
   }
 
   /// Carrega um prompt para extração de conteúdo programático de um cargo específico
+  @deprecated
   Future<String> loadContentEditalPrompt() async {
-    return await loadPrompt('lib/core/prompts/edital_analysis/content_prompt.txt');
+    // Este método está obsoleto e não deve mais ser utilizado.
+    throw UnimplementedError('Use loadConcursoConteudoPrompt() para extração de conteúdo programático.');
   }
 
   /// Carrega um prompt para extração de conteúdo programático em formato JSON
+  @deprecated
   Future<String> loadContentJsonPrompt() async {
-    return await loadPrompt('lib/core/prompts/edital_analysis/content_json_prompt.txt');
+    // Este método está obsoleto e não deve mais ser utilizado.
+    throw UnimplementedError('Use loadConcursoConteudoPrompt() para extração de conteúdo programático.');
   }
 
   /// Carrega um prompt para extração apenas dos cargos do edital
@@ -110,13 +116,22 @@ class PromptService {
   }
 
   /// Carrega um prompt para extração detalhada dos cargos do edital
+  @deprecated
   Future<String> loadCargosDetalhadosPrompt() async {
-    return await loadPrompt('lib/core/prompts/edital_analysis/cargos_detalhados_prompt.txt');
+    // Este método está obsoleto e redireciona para loadPdfEditalAnalysisPrompt
+    return await loadPdfEditalAnalysisPrompt();
   }
 
   /// Carrega um prompt para extração de dados do concurso e conteúdo programático
   Future<String> loadConcursoConteudoPrompt() async {
     return await loadPrompt('lib/core/prompts/edital_analysis/concurso_conteudo_prompt.txt');
+  }
+
+  /// Carrega um prompt para extração de detalhes do concurso e do cargo selecionado
+  @deprecated
+  Future<String> loadDetalhesConcursoCargoPrompt() async {
+    // Este método está obsoleto e redireciona para loadConcursoConteudoPrompt
+    return await loadConcursoConteudoPrompt();
   }
 
   /// Carrega um prompt para análise comparativa de edital em texto simples

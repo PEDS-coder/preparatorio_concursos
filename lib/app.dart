@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart' as flutter;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'core/navigation/app_router.dart';
 import 'core/data/services/interfaces/navigation_service_interface.dart';
 import 'core/theme/app_theme.dart';
@@ -49,6 +50,17 @@ class PreparatorioConcursosApp extends StatelessWidget {
             onGenerateRoute: AppRouter.generateRoute,
             initialRoute: '/',
             debugShowCheckedModeBanner: false,
+            // Adicionar suporte para localização em português
+            localizationsDelegates: const [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: const [
+              Locale('pt', 'BR'), // Português do Brasil
+              Locale('en', 'US'), // Inglês (fallback)
+            ],
+            locale: const Locale('pt', 'BR'), // Definir português como padrão
           ),
         );
       },

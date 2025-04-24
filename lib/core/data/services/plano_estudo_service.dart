@@ -179,9 +179,15 @@ class PlanoEstudoService extends ChangeNotifier {
             // Criar uma lista de ferramentas disponíveis para esta matéria
             List<String> ferramentasDisponiveis = List.from(ferramentas);
 
-            // Remover "Lei seca" se não for matéria jurídica
-            if (!isJuridica && ferramentasDisponiveis.contains('lei_seca')) {
-              ferramentasDisponiveis.remove('lei_seca');
+            // Remover "Lei Seca" se não for matéria jurídica
+            if (!isJuridica && (
+                ferramentasDisponiveis.contains('Lei Seca') ||
+                ferramentasDisponiveis.contains('lei_seca') ||
+                ferramentasDisponiveis.contains('Lei seca')
+            )) {
+              ferramentasDisponiveis.removeWhere((f) =>
+                f == 'Lei Seca' || f == 'lei_seca' || f == 'Lei seca'
+              );
             }
 
             // Se não houver ferramentas disponíveis após a filtragem, usar todas as ferramentas

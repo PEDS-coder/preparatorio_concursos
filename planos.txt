@@ -1,11 +1,13 @@
 # Plano de Implementação
 
-## Problemas Identificados
-1. A segunda chamada à API não está sendo realizada antes da navegação para a tela de questionário
-2. As matérias do cargo não estão sendo apresentadas na tela de questionário
-3. A navegação não está intuitiva, com passos desnecessários
+## Fase 1: Correção do Fluxo de Análise de Editais
 
-## Soluções Planejadas
+### Problemas Identificados
+1. A segunda chamada à API não estava sendo realizada antes da navegação para a tela de questionário
+2. As matérias do cargo não estavam sendo apresentadas na tela de questionário
+3. A navegação não estava intuitiva, com passos desnecessários
+
+### Soluções Planejadas
 1. Corrigir a extração do conteúdo programático
    - Modificar o método `_continuarParaPlanoEstudo()` para garantir que a chamada à API seja realizada
    - Adicionar logs para verificar o funcionamento da API
@@ -19,7 +21,7 @@
    - Simplificar o fluxo de navegação
    - Adicionar o botão "Criar Plano" diretamente na tela de análise do edital
 
-## Progresso
+### Progresso
 - [x] Implementar solução para o problema 1
   - Adicionados logs detalhados para rastrear a extração do conteúdo programático
   - Modificado o método `_continuarParaPlanoEstudo()` para garantir que a chamada à API seja realizada corretamente
@@ -53,3 +55,472 @@
   - Adicionado o agrupamento de cargos por categoria ao `edital_details_screen.dart`
   - Atualizadas todas as referências ao `EditalAnalysisViewScreen` para usar o `EditalDetailsScreen`
   - Removido o arquivo `edital_analysis_view_screen.dart` após a migração completa
+
+## Fase 2: Correções na Tela de Questionário do Plano
+
+### Problemas Identificados
+1. O seletor de data (CupertinoDatePicker) não mostrava o ano corretamente
+2. Ao clicar em um dia da semana, só era possível visualizar os primeiros 4 blocos de horário, obrigando o uso do scroll
+3. As caixas de seleção das ferramentas de estudo estavam muito grandes e incluíam ferramentas não mencionadas no prompt
+4. Em tela cheia, as matérias lado a lado na seção de proficiência ficavam muito bagunçadas
+5. As caixas de seleção das recompensas estavam muito grandes e desorganizadas em tela cheia
+
+### Soluções Implementadas
+1. Seletor de Data
+   - Substituído o CupertinoDatePicker pelo seletor de data nativo do Flutter (showDatePicker) com tema personalizado
+
+2. Visualização dos Blocos de Horário
+   - Aumentado o número de blocos visíveis na tela (de 4 para 6 em telas pequenas e 8 em telas grandes)
+
+3. Ferramentas de Estudo
+   - Reduzido o número de ferramentas para incluir apenas as mencionadas no prompt de ciclo de estudos
+   - Ajustado o layout para melhor visualização (3 ferramentas por linha em telas pequenas, 6 em telas grandes)
+   - Melhorada a proporção dos itens
+
+4. Proficiência nas Matérias
+   - Reorganizado o layout para uma lista vertical (uma matéria abaixo da outra)
+
+5. Recompensas
+   - Mudado de GridView para ListView para melhor organização
+   - Adicionada a possibilidade de editar recompensas
+   - Implementada a estrutura para seleção de recompensas com clique simples
+
+### Implementações Adicionais
+1. Implementação da Seleção de Recompensas
+   - [x] Modificar o modelo RecompensaConfig para incluir a propriedade selecionada
+   - [x] Atualizar os métodos toMap, fromMap e copyWith para incluir a propriedade selecionada
+   - [x] Implementar a lógica para selecionar recompensas com clique
+   - [x] Adicionar feedback visual para recompensas selecionadas (borda, cor, ícone)
+   - [x] Adicionar opção de selecionar recompensa no diálogo de adição/edição
+   - [x] Garantir que o estado de seleção seja preservado ao editar uma recompensa
+
+### Correções de Erros
+1. Correção de Erros na Implementação da Seleção de Recompensas
+   - [x] Identificar o problema de duplicação da classe RecompensaConfig
+   - [x] Atualizar a classe RecompensaConfig em plano_estudo.dart para incluir a propriedade selecionada
+   - [x] Atualizar as instâncias de RecompensaConfig em plano_questionario_screen.dart
+   - [x] Atualizar as instâncias de RecompensaConfig em plano_data_validator.dart
+   - [x] Garantir que todas as recompensas padrão sejam criadas com selecionada: true
+
+2. Correção da Geração do Ciclo de Estudos
+   - [x] Identificar o problema na chamada à API para geração do ciclo de estudos
+   - [x] Corrigir o método gerarPlanoEstudos no GeminiOfficialService para usar os dados reais do usuário
+   - [x] Implementar extração correta de dados do questionário (datas, matérias, proficiência, ferramentas, etc.)
+   - [x] Adicionar logs para depuração e rastreamento do processo
+
+3. Correção do Erro de Formato de Data
+   - [x] Identificar o erro de formato de data (FormatException: Invalid date format)
+   - [x] Implementar método _parseDate para converter datas em diferentes formatos
+   - [x] Adicionar tratamento de erro robusto para evitar falhas na geração do plano
+   - [x] Implementar fallback para retornar JSON padrão em caso de erro na chamada à API
+
+## Fase 3: Correção de Problemas na Exibição de Dados na Tela de Resumo do Plano
+
+### Problemas Identificados
+1. Alguns campos na tela de Resumo do Plano estão exibindo "Não informado" mesmo quando os dados estão disponíveis
+2. O sistema não está encontrando os dados nos locais esperados
+3. É necessário melhorar a busca de dados em diferentes estruturas e com diferentes nomenclaturas
+
+### Soluções Planejadas
+1. Melhorar o processamento de respostas da LLM
+   - Modificar o método processarResposta na classe LlmResponseProcessor para extrair JSON de diferentes formatos
+   - Adicionar método para extrair dados do concurso e cargo do JSON para o nível superior
+
+2. Melhorar a busca de dados no plano
+   - Modificar o método obterValorPlano na classe PlanoDataService para buscar em mais caminhos aninhados
+   - Adicionar mapeamento de chaves alternativas para cada campo específico
+   - Implementar método _mapearChavePlanoParaEdital para melhorar o mapeamento de chaves
+
+3. Melhorar a busca de dados no edital
+   - Modificar a busca em dadosExtraidos para verificar estruturas aninhadas (concurso, prova)
+   - Adicionar busca em chaves alternativas para cada campo específico
+   - Melhorar a extração de dados de formato de prova com o método _formatarFormatoProva
+
+4. Melhorar a exibição de dados na tela de resumo
+   - Modificar o método _obterValorConcurso na classe PlanoResumoScreen para buscar em mais locais
+   - Adicionar verificação de estruturas aninhadas nos metadados do plano
+   - Melhorar a formatação de valores específicos (datas, valores monetários, etc.)
+
+5. Testes e validação
+   - Adicionar logs detalhados para rastrear a busca de dados
+   - Testar com diferentes editais e verificar a exibição correta dos dados
+   - Verificar se todos os campos estão sendo exibidos corretamente
+
+### Progresso
+- [x] Melhorar o processamento de respostas da LLM
+  - Implementado método processarResposta melhorado na classe LlmResponseProcessor
+  - Adicionado método _extrairDadosConcursoCargo para extrair dados do JSON para o nível superior
+  - Adicionado tratamento para diferentes formatos de resposta da LLM (markdown, JSON aninhado, etc.)
+
+- [x] Melhorar a busca de dados no plano
+  - Modificado método obterValorPlano na classe PlanoDataService para buscar em mais caminhos aninhados
+  - Adicionado mapeamento de chaves alternativas para cada campo específico
+  - Implementado método _mapearChavePlanoParaEdital para melhorar o mapeamento de chaves
+
+- [x] Melhorar a busca de dados no edital
+  - Modificada a busca em dadosExtraidos para verificar estruturas aninhadas (concurso, prova)
+  - Adicionada busca em chaves alternativas para cada campo específico
+  - Melhorado o método _formatarFormatoProva para tratar diferentes formatos de entrada (JSON, listas, strings)
+
+- [x] Melhorar a exibição de dados na tela de resumo
+  - Modificado o método _obterValorConcurso na classe PlanoResumoScreen para buscar em mais locais
+  - Adicionada verificação de estruturas aninhadas nos metadados do plano
+  - Melhorada a busca em dados extraídos do edital com verificação de estruturas aninhadas
+  - Melhorada a busca em dados originais do edital com verificação de estruturas aninhadas
+  - Melhorada a extração de dados do texto completo do edital com múltiplos padrões de expressões regulares
+  - Melhorada a formatação de valores específicos (datas, valores monetários, etc.)
+
+- [x] Testes e validação
+  - Adicionados logs detalhados para rastrear a busca de dados
+  - Implementada busca em múltiplas fontes para garantir que os dados sejam encontrados
+  - Adicionado tratamento para diferentes formatos de dados (JSON, listas, strings)
+  - Adicionada verificação de valores nulos ou vazios para evitar exibição de "Não informado" desnecessariamente
+
+## Conclusão da Fase 3
+
+A implementação das melhorias na exibição de dados na tela de Resumo do Plano foi concluída com sucesso. As principais melhorias incluem:
+
+1. Processamento de respostas da LLM:
+   - Melhor extração de JSON de diferentes formatos (markdown, JSON aninhado, etc.)
+   - Extração de dados do concurso e cargo para o nível superior
+   - Tratamento robusto para diferentes formatos de resposta
+
+2. Busca de dados no plano:
+   - Busca em caminhos aninhados nos metadados do plano
+   - Mapeamento de chaves alternativas para cada campo específico
+   - Implementação de método para melhorar o mapeamento de chaves
+
+3. Busca de dados no edital:
+   - Verificação de estruturas aninhadas (concurso, prova) em dadosExtraidos
+   - Busca em chaves alternativas para cada campo específico
+   - Melhor tratamento de formatos de prova com o método _formatarFormatoProva
+
+4. Exibição de dados na tela de resumo:
+   - Busca em múltiplas fontes para garantir que os dados sejam encontrados
+   - Verificação de estruturas aninhadas nos metadados do plano
+   - Melhor formatação de valores específicos (datas, valores monetários, etc.)
+   - Extração de dados do texto completo do edital com múltiplos padrões de expressões regulares
+
+Estas melhorias garantem que os dados sejam exibidos corretamente na tela de Resumo do Plano, mesmo quando estão armazenados em diferentes estruturas ou com diferentes nomenclaturas. A aplicação agora é mais robusta e capaz de lidar com diferentes formatos de dados.
+
+## Fase 4: Padronização de Métodos e Fluxos da Aplicação
+
+### Problemas Identificados
+1. Existem métodos obsoletos no `PromptService` que ainda são chamados em outras partes do código
+2. Existem métodos duplicados para extração de cargos (`extrairCargosEdital()` e `extrairCargosDetalhados()`)
+3. Existem métodos duplicados para extração de conteúdo programático (`extrairConcursoConteudo()` e `extrairConteudoProgramatico()`)
+4. Existem múltiplas implementações do fluxo de análise de editais
+5. Alguns serviços ainda estão usando prompts obsoletos
+6. Existem implementações conflitantes do método `analisarEditalSegundaChamada()`
+7. Existem múltiplas classes para análise de editais com funcionalidades sobrepostas
+
+### Soluções Planejadas
+1. Atualizar os Serviços de IA
+   - Remover o método `extrairCargosDetalhados()` e usar apenas `extrairCargosEdital()`
+   - Atualizar `extrairConteudoProgramatico()` para usar `loadConcursoConteudoPrompt()` em vez de `loadContentEditalPrompt()`
+
+2. Atualizar a Interface de Serviço de IA
+   - Marcar `extrairCargosDetalhados()` como `@deprecated`
+   - Marcar `extrairConteudoProgramatico()` como `@deprecated`
+
+3. Atualizar o Serviço de Prompts
+   - Marcar `loadCargosDetalhadosPrompt()` como `@deprecated` e redirecionar para um método alternativo
+   - Garantir que todos os métodos obsoletos redirecionem para os métodos recomendados
+
+4. Padronizar o Fluxo de Análise de Editais
+   - Usar `EditalAnalysisService.analisarEdital()` como o método padrão
+   - Atualizar todas as referências para usar esse método
+
+5. Consolidar as Classes de Análise de Editais
+   - Usar `EditalAnalyzer` como a classe padrão
+   - Mover as classes obsoletas para uma pasta de código obsoleto
+
+6. Remover Implementações Conflitantes
+   - Remover a implementação de fallback em `IAServiceInterfaceExtension.analisarEditalSegundaChamada()`
+
+7. Atualizar a Documentação
+   - Adicionar comentários claros sobre o fluxo padrão da aplicação
+   - Documentar os métodos e classes obsoletos
+
+### Progresso
+- [x] Atualizar os Serviços de IA
+  - [x] Marcar `extrairCargosDetalhados()` como obsoleto em `GeminiService` e `GeminiOfficialService`
+  - [x] Atualizar `extrairConteudoProgramatico()` para usar `loadConcursoConteudoPrompt()`
+
+- [x] Atualizar a Interface de Serviço de IA
+  - [x] Marcar `extrairCargosDetalhados()` como `@deprecated` em `IAServiceInterface`
+  - [x] Marcar `extrairConteudoProgramatico()` como `@deprecated` em `IAServiceInterface`
+
+- [x] Atualizar o Serviço de Prompts
+  - [x] Marcar `loadCargosDetalhadosPrompt()` como `@deprecated` e redirecionar para `loadPdfEditalAnalysisPrompt()`
+  - [x] Garantir que todos os métodos obsoletos redirecionem para os métodos recomendados
+
+- [x] Padronizar o Fluxo de Análise de Editais
+  - [x] Verificar e atualizar `EditalAnalysisService.analisarEdital()` para garantir que use o fluxo correto
+  - [x] Atualizar todas as referências para usar esse método
+
+- [x] Consolidar as Classes de Análise de Editais
+  - [x] Verificar e atualizar `EditalAnalyzer` para garantir que implemente todas as funcionalidades necessárias
+  - [x] Mover `EditalAnalyzerFixed`, `EditalAnalyzerFixed2` e `EditalAnalyzerSimplified` para a pasta de código obsoleto
+
+- [x] Remover Implementações Conflitantes
+  - [x] Remover a implementação de fallback em `IAServiceInterfaceExtension.analisarEditalSegundaChamada()`
+
+- [x] Atualizar a Documentação
+  - [x] Adicionar comentários claros sobre o fluxo padrão da aplicação
+  - [x] Documentar os métodos e classes obsoletos
+
+## Conclusão da Fase 4
+
+A padronização de métodos e fluxos da aplicação foi concluída com sucesso. As principais melhorias incluem:
+
+1. Serviços de IA:
+   - Métodos obsoletos foram marcados como `@deprecated`
+   - Métodos duplicados foram redirecionados para implementações padrão
+   - Métodos que usavam prompts obsoletos foram atualizados para usar os prompts padrão
+
+2. Interface de Serviço de IA:
+   - Métodos obsoletos foram marcados como `@deprecated`
+   - Implementações conflitantes foram removidas
+
+3. Serviço de Prompts:
+   - Métodos obsoletos foram marcados como `@deprecated` e redirecionados para métodos recomendados
+   - Todos os métodos obsoletos agora redirecionam para os métodos recomendados
+
+4. Fluxo de Análise de Editais:
+   - O fluxo padrão foi documentado e comentado
+   - Todas as referências foram atualizadas para usar o método padrão
+
+5. Classes de Análise de Editais:
+   - A classe `EditalAnalyzer` foi atualizada para garantir que implemente todas as funcionalidades necessárias
+   - Classes obsoletas foram movidas para a pasta de código obsoleto
+
+6. Documentação:
+   - Comentários claros sobre o fluxo padrão da aplicação foram adicionados
+   - Métodos e classes obsoletos foram documentados
+
+Estas melhorias garantem que a aplicação use um fluxo padronizado para análise de editais, extração de cargos e extração de conteúdo programático, tornando o código mais consistente e fácil de manter.
+
+## Fase 5: Refatoração da Tela de Resumo do Plano
+
+### Problemas Identificados
+1. O arquivo `plano_resumo_screen.dart` tem aproximadamente 3283 linhas, o que é excessivamente grande para um único arquivo
+2. A classe `PlanoResumoScreen` tem muitas responsabilidades, violando o Princípio da Responsabilidade Única (SRP)
+3. Há duplicação de código em várias partes do arquivo
+4. A manutenção do código é difícil devido ao tamanho e complexidade
+5. O teste do código é complicado pela falta de modularidade
+
+### Soluções Planejadas
+1. Criar Serviços para Lógica de Negócios
+   - Extrair lógica de carregamento e manipulação de dados do plano para `PlanoResumoService`
+   - Extrair lógica relacionada ao calendário e sessões de estudo para `CalendarioService`
+   - Extrair métodos de formatação para `FormatadorService`
+   - Extrair lógica de extração de dados do edital e plano para `ExtratorDadosService`
+
+2. Criar Widgets Reutilizáveis
+   - Extrair componentes visuais para widgets separados
+   - Criar widgets específicos para cada seção da tela
+
+3. Criar Modelos de Dados
+   - Criar modelos para armazenar dados específicos da tela
+
+### Progresso
+- [x] Criar Serviços para Lógica de Negócios
+  - [x] Criar `FormatadorService` para métodos de formatação
+  - [x] Criar `ExtratorDadosService` para extração de dados
+  - [x] Criar `CalendarioService` para gerenciamento do calendário
+  - [x] Criar `PlanoResumoService` para gerenciamento do plano
+
+- [x] Criar Widgets Reutilizáveis
+  - [x] Criar `InfoCard` para exibir informações em cards coloridos
+  - [x] Criar `ConcursoInfoWidget` para exibir informações do concurso
+  - [x] Criar `CargoInfoWidget` para exibir informações do cargo
+  - [x] Criar `ProvaInfoWidget` para exibir informações da prova
+  - [x] Criar `ConteudoProgramaticoWidget` para exibir o conteúdo programático
+  - [x] Criar `PlanoInfoWidget` para exibir informações do plano
+  - [x] Criar `FerramentasEstudoWidget` para exibir as ferramentas de estudo
+  - [x] Criar `RecompensasWidget` para exibir as recompensas
+  - [x] Criar `CalendarioWidget` para exibir o calendário de estudos
+  - [x] Criar `BotoesAcaoWidget` para exibir os botões de ação
+  - [x] Criar `CriterioDesempateCard` para exibir critérios de desempate
+
+- [x] Criar o Arquivo Principal Refatorado
+  - [x] Criar `plano_resumo_screen_refatorado.dart` que usa todos os componentes e serviços
+  - [x] Atualizar o arquivo de rotas para usar a versão refatorada
+
+## Conclusão da Fase 5
+
+A refatoração da tela de resumo do plano foi concluída com sucesso. As principais melhorias incluem:
+
+1. Modularidade:
+   - O código foi dividido em componentes menores e mais coesos
+   - Cada componente tem uma única responsabilidade
+   - Os serviços foram separados da interface do usuário
+
+2. Manutenibilidade:
+   - O código é mais fácil de entender e modificar
+   - As alterações em um componente não afetam outros componentes
+   - A lógica de negócios está separada da interface do usuário
+
+3. Testabilidade:
+   - Os componentes podem ser testados individualmente
+   - Os serviços podem ser mockados para testes de unidade
+   - A lógica de negócios pode ser testada sem a interface do usuário
+
+4. Reutilização:
+   - Os componentes podem ser reutilizados em outras partes da aplicação
+   - Os serviços podem ser usados por outras telas
+   - Os widgets podem ser personalizados para diferentes contextos
+
+Esta refatoração segue os princípios SOLID, especialmente o Princípio da Responsabilidade Única (SRP), e torna o código mais limpo, mais fácil de manter e mais robusto.
+
+## Fase 6: Remoção de Código Não Utilizado
+
+### Arquivos Removidos
+1. `plano_details_screen.dart` - Este arquivo não era utilizado no fluxo atual da aplicação. A tela de resumo do plano (`PlanoResumoScreen`) já contém todas as informações necessárias.
+
+### Rotas Removidas
+1. `/plano/detalhes` - Esta rota não era chamada em nenhum lugar do código.
+
+### Benefícios
+1. Redução do tamanho do codebase
+2. Eliminação de código morto
+3. Simplificação da navegação
+4. Manutenção mais fácil
+
+Esta limpeza segue o princípio YAGNI (You Aren't Gonna Need It), removendo código que não é utilizado e simplificando a base de código.
+
+## Fase 7: Identificação e Organização de Código Obsoleto
+
+### Arquivos e Métodos Obsoletos Identificados
+
+#### Prompts Obsoletos
+1. `cargos_prompt.txt` - Substituído por `pdf_prompt.txt`
+2. `cargos_detalhados_prompt.txt` - Substituído por `pdf_prompt.txt`
+3. `content_prompt.txt` - Substituído por `concurso_conteudo_prompt.txt`
+4. `content_json_prompt.txt` - Substituído por `concurso_conteudo_prompt.txt`
+5. `pdf_prompt_simplified.txt` - Substituído por `pdf_prompt.txt`
+6. `basic_info_prompt.txt` - Substituído por `pdf_prompt.txt`
+7. `detalhes_concurso_cargo_prompt.txt` - Substituído por `concurso_conteudo_prompt.txt`
+
+#### Métodos Obsoletos
+1. `extrairCargosDetalhados()` - Substituído por `extrairCargosEdital()`
+2. `extrairConteudoProgramatico()` - Substituído por `extrairConcursoConteudo()`
+3. `loadCargosDetalhadosPrompt()` - Redireciona para `loadPdfEditalAnalysisPrompt()`
+4. `loadContentEditalPrompt()` - Redireciona para `loadConcursoConteudoPrompt()`
+5. `loadContentJsonPrompt()` - Redireciona para `loadConcursoConteudoPrompt()`
+6. `loadCargosEditalPrompt()` - Redireciona para `loadCargosDetalhadosPrompt()`
+7. `loadBasicInfoEditalPrompt()` - Redireciona para `loadPdfEditalAnalysisPrompt()`
+8. `loadDetalhesConcursoCargoPrompt()` - Redireciona para `loadConcursoConteudoPrompt()`
+
+#### Classes Obsoletas
+1. `EditalAnalyzerFixed` - Substituído por `EditalAnalyzer`
+2. `EditalAnalyzerFixed2` - Substituído por `EditalAnalyzer`
+3. `EditalAnalyzerSimplified` - Substituído por `EditalAnalyzer`
+
+### Ações Realizadas
+1. Criação de pasta `lib/core/data/services/obsoletos/` para serviços obsoletos
+2. Documentação de métodos obsoletos com `@deprecated` e redirecionamento para métodos atuais
+3. Documentação de arquivos obsoletos no arquivo `planos.txt`
+4. Criação de arquivo `README.md` na pasta de serviços obsoletos para documentar o motivo da obsolescência
+
+### Fluxo Atual da Aplicação
+O fluxo atual da aplicação é:
+
+1. Splash > Login > Configuração API
+2. Carregamento Edital > Escolha Cargo
+3. Questionário > Resumo > Dashboard
+
+Qualquer código que não se encaixe neste fluxo pode ser considerado obsoleto.
+
+### Benefícios
+1. Redução da complexidade do código
+2. Eliminação de código morto
+3. Simplificação da manutenção
+4. Documentação clara do fluxo atual da aplicação
+5. Redução do risco de uso de código obsoleto
+
+Esta organização segue os princípios SOLID e YAGNI, removendo código que não é utilizado e simplificando a base de código.
+
+## Fase 8: Organização da Pasta Raiz do Projeto
+
+### Arquivos Obsoletos Identificados e Movidos
+
+Os seguintes arquivos foram identificados como obsoletos e movidos para a pasta `obsoletos/` na raiz do projeto:
+
+1. `build.gradle.new` - Arquivo de configuração do Gradle não utilizado
+2. `clean_and_run.bat` - Script de limpeza e execução substituído
+3. `clean_and_run_windows.bat` - Script de limpeza e execução para Windows substituído
+4. `e HEAD` - Arquivo temporário do Git
+5. `EDITAL_EXTRACTOR_README.md` - Documentação de um extrator de editais não utilizado
+6. `extrair_edital.py` - Script Python para extração de editais não utilizado
+7. `gemini_pdf_extraction_report.md` - Relatório vazio
+8. `limpar_e_executar.bat` - Script de limpeza e execução substituído
+9. `list_models.py` - Script Python para listar modelos do Gemini
+10. `navegacao_log.txt` - Log de navegação temporário
+11. `plano_recriacao.txt` - Plano de recriação da aplicação já concluído
+12. `plano_refatoracao.txt` - Plano de refatoração já concluído
+13. `requirements.txt` - Requisitos Python não utilizados
+14. `resposta_llm_parte1.txt` - Resposta temporária da LLM
+15. `resposta_llm_parte2.txt` - Resposta temporária da LLM
+16. `temp_navegarParaQuestionario.dart` - Arquivo temporário de navegação
+17. `temp_navegarParaQuestionario.txt` - Arquivo temporário de navegação
+18. `update_package_name.sh` - Script de atualização de nome de pacote não utilizado
+19. `verificar_cmake.bat` - Script de verificação do CMake não utilizado
+20. `verificar_compilador.bat` - Script de verificação do compilador não utilizado
+
+### Ações Realizadas
+1. Criação de pasta `obsoletos/` na raiz do projeto
+2. Movimentação dos arquivos obsoletos para a pasta `obsoletos/`
+3. Criação de arquivo `README.md` na pasta `obsoletos/` para documentar o motivo da obsolescência
+4. Documentação dos arquivos obsoletos no arquivo `planos.txt`
+
+### Benefícios
+1. Redução da poluição visual na pasta raiz do projeto
+2. Organização clara dos arquivos em uso e obsoletos
+3. Documentação do motivo da obsolescência
+4. Manutenção de referência histórica para consulta futura
+
+## Fase 9: Identificação e Organização de Classes Obsoletas
+
+### Classes Obsoletas Identificadas e Movidas
+
+A seguinte classe foi identificada como obsoleta e movida para a pasta `lib/core/utils/obsoletos/`:
+
+1. `LocalEditalExtractor` - Classe para extração local de dados de editais de concursos públicos que utilizava o script Python `extrair_edital.py`
+
+### Motivo da Obsolescência
+
+A classe `LocalEditalExtractor` foi substituída por uma abordagem mais eficiente e segura que utiliza diretamente a API do Gemini para extrair dados de editais, sem depender de scripts Python locais. Esta mudança segue as diretrizes do projeto de não extrair dados do PDF antes do envio à LLM, enviando apenas o próprio PDF e o prompt.
+
+### Ações Realizadas
+1. Movimentação da classe `LocalEditalExtractor` para a pasta `lib/core/utils/obsoletos/`
+2. Documentação da classe obsoleta no arquivo `planos.txt`
+
+### Benefícios
+1. Eliminação de dependência de scripts Python
+2. Simplificação do fluxo de análise de editais
+3. Redução do risco de uso de código obsoleto
+4. Manutenção de referência histórica para consulta futura
+
+## Fase 10: Identificação e Organização de Módulos Python Obsoletos
+
+### Módulos Python Obsoletos Identificados e Movidos
+
+A seguinte pasta foi identificada como obsoleta e movida para a pasta `obsoletos/`:
+
+1. `edital_extractor/` - Módulo Python para extração de dados de editais de concursos públicos
+
+### Motivo da Obsolescência
+
+O módulo `edital_extractor` foi substituído por uma abordagem mais eficiente e segura que utiliza diretamente a API do Gemini para extrair dados de editais, sem depender de scripts Python locais. Esta mudança segue as diretrizes do projeto de não extrair dados do PDF antes do envio à LLM, enviando apenas o próprio PDF e o prompt.
+
+### Ações Realizadas
+1. Movimentação da pasta `edital_extractor/` para a pasta `obsoletos/`
+2. Documentação do módulo obsoleto no arquivo `planos.txt`
+
+### Benefícios
+1. Eliminação de dependência de módulos Python externos
+2. Simplificação da instalação e configuração da aplicação
+3. Redução do risco de uso de código obsoleto
+4. Manutenção de referência histórica para consulta futura

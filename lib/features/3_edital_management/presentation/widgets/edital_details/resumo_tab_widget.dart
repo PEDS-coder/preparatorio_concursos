@@ -157,7 +157,6 @@ class ResumoTabWidget extends StatelessWidget {
                       ),
                     ),
                     SizedBox(height: 8),
-                    _buildCargoInfoItem('Vagas', '${cargo.vagas}'),
                     _buildCargoInfoItem('Salário', 'R\$ ${_formatarSalario(cargo.salario)}'),
                     _buildCargoInfoItem('Escolaridade', cargo.escolaridade),
                     if (cargo.dataProva != null)

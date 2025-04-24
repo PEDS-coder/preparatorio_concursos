@@ -101,14 +101,14 @@ class GeminiService extends BaseIAService with IAServiceImplementations {
   }
 
   @override
+  @deprecated
   Future<String> extrairCargosDetalhados(Uint8List pdfBytes, {String? pdfName}) async {
     if (!isConfigured) {
       throw Exception('API Key não configurada');
     }
 
-    final promptTemplate = await _promptService.loadCargosDetalhadosPrompt();
-    final prompt = _promptService.customizePrompt(promptTemplate, {'PDF_NAME': pdfName ?? ''});
-    return await callGeminiApiWithPdf(prompt, pdfBytes, pdfName: pdfName);
+    // Este método está obsoleto, usar extrairCargosEdital em vez disso
+    return await extrairCargosEdital(pdfBytes, pdfName: pdfName);
   }
 
   @override
@@ -130,7 +130,6 @@ class GeminiService extends BaseIAService with IAServiceImplementations {
         'maxOutputTokens': 65536,
         'topP': 0.2,
       },
-      'thinking': true,
       'safetySettings': [
         {'category': 'HARM_CATEGORY_HARASSMENT','threshold': 'BLOCK_MEDIUM_AND_ABOVE'},
         {'category': 'HARM_CATEGORY_HATE_SPEECH','threshold': 'BLOCK_MEDIUM_AND_ABOVE'},
@@ -221,7 +220,7 @@ class GeminiService extends BaseIAService with IAServiceImplementations {
   @override
   Future<String> extrairCargosEdital(Uint8List pdfBytes, {String? pdfName}) async {
     if (!isConfigured) throw Exception('API Key não configurada');
-    final promptTemplate = await _promptService.loadCargosEditalPrompt();
+    final promptTemplate = await _promptService.loadCargosDetalhadosPrompt();
     final prompt = _promptService.customizePrompt(promptTemplate, {'PDF_NAME': pdfName ?? ''});
     return await callGeminiApiWithPdf(prompt, pdfBytes, pdfName: pdfName);
   }
@@ -229,7 +228,7 @@ class GeminiService extends BaseIAService with IAServiceImplementations {
   @override
   Future<String> extrairInfoBasicasEdital(Uint8List pdfBytes, {String? pdfName}) async {
     if (!isConfigured) throw Exception('API Key não configurada');
-    final promptTemplate = await _promptService.loadBasicInfoEditalPrompt();
+    final promptTemplate = await _promptService.loadPdfEditalAnalysisPrompt();
     final prompt = _promptService.customizePrompt(promptTemplate, {'PDF_NAME': pdfName ?? ''});
     return await callGeminiApiWithPdf(prompt, pdfBytes, pdfName: pdfName);
   }
@@ -246,9 +245,11 @@ class GeminiService extends BaseIAService with IAServiceImplementations {
   }
 
   @override
+  @deprecated
   Future<String> extrairConteudoProgramatico({required Uint8List pdfBytes, required String cargoAlvo, String? pdfName}) async {
     if (!isConfigured) throw Exception('API Key não configurada');
-    final promptTemplate = await _promptService.loadContentEditalPrompt();
+    // Usar o prompt concurso_conteudo_prompt.txt em vez de content_edital_prompt.txt
+    final promptTemplate = await _promptService.loadConcursoConteudoPrompt();
     final prompt = _promptService.customizePrompt(promptTemplate, {
       'PDF_NAME': pdfName ?? '',
       'CARGO_ALVO': cargoAlvo,
@@ -368,8 +369,7 @@ class GeminiService extends BaseIAService with IAServiceImplementations {
         'temperature': 0.0,
         'maxOutputTokens': 65536,
         'topP': 0.2,
-      },
-      'thinking': true
+      }
     };
     final body = jsonEncode(requestBody);
     final response = await http.post(

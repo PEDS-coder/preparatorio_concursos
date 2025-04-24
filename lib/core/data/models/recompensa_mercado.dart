@@ -79,6 +79,19 @@ class RecompensaMercado {
   // Método para sugerir um custo baseado na categoria
   static int sugerirCusto(String categoria) {
     switch (categoria) {
+      case 'bronze':
+        return 10; // Média entre 5 e 15
+      case 'prata':
+        return 30; // Média entre 25 e 40
+      case 'ouro':
+        return 80; // Média entre 60 e 100
+      case 'platina':
+        return 160; // Média entre 120 e 200
+      case 'diamante':
+        return 400; // Média entre 300 e 500
+      case 'lendario':
+        return 1000; // Média para nível lendário
+      // Manter compatibilidade com valores antigos
       case 'pequena':
         return 250; // Média entre 150 e 400
       case 'media':

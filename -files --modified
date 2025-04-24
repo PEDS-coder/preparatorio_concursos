@@ -1,0 +1,119 @@
+warning: in the working copy of 'lib/cargo_selection_screen.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/core/data/models/recompensa_config.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/core/data/models/recompensa_mercado.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/core/data/services/ia_service.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/core/data/services/ia_service_adapter.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/core/data/services/ia_service_implementations.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/core/data/services/interfaces/ia_service_interface_extension.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/core/data/services/plano_metadata_processor.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/features/3_edital_management/domain/services/cargo_data_formatter_service.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/features/3_edital_management/domain/services/cargo_selection_service.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/features/3_edital_management/domain/services/edital_analysis_service.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/features/3_edital_management/presentation/screens/edital_details_screen.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/features/3_edital_management/presentation/widgets/edital_cargos_tab_widget.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/features/3_edital_management/presentation/widgets/edital_details/resumo_tab_widget.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/features/4_study_plan/domain/services/llm_response_processor.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/features/4_study_plan/domain/services/plano_data_service.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/features/4_study_plan/domain/services/plano_data_validator.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/features/4_study_plan/presentation/screens/plano_questionario_screen.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/features/4_study_plan/presentation/screens/plano_resumo_screen.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/features/4_study_plan/presentation/screens/recompensas_personalizadas.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/features/4_study_plan/presentation/widgets/questionario/data_selection_section.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/features/4_study_plan/presentation/widgets/questionario/ferramentas_selection_section.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/features/4_study_plan/presentation/widgets/questionario/horarios_selection_section.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/features/4_study_plan/presentation/widgets/questionario/proficiencia_selection_section.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/features/4_study_plan/presentation/widgets/questionario/recompensas_selection_section.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/features/4_study_plan/presentation/widgets/resumo_plano_card.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'planos.txt', LF will be replaced by CRLF the next time Git touches it
+D	EDITAL_EXTRACTOR_README.md
+D	build.gradle.new
+D	clean_and_run.bat
+D	clean_and_run_windows.bat
+D	e HEAD
+D	edital_extractor/__init__.py
+D	edital_extractor/cli.py
+D	edital_extractor/extractors/__init__.py
+D	edital_extractor/extractors/data_extractor.py
+D	edital_extractor/extractors/section_extractor.py
+D	edital_extractor/extractors/table_extractor.py
+D	edital_extractor/processors/__init__.py
+D	edital_extractor/processors/pdf_processor.py
+D	edital_extractor/utils/__init__.py
+D	edital_extractor/utils/ocr_processor.py
+D	edital_extractor/utils/pdf_loader.py
+D	edital_extractor/utils/regex_patterns.py
+D	extrair_edital.py
+D	gemini_pdf_extraction_report.md
+M	lib/app.dart
+M	lib/cargo_selection_screen.dart
+M	lib/core/data/models/edital.dart
+M	lib/core/data/models/plano_estudo.dart
+M	lib/core/data/models/recompensa_config.dart
+M	lib/core/data/models/recompensa_mercado.dart
+M	lib/core/data/services/base_ia_service.dart
+M	lib/core/data/services/edital_service.dart
+M	lib/core/data/services/gemini_official_service.dart
+M	lib/core/data/services/gemini_service.dart
+M	lib/core/data/services/ia_service.dart
+M	lib/core/data/services/ia_service_adapter.dart
+M	lib/core/data/services/ia_service_implementations.dart
+M	lib/core/data/services/interfaces/ia_service_interface.dart
+M	lib/core/data/services/interfaces/ia_service_interface_extension.dart
+M	lib/core/data/services/plano_estudo_service.dart
+M	lib/core/data/services/plano_metadata_processor.dart
+M	lib/core/navigation/app_router.dart
+D	lib/core/prompts/edital_analysis/basic_info_prompt.txt
+D	lib/core/prompts/edital_analysis/basic_info_prompt_new.txt
+D	lib/core/prompts/edital_analysis/cargos_detalhados_prompt.txt
+D	lib/core/prompts/edital_analysis/cargos_prompt.txt
+M	lib/core/prompts/edital_analysis/concurso_conteudo_prompt.txt
+D	lib/core/prompts/edital_analysis/concurso_conteudo_prompt_new.txt
+D	lib/core/prompts/edital_analysis/content_json_prompt.txt
+D	lib/core/prompts/edital_analysis/content_prompt.txt
+D	lib/core/prompts/edital_analysis/detalhes_concurso_cargo_prompt.txt
+M	lib/core/prompts/edital_analysis/pdf_prompt.txt
+D	lib/core/prompts/edital_analysis/pdf_prompt_simplified.txt
+M	lib/core/prompts/study_plan_cycle_generation.txt
+M	lib/core/services/prompt_service.dart
+M	lib/core/services/share_service.dart
+M	lib/core/utils/edital_analyzer.dart
+D	lib/core/utils/edital_analyzer_fixed.dart
+D	lib/core/utils/edital_analyzer_fixed2.dart
+D	lib/core/utils/edital_analyzer_simplified.dart
+D	lib/core/utils/local_edital_extractor.dart
+M	lib/features/3_edital_management/domain/services/cargo_data_formatter_service.dart
+M	lib/features/3_edital_management/domain/services/cargo_selection_service.dart
+M	lib/features/3_edital_management/domain/services/edital_analysis_service.dart
+M	lib/features/3_edital_management/presentation/screens/edital_details_screen.dart
+M	lib/features/3_edital_management/presentation/widgets/edital_cargos_tab_widget.dart
+M	lib/features/3_edital_management/presentation/widgets/edital_details/resumo_tab_widget.dart
+M	lib/features/4_study_plan/domain/services/llm_response_processor.dart
+M	lib/features/4_study_plan/domain/services/plano_data_service.dart
+M	lib/features/4_study_plan/domain/services/plano_data_validator.dart
+D	lib/features/4_study_plan/presentation/screens/plano_details_screen.dart
+M	lib/features/4_study_plan/presentation/screens/plano_questionario_screen.dart
+M	lib/features/4_study_plan/presentation/screens/plano_resumo_screen.dart
+M	lib/features/4_study_plan/presentation/screens/recompensas_personalizadas.dart
+M	lib/features/4_study_plan/presentation/widgets/questionario/data_selection_section.dart
+M	lib/features/4_study_plan/presentation/widgets/questionario/ferramentas_selection_section.dart
+M	lib/features/4_study_plan/presentation/widgets/questionario/horarios_selection_section.dart
+M	lib/features/4_study_plan/presentation/widgets/questionario/proficiencia_selection_section.dart
+M	lib/features/4_study_plan/presentation/widgets/questionario/recompensas_selection_section.dart
+M	lib/features/4_study_plan/presentation/widgets/resumo_plano_card.dart
+M	lib/main.dart
+D	limpar_e_executar.bat
+D	list_models.py
+D	navegacao_log.txt
+D	plano_recriacao.txt
+D	plano_refatoracao.txt
+M	planos.txt
+M	pubspec.lock
+M	pubspec.yaml
+D	requirements.txt
+D	resposta_llm_parte1.txt
+D	resposta_llm_parte2.txt
+D	temp_navegarParaQuestionario.dart
+D	temp_navegarParaQuestionario.txt
+D	update_package_name.sh
+D	verificar_cmake.bat
+D	verificar_compilador.bat

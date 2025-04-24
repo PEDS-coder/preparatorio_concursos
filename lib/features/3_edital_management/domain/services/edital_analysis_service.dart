@@ -16,6 +16,17 @@ import '../../../../core/di/service_locator.dart';
 import '../../presentation/screens/cargo_select_screen.dart';
 
 /// Serviço responsável por gerenciar a análise de editais
+///
+/// Este serviço implementa o fluxo padrão de análise de editais na aplicação:
+/// 1. O usuário seleciona um arquivo PDF de edital
+/// 2. O serviço envia o PDF para a API (primeira chamada) para extrair informações básicas e cargos
+/// 3. O usuário seleciona um cargo
+/// 4. O serviço envia o PDF e o cargo selecionado para a API (segunda chamada) para extrair informações detalhadas
+/// 5. O usuário preenche o questionário do plano de estudos
+/// 6. O serviço gera o plano de estudos com base nas informações do questionário
+///
+/// IMPORTANTE: Este é o serviço padrão para análise de editais. Todas as implementações alternativas
+/// foram movidas para a pasta de código obsoleto.
 class EditalAnalysisService {
   // Método removido: processarDadosExemplo
 
@@ -98,6 +109,8 @@ class EditalAnalysisService {
         edital.dadosExtraidos,
         dadosOriginais: edital.dadosOriginais,
         id: editalId, // Passar o ID gerado anteriormente
+        pdfBytes: pdfBytes, // Passar os bytes do PDF
+        nomeArquivo: selectedFiles.isNotEmpty ? selectedFiles[0].name : null, // Passar o nome do arquivo
       );
 
       // Atualizar progresso

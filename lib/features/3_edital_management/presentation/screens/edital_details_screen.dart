@@ -288,7 +288,7 @@ class _EditalDetailsScreenState extends State<EditalDetailsScreen> with SingleTi
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   subtitle: Text(
-                    'Vagas: ${cargo.vagas} | Salário: R\$ ${cargo.salario.toStringAsFixed(2)}',
+                    'Salário: R\$ ${cargo.salario.toStringAsFixed(2)}',
                   ),
                   leading: CircleAvatar(
                     backgroundColor: AppTheme.primaryColor.withOpacity(0.1),

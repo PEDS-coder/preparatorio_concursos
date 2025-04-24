@@ -28,6 +28,66 @@ class PlanoDataService {
       'concurso.$chaveMetadados',
       'prova.$chaveMetadados',
     ];
+
+    // Adicionar caminhos específicos para cada chave
+    if (chaveMetadados == 'titulo') {
+      caminhosAninhados.addAll([
+        'titulo_concurso',
+        'concurso.titulo_concurso',
+        'concurso.titulo',
+        'edital.titulo',
+        'edital.titulo_concurso'
+      ]);
+    } else if (chaveMetadados == 'orgao') {
+      caminhosAninhados.addAll([
+        'orgao_responsavel',
+        'concurso.orgao_responsavel',
+        'concurso.orgao',
+        'edital.orgao',
+        'edital.orgao_responsavel'
+      ]);
+    } else if (chaveMetadados == 'banca') {
+      caminhosAninhados.addAll([
+        'banca_organizadora',
+        'concurso.banca_organizadora',
+        'concurso.banca',
+        'edital.banca',
+        'edital.banca_organizadora'
+      ]);
+    } else if (chaveMetadados == 'dataProva') {
+      caminhosAninhados.addAll([
+        'data_prova',
+        'concurso.data_prova',
+        'prova.data_prova',
+        'prova.data',
+        'edital.data_prova',
+        'edital.prova.data'
+      ]);
+    } else if (chaveMetadados == 'localProva') {
+      caminhosAninhados.addAll([
+        'local_prova',
+        'concurso.local_prova',
+        'prova.local_prova',
+        'prova.local',
+        'edital.local_prova',
+        'edital.prova.local'
+      ]);
+    } else if (chaveMetadados == 'formatoProva') {
+      caminhosAninhados.addAll([
+        'formato',
+        'prova.formato',
+        'concurso.prova.formato',
+        'edital.prova.formato'
+      ]);
+    } else if (chaveMetadados == 'temaProvaSubjetiva') {
+      caminhosAninhados.addAll([
+        'tema_discursiva',
+        'prova.tema_discursiva',
+        'concurso.prova.tema_discursiva',
+        'edital.prova.tema_discursiva'
+      ]);
+    }
+
     for (String path in caminhosAninhados) {
       logger.logRecuperacao(plano.id, 'verificando_metadados_aninhados', {'campo': campoLog, 'path': path});
       valorEncontrado = _verificarMetadadosAninhados(path);
@@ -41,15 +101,38 @@ class PlanoDataService {
     }
 
     // 2. Verificar Metadados Diretos
-    if (!ValueValidator.isValidValue(valorEncontrado) && plano.metadados.containsKey(chaveMetadados)) {
-      logger.logRecuperacao(plano.id, 'verificando_metadados_diretos', {'campo': campoLog, 'chave': chaveMetadados});
-      valorEncontrado = plano.metadados[chaveMetadados];
-      if (ValueValidator.isValidValue(valorEncontrado)) {
-        fonte = 'metadados_plano';
-        logger.logRecuperacao(plano.id, 'valor_encontrado', {'campo': campoLog, 'fonte': fonte, 'valor_bruto': valorEncontrado});
-      } else {
-        logger.logRecuperacao(plano.id, 'valor_invalido_ou_nulo', {'campo': campoLog, 'fonte': 'metadados_plano', 'valor_bruto': valorEncontrado});
-        valorEncontrado = null; // Resetar para garantir que não seja usado
+    if (!ValueValidator.isValidValue(valorEncontrado)) {
+      // Verificar chaves alternativas
+      List<String> chavesAlternativas = [chaveMetadados];
+
+      if (chaveMetadados == 'titulo') {
+        chavesAlternativas.addAll(['titulo_concurso', 'nome_concurso', 'nome']);
+      } else if (chaveMetadados == 'orgao') {
+        chavesAlternativas.addAll(['orgao_responsavel', 'instituicao']);
+      } else if (chaveMetadados == 'banca') {
+        chavesAlternativas.addAll(['banca_organizadora', 'organizadora']);
+      } else if (chaveMetadados == 'dataProva') {
+        chavesAlternativas.addAll(['data_prova', 'data_realizacao', 'data']);
+      } else if (chaveMetadados == 'localProva') {
+        chavesAlternativas.addAll(['local_prova', 'local_realizacao', 'local']);
+      } else if (chaveMetadados == 'formatoProva') {
+        chavesAlternativas.addAll(['formato', 'tipo_prova']);
+      } else if (chaveMetadados == 'temaProvaSubjetiva') {
+        chavesAlternativas.addAll(['tema_discursiva', 'tema_subjetiva', 'tema_redacao']);
+      }
+
+      for (String chave in chavesAlternativas) {
+        if (plano.metadados.containsKey(chave)) {
+          logger.logRecuperacao(plano.id, 'verificando_metadados_diretos', {'campo': campoLog, 'chave': chave});
+          valorEncontrado = plano.metadados[chave];
+          if (ValueValidator.isValidValue(valorEncontrado)) {
+            fonte = 'metadados_plano ($chave)';
+            logger.logRecuperacao(plano.id, 'valor_encontrado', {'campo': campoLog, 'fonte': fonte, 'valor_bruto': valorEncontrado});
+            break;
+          } else {
+            logger.logRecuperacao(plano.id, 'valor_invalido_ou_nulo', {'campo': campoLog, 'fonte': 'metadados_plano', 'valor_bruto': valorEncontrado});
+          }
+        }
       }
     }
 
@@ -60,6 +143,7 @@ class PlanoDataService {
 
       logger.logRecuperacao(plano.id, 'verificando_edital_extraido', {'campo': campoLog, 'chave': chaveMetadados});
 
+      // Primeiro, verificar usando o switch para campos conhecidos
       switch (chaveMetadados) {
         case 'titulo':
           valorEditalExtraido = edital!.dadosExtraidos.titulo; fonteEditalExtraido = 'dados_extraidos.titulo'; break;
@@ -91,6 +175,93 @@ class PlanoDataService {
             valorEditalExtraido = edital!.dadosExtraidos.dadosProva!.temaDiscursiva; fonteEditalExtraido = 'dados_extraidos.dadosProva.temaDiscursiva';
           }
           break;
+        case 'criteriosAprovacao':
+          if (edital!.dadosExtraidos.dadosProva != null) {
+            valorEditalExtraido = edital!.dadosExtraidos.dadosProva!.criteriosAprovacao; fonteEditalExtraido = 'dados_extraidos.dadosProva.criteriosAprovacao';
+          }
+          break;
+        case 'criteriosReprovacao':
+          if (edital!.dadosExtraidos.dadosProva != null) {
+            valorEditalExtraido = edital!.dadosExtraidos.dadosProva!.criteriosReprovacao; fonteEditalExtraido = 'dados_extraidos.dadosProva.criteriosReprovacao';
+          }
+          break;
+        case 'duracaoProva':
+          if (edital!.dadosExtraidos.dadosProva != null) {
+            valorEditalExtraido = edital!.dadosExtraidos.dadosProva!.duracao; fonteEditalExtraido = 'dados_extraidos.dadosProva.duracao';
+          }
+          break;
+        case 'dataProva':
+          if (edital!.dadosExtraidos.dadosProva != null) {
+            valorEditalExtraido = edital!.dadosExtraidos.dadosProva!.dataRealizacao; fonteEditalExtraido = 'dados_extraidos.dadosProva.dataRealizacao';
+          }
+          if (!ValueValidator.isValidValue(valorEditalExtraido)) {
+            valorEditalExtraido = edital!.dadosExtraidos.dataProva; fonteEditalExtraido = 'dados_extraidos.dataProva';
+          }
+          break;
+      }
+
+      // Se não encontrou pelo switch, verificar em dadosExtraidos.concurso
+      if (!ValueValidator.isValidValue(valorEditalExtraido) && edital!.dadosExtraidos.concurso != null) {
+        Map<String, dynamic>? concursoMap = edital!.dadosExtraidos.concurso;
+        if (concursoMap != null) {
+          // Mapeamento de chaves para buscar em concurso
+          Map<String, List<String>> chavesConcurso = {
+            'titulo': ['titulo', 'nome', 'titulo_concurso'],
+            'orgao': ['orgao', 'orgao_responsavel', 'instituicao'],
+            'banca': ['banca', 'banca_organizadora', 'organizadora'],
+            'dataProva': ['data_prova', 'data', 'data_realizacao'],
+            'localProva': ['local_prova', 'local', 'local_realizacao'],
+            'formatoProva': ['formato_prova', 'formato', 'tipo_prova'],
+            'temaProvaSubjetiva': ['tema_prova_subjetiva', 'tema_discursiva', 'tema_redacao'],
+            'totalQuestoes': ['total_questoes', 'numero_questoes', 'qtd_questoes'],
+            'criteriosAprovacao': ['criterios_aprovacao', 'criterios_de_aprovacao'],
+            'criteriosReprovacao': ['criterios_reprovacao', 'criterios_de_reprovacao'],
+            'duracaoProva': ['duracao_prova', 'duracao', 'tempo_prova'],
+            'valorInscricao': ['valor_inscricao', 'taxa_inscricao', 'valor_taxa'],
+          };
+
+          if (chavesConcurso.containsKey(chaveMetadados)) {
+            for (String chave in chavesConcurso[chaveMetadados]!) {
+              if (concursoMap.containsKey(chave)) {
+                valorEditalExtraido = concursoMap[chave];
+                if (ValueValidator.isValidValue(valorEditalExtraido)) {
+                  fonteEditalExtraido = 'dados_extraidos.concurso.$chave';
+                  break;
+                }
+              }
+            }
+          }
+        }
+      }
+
+      // Se ainda não encontrou, verificar em dadosExtraidos.prova
+      if (!ValueValidator.isValidValue(valorEditalExtraido) && edital!.dadosExtraidos.prova != null) {
+        Map<String, dynamic>? provaMap = edital!.dadosExtraidos.prova;
+        if (provaMap != null) {
+          // Mapeamento de chaves para buscar em prova
+          Map<String, List<String>> chavesProva = {
+            'dataProva': ['data', 'data_prova', 'data_realizacao'],
+            'localProva': ['local', 'local_prova', 'local_realizacao'],
+            'formatoProva': ['formato', 'tipo', 'tipo_prova'],
+            'temaProvaSubjetiva': ['tema_discursiva', 'tema_subjetiva', 'tema_redacao'],
+            'totalQuestoes': ['total_questoes', 'numero_questoes', 'qtd_questoes'],
+            'criteriosAprovacao': ['criterios_aprovacao', 'criterios_de_aprovacao'],
+            'criteriosReprovacao': ['criterios_reprovacao', 'criterios_de_reprovacao'],
+            'duracaoProva': ['duracao', 'tempo', 'tempo_prova'],
+          };
+
+          if (chavesProva.containsKey(chaveMetadados)) {
+            for (String chave in chavesProva[chaveMetadados]!) {
+              if (provaMap.containsKey(chave)) {
+                valorEditalExtraido = provaMap[chave];
+                if (ValueValidator.isValidValue(valorEditalExtraido)) {
+                  fonteEditalExtraido = 'dados_extraidos.prova.$chave';
+                  break;
+                }
+              }
+            }
+          }
+        }
       }
 
       if (ValueValidator.isValidValue(valorEditalExtraido)) {
@@ -338,5 +509,40 @@ class PlanoDataService {
       logger.logRecuperacao(plano.id, 'erro_obter_materias', {'erro': e.toString()});
       return [];
     }
+  }
+
+  /// Mapeia chaves do plano para chaves do edital
+  String _mapearChavePlanoParaEdital(String chavePlano) {
+    // Mapeamento de chaves do plano para chaves do edital
+    Map<String, List<String>> mapeamentoChaves = {
+      'titulo': ['titulo', 'nome', 'titulo_concurso', 'nome_concurso'],
+      'orgao': ['orgao', 'orgao_responsavel', 'instituicao'],
+      'banca': ['banca', 'banca_organizadora', 'organizadora'],
+      'dataProva': ['data_prova', 'data', 'data_realizacao'],
+      'localProva': ['local_prova', 'local', 'local_realizacao', 'cidades_prova'],
+      'valorInscricao': ['valor_inscricao', 'taxa_inscricao', 'valor_taxa', 'inscricao.valor'],
+      'totalQuestoes': ['total_questoes', 'numero_questoes', 'qtd_questoes'],
+      'formatoProva': ['formato_prova', 'formato', 'tipo_prova'],
+      'temaProvaSubjetiva': ['tema_discursiva', 'tema_subjetiva', 'tema_redacao'],
+      'criteriosAprovacao': ['criterios_aprovacao', 'criterios_de_aprovacao'],
+      'criteriosReprovacao': ['criterios_reprovacao', 'criterios_de_reprovacao'],
+      'duracaoProva': ['duracao_prova', 'duracao', 'tempo_prova'],
+      'cotas': ['cotas', 'vagas_reservadas', 'reserva_vagas'],
+    };
+
+    // Retornar a primeira chave mapeada ou a própria chave se não houver mapeamento
+    if (mapeamentoChaves.containsKey(chavePlano)) {
+      return mapeamentoChaves[chavePlano]!.first;
+    }
+
+    // Converter camelCase para snake_case se não houver mapeamento específico
+    if (chavePlano.contains(RegExp(r'[A-Z]'))) {
+      return chavePlano.replaceAllMapped(
+        RegExp(r'([A-Z])'),
+        (match) => '_${match.group(1)!.toLowerCase()}'
+      );
+    }
+
+    return chavePlano;
   }
 }

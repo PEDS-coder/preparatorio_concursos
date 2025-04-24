@@ -58,23 +58,29 @@ class PlanoDataValidator {
   /// Cria lista de MateriaProficiencia a partir do mapa de proficiência
   List<MateriaProficiencia> criarMateriasProficiencia(Map<String, String> proficiencia) {
     List<MateriaProficiencia> materiasProficiencia = [];
-    
+
     for (var entry in proficiencia.entries) {
       materiasProficiencia.add(MateriaProficiencia(
         nomeMateria: entry.key,
         nivelProficiencia: converterNivelProficiencia(entry.value),
       ));
     }
-    
+
     return materiasProficiencia;
   }
 
   /// Cria recompensas padrão se nenhuma foi selecionada
   List<RecompensaConfig> criarRecompensasPadrao() {
     return [
-      RecompensaConfig(tipoRecompensa: 'diaria', descricaoRecompensa: 'Pausa para café'),
-      RecompensaConfig(tipoRecompensa: 'semanal', descricaoRecompensa: 'Assistir um episódio de série'),
-      RecompensaConfig(tipoRecompensa: 'mensal', descricaoRecompensa: 'Dia de folga nos estudos'),
+      // Nível Bronze (Micro-Pausas Rápidas) - 5 a 15 Moedas
+      RecompensaConfig(tipoRecompensa: 'bronze', descricaoRecompensa: 'Pausa de 5 min para alongamento (5 Moedas)', selecionada: true),
+      RecompensaConfig(tipoRecompensa: 'bronze', descricaoRecompensa: 'Ouvir 1 música favorita (10 Moedas)', selecionada: true),
+
+      // Nível Prata (Pausas Restauradoras) - 25 a 40 Moedas
+      RecompensaConfig(tipoRecompensa: 'prata', descricaoRecompensa: 'Jogar 15 min de um jogo casual (25 Moedas)', selecionada: true),
+
+      // Nível Ouro (Pequenos Prazeres) - 60 a 100 Moedas
+      RecompensaConfig(tipoRecompensa: 'ouro', descricaoRecompensa: 'Assistir a 1 episódio de série/anime (60 Moedas)', selecionada: true),
     ];
   }
 

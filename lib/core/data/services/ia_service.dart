@@ -297,4 +297,10 @@ class IAService extends ChangeNotifier with IAServiceImplementations implements 
     // Implementação simulada
     return '{"ciclo_estudos": [{"dia": 1, "blocos": [{"ordem": 1, "materia": "Português", "duracao_minutos": 90, "ferramenta": "Videoaulas"}]}], "materias_prioritarias": [{"nome": "Português", "pontuacao_prioridade": 31}]}';
   }
+
+  @override
+  Future<String> processarPdf(String prompt, Uint8List pdfBytes, {String? pdfName}) async {
+    // Implementação simulada
+    return 'Processamento simulado do PDF ${pdfName ?? "sem nome"} com prompt: ${prompt.substring(0, prompt.length > 30 ? 30 : prompt.length)}...';
+  }
 }

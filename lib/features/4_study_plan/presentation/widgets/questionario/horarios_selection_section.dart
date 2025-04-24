@@ -87,12 +87,13 @@ class HorariosSelectionSection extends StatelessWidget {
           InkWell(
             onTap: () => _selecionarHorasDoDia(context, dia, nomeDia),
             child: Container(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
               decoration: BoxDecoration(
                 color: const Color(0xFF1a2240),
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(color: const Color(0xFF2a3050)),
               ),
+              constraints: const BoxConstraints(minHeight: 48),
               child: Row(
                 children: [
                   const Icon(Icons.access_time, color: Color(0xFFf43f7d), size: 20),
@@ -165,7 +166,9 @@ class HorariosSelectionSection extends StatelessWidget {
           ),
           content: Container(
             width: double.maxFinite,
-            height: 400,
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.7,
+            ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -175,48 +178,47 @@ class HorariosSelectionSection extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 Expanded(
-                  child: GridView.builder(
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 4,
-                      childAspectRatio: 1.5,
-                      crossAxisSpacing: 10,
-                      mainAxisSpacing: 10,
-                    ),
-                    itemCount: 24,
-                    itemBuilder: (context, index) {
-                      // Usar horários de 01:00 a 24:00 em vez de 00:00 a 23:00
-                      final hora = index + 1; // Começar de 1 (01:00) até 24 (24:00)
-                      final selecionada = horasSelecionadasTemp.contains(hora);
-                      // Formatação para exibir o horário
-                      final String horaFormatada = hora == 24 ? '24:00' : '${hora.toString().padLeft(2, '0')}:00';
-                      return InkWell(
-                        onTap: () {
-                          setState(() {
-                            if (selecionada) {
-                              horasSelecionadasTemp.remove(hora);
-                            } else {
-                              horasSelecionadasTemp.add(hora);
-                            }
-                          });
-                        },
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: selecionada ? const Color(0xFFf43f7d) : const Color(0xFF13192b),
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: const Color(0xFFf43f7d)),
-                          ),
-                          child: Center(
-                            child: Text(
-                              horaFormatada,
-                              style: TextStyle(
-                                color: selecionada ? Colors.white : Colors.white70,
-                                fontWeight: selecionada ? FontWeight.bold : FontWeight.normal,
+                  child: SingleChildScrollView(
+                    child: Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: List.generate(24, (index) {
+                        // Usar horários de 01:00 a 24:00 em vez de 00:00 a 23:00
+                        final hora = index + 1; // Começar de 1 (01:00) até 24 (24:00)
+                        final selecionada = horasSelecionadasTemp.contains(hora);
+                        // Formatação para exibir o horário
+                        final String horaFormatada = hora == 24 ? '24:00' : '${hora.toString().padLeft(2, '0')}:00';
+                        return InkWell(
+                          onTap: () {
+                            setState(() {
+                              if (selecionada) {
+                                horasSelecionadasTemp.remove(hora);
+                              } else {
+                                horasSelecionadasTemp.add(hora);
+                              }
+                            });
+                          },
+                          child: Container(
+                            width: MediaQuery.of(context).size.width > 600 ? 70 : 60,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: selecionada ? const Color(0xFFf43f7d) : const Color(0xFF13192b),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: const Color(0xFFf43f7d)),
+                            ),
+                            child: Center(
+                              child: Text(
+                                horaFormatada,
+                                style: TextStyle(
+                                  color: selecionada ? Colors.white : Colors.white70,
+                                  fontWeight: selecionada ? FontWeight.bold : FontWeight.normal,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      );
-                    },
+                        );
+                      }),
+                    ),
                   ),
                 ),
               ],

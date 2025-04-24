@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 /// Widget para seleção de datas de início e fim do plano
 class DataSelectionSection extends StatelessWidget {
@@ -93,12 +94,21 @@ class DataSelectionSection extends StatelessWidget {
     DateTime? initialDate,
     Function(DateTime) onDateChanged,
   ) async {
-    final picked = await showDatePicker(
+    final hoje = DateTime.now();
+    final dataInicial = initialDate ?? hoje;
+
+    // Usar o seletor de data nativo do Flutter com localização em português
+    final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: initialDate ?? DateTime.now(),
-      firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(const Duration(days: 365)),
+      initialDate: dataInicial,
+      firstDate: hoje.subtract(const Duration(days: 1)),
+      lastDate: hoje.add(const Duration(days: 365 * 2)),
       locale: const Locale('pt', 'BR'),
+      cancelText: 'Cancelar',
+      confirmText: 'OK',
+      helpText: 'Selecionar data',
+      fieldLabelText: 'Data',
+      fieldHintText: 'dd/mm/aaaa',
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
@@ -119,7 +129,7 @@ class DataSelectionSection extends StatelessWidget {
         );
       },
     );
-    
+
     if (picked != null) {
       onDateChanged(picked);
     }

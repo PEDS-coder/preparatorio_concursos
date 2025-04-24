@@ -96,6 +96,13 @@ class _RecompensasPersonalizadasWidgetState extends State<RecompensasPersonaliza
 
   IconData _getIconForRecompensaTipo(String tipo) {
     switch (tipo) {
+      case 'bronze': return Icons.coffee;
+      case 'prata': return Icons.videogame_asset;
+      case 'ouro': return Icons.movie;
+      case 'platina': return Icons.tv;
+      case 'diamante': return Icons.nightlife;
+      case 'lendario': return Icons.celebration;
+      // Compatibilidade com tipos antigos
       case 'diaria': return Icons.today;
       case 'semanal': return Icons.view_week;
       case 'mensal': return Icons.calendar_month;
@@ -105,7 +112,7 @@ class _RecompensasPersonalizadasWidgetState extends State<RecompensasPersonaliza
 
   void _mostrarDialogoAdicionarRecompensa() {
     final TextEditingController nomeController = TextEditingController();
-    String tipoSelecionado = 'diaria';
+    String tipoSelecionado = 'bronze';
 
     showDialog(
       context: context,
@@ -120,12 +127,12 @@ class _RecompensasPersonalizadasWidgetState extends State<RecompensasPersonaliza
                 controller: nomeController,
                 decoration: InputDecoration(
                   labelText: 'Nome da Recompensa',
-                  hintText: 'Ex: Assistir um filme específico',
+                  hintText: 'Ex: Pausa de 15 min para Redes Sociais (15 Moedas)',
                   border: OutlineInputBorder(),
                 ),
               ),
               SizedBox(height: 16),
-              Text('Frequência:'),
+              Text('Nível de Recompensa:'),
               SizedBox(height: 8),
               DropdownButtonFormField<String>(
                 value: tipoSelecionado,
@@ -134,9 +141,16 @@ class _RecompensasPersonalizadasWidgetState extends State<RecompensasPersonaliza
                   contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 ),
                 items: [
-                  DropdownMenuItem(value: 'diaria', child: Text('Pequena')),
-                  DropdownMenuItem(value: 'semanal', child: Text('Média')),
-                  DropdownMenuItem(value: 'mensal', child: Text('Grande')),
+                  DropdownMenuItem(value: 'bronze', child: Text('Bronze (5-15 Moedas)')),
+                  DropdownMenuItem(value: 'prata', child: Text('Prata (25-40 Moedas)')),
+                  DropdownMenuItem(value: 'ouro', child: Text('Ouro (60-100 Moedas)')),
+                  DropdownMenuItem(value: 'platina', child: Text('Platina (120-200 Moedas)')),
+                  DropdownMenuItem(value: 'diamante', child: Text('Diamante (300-500 Moedas)')),
+                  DropdownMenuItem(value: 'lendario', child: Text('Lendário (800+ Moedas)')),
+                  // Compatibilidade com tipos antigos
+                  DropdownMenuItem(value: 'diaria', child: Text('Pequena (Legado)')),
+                  DropdownMenuItem(value: 'semanal', child: Text('Média (Legado)')),
+                  DropdownMenuItem(value: 'mensal', child: Text('Grande (Legado)')),
                 ],
                 onChanged: (value) {
                   if (value != null) {
@@ -202,7 +216,7 @@ class _RecompensasPersonalizadasWidgetState extends State<RecompensasPersonaliza
                 ),
               ),
               SizedBox(height: 16),
-              Text('Frequência:'),
+              Text('Nível de Recompensa:'),
               SizedBox(height: 8),
               DropdownButtonFormField<String>(
                 value: tipoSelecionado,
@@ -211,9 +225,16 @@ class _RecompensasPersonalizadasWidgetState extends State<RecompensasPersonaliza
                   contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 ),
                 items: [
-                  DropdownMenuItem(value: 'diaria', child: Text('Pequena')),
-                  DropdownMenuItem(value: 'semanal', child: Text('Média')),
-                  DropdownMenuItem(value: 'mensal', child: Text('Grande')),
+                  DropdownMenuItem(value: 'bronze', child: Text('Bronze (5-15 Moedas)')),
+                  DropdownMenuItem(value: 'prata', child: Text('Prata (25-40 Moedas)')),
+                  DropdownMenuItem(value: 'ouro', child: Text('Ouro (60-100 Moedas)')),
+                  DropdownMenuItem(value: 'platina', child: Text('Platina (120-200 Moedas)')),
+                  DropdownMenuItem(value: 'diamante', child: Text('Diamante (300-500 Moedas)')),
+                  DropdownMenuItem(value: 'lendario', child: Text('Lendário (800+ Moedas)')),
+                  // Compatibilidade com tipos antigos
+                  DropdownMenuItem(value: 'diaria', child: Text('Pequena (Legado)')),
+                  DropdownMenuItem(value: 'semanal', child: Text('Média (Legado)')),
+                  DropdownMenuItem(value: 'mensal', child: Text('Grande (Legado)')),
                 ],
                 onChanged: (value) {
                   if (value != null) {

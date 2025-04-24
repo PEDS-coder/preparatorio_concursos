@@ -63,6 +63,8 @@ class ResumoPlanoSection extends StatelessWidget {
   final int horasSemanais;
   final double horasPorDia;
   final Map<String, int> horasPorMateria;
+  final int? duracaoTotalCiclo;
+  final int? totalBlocosCiclo;
 
   // Verificar se o total de horas é zero e exibir um valor mínimo
   int get totalHorasExibicao => horasTotais > 0 ? horasTotais : 1;
@@ -74,6 +76,8 @@ class ResumoPlanoSection extends StatelessWidget {
     required this.horasSemanais,
     required this.horasPorDia,
     required this.horasPorMateria,
+    this.duracaoTotalCiclo,
+    this.totalBlocosCiclo,
   }) : super(key: key);
 
   @override
@@ -119,6 +123,20 @@ class ResumoPlanoSection extends StatelessWidget {
               emoji: '🗓', // 🗓 = 🗓 (calendário em espiral)
               color: Colors.purple,
             ),
+            if (duracaoTotalCiclo != null)
+              ResumoPlanoCard(
+                label: 'Duração do Ciclo',
+                value: '$duracaoTotalCiclo ${duracaoTotalCiclo == 1 ? 'dia' : 'dias'}',
+                emoji: '🔄', // 🔄 = 🔄 (setas em ciclo)
+                color: Colors.teal,
+              ),
+            if (totalBlocosCiclo != null)
+              ResumoPlanoCard(
+                label: 'Total de Blocos',
+                value: '$totalBlocosCiclo ${totalBlocosCiclo == 1 ? 'bloco' : 'blocos'} de 60 minutos',
+                emoji: '📊', // 📊 = 📊 (gráfico de barras)
+                color: Colors.indigo,
+              ),
             SizedBox(height: 16),
             Text(
               'Horas por Matéria',

@@ -27,10 +27,37 @@ class CargoDataFormatterService {
 
   /// Formata o número de vagas para exibição
   static String formatarVagas(Cargo cargo, Edital edital) {
+    // Verificar se temos informações detalhadas sobre vagas
+    if (edital.dadosExtraidos.dadosVaga != null) {
+      final dadosVaga = edital.dadosExtraidos.dadosVaga!;
+
+      // Construir informação sobre vagas
+      String vagasInfo = '';
+
+      if (dadosVaga.imediatas != null) {
+        vagasInfo += 'Imediatas: ${dadosVaga.imediatas}';
+      }
+
+      if (dadosVaga.cadastroReserva == true) {
+        if (vagasInfo.isNotEmpty) vagasInfo += ' + ';
+        vagasInfo += 'Cadastro Reserva';
+      }
+
+      if (vagasInfo.isEmpty && dadosVaga.totalConsolidado != null) {
+        vagasInfo = 'Total: ${dadosVaga.totalConsolidado}';
+      }
+
+      if (vagasInfo.isNotEmpty) {
+        return vagasInfo;
+      }
+    }
+
     // Obter dados originais
     final Map<String, dynamic>? dadosOriginais = edital.dadosOriginais;
     // Se não temos dados originais, usar o valor do cargo
-    if (dadosOriginais == null) return '${cargo.vagas}';
+    if (dadosOriginais == null) {
+      return cargo.vagas != null ? '${cargo.vagas}' : 'Não informado';
+    }
 
     // Verificar se temos informações de vagas no formato de cadastro reserva
     if (dadosOriginais.containsKey('cargos') && dadosOriginais['cargos'] is List) {
@@ -114,7 +141,7 @@ class CargoDataFormatterService {
     }
 
     // Se não encontrou informações específicas, usar o valor do cargo
-    if (cargo.vagas <= 0) {
+    if (cargo.vagas == null || cargo.vagas! <= 0) {
       // Verificar se a escolaridade ou nome do cargo menciona cadastro de reserva
       if (cargo.escolaridade.toLowerCase().contains('cadastro de reserva') ||
           cargo.nome.toLowerCase().contains('cadastro de reserva') ||
@@ -129,7 +156,7 @@ class CargoDataFormatterService {
         return 'Apenas cadastro de reserva';
       }
 
-      // Se o número de vagas é zero ou negativo, assumir que é cadastro de reserva
+      // Se o número de vagas é nulo, zero ou negativo, assumir que é cadastro de reserva
       return 'Apenas cadastro de reserva';
     }
 

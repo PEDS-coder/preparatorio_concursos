@@ -59,6 +59,7 @@ abstract class IAServiceInterface {
   Future<String> extrairInfoBasicasEdital(Uint8List pdfBytes, {String? pdfName});
 
   /// Extrai cargos detalhados de um edital
+  @deprecated
   Future<String> extrairCargosDetalhados(Uint8List pdfBytes, {String? pdfName});
 
   /// Extrai dados do concurso e conteúdo programático para um cargo específico
@@ -69,6 +70,7 @@ abstract class IAServiceInterface {
   });
 
   /// Extrai conteúdo programático para um cargo específico
+  @deprecated
   Future<String> extrairConteudoProgramatico({
     required Uint8List pdfBytes,
     required String cargoAlvo,
@@ -131,4 +133,7 @@ abstract class IAServiceInterface {
     String cargoNome,
     Function(String, double) onProgress,
   );
+
+  /// Processa um PDF com um prompt personalizado
+  Future<String> processarPdf(String prompt, Uint8List pdfBytes, {String? pdfName});
 }

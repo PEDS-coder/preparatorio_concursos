@@ -217,6 +217,19 @@ class ShareService implements IShareService {
   /// Formata o tipo de recompensa
   String _formatTipoRecompensa(String tipo) {
     switch (tipo.toLowerCase()) {
+      case 'bronze':
+        return 'Bronze (5-15 Moedas)';
+      case 'prata':
+        return 'Prata (25-40 Moedas)';
+      case 'ouro':
+        return 'Ouro (60-100 Moedas)';
+      case 'platina':
+        return 'Platina (120-200 Moedas)';
+      case 'diamante':
+        return 'Diamante (300-500 Moedas)';
+      case 'lendario':
+        return 'Lendário (800+ Moedas)';
+      // Compatibilidade com tipos antigos
       case 'diaria':
         return 'Diária';
       case 'semanal':

@@ -267,7 +267,7 @@ abstract class BaseIAService extends ChangeNotifier implements IAServiceInterfac
       try {
         // Usar o novo prompt para extração de cargos
         AppLogger.i('BaseIAService', 'Carregando prompt para extração de cargos...');
-        promptTemplate = await _promptService.loadCargosEditalPrompt();
+        promptTemplate = await _promptService.loadCargosDetalhadosPrompt();
         AppLogger.i('BaseIAService', 'Prompt carregado com sucesso: ${promptTemplate.substring(0, Math.min(100, promptTemplate.length))}...');
       } catch (e) {
         AppLogger.e('BaseIAService', 'Erro ao carregar prompt de cargos', e);
@@ -380,18 +380,12 @@ abstract class BaseIAService extends ChangeNotifier implements IAServiceInterfac
       // Carregar o prompt para extração de conteúdo programático
       String promptTemplate;
       try {
-        // Usar o prompt JSON para conteúdo programático
-        promptTemplate = await _promptService.loadContentJsonPrompt();
+        // Usar o prompt para conteúdo programático
+        promptTemplate = await _promptService.loadConcursoConteudoPrompt();
       } catch (e) {
-        AppLogger.e('BaseIAService', 'Erro ao carregar prompt JSON de conteúdo', e);
-        // Tentar com o prompt YAML como fallback
-        try {
-          promptTemplate = await _promptService.loadContentEditalPrompt();
-        } catch (e2) {
-          AppLogger.e('BaseIAService', 'Erro ao carregar prompt YAML de conteúdo', e2);
-          // Usar prompt de fallback em caso de erro
-          promptTemplate = await _promptService.loadFallbackCargoInfoPrompt();
-        }
+        AppLogger.e('BaseIAService', 'Erro ao carregar prompt de conteúdo', e);
+        // Usar prompt de fallback em caso de erro
+        promptTemplate = await _promptService.loadFallbackCargoInfoPrompt();
       }
 
       // Substituir o placeholder do cargo alvo se existir

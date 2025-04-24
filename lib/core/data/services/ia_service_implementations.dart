@@ -6,6 +6,9 @@ import 'gemini_service.dart';
 import 'gemini_official_service.dart';
 import 'ia_service_adapter.dart';
 import 'interfaces/ia_service_interface.dart';
+import 'package:get_it/get_it.dart';
+import '../services/edital_service.dart';
+import '../../services/prompt_service.dart';
 
 /// Implementações padrão para os novos métodos da interface IAServiceInterface
 mixin IAServiceImplementations {
@@ -89,51 +92,33 @@ mixin IAServiceImplementations {
       // Obter o PDF do edital
       final IAServiceInterface iaService = this as IAServiceInterface;
 
-      // Simular uma resposta com conteúdo programático
+      // Obter o serviço de editais para recuperar o PDF
+      final editalService = GetIt.instance.get<EditalService>();
+      final edital = editalService.getEditalById(editalId);
+
+      if (edital == null) {
+        throw Exception('Edital não encontrado');
+      }
+
+      // Verificar se temos o PDF do edital
+      if (edital.pdfBytes == null || edital.pdfBytes!.isEmpty) {
+        throw Exception('PDF do edital não disponível');
+      }
+
       // Informar progresso
       onProgress('Enviando PDF para análise detalhada do cargo...', 0.3);
 
-      // Simular uma resposta com conteúdo programático
-      final String resposta = '''
-      {
-        "cargo": "${cargoNome}",
-        "conteudo_programatico": [
-          {
-            "nome": "Língua Portuguesa",
-            "tipo": "comum",
-            "grupoMateria": "Conhecimentos Básicos",
-            "topicos": [
-              "Compreensão e interpretação de textos",
-              "Tipologia textual",
-              "Ortografia oficial"
-            ],
-            "numeroQuestoes": 15
-          },
-          {
-            "nome": "Raciocínio Lógico",
-            "tipo": "comum",
-            "grupoMateria": "Conhecimentos Básicos",
-            "topicos": [
-              "Lógica proposicional",
-              "Argumentação lógica",
-              "Análise combinatória"
-            ],
-            "numeroQuestoes": 10
-          },
-          {
-            "nome": "Direito Administrativo",
-            "tipo": "especifico",
-            "grupoMateria": "Conhecimentos Específicos",
-            "topicos": [
-              "Princípios da Administração Pública",
-              "Atos administrativos",
-              "Processo administrativo"
-            ],
-            "numeroQuestoes": 20
-          }
-        ]
-      }
-      ''';
+      // Carregar o prompt para análise detalhada do cargo
+      final promptService = PromptService();
+      final promptTemplate = await promptService.loadConcursoConteudoPrompt();
+
+      // Personalizar o prompt com o nome do cargo
+      final prompt = promptService.customizePrompt(promptTemplate, {
+        'CARGO_ALVO': cargoNome,
+      });
+
+      // Fazer a chamada à API com o PDF e o prompt personalizado
+      final String resposta = await iaService.processarPdf(prompt, edital.pdfBytes!, pdfName: edital.nomeArquivo);
 
       // Informar progresso
       onProgress('Processando resultados da análise...', 0.7);
@@ -163,14 +148,28 @@ mixin IAServiceImplementations {
         // Verificar se o resultado contém o conteúdo programático
         if (!resultado.containsKey('conteudo_programatico') || !(resultado['conteudo_programatico'] is List)) {
           // Se não tiver o conteúdo programático no formato esperado, tentar extrair do campo 'cargo'
-          if (resultado.containsKey('cargo') && resultado['cargo'] is Map &&
-              resultado['cargo'].containsKey('conteudo_programatico') &&
-              resultado['cargo']['conteudo_programatico'] is List) {
+          if (resultado.containsKey('cargo') && resultado['cargo'] is Map) {
+            // Verificar se o conteúdo programático está no formato 'cargo.conteudo_programatico.materias'
+            if (resultado['cargo'].containsKey('conteudo_programatico') &&
+                resultado['cargo']['conteudo_programatico'] is Map &&
+                resultado['cargo']['conteudo_programatico'].containsKey('materias') &&
+                resultado['cargo']['conteudo_programatico']['materias'] is List) {
 
-            // Criar um novo resultado com o conteúdo programático
-            return {
-              'conteudo_programatico': resultado['cargo']['conteudo_programatico'],
-            };
+              // Criar um novo resultado com o conteúdo programático
+              return {
+                'conteudo_programatico': resultado['cargo']['conteudo_programatico']['materias'],
+              };
+            }
+
+            // Verificar se o conteúdo programático está no formato 'cargo.conteudo_programatico'
+            if (resultado['cargo'].containsKey('conteudo_programatico') &&
+                resultado['cargo']['conteudo_programatico'] is List) {
+
+              // Criar um novo resultado com o conteúdo programático
+              return {
+                'conteudo_programatico': resultado['cargo']['conteudo_programatico'],
+              };
+            }
           }
 
           throw Exception('Resposta da API não contém conteúdo programático');
@@ -183,6 +182,7 @@ mixin IAServiceImplementations {
         throw Exception('Erro ao processar resposta da API: $e');
       }
     } catch (e) {
+      print('Erro ao analisar cargo: $e');
       throw Exception('Erro ao analisar cargo: $e');
     }
   }

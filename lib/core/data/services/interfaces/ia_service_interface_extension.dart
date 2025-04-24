@@ -70,35 +70,8 @@ extension IAServiceInterfaceExtension on IAServiceInterface {
     String cargoNome,
     Function(String, double) onProgress,
   ) async {
-    // Implementação padrão que usa os métodos existentes
-    try {
-      // Simular uma resposta
-      final Map<String, dynamic> resultado = {
-        'conteudo_programatico': [
-          {
-            'nome': 'Língua Portuguesa',
-            'tipo': 'comum',
-            'topicos': [
-              'Compreensão e interpretação de textos',
-              'Tipologia textual',
-              'Ortografia oficial',
-            ],
-          },
-          {
-            'nome': 'Raciocínio Lógico',
-            'tipo': 'comum',
-            'topicos': [
-              'Lógica proposicional',
-              'Argumentação lógica',
-              'Análise combinatória',
-            ],
-          },
-        ],
-      };
-
-      return resultado;
-    } catch (e) {
-      throw Exception('Erro ao analisar cargo: $e');
-    }
+    // Esta implementação foi removida para evitar conflitos com a implementação em IAServiceImplementations
+    // Cada serviço de IA deve implementar seu próprio método analisarEditalSegundaChamada
+    throw UnimplementedError('Este método deve ser implementado por cada serviço de IA específico');
   }
 }

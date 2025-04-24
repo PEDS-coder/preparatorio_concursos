@@ -32,9 +32,9 @@ class PlanoMetadataProcessor {
     _adicionarDadosRestantes(dadosAdicionaisConvertidos, metadados);
 
     // Remover chaves com valores nulos ou vazios para limpeza
-    metadados.removeWhere((key, value) => 
-      value == null || 
-      (value is String && value.isEmpty) || 
+    metadados.removeWhere((key, value) =>
+      value == null ||
+      (value is String && value.isEmpty) ||
       (value is List && value.isEmpty)
     );
 
@@ -89,9 +89,9 @@ class PlanoMetadataProcessor {
     if (de.cotas == null || de.cotas!.isEmpty) return;
 
     metadados['cotas'] = de.cotas!.map((cota) => {
-      'nome': cota.nome, 
+      'nome': cota.nome,
       'percentual': cota.percentual,
-      'numero_vagas': cota.numeroVagas, 
+      'numero_vagas': cota.numeroVagas,
       'criterios': cota.criterios
     }).toList();
   }
@@ -124,8 +124,8 @@ class PlanoMetadataProcessor {
     try {
       final provaOrig = DynamicMapConverter.toStringDynamicMap(provaData);
       metadados['totalQuestoes'] ??= provaOrig['total_questoes'];
-      metadados['formatoProva'] ??= (provaOrig['formato'] is List 
-        ? (provaOrig['formato'] as List).join(', ') 
+      metadados['formatoProva'] ??= (provaOrig['formato'] is List
+        ? (provaOrig['formato'] as List).join(', ')
         : provaOrig['formato']?.toString());
       metadados['temaProvaSubjetiva'] ??= provaOrig['tema_discursiva'];
       metadados['criteriosAprovacao'] ??= provaOrig['criterios_aprovacao'];
@@ -219,6 +219,8 @@ class PlanoMetadataProcessor {
       _processarProvaLLM(planoId, planoEstudosMap, metadados);
       _processarConcursoLLM(planoId, planoEstudosMap, metadados);
       _processarCotasLLM(planoId, planoEstudosMap, metadados);
+      _processarDuracaoTotalCiclo(planoId, planoEstudosMap, metadados);
+      _processarTotalBlocosCiclo(planoId, planoEstudosMap, metadados);
     } catch (e, s) {
       _logger.logArmazenamento(planoId, 'erro_converter_planoEstudosData_geral', {'erro': e.toString(), 'stack': s.toString()});
     }
@@ -256,8 +258,8 @@ class PlanoMetadataProcessor {
     try {
       final provaLLM = DynamicMapConverter.toStringDynamicMap(provaLLMData);
       metadados['totalQuestoes'] = provaLLM['total_questoes'] ?? metadados['totalQuestoes'];
-      metadados['formatoProva'] = (provaLLM['formato'] is List 
-        ? (provaLLM['formato'] as List).join(', ') 
+      metadados['formatoProva'] = (provaLLM['formato'] is List
+        ? (provaLLM['formato'] as List).join(', ')
         : provaLLM['formato']?.toString()) ?? metadados['formatoProva'];
       metadados['temaProvaSubjetiva'] = provaLLM['tema_discursiva'] ?? metadados['temaProvaSubjetiva'];
       metadados['criteriosAprovacao'] = provaLLM['criterios_aprovacao'] ?? metadados['criteriosAprovacao'];
@@ -336,6 +338,124 @@ class PlanoMetadataProcessor {
       metadados.remove('cotas'); // Remove se for explicitamente nulo
     }
     _logger.logArmazenamento(planoId, 'dados_cotas_llm_processados', {'tipo': cotasLLM.runtimeType});
+  }
+
+  // Processa duração total do ciclo
+  void _processarDuracaoTotalCiclo(String planoId, Map<String, dynamic> planoEstudosMap, Map<String, dynamic> metadados) {
+    // Verificar se há duração total do ciclo no planoEstudosMap
+    if (planoEstudosMap.containsKey('duracao_total_ciclo')) {
+      final duracaoTotalCiclo = planoEstudosMap['duracao_total_ciclo'];
+      if (duracaoTotalCiclo != null) {
+        try {
+          if (duracaoTotalCiclo is int) {
+            metadados['duracaoTotalCiclo'] = duracaoTotalCiclo;
+          } else if (duracaoTotalCiclo is double) {
+            metadados['duracaoTotalCiclo'] = duracaoTotalCiclo.round();
+          } else if (duracaoTotalCiclo is String) {
+            metadados['duracaoTotalCiclo'] = int.tryParse(duracaoTotalCiclo) ?? 7;
+          } else {
+            metadados['duracaoTotalCiclo'] = 7; // Valor padrão
+          }
+        } catch (e) {
+          _logger.logArmazenamento(planoId, 'erro_processar_duracao_total_ciclo', {'erro': e.toString()});
+          metadados['duracaoTotalCiclo'] = 7; // Valor padrão em caso de erro
+        }
+      }
+    } else {
+      // Se não houver duração total do ciclo, calcular com base no ciclo de estudos
+      metadados['duracaoTotalCiclo'] = _calcularDuracaoTotalCiclo(planoId, planoEstudosMap);
+    }
+
+    _logger.logArmazenamento(planoId, 'duracao_total_ciclo_processada', {'duracaoTotalCiclo': metadados['duracaoTotalCiclo']});
+  }
+
+  // Calcula a duração total do ciclo com base no ciclo de estudos
+  int _calcularDuracaoTotalCiclo(String planoId, Map<String, dynamic> planoEstudosMap) {
+    if (!planoEstudosMap.containsKey('ciclo_estudos')) {
+      return 7; // Valor padrão de uma semana
+    }
+
+    final cicloEstudos = planoEstudosMap['ciclo_estudos'];
+    if (cicloEstudos is! List || cicloEstudos.isEmpty) {
+      return 7; // Valor padrão de uma semana
+    }
+
+    try {
+      // Encontrar o maior valor de 'dia' no ciclo
+      int maiorDia = 0;
+      for (final dia in cicloEstudos) {
+        if (dia is Map) {
+          final valorDia = dia['dia'];
+          if (valorDia is int && valorDia > maiorDia) {
+            maiorDia = valorDia;
+          }
+        }
+      }
+
+      return maiorDia > 0 ? maiorDia : 7; // Retornar o maior dia ou 7 como padrão
+    } catch (e) {
+      _logger.logArmazenamento(planoId, 'erro_calcular_duracao_total_ciclo', {'erro': e.toString()});
+      return 7; // Em caso de erro, retornar 7 como padrão
+    }
+  }
+
+  // Processa total de blocos do ciclo
+  void _processarTotalBlocosCiclo(String planoId, Map<String, dynamic> planoEstudosMap, Map<String, dynamic> metadados) {
+    // Verificar se há total de blocos do ciclo no planoEstudosMap
+    if (planoEstudosMap.containsKey('total_blocos_ciclo')) {
+      final totalBlocosCiclo = planoEstudosMap['total_blocos_ciclo'];
+      if (totalBlocosCiclo != null) {
+        try {
+          if (totalBlocosCiclo is int) {
+            metadados['totalBlocosCiclo'] = totalBlocosCiclo;
+          } else if (totalBlocosCiclo is double) {
+            metadados['totalBlocosCiclo'] = totalBlocosCiclo.round();
+          } else if (totalBlocosCiclo is String) {
+            metadados['totalBlocosCiclo'] = int.tryParse(totalBlocosCiclo) ?? 14;
+          } else {
+            metadados['totalBlocosCiclo'] = 14; // Valor padrão
+          }
+        } catch (e) {
+          _logger.logArmazenamento(planoId, 'erro_processar_total_blocos_ciclo', {'erro': e.toString()});
+          metadados['totalBlocosCiclo'] = 14; // Valor padrão em caso de erro
+        }
+      }
+    } else {
+      // Se não houver total de blocos do ciclo, calcular com base no ciclo de estudos
+      metadados['totalBlocosCiclo'] = _calcularTotalBlocosCiclo(planoId, planoEstudosMap);
+    }
+
+    _logger.logArmazenamento(planoId, 'total_blocos_ciclo_processado', {'totalBlocosCiclo': metadados['totalBlocosCiclo']});
+  }
+
+  // Calcula o total de blocos do ciclo com base no ciclo de estudos
+  int _calcularTotalBlocosCiclo(String planoId, Map<String, dynamic> planoEstudosMap) {
+    if (!planoEstudosMap.containsKey('ciclo_estudos')) {
+      return 14; // Valor padrão de 2 blocos por dia durante uma semana
+    }
+
+    final cicloEstudos = planoEstudosMap['ciclo_estudos'];
+    if (cicloEstudos is! List || cicloEstudos.isEmpty) {
+      return 14; // Valor padrão de 2 blocos por dia durante uma semana
+    }
+
+    try {
+      // Contar o total de blocos em todos os dias do ciclo
+      int totalBlocos = 0;
+      for (final dia in cicloEstudos) {
+        if (dia is Map && dia.containsKey('blocos')) {
+          final blocos = dia['blocos'];
+          if (blocos is List) {
+            totalBlocos += blocos.length;
+          }
+        }
+      }
+
+      return totalBlocos > 0 ? totalBlocos : 14; // Retornar o total de blocos ou 14 como padrão
+    } catch (e) {
+      _logger.logArmazenamento(planoId, 'erro_calcular_total_blocos_ciclo', {'erro': e.toString()});
+      return 14; // Em caso de erro, retornar 14 como padrão
+    }
   }
 
   // Adiciona dados restantes

@@ -94,11 +94,28 @@ class _PlanoQuestionarioScreenState extends State<PlanoQuestionarioScreen> {
       print('AVISO: Nenhuma matéria encontrada nos dados do cargo!');
     }
 
-    // Adicionar recompensas padrão
+    // Adicionar recompensas padrão organizadas por níveis
     _recompensas = [
-      RecompensaConfig(tipoRecompensa: 'diaria', descricaoRecompensa: 'Pausa para café'),
-      RecompensaConfig(tipoRecompensa: 'semanal', descricaoRecompensa: 'Assistir um episódio de série'),
-      RecompensaConfig(tipoRecompensa: 'mensal', descricaoRecompensa: 'Dia de folga nos estudos'),
+      // Nível Bronze (Micro-Pausas Rápidas) - 5 a 15 Moedas
+      RecompensaConfig(tipoRecompensa: 'bronze', descricaoRecompensa: 'Pausa de 5 min para alongamento (5 Moedas)', selecionada: true),
+      RecompensaConfig(tipoRecompensa: 'bronze', descricaoRecompensa: 'Ouvir 1 música favorita (10 Moedas)', selecionada: true),
+      RecompensaConfig(tipoRecompensa: 'bronze', descricaoRecompensa: 'Pausa de 10 min para checar notificações (10 Moedas)', selecionada: true),
+      RecompensaConfig(tipoRecompensa: 'bronze', descricaoRecompensa: 'Preparar e tomar um café/chá com calma (15 Moedas)', selecionada: true),
+
+      // Nível Prata (Pausas Restauradoras) - 25 a 40 Moedas
+      RecompensaConfig(tipoRecompensa: 'prata', descricaoRecompensa: 'Jogar 15 min de um jogo casual (25 Moedas)', selecionada: true),
+      RecompensaConfig(tipoRecompensa: 'prata', descricaoRecompensa: 'Power nap de 20 minutos (30 Moedas)', selecionada: true),
+      RecompensaConfig(tipoRecompensa: 'prata', descricaoRecompensa: 'Assistir a 1 vídeo curto no YouTube (30 Moedas)', selecionada: true),
+
+      // Nível Ouro (Pequenos Prazeres) - 60 a 100 Moedas
+      RecompensaConfig(tipoRecompensa: 'ouro', descricaoRecompensa: 'Assistir a 1 episódio de série/anime (60 Moedas)', selecionada: true),
+      RecompensaConfig(tipoRecompensa: 'ouro', descricaoRecompensa: 'Dedicar 30-40 min a um hobby (70 Moedas)', selecionada: true),
+
+      // Nível Platina (Atividades de Lazer) - 120 a 200 Moedas
+      RecompensaConfig(tipoRecompensa: 'platina', descricaoRecompensa: 'Assistir a 1 episódio de série de duração padrão (120 Moedas)', selecionada: true),
+
+      // Nível Diamante (Grandes Recompensas) - 300 a 500 Moedas
+      RecompensaConfig(tipoRecompensa: 'diamante', descricaoRecompensa: 'Permissão para uma noite livre (300 Moedas)', selecionada: true),
     ];
 
     // Registrar dados iniciais

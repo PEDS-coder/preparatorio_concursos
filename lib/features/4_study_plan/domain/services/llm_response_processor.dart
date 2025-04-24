@@ -20,11 +20,19 @@ class LLMResponseProcessor {
     try {
       // Verificar se a resposta está em formato markdown
       String jsonString = resposta;
-      
+
       // Extrair JSON de blocos de código markdown
       if (resposta.trim().startsWith('```json') && resposta.trim().endsWith('```')) {
         jsonString = resposta.trim().substring(7, resposta.trim().length - 3).trim();
         logger.logProcessamentoLLM(planoId, 'json_extraido_markdown', 'JSON extraído do formato markdown');
+      } else if (resposta.contains('```json') && resposta.contains('```')) {
+        // Extrair o conteúdo entre ```json e ```
+        final RegExp jsonBlockRegex = RegExp(r'```json\s*([\s\S]*?)\s*```');
+        final match = jsonBlockRegex.firstMatch(resposta);
+        if (match != null) {
+          jsonString = match.group(1)!.trim();
+          logger.logProcessamentoLLM(planoId, 'json_extraido_markdown_interno', 'JSON extraído de bloco markdown interno');
+        }
       } else if (resposta.trim().startsWith('```') && resposta.trim().endsWith('```')) {
         jsonString = resposta.trim().substring(3, resposta.trim().length - 3).trim();
         logger.logProcessamentoLLM(planoId, 'conteudo_extraido_markdown', 'Conteúdo extraído do formato markdown genérico');
@@ -32,17 +40,20 @@ class LLMResponseProcessor {
 
       // Tentar decodificar o JSON
       Map<String, dynamic> resultadoJSON = json.decode(jsonString);
-      
+
       // Verificar a estrutura do JSON
       _verificarEstruturaJSON(resultadoJSON, planoId);
-      
+
       // Normalizar chaves similares
       resultadoJSON = _normalizarChavesSimilares(resultadoJSON, planoId);
-      
+
+      // Extrair dados do concurso e cargo se presentes
+      resultadoJSON = _extrairDadosConcursoCargo(resultadoJSON, planoId);
+
       return resultadoJSON;
     } catch (e) {
       logger.logProcessamentoLLM(planoId, 'erro_decodificar_json', 'Erro: $e');
-      
+
       try {
         // Tentar extrair o JSON da resposta usando expressão regular
         final RegExp jsonRegex = RegExp(r'\{[\s\S]*\}');
@@ -54,27 +65,141 @@ class LLMResponseProcessor {
             'tamanho_json': jsonStr!.length,
             'inicio_json': jsonStr.substring(0, jsonStr.length > 100 ? 100 : jsonStr.length),
           });
-          
+
           Map<String, dynamic> resultadoJSON = json.decode(jsonStr);
-          
+
           // Verificar a estrutura do JSON
           _verificarEstruturaJSON(resultadoJSON, planoId);
-          
+
           // Normalizar chaves similares
           resultadoJSON = _normalizarChavesSimilares(resultadoJSON, planoId);
-          
+
+          // Extrair dados do concurso e cargo se presentes
+          resultadoJSON = _extrairDadosConcursoCargo(resultadoJSON, planoId);
+
           return resultadoJSON;
         } else {
-          throw Exception('Não foi possível extrair JSON válido da resposta');
+          // Tentar extrair múltiplos objetos JSON da resposta
+          final RegExp multipleJsonRegex = RegExp(r'\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}');
+          final matches = multipleJsonRegex.allMatches(resposta);
+
+          if (matches.isNotEmpty) {
+            // Pegar o maior objeto JSON encontrado (provavelmente o mais completo)
+            String maiorJsonStr = '';
+            for (var m in matches) {
+              String jsonStr = m.group(0)!;
+              if (jsonStr.length > maiorJsonStr.length) {
+                maiorJsonStr = jsonStr;
+              }
+            }
+
+            logger.logProcessamentoLLM(planoId, 'json_extraido_regex_multiplo', {
+              'tamanho_json': maiorJsonStr.length,
+              'inicio_json': maiorJsonStr.substring(0, maiorJsonStr.length > 100 ? 100 : maiorJsonStr.length),
+            });
+
+            Map<String, dynamic> resultadoJSON = json.decode(maiorJsonStr);
+
+            // Verificar a estrutura do JSON
+            _verificarEstruturaJSON(resultadoJSON, planoId);
+
+            // Normalizar chaves similares
+            resultadoJSON = _normalizarChavesSimilares(resultadoJSON, planoId);
+
+            // Extrair dados do concurso e cargo se presentes
+            resultadoJSON = _extrairDadosConcursoCargo(resultadoJSON, planoId);
+
+            return resultadoJSON;
+          } else {
+            throw Exception('Não foi possível extrair JSON válido da resposta');
+          }
         }
       } catch (regexError) {
         logger.logProcessamentoLLM(planoId, 'erro_corrigir_json', 'Erro: $regexError');
-        
+
         // Retornar dados simulados em caso de erro
         logger.logProcessamentoLLM(planoId, 'usando_dados_simulados', 'Usando dados simulados devido a erro na resposta da LLM');
         return _gerarDadosSimulados();
       }
     }
+  }
+
+  /// Extrai dados do concurso e cargo se presentes no JSON
+  Map<String, dynamic> _extrairDadosConcursoCargo(Map<String, dynamic> json, String planoId) {
+    Map<String, dynamic> resultado = Map.from(json);
+
+    // Verificar se há dados de concurso
+    if (json.containsKey('concurso')) {
+      logger.logProcessamentoLLM(planoId, 'dados_concurso_encontrados', 'Dados do concurso encontrados no JSON');
+
+      // Adicionar dados do concurso ao resultado
+      resultado['concurso'] = json['concurso'];
+
+      // Extrair dados específicos do concurso para o nível superior
+      Map<String, dynamic> concurso = json['concurso'];
+      if (concurso is Map) {
+        // Extrair dados básicos
+        if (concurso.containsKey('titulo')) resultado['titulo'] = concurso['titulo'];
+        if (concurso.containsKey('orgao')) resultado['orgao'] = concurso['orgao'];
+        if (concurso.containsKey('banca')) resultado['banca'] = concurso['banca'];
+
+        // Extrair dados de inscrição
+        if (concurso.containsKey('inscricoes') && concurso['inscricoes'] is Map) {
+          Map<String, dynamic> inscricoes = concurso['inscricoes'];
+          if (inscricoes.containsKey('inicio')) resultado['inicioInscricao'] = inscricoes['inicio'];
+          if (inscricoes.containsKey('fim')) resultado['fimInscricao'] = inscricoes['fim'];
+          if (inscricoes.containsKey('taxa')) resultado['valorInscricao'] = inscricoes['taxa'];
+        }
+
+        // Extrair dados da prova
+        if (concurso.containsKey('prova') && concurso['prova'] is Map) {
+          Map<String, dynamic> prova = concurso['prova'];
+          if (prova.containsKey('data')) resultado['dataProva'] = prova['data'];
+          if (prova.containsKey('local')) resultado['localProva'] = prova['local'];
+          if (prova.containsKey('total_questoes')) resultado['totalQuestoes'] = prova['total_questoes'];
+          if (prova.containsKey('formato')) resultado['formatoProva'] = prova['formato'];
+          if (prova.containsKey('duracao')) resultado['duracaoProva'] = prova['duracao'];
+          if (prova.containsKey('tema_discursiva')) resultado['temaProvaSubjetiva'] = prova['tema_discursiva'];
+          if (prova.containsKey('criterios_aprovacao')) resultado['criteriosAprovacao'] = prova['criterios_aprovacao'];
+          if (prova.containsKey('criterios_reprovacao')) resultado['criteriosReprovacao'] = prova['criterios_reprovacao'];
+        }
+
+        // Extrair dados de cotas
+        if (concurso.containsKey('cotas')) resultado['cotas'] = concurso['cotas'];
+      }
+    }
+
+    // Verificar se há dados de cargo
+    if (json.containsKey('cargo')) {
+      logger.logProcessamentoLLM(planoId, 'dados_cargo_encontrados', 'Dados do cargo encontrados no JSON');
+
+      // Adicionar dados do cargo ao resultado
+      resultado['cargo'] = json['cargo'];
+
+      // Extrair dados específicos do cargo para o nível superior
+      Map<String, dynamic> cargo = json['cargo'];
+      if (cargo is Map) {
+        if (cargo.containsKey('nome')) resultado['nomeCargo'] = cargo['nome'];
+        if (cargo.containsKey('vagas')) resultado['vagas'] = cargo['vagas'];
+        if (cargo.containsKey('escolaridade')) resultado['escolaridade'] = cargo['escolaridade'];
+        if (cargo.containsKey('salario')) resultado['salario'] = cargo['salario'];
+
+        // Extrair conteúdo programático
+        if (cargo.containsKey('conteudo_programatico') && cargo['conteudo_programatico'] is Map) {
+          Map<String, dynamic> conteudo = cargo['conteudo_programatico'];
+          if (conteudo.containsKey('materias')) {
+            resultado['grupos'] = [
+              {
+                'nome': 'Conteúdo Programático',
+                'materias': conteudo['materias']
+              }
+            ];
+          }
+        }
+      }
+    }
+
+    return resultado;
   }
 
   /// Verifica a estrutura do JSON recebido
@@ -86,6 +211,8 @@ class LLMResponseProcessor {
       'metadados_presente': json.containsKey('metadados'),
       'grupos_presente': json.containsKey('grupos'),
       'calendario_presente': json.containsKey('calendario'),
+      'duracao_total_ciclo_presente': json.containsKey('duracao_total_ciclo'),
+      'total_blocos_ciclo_presente': json.containsKey('total_blocos_ciclo'),
       'chaves_presentes': json.keys.toList(),
     };
 
@@ -113,6 +240,16 @@ class LLMResponseProcessor {
 
     // Criar uma cópia do JSON para modificar
     Map<String, dynamic> jsonNormalizado = Map.from(json);
+
+    // Identificar chaves similares para duração total do ciclo
+    for (final chave in json.keys) {
+      if (chave.contains('duracao') && (chave.contains('total') || chave.contains('ciclo'))) {
+        chavesSimilares['duracao_total_ciclo_similar'] = chave;
+      }
+      if ((chave.contains('total') || chave.contains('quantidade')) && chave.contains('blocos')) {
+        chavesSimilares['total_blocos_ciclo_similar'] = chave;
+      }
+    }
 
     // Substituir chaves similares pelas chaves padrão
     if (!jsonNormalizado.containsKey('ciclo_estudos') && chavesSimilares.containsKey('ciclo_estudos_similar')) {
@@ -149,6 +286,66 @@ class LLMResponseProcessor {
       jsonNormalizado['materias_prioritarias'] = _gerarMateriasPrioritariasPadrao();
     }
 
+    // Processar duração total do ciclo
+    if (!jsonNormalizado.containsKey('duracao_total_ciclo') && chavesSimilares.containsKey('duracao_total_ciclo_similar')) {
+      final chaveSimilar = chavesSimilares['duracao_total_ciclo_similar']!;
+      logger.logProcessamentoLLM(planoId, 'usando_chave_similar', {'original': 'duracao_total_ciclo', 'similar': chaveSimilar});
+      jsonNormalizado['duracao_total_ciclo'] = jsonNormalizado[chaveSimilar];
+    }
+
+    // Garantir que a duração total do ciclo seja um número inteiro
+    if (jsonNormalizado.containsKey('duracao_total_ciclo')) {
+      final duracaoTotalCiclo = jsonNormalizado['duracao_total_ciclo'];
+      if (duracaoTotalCiclo is int) {
+        // Já está no formato correto
+      } else if (duracaoTotalCiclo is double) {
+        jsonNormalizado['duracao_total_ciclo'] = duracaoTotalCiclo.round();
+      } else if (duracaoTotalCiclo is String) {
+        try {
+          jsonNormalizado['duracao_total_ciclo'] = int.parse(duracaoTotalCiclo);
+        } catch (e) {
+          logger.logProcessamentoLLM(planoId, 'erro_converter_duracao_total_ciclo', {'erro': e.toString()});
+          jsonNormalizado['duracao_total_ciclo'] = _calcularDuracaoTotalCiclo(jsonNormalizado['ciclo_estudos']);
+        }
+      } else {
+        logger.logProcessamentoLLM(planoId, 'duracao_total_ciclo_formato_incorreto', {'tipo': duracaoTotalCiclo.runtimeType.toString()});
+        jsonNormalizado['duracao_total_ciclo'] = _calcularDuracaoTotalCiclo(jsonNormalizado['ciclo_estudos']);
+      }
+    } else {
+      // Se não houver duração total do ciclo, calcular com base no ciclo de estudos
+      jsonNormalizado['duracao_total_ciclo'] = _calcularDuracaoTotalCiclo(jsonNormalizado['ciclo_estudos']);
+    }
+
+    // Processar total de blocos do ciclo
+    if (!jsonNormalizado.containsKey('total_blocos_ciclo') && chavesSimilares.containsKey('total_blocos_ciclo_similar')) {
+      final chaveSimilar = chavesSimilares['total_blocos_ciclo_similar']!;
+      logger.logProcessamentoLLM(planoId, 'usando_chave_similar', {'original': 'total_blocos_ciclo', 'similar': chaveSimilar});
+      jsonNormalizado['total_blocos_ciclo'] = jsonNormalizado[chaveSimilar];
+    }
+
+    // Garantir que o total de blocos do ciclo seja um número inteiro
+    if (jsonNormalizado.containsKey('total_blocos_ciclo')) {
+      final totalBlocosCiclo = jsonNormalizado['total_blocos_ciclo'];
+      if (totalBlocosCiclo is int) {
+        // Já está no formato correto
+      } else if (totalBlocosCiclo is double) {
+        jsonNormalizado['total_blocos_ciclo'] = totalBlocosCiclo.round();
+      } else if (totalBlocosCiclo is String) {
+        try {
+          jsonNormalizado['total_blocos_ciclo'] = int.parse(totalBlocosCiclo);
+        } catch (e) {
+          logger.logProcessamentoLLM(planoId, 'erro_converter_total_blocos_ciclo', {'erro': e.toString()});
+          jsonNormalizado['total_blocos_ciclo'] = _calcularTotalBlocosCiclo(jsonNormalizado['ciclo_estudos']);
+        }
+      } else {
+        logger.logProcessamentoLLM(planoId, 'total_blocos_ciclo_formato_incorreto', {'tipo': totalBlocosCiclo.runtimeType.toString()});
+        jsonNormalizado['total_blocos_ciclo'] = _calcularTotalBlocosCiclo(jsonNormalizado['ciclo_estudos']);
+      }
+    } else {
+      // Se não houver total de blocos do ciclo, calcular com base no ciclo de estudos
+      jsonNormalizado['total_blocos_ciclo'] = _calcularTotalBlocosCiclo(jsonNormalizado['ciclo_estudos']);
+    }
+
     return jsonNormalizado;
   }
 
@@ -166,7 +363,7 @@ class LLMResponseProcessor {
 
     // Verificar o formato do ciclo de estudos
     bool formatoCorreto = true;
-    
+
     // Verificar o primeiro dia do ciclo
     dynamic primeiroDia = cicloEstudos[0];
     if (primeiroDia is Map) {
@@ -236,7 +433,7 @@ class LLMResponseProcessor {
 
     // Verificar o formato das matérias prioritárias
     bool formatoCorreto = true;
-    
+
     // Verificar a primeira matéria prioritária
     dynamic primeiraMateria = materiasPrioritarias[0];
     if (primeiraMateria is Map) {
@@ -247,8 +444,8 @@ class LLMResponseProcessor {
       }
 
       // Verificar se tem a chave 'pontuacao_prioridade' ou 'pontuacao' ou 'prioridade'
-      if (!primeiraMateria.containsKey('pontuacao_prioridade') && 
-          !primeiraMateria.containsKey('pontuacao') && 
+      if (!primeiraMateria.containsKey('pontuacao_prioridade') &&
+          !primeiraMateria.containsKey('pontuacao') &&
           !primeiraMateria.containsKey('prioridade')) {
         formatoCorreto = false;
         logger.logProcessamentoLLM(planoId, 'materias_prioritarias_formato_incorreto', 'Falta a chave "pontuacao_prioridade" ou "pontuacao" ou "prioridade"');
@@ -315,5 +512,53 @@ class LLMResponseProcessor {
       {'nome': 'Matemática', 'pontuacao_prioridade': 25},
       {'nome': 'Direito Constitucional', 'pontuacao_prioridade': 20},
     ];
+  }
+
+  /// Calcula a duração total do ciclo com base no ciclo de estudos
+  int _calcularDuracaoTotalCiclo(List<dynamic> cicloEstudos) {
+    if (cicloEstudos.isEmpty) {
+      return 7; // Valor padrão de uma semana
+    }
+
+    try {
+      // Encontrar o maior valor de 'dia' no ciclo
+      int maiorDia = 0;
+      for (final dia in cicloEstudos) {
+        if (dia is Map && dia.containsKey('dia')) {
+          final valorDia = dia['dia'];
+          if (valorDia is int && valorDia > maiorDia) {
+            maiorDia = valorDia;
+          }
+        }
+      }
+
+      return maiorDia > 0 ? maiorDia : 7; // Retornar o maior dia ou 7 como padrão
+    } catch (e) {
+      return 7; // Em caso de erro, retornar 7 como padrão
+    }
+  }
+
+  /// Calcula o total de blocos do ciclo com base no ciclo de estudos
+  int _calcularTotalBlocosCiclo(List<dynamic> cicloEstudos) {
+    if (cicloEstudos.isEmpty) {
+      return 14; // Valor padrão de 2 blocos por dia durante uma semana
+    }
+
+    try {
+      // Contar o total de blocos em todos os dias do ciclo
+      int totalBlocos = 0;
+      for (final dia in cicloEstudos) {
+        if (dia is Map && dia.containsKey('blocos')) {
+          final blocos = dia['blocos'];
+          if (blocos is List) {
+            totalBlocos += blocos.length;
+          }
+        }
+      }
+
+      return totalBlocos > 0 ? totalBlocos : 14; // Retornar o total de blocos ou 14 como padrão
+    } catch (e) {
+      return 14; // Em caso de erro, retornar 14 como padrão
+    }
   }
 }
