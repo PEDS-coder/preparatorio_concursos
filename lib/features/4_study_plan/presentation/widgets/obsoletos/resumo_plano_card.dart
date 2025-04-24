@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+/// @deprecated Este widget está obsoleto e não deve ser usado em novo código.
+/// Use os widgets específicos como ConcursoInfoWidget, CargoInfoWidget, etc. em vez disso.
 class ResumoPlanoCard extends StatelessWidget {
   final String label;
   final String value;
@@ -57,6 +59,8 @@ class ResumoPlanoCard extends StatelessWidget {
   }
 }
 
+/// @deprecated Esta seção está obsoleta e não deve ser usada em novo código.
+/// Use os widgets específicos como PlanoInfoWidget, ConteudoProgramaticoWidget, etc. em vez disso.
 class ResumoPlanoSection extends StatelessWidget {
   final String periodo;
   final int horasTotais;

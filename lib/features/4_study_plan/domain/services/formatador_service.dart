@@ -37,7 +37,7 @@ class FormatadorService {
     if (formato.isEmpty || formato.toLowerCase() == 'null' || formato == 'não informado') {
       return 'Não informado';
     }
-    
+
     // Se for uma lista JSON, tentar converter
     if (formato.startsWith('[') && formato.endsWith(']')) {
       try {
@@ -47,14 +47,14 @@ class FormatadorService {
         // Ignorar erro e continuar com o processamento normal
       }
     }
-    
+
     // Remover colchetes, chaves e parênteses se existirem
     if ((formato.startsWith('[') && formato.endsWith(']')) ||
         (formato.startsWith('{') && formato.endsWith('}')) ||
         (formato.startsWith('(') && formato.endsWith(')'))) {
       formato = formato.substring(1, formato.length - 1);
     }
-    
+
     // Capitalizar cada palavra
     List<String> palavras = formato.split(',');
     palavras = palavras.map((p) {
@@ -64,7 +64,7 @@ class FormatadorService {
       }
       return p;
     }).toList();
-    
+
     return palavras.join(', ');
   }
 
@@ -105,5 +105,61 @@ class FormatadorService {
     final valorPonto = valorLimpo.replaceAll(',', '.');
     // Converter para double
     return double.tryParse(valorPonto) ?? 0.0;
+  }
+
+  /// Formata a duração da prova
+  static String formatarDuracaoProva(String duracao) {
+    if (duracao.isEmpty || duracao.toLowerCase() == 'null' || duracao == 'não informado') {
+      return 'Não informado';
+    }
+
+    // Verificar se a duração já está em um formato legível
+    if (duracao.toLowerCase().contains('hora') || duracao.toLowerCase().contains('minuto')) {
+      return capitalizarPalavra(duracao);
+    }
+
+    // Tentar extrair horas e minutos
+    RegExp regexHorasMinutos = RegExp(r'(\d+)[^\d]*hora[^\d]*(\d+)[^\d]*minuto', caseSensitive: false);
+    RegExp regexHoras = RegExp(r'(\d+)[^\d]*hora', caseSensitive: false);
+    RegExp regexMinutos = RegExp(r'(\d+)[^\d]*minuto', caseSensitive: false);
+
+    // Verificar se contém horas e minutos
+    var match = regexHorasMinutos.firstMatch(duracao);
+    if (match != null) {
+      int horas = int.parse(match.group(1)!);
+      int minutos = int.parse(match.group(2)!);
+      return '$horas ${horas == 1 ? 'hora' : 'horas'} e $minutos ${minutos == 1 ? 'minuto' : 'minutos'}';
+    }
+
+    // Verificar se contém apenas horas
+    match = regexHoras.firstMatch(duracao);
+    if (match != null) {
+      int horas = int.parse(match.group(1)!);
+      return '$horas ${horas == 1 ? 'hora' : 'horas'}';
+    }
+
+    // Verificar se contém apenas minutos
+    match = regexMinutos.firstMatch(duracao);
+    if (match != null) {
+      int minutos = int.parse(match.group(1)!);
+      return '$minutos ${minutos == 1 ? 'minuto' : 'minutos'}';
+    }
+
+    // Tentar extrair números
+    RegExp regexNumeros = RegExp(r'(\d+)');
+    match = regexNumeros.firstMatch(duracao);
+    if (match != null) {
+      int valor = int.parse(match.group(1)!);
+
+      // Verificar se o valor parece ser em minutos ou horas
+      if (valor > 0 && valor <= 12) {
+        return '$valor ${valor == 1 ? 'hora' : 'horas'}';
+      } else if (valor > 12 && valor <= 300) {
+        return '$valor ${valor == 1 ? 'minuto' : 'minutos'}';
+      }
+    }
+
+    // Se não conseguir extrair, retornar o valor original
+    return duracao;
   }
 }

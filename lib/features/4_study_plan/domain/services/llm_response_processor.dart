@@ -162,6 +162,7 @@ class LLMResponseProcessor {
           if (prova.containsKey('tema_discursiva')) resultado['temaProvaSubjetiva'] = prova['tema_discursiva'];
           if (prova.containsKey('criterios_aprovacao')) resultado['criteriosAprovacao'] = prova['criterios_aprovacao'];
           if (prova.containsKey('criterios_reprovacao')) resultado['criteriosReprovacao'] = prova['criterios_reprovacao'];
+          if (prova.containsKey('criterios_desempate')) resultado['criteriosDesempate'] = prova['criterios_desempate'];
         }
 
         // Extrair dados de cotas
@@ -183,6 +184,7 @@ class LLMResponseProcessor {
         if (cargo.containsKey('vagas')) resultado['vagas'] = cargo['vagas'];
         if (cargo.containsKey('escolaridade')) resultado['escolaridade'] = cargo['escolaridade'];
         if (cargo.containsKey('salario')) resultado['salario'] = cargo['salario'];
+        if (cargo.containsKey('nivel')) resultado['nivel'] = cargo['nivel'];
 
         // Extrair conteúdo programático
         if (cargo.containsKey('conteudo_programatico') && cargo['conteudo_programatico'] is Map) {
@@ -198,6 +200,74 @@ class LLMResponseProcessor {
         }
       }
     }
+
+    // Verificar se há dados de prova diretamente no JSON
+    if (json.containsKey('prova') && json['prova'] is Map) {
+      logger.logProcessamentoLLM(planoId, 'dados_prova_encontrados', 'Dados da prova encontrados diretamente no JSON');
+
+      Map<String, dynamic> prova = json['prova'];
+
+      // Extrair dados da prova para o nível superior
+      if (prova.containsKey('data')) resultado['dataProva'] = prova['data'];
+      if (prova.containsKey('local')) resultado['localProva'] = prova['local'];
+      if (prova.containsKey('total_questoes')) resultado['totalQuestoes'] = prova['total_questoes'];
+      if (prova.containsKey('formato')) resultado['formatoProva'] = prova['formato'];
+      if (prova.containsKey('duracao')) resultado['duracaoProva'] = prova['duracao'];
+      if (prova.containsKey('tema_discursiva')) resultado['temaProvaSubjetiva'] = prova['tema_discursiva'];
+      if (prova.containsKey('criterios_aprovacao')) resultado['criteriosAprovacao'] = prova['criterios_aprovacao'];
+      if (prova.containsKey('criterios_reprovacao')) resultado['criteriosReprovacao'] = prova['criterios_reprovacao'];
+      if (prova.containsKey('criterios_desempate')) resultado['criteriosDesempate'] = prova['criterios_desempate'];
+    }
+
+    // Verificar se há dados de cotas diretamente no JSON
+    if (json.containsKey('cotas')) {
+      logger.logProcessamentoLLM(planoId, 'dados_cotas_encontrados', 'Dados de cotas encontrados diretamente no JSON');
+      resultado['cotas'] = json['cotas'];
+    }
+
+    // Verificar se há dados de vagas diretamente no JSON
+    if (json.containsKey('vagas') && json['vagas'] is Map) {
+      logger.logProcessamentoLLM(planoId, 'dados_vagas_encontrados', 'Dados de vagas encontrados diretamente no JSON');
+      resultado['vagas'] = json['vagas'];
+    }
+
+    // Verificar se há conteúdo programático diretamente no JSON
+    if (json.containsKey('conteudo_programatico') && json['conteudo_programatico'] is List) {
+      logger.logProcessamentoLLM(planoId, 'conteudo_programatico_encontrado', 'Conteúdo programático encontrado diretamente no JSON');
+
+      // Agrupar o conteúdo programático por grupo
+      Map<String, List<dynamic>> gruposMaterias = {};
+
+      for (var materia in json['conteudo_programatico']) {
+        if (materia is Map && materia.containsKey('grupo_materia')) {
+          String grupo = materia['grupo_materia'] ?? 'Sem Grupo';
+
+          if (!gruposMaterias.containsKey(grupo)) {
+            gruposMaterias[grupo] = [];
+          }
+
+          gruposMaterias[grupo]!.add(materia);
+        }
+      }
+
+      // Criar a estrutura de grupos
+      List<Map<String, dynamic>> grupos = [];
+
+      gruposMaterias.forEach((nomeGrupo, materias) {
+        grupos.add({
+          'nome': nomeGrupo,
+          'materias': materias,
+        });
+      });
+
+      resultado['grupos'] = grupos;
+    }
+
+    // Registrar os dados extraídos
+    logger.logProcessamentoLLM(planoId, 'dados_extraidos', {
+      'chaves_extraidas': resultado.keys.toList(),
+      'total_chaves': resultado.keys.length,
+    });
 
     return resultado;
   }

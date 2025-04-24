@@ -131,9 +131,17 @@ class PlanoEstudoService extends ChangeNotifier {
     final List<SessaoEstudo> sessoes = [];
     final diasDaSemana = ['segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado', 'domingo'];
 
+    // Verificar se há matérias para gerar sessões
+    if (materiasProficiencia.isEmpty) {
+      debugPrint('Erro ao gerar sessões: Lista de matérias vazia');
+      return [];
+    }
+
     // Ordenar matérias por prioridade (menor proficiência primeiro)
     final materias = List<MateriaProficiencia>.from(materiasProficiencia)
       ..sort((a, b) => a.nivelProficiencia.compareTo(b.nivelProficiencia));
+
+    debugPrint('Gerando sessões para ${materias.length} matérias: ${materias.map((m) => "${m.nomeMateria} (${m.nivelProficiencia})").join(", ")}');
 
     // Calcular dias entre início e fim
     final diasTotais = dataFim.difference(dataInicio).inDays + 1;
@@ -480,36 +488,113 @@ class PlanoEstudoService extends ChangeNotifier {
       throw Exception('Plano não encontrado');
     }
 
-    // Gerar sessões de estudo com base no plano
-    final List<SessaoEstudo> sessoes = _gerarSessoesEstudo(
-      plano.userId,
-      plano.dataInicio,
-      plano.dataFim,
-      plano.horasSemanais,
-      plano.materiasProficiencia,
-      plano.ferramentas,
-      horariosEspecificos: plano.metadados['horariosEspecificos'] as Map<String, List<int>>?,
-    );
+    try {
+      // Verificar se há matérias para gerar sessões
+      if (plano.materiasProficiencia.isEmpty) {
+        debugPrint('Erro ao gerar sessões: Não há matérias configuradas no plano');
+        return [];
+      }
 
-    // Atualizar o ID do plano nas sessões
-    for (int i = 0; i < sessoes.length; i++) {
-      sessoes[i] = sessoes[i].copyWith(planoId: planoId);
+      // Verificar se há horas configuradas
+      if (plano.horasSemanais.isEmpty) {
+        debugPrint('Erro ao gerar sessões: Não há horas semanais configuradas no plano');
+        return [];
+      }
+
+      // Converter as chaves do mapa horasSemanais para minúsculas para compatibilidade
+      Map<String, int> horasSemanaisNormalizado = {};
+      plano.horasSemanais.forEach((key, value) {
+        String chaveNormalizada = key;
+        if (key == 'Segunda') chaveNormalizada = 'segunda';
+        else if (key == 'Terça') chaveNormalizada = 'terca';
+        else if (key == 'Quarta') chaveNormalizada = 'quarta';
+        else if (key == 'Quinta') chaveNormalizada = 'quinta';
+        else if (key == 'Sexta') chaveNormalizada = 'sexta';
+        else if (key == 'Sábado') chaveNormalizada = 'sabado';
+        else if (key == 'Domingo') chaveNormalizada = 'domingo';
+        horasSemanaisNormalizado[chaveNormalizada] = value;
+      });
+
+      // Verificar se há horas configuradas após a normalização
+      if (horasSemanaisNormalizado.isEmpty) {
+        debugPrint('Erro ao gerar sessões: Não há horas semanais válidas após normalização');
+        return [];
+      }
+
+      // Verificar se há pelo menos um dia com horas > 0
+      bool temHorasDisponiveis = false;
+      horasSemanaisNormalizado.forEach((dia, horas) {
+        if (horas > 0) temHorasDisponiveis = true;
+      });
+
+      if (!temHorasDisponiveis) {
+        debugPrint('Erro ao gerar sessões: Todos os dias estão configurados com 0 horas');
+        return [];
+      }
+
+      // Gerar sessões de estudo com base no plano
+      final List<SessaoEstudo> sessoes = _gerarSessoesEstudo(
+        plano.userId,
+        plano.dataInicio,
+        plano.dataFim,
+        horasSemanaisNormalizado, // Usar o mapa normalizado
+        plano.materiasProficiencia,
+        plano.ferramentas,
+        horariosEspecificos: plano.metadados.containsKey('horariosEspecificos') ?
+            (plano.metadados['horariosEspecificos'] as Map<String, dynamic>?)?.map(
+              (key, value) => MapEntry(key, (value as List<dynamic>).cast<int>())
+            ) : null,
+      );
+
+      // Atualizar o ID do plano nas sessões
+      for (int i = 0; i < sessoes.length; i++) {
+        sessoes[i] = sessoes[i].copyWith(planoId: planoId);
+      }
+
+      // Persistir as sessões no plano e salvar
+      final planoAtualizado = plano.copyWith(
+        sessoesEstudo: [...plano.sessoesEstudo, ...sessoes]
+      );
+
+      // Atualizar o plano na lista
+      final index = _planos.indexWhere((p) => p.id == planoId);
+      if (index != -1) {
+        _planos[index] = planoAtualizado;
+      }
+
+      await _savePlanos();
+      notifyListeners();
+
+      return sessoes;
+    } catch (e) {
+      debugPrint('Erro ao gerar sessões de estudo: $e');
+      return []; // Retornar lista vazia em caso de erro
     }
-
-    return sessoes;
   }
 
   // Calcular o total de horas de estudo de um plano
   double calcularTotalHoras(String planoId) {
     final plano = getPlanoById(planoId);
-    if (plano == null) {
-      return 0.0;
+    if (plano == null) return 0;
+
+    // Calcular total de horas com base nas sessões de estudo
+    double totalHoras = 0;
+    for (var sessao in plano.sessoesEstudo) {
+      totalHoras += sessao.duracaoMinutos / 60;
     }
 
-    // Calcular o total de horas com base nas sessões de estudo
-    double totalHoras = 0.0;
-    for (final sessao in plano.sessoesEstudo) {
-      totalHoras += sessao.duracaoMinutos / 60.0;
+    // Se não houver sessões, calcular com base nas horas semanais
+    if (totalHoras == 0) {
+      int totalHorasSemanais = 0;
+      plano.horasSemanais.forEach((dia, horas) {
+        totalHorasSemanais += horas;
+      });
+
+      // Calcular número de semanas no período do plano
+      int diasTotais = plano.dataFim.difference(plano.dataInicio).inDays + 1;
+      double semanas = diasTotais / 7;
+
+      totalHoras = totalHorasSemanais * semanas;
     }
 
     return totalHoras;

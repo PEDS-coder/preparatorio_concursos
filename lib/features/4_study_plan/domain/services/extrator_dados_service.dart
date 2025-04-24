@@ -48,8 +48,12 @@ class ExtratorDadosService {
       'totalQuestoes': ['total_questoes', 'numero_questoes', 'qtd_questoes', 'prova.total_questoes', 'concurso.total_questoes'],
       'criteriosAprovacao': ['criterios_aprovacao', 'criterios_de_aprovacao', 'prova.criterios_aprovacao'],
       'criteriosReprovacao': ['criterios_reprovacao', 'criterios_de_reprovacao', 'prova.criterios_reprovacao'],
+      'criteriosDesempate': ['criterios_desempate', 'criterios_de_desempate', 'prova.criterios_desempate'],
       'duracaoProva': ['duracao_prova', 'duracao', 'tempo_prova', 'prova.duracao', 'concurso.duracao_prova'],
       'valorInscricao': ['valor_inscricao', 'taxa_inscricao', 'valor_taxa', 'concurso.valor_inscricao', 'inscricao.valor'],
+      'inicioInscricao': ['inicio_inscricao', 'data_inicio_inscricao', 'inscricao.inicio', 'concurso.inscricoes.inicio'],
+      'fimInscricao': ['fim_inscricao', 'data_fim_inscricao', 'inscricao.fim', 'concurso.inscricoes.fim'],
+      'periodoInscricao': ['periodo_inscricao', 'inscricao.periodo', 'concurso.inscricoes.periodo'],
     };
 
     if (chavesAlternativas.containsKey(chaveMetadados)) {
@@ -83,7 +87,7 @@ class ExtratorDadosService {
     }
 
     // Verificar em estruturas aninhadas nos metadados do plano
-    List<String> estruturasAninhadas = ['concurso', 'prova', 'edital', 'planoEstudos'];
+    List<String> estruturasAninhadas = ['concurso', 'prova', 'edital', 'planoEstudos', 'dadosOriginais'];
     for (String estrutura in estruturasAninhadas) {
       if (plano.metadados.containsKey(estrutura) && plano.metadados[estrutura] is Map) {
         Map<String, dynamic> estruturaMap = Map<String, dynamic>.from(plano.metadados[estrutura] as Map);
@@ -136,6 +140,78 @@ class ExtratorDadosService {
             }
           }
         }
+
+        // Verificar em subestruturas aninhadas (prova dentro de concurso, etc.)
+        List<String> subestruturas = ['prova', 'inscricoes', 'cotas', 'vagas'];
+        for (String subestrutura in subestruturas) {
+          if (estruturaMap.containsKey(subestrutura) && estruturaMap[subestrutura] is Map) {
+            Map<String, dynamic> subestruturaMap = Map<String, dynamic>.from(estruturaMap[subestrutura] as Map);
+
+            // Verificar a chave direta na subestrutura
+            String chaveSimples = chaveMetadados;
+            if (chaveMetadados.startsWith('prova.')) {
+              chaveSimples = chaveMetadados.replaceFirst('prova.', '');
+            } else if (chaveMetadados.startsWith('inscricao.')) {
+              chaveSimples = chaveMetadados.replaceFirst('inscricao.', '');
+            }
+
+            if (subestruturaMap.containsKey(chaveSimples) &&
+                subestruturaMap[chaveSimples] != null &&
+                subestruturaMap[chaveSimples].toString().isNotEmpty &&
+                subestruturaMap[chaveSimples].toString() != 'null') {
+              var valor = subestruturaMap[chaveSimples].toString();
+
+              // Formatar o valor se for o formato da prova
+              if (chaveMetadados == 'formatoProva' || chaveSimples == 'formato') {
+                valor = FormatadorService.formatarFormatoProva(valor);
+              }
+
+              _logger.logRecuperacao(plano.id, 'valor_encontrado_metadados_subestrutura', {
+                'chave': chaveSimples,
+                'estrutura': estrutura,
+                'subestrutura': subestrutura,
+                'valor': valor,
+                'origem': 'metadados_plano.$estrutura.$subestrutura',
+              });
+              debugPrint('  Encontrado nos metadados do plano (subestrutura $estrutura.$subestrutura): $valor');
+              return valor;
+            }
+
+            // Verificar chaves alternativas na subestrutura
+            if (chavesAlternativas.containsKey(chaveMetadados)) {
+              for (String chaveAlt in chavesAlternativas[chaveMetadados]!) {
+                String chaveAltSimples = chaveAlt;
+                if (chaveAlt.contains('.')) {
+                  final partes = chaveAlt.split('.');
+                  chaveAltSimples = partes.last;
+                }
+
+                if (subestruturaMap.containsKey(chaveAltSimples) &&
+                    subestruturaMap[chaveAltSimples] != null &&
+                    subestruturaMap[chaveAltSimples].toString().isNotEmpty &&
+                    subestruturaMap[chaveAltSimples].toString() != 'null') {
+                  var valor = subestruturaMap[chaveAltSimples].toString();
+
+                  // Formatar o valor se for o formato da prova
+                  if (chaveMetadados == 'formatoProva') {
+                    valor = FormatadorService.formatarFormatoProva(valor);
+                  }
+
+                  _logger.logRecuperacao(plano.id, 'valor_encontrado_metadados_subestrutura_alt', {
+                    'chave_original': chaveMetadados,
+                    'chave_alternativa': chaveAltSimples,
+                    'estrutura': estrutura,
+                    'subestrutura': subestrutura,
+                    'valor': valor,
+                    'origem': 'metadados_plano.$estrutura.$subestrutura',
+                  });
+                  debugPrint('  Encontrado nos metadados do plano (subestrutura $estrutura.$subestrutura, chave alternativa $chaveAltSimples): $valor');
+                  return valor;
+                }
+              }
+            }
+          }
+        }
       }
     }
 
@@ -181,6 +257,11 @@ class ExtratorDadosService {
     // Se encontrou valor, retornar
     if (valorExtraido != null && valorExtraido.isNotEmpty) {
       debugPrint('  Encontrado no dadosExtraidos.$chaveMetadados: $valorExtraido');
+      debugPrint('  Armazenando nos metadados do plano: $chaveMetadados = $valorExtraido');
+      plano.metadados[chaveMetadados] = valorExtraido;
+
+      // Armazenar nos metadados do plano
+      plano.metadados[chaveMetadados] = valorExtraido;
 
       // Formatar o valor se for o formato da prova
       if (chaveMetadados == 'formatoProva') {
@@ -369,11 +450,11 @@ class ExtratorDadosService {
   /// Obtém o valor numérico do concurso
   double obterValorNumerico(PlanoEstudo plano, Edital? edital, String chaveMetadados, String chaveDadosOriginais) {
     String valorStr = obterValorConcurso(plano, edital, chaveMetadados, chaveDadosOriginais);
-    
+
     if (valorStr == 'Não informado') {
       return 0.0;
     }
-    
+
     return FormatadorService.extrairValorNumericoDeString(valorStr);
   }
 
@@ -424,7 +505,7 @@ class ExtratorDadosService {
           }
         }
       }
-      
+
       debugPrint('  Nenhuma informação sobre cotas encontrada');
       return 'Não informado';
     }
@@ -441,10 +522,65 @@ class ExtratorDadosService {
     return cotasInfo.join(', ');
   }
 
+  /// Obtém informações sobre critérios de desempate
+  String obterCriteriosDesempate(PlanoEstudo plano, Edital? edital) {
+    // Primeiro, tentar obter dos metadados do plano
+    String criterios = obterValorConcurso(plano, edital, 'criteriosDesempate', 'prova.criterios_desempate');
+
+    if (criterios != 'Não informado') {
+      return criterios;
+    }
+
+    // Se não encontrou nos metadados, verificar nos dados originais
+    if (edital != null && edital.dadosOriginais != null) {
+      // Verificar em prova.criterios_desempate
+      if (edital.dadosOriginais!.containsKey('prova') &&
+          edital.dadosOriginais!['prova'] is Map &&
+          (edital.dadosOriginais!['prova'] as Map).containsKey('criterios_desempate')) {
+
+        var criteriosDesempate = edital.dadosOriginais!['prova']['criterios_desempate'];
+        if (criteriosDesempate != null) {
+          if (criteriosDesempate is List) {
+            List<String> criteriosList = [];
+            for (var i = 0; i < criteriosDesempate.length; i++) {
+              criteriosList.add('${i+1}. ${criteriosDesempate[i]}');
+            }
+            return criteriosList.join('\n');
+          } else if (criteriosDesempate is String) {
+            return criteriosDesempate;
+          }
+        }
+      }
+
+      // Verificar em concurso.prova.criterios_desempate
+      if (edital.dadosOriginais!.containsKey('concurso') &&
+          edital.dadosOriginais!['concurso'] is Map &&
+          (edital.dadosOriginais!['concurso'] as Map).containsKey('prova') &&
+          edital.dadosOriginais!['concurso']['prova'] is Map &&
+          (edital.dadosOriginais!['concurso']['prova'] as Map).containsKey('criterios_desempate')) {
+
+        var criteriosDesempate = edital.dadosOriginais!['concurso']['prova']['criterios_desempate'];
+        if (criteriosDesempate != null) {
+          if (criteriosDesempate is List) {
+            List<String> criteriosList = [];
+            for (var i = 0; i < criteriosDesempate.length; i++) {
+              criteriosList.add('${i+1}. ${criteriosDesempate[i]}');
+            }
+            return criteriosList.join('\n');
+          } else if (criteriosDesempate is String) {
+            return criteriosDesempate;
+          }
+        }
+      }
+    }
+
+    return 'Não informado';
+  }
+
   /// Obtém emoji para o tipo de informação
   String getEmojiForInfoType(String label) {
     final labelLower = label.toLowerCase();
-    
+
     switch (labelLower) {
       case 'período de inscrições':
       case 'data da prova':
@@ -493,7 +629,7 @@ class ExtratorDadosService {
   /// Obtém cor para o tipo de informação
   Color getColorForInfoType(String label) {
     final labelLower = label.toLowerCase();
-    
+
     switch (labelLower) {
       case 'período de inscrições':
       case 'data da prova':
@@ -537,34 +673,34 @@ class ExtratorDadosService {
   /// Obtém cor para a matéria
   Color getColorForMateria(String nomeMateria) {
     final nomeNormalizado = nomeMateria.toLowerCase();
-    
-    if (nomeNormalizado.contains('português') || 
-        nomeNormalizado.contains('lingua portuguesa') || 
+
+    if (nomeNormalizado.contains('português') ||
+        nomeNormalizado.contains('lingua portuguesa') ||
         nomeNormalizado.contains('gramática')) {
       return Colors.blue;
-    } else if (nomeNormalizado.contains('matemática') || 
-               nomeNormalizado.contains('raciocínio lógico') || 
+    } else if (nomeNormalizado.contains('matemática') ||
+               nomeNormalizado.contains('raciocínio lógico') ||
                nomeNormalizado.contains('estatística')) {
       return Colors.red;
-    } else if (nomeNormalizado.contains('direito') || 
-               nomeNormalizado.contains('constitucional') || 
+    } else if (nomeNormalizado.contains('direito') ||
+               nomeNormalizado.contains('constitucional') ||
                nomeNormalizado.contains('administrativo')) {
       return Colors.purple;
-    } else if (nomeNormalizado.contains('informática') || 
+    } else if (nomeNormalizado.contains('informática') ||
                nomeNormalizado.contains('tecnologia')) {
       return Colors.teal;
-    } else if (nomeNormalizado.contains('história') || 
+    } else if (nomeNormalizado.contains('história') ||
                nomeNormalizado.contains('geografia')) {
       return Colors.brown;
-    } else if (nomeNormalizado.contains('física') || 
-               nomeNormalizado.contains('química') || 
+    } else if (nomeNormalizado.contains('física') ||
+               nomeNormalizado.contains('química') ||
                nomeNormalizado.contains('biologia')) {
       return Colors.green;
-    } else if (nomeNormalizado.contains('inglês') || 
-               nomeNormalizado.contains('espanhol') || 
+    } else if (nomeNormalizado.contains('inglês') ||
+               nomeNormalizado.contains('espanhol') ||
                nomeNormalizado.contains('língua estrangeira')) {
       return Colors.orange;
-    } else if (nomeNormalizado.contains('atualidades') || 
+    } else if (nomeNormalizado.contains('atualidades') ||
                nomeNormalizado.contains('conhecimentos gerais')) {
       return Colors.cyan;
     } else {
@@ -573,7 +709,7 @@ class ExtratorDadosService {
       final int r = (hash & 0xFF0000) >> 16;
       final int g = (hash & 0x00FF00) >> 8;
       final int b = hash & 0x0000FF;
-      
+
       return Color.fromRGBO(
         r < 100 ? r + 100 : r, // Garantir que não seja muito escuro
         g < 100 ? g + 100 : g,

@@ -1,4 +1,5 @@
 import 'sessao_estudo.dart';
+import 'package:flutter/foundation.dart';
 
 class MateriaProficiencia {
   final String nomeMateria;
@@ -151,8 +152,7 @@ class PlanoEstudo {
       horasSemanais: Map<String, int>.from(map['horasSemanais']),
       horariosEspecificos: horariosEspecificos,
       ferramentas: List<String>.from(map['ferramentas']),
-      materiasProficiencia: List<MateriaProficiencia>.from(
-          map['materiasProficiencia']?.map((x) => MateriaProficiencia.fromMap(x))),
+      materiasProficiencia: _processarMateriasProficiencia(map),
       recompensas: List<RecompensaConfig>.from(
           map['recompensas']?.map((x) => RecompensaConfig.fromMap(x))),
       sessoesEstudo: List<SessaoEstudo>.from(
@@ -165,6 +165,48 @@ class PlanoEstudo {
   Map<String, dynamic> toJson() => toMap();
 
   factory PlanoEstudo.fromJson(Map<String, dynamic> json) => PlanoEstudo.fromMap(json);
+
+  // Método para processar matérias com diferentes formatos
+  static List<MateriaProficiencia> _processarMateriasProficiencia(Map<String, dynamic> map) {
+    try {
+      // Verificar se há matérias no formato padrão
+      if (map['materiasProficiencia'] != null) {
+        final materias = map['materiasProficiencia'] as List<dynamic>;
+
+        // Verificar se as matérias estão no formato de objeto
+        if (materias.isNotEmpty && materias.first is Map<String, dynamic>) {
+          return materias.map((x) => MateriaProficiencia.fromMap(x as Map<String, dynamic>)).toList();
+        }
+
+        // Verificar se as matérias estão no formato de string com nível
+        if (materias.isNotEmpty && materias.first is String) {
+          return materias.map((x) {
+            final partes = (x as String).split(': ');
+            if (partes.length == 2) {
+              final nomeMateria = partes[0];
+              final nivel = int.tryParse(partes[1]) ?? 1;
+              return MateriaProficiencia(nomeMateria: nomeMateria, nivelProficiencia: nivel);
+            }
+            return MateriaProficiencia(nomeMateria: x, nivelProficiencia: 1);
+          }).toList();
+        }
+      }
+
+      // Verificar se há matérias no campo 'materias'
+      if (map['materias'] != null && map['materias'] is List) {
+        final materias = map['materias'] as List<dynamic>;
+        return materias.map((x) =>
+          MateriaProficiencia(nomeMateria: x.toString(), nivelProficiencia: 1)
+        ).toList();
+      }
+
+      // Se não encontrar matérias, retornar lista vazia
+      return [];
+    } catch (e) {
+      debugPrint('Erro ao processar matérias: $e');
+      return [];
+    }
+  }
 
   // Getters para compatibilidade com código existente
   String get titulo => metadados['titulo'] ?? 'Plano de Estudo';

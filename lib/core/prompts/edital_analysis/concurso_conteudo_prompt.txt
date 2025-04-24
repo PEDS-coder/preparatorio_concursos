@@ -129,6 +129,16 @@ Esteja ciente de que a estrutura desses documentos varia enormemente. As informa
    - Para matérias sem número explícito de questões, distribua as questões restantes de forma equânime
    - Se a divisão não for exata, distribua as questões restantes uma a uma entre as matérias sem número explícito, na ordem em que aparecem no edital
 
+**Informações Adicionais:**
+- Período de inscrições (início e fim)
+- Data da prova
+- Taxa de inscrição
+- Local de realização das provas
+- Duração da prova
+
+**Instruções Detalhadas:**
+Adicione as informações acima ao JSON de saída, garantindo que sejam extraídas e formatadas corretamente.
+
 4. **Formate a Saída em JSON:**
    Organize as informações extraídas no seguinte formato JSON:
 
