@@ -47,12 +47,12 @@ dependencies:
   get_it: ^8.0.0
   injectable: ^2.3.2
 
-  # Firebase
-  firebase_core: ^2.25.4
-  firebase_analytics: ^10.8.5
-  firebase_crashlytics: ^3.4.14
-  firebase_performance: ^0.9.3+13
-  firebase_remote_config: ^4.3.13
+  # Firebase (temporariamente removido)
+  # firebase_core: ^2.25.4
+  # firebase_analytics: ^10.8.5
+  # firebase_crashlytics: ^3.4.14
+  # firebase_performance: ^0.9.3+13
+  # firebase_remote_config: ^4.3.13
 
   # Armazenamento seguro
   flutter_secure_storage: ^9.0.0

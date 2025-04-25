@@ -4,16 +4,16 @@ import 'package:preparatorio_concursos/core/data/services/interfaces/analytics_s
 import 'package:preparatorio_concursos/core/data/services/interfaces/performance_interfaces.dart';
 import 'package:preparatorio_concursos/core/utils/logger.dart';
 
-/// Serviço para gerenciar analytics, crashlytics e telemetria de desempenho
-/// Esta é uma implementação temporária que usa apenas logs locais
+/// Implementação local do serviço de analytics que usa apenas logs
+/// Esta é uma substituição temporária para o Firebase Analytics, Crashlytics e Performance
 @singleton
-class AnalyticsService implements IAnalyticsService {
-  static const String _tag = 'AnalyticsService';
+class LocalAnalyticsService implements IAnalyticsService {
+  static const String _tag = 'LocalAnalyticsService';
 
   final Logger _logger;
 
   /// Construtor
-  AnalyticsService(this._logger) {
+  LocalAnalyticsService(this._logger) {
     _init();
   }
 
@@ -28,24 +28,30 @@ class AnalyticsService implements IAnalyticsService {
     _logger.info('Evento de login registrado: $method', tag: _tag);
   }
 
-  /// Registra um evento de logout
-  @override
-  Future<void> logLogout() async {
-    _logger.info('Evento de logout registrado', tag: _tag);
-  }
-
   /// Registra um evento de análise de edital
   @override
-  Future<void> logEditalAnalysis({required String editalId, required bool success}) async {
+  Future<void> logEditalAnalysis({
+    required String editalId,
+    required bool success,
+  }) async {
     _logger.info(
       'Evento de análise de edital registrado: $editalId (Sucesso: $success)',
       tag: _tag,
     );
   }
 
-  /// Registra um evento de criação de plano de estudo
+  /// Registra um evento de logout
   @override
-  Future<void> logPlanoEstudoCreation({required String planoId, required String editalId}) async {
+  Future<void> logLogout() async {
+    _logger.info('Evento de logout registrado', tag: _tag);
+  }
+
+  /// Registra um evento de criação de plano
+  @override
+  Future<void> logPlanoEstudoCreation({
+    required String planoId,
+    required String editalId,
+  }) async {
     _logger.info(
       'Evento de criação de plano registrado: $planoId (Edital: $editalId)',
       tag: _tag,
@@ -69,7 +75,10 @@ class AnalyticsService implements IAnalyticsService {
 
   /// Registra um evento de compra de recompensa
   @override
-  Future<void> logRecompensaPurchase({required String recompensaId, required int preco}) async {
+  Future<void> logRecompensaPurchase({
+    required String recompensaId,
+    required int preco,
+  }) async {
     _logger.info(
       'Evento de compra de recompensa registrado: $recompensaId (Preço: $preco moedas)',
       tag: _tag,
@@ -78,7 +87,10 @@ class AnalyticsService implements IAnalyticsService {
 
   /// Registra um evento personalizado
   @override
-  Future<void> logEvent({required String name, Map<String, dynamic>? parameters}) async {
+  Future<void> logEvent({
+    required String name,
+    Map<String, dynamic>? parameters,
+  }) async {
     _logger.info(
       'Evento personalizado registrado: $name ${parameters != null ? '($parameters)' : ''}',
       tag: _tag,
@@ -87,7 +99,11 @@ class AnalyticsService implements IAnalyticsService {
 
   /// Registra um erro
   @override
-  Future<void> recordError(dynamic exception, StackTrace? stack, {String? reason}) async {
+  Future<void> recordError(
+    dynamic exception,
+    StackTrace? stack, {
+    String? reason,
+  }) async {
     _logger.error(
       'Erro registrado: ${reason ?? 'Sem razão especificada'}',
       tag: _tag,
@@ -98,7 +114,11 @@ class AnalyticsService implements IAnalyticsService {
 
   /// Define o usuário atual
   @override
-  Future<void> setUser({required String userId, String? email, String? name}) async {
+  Future<void> setUser({
+    required String userId,
+    String? email,
+    String? name,
+  }) async {
     _logger.info(
       'Usuário definido: $userId ${email != null ? '($email)' : ''} ${name != null ? '[$name]' : ''}',
       tag: _tag,
@@ -109,7 +129,7 @@ class AnalyticsService implements IAnalyticsService {
   @override
   Trace startTrace(String name) {
     _logger.debug('Trace iniciada: $name', tag: _tag);
-    final trace = _LocalTrace(name, this);
+    final trace = LocalTrace(name, this);
     trace.start();
     return trace;
   }
@@ -117,7 +137,7 @@ class AnalyticsService implements IAnalyticsService {
   /// Para uma trace de desempenho
   @override
   Future<void> stopTrace(Trace trace) async {
-    if (trace is _LocalTrace) {
+    if (trace is LocalTrace) {
       await trace.stop();
     }
   }
@@ -126,7 +146,7 @@ class AnalyticsService implements IAnalyticsService {
   @override
   HttpMetric startHttpMetric(String url, AppHttpMethod method) {
     _logger.debug('Métrica HTTP iniciada: ${method.name} $url', tag: _tag);
-    final metric = _LocalHttpMetric(url, method, this);
+    final metric = LocalHttpMetric(url, method, this);
     metric.start();
     return metric;
   }
@@ -134,7 +154,7 @@ class AnalyticsService implements IAnalyticsService {
   /// Para uma métrica HTTP
   @override
   Future<void> stopHttpMetric(HttpMetric metric, {int? responseCode, int? responseSize}) async {
-    if (metric is _LocalHttpMetric) {
+    if (metric is LocalHttpMetric) {
       if (responseCode != null) {
         metric.setHttpResponseCode(responseCode);
       }
@@ -149,14 +169,14 @@ class AnalyticsService implements IAnalyticsService {
 }
 
 /// Implementação local de uma trace de desempenho
-class _LocalTrace implements Trace {
+class LocalTrace implements Trace {
   @override
   final String name;
-  final AnalyticsService _service;
+  final LocalAnalyticsService _service;
   DateTime? _startTime;
   DateTime? _endTime;
 
-  _LocalTrace(this.name, this._service);
+  LocalTrace(this.name, this._service);
 
   @override
   void start() {
@@ -169,15 +189,21 @@ class _LocalTrace implements Trace {
     final duration = _endTime!.difference(_startTime!);
     _service._logger.debug('Trace finalizada: $name (${duration.inMilliseconds}ms)', tag: 'LocalTrace');
   }
+
+  /// Para a trace e retorna a duração (método interno)
+  Duration stopAndGetDuration() {
+    _endTime = DateTime.now();
+    return _endTime!.difference(_startTime!);
+  }
 }
 
 /// Implementação local de uma métrica HTTP
-class _LocalHttpMetric implements HttpMetric {
+class LocalHttpMetric implements HttpMetric {
   @override
   final String url;
   @override
   final AppHttpMethod method;
-  final AnalyticsService _service;
+  final LocalAnalyticsService _service;
   DateTime? _startTime;
   DateTime? _endTime;
   int? _httpResponseCode;
@@ -185,7 +211,7 @@ class _LocalHttpMetric implements HttpMetric {
   int? _responsePayloadSize;
   String? _responseContentType;
 
-  _LocalHttpMetric(this.url, this.method, this._service);
+  LocalHttpMetric(this.url, this.method, this._service);
 
   @override
   void start() {
@@ -202,23 +228,33 @@ class _LocalHttpMetric implements HttpMetric {
     );
   }
 
+  /// Define o código de resposta HTTP
   @override
   void setHttpResponseCode(int responseCode) {
     _httpResponseCode = responseCode;
   }
 
+  /// Define o tamanho do payload da requisição
   @override
   void setRequestPayloadSize(int bytes) {
     _requestPayloadSize = bytes;
   }
 
+  /// Define o tamanho do payload da resposta
   @override
   void setResponsePayloadSize(int bytes) {
     _responsePayloadSize = bytes;
   }
 
+  /// Define o tipo de conteúdo da resposta
   @override
   void setResponseContentType(String contentType) {
     _responseContentType = contentType;
+  }
+
+  /// Para a métrica e retorna a duração (método interno)
+  Duration stopAndGetDuration() {
+    _endTime = DateTime.now();
+    return _endTime!.difference(_startTime!);
   }
 }

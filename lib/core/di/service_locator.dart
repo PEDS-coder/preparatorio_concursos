@@ -7,7 +7,9 @@ import 'service_locator.config.dart';
 // Importar serviços necessários
 import 'package:preparatorio_concursos/core/data/services/interfaces/analytics_service_interface.dart';
 import 'package:preparatorio_concursos/core/data/services/interfaces/navigation_service_interface.dart';
-import 'package:preparatorio_concursos/core/services/analytics_service.dart';
+import 'package:preparatorio_concursos/core/data/services/interfaces/remote_config_service_interface.dart';
+import 'package:preparatorio_concursos/core/services/local_analytics_service.dart';
+import 'package:preparatorio_concursos/core/services/local_config_service.dart';
 import 'package:preparatorio_concursos/core/utils/logger.dart';
 import 'package:preparatorio_concursos/core/navigation/navigation_service.dart';
 import 'package:preparatorio_concursos/core/data/services/edital_service.dart';
@@ -37,7 +39,15 @@ void configureDependencies() {
     // Verificar se os serviços essenciais estão registrados
     if (!getIt.isRegistered<IAnalyticsService>()) {
       print('Registrando IAnalyticsService manualmente...');
-      getIt.registerSingleton<IAnalyticsService>(AnalyticsService(getIt<Logger>()));
+      getIt.registerSingleton<IAnalyticsService>(LocalAnalyticsService(getIt<Logger>()));
+    }
+
+    // Verificar se o RemoteConfigService está registrado
+    if (!getIt.isRegistered<IRemoteConfigService>()) {
+      print('Registrando IRemoteConfigService manualmente...');
+      getIt.registerSingleton<IRemoteConfigService>(
+        LocalConfigService(getIt<Logger>(), getIt<IAnalyticsService>())
+      );
     }
 
     // Registrar o EditalService
@@ -51,7 +61,7 @@ void configureDependencies() {
       print('Registrando NavigationService manualmente...');
       final analyticsService = getIt.isRegistered<IAnalyticsService>()
           ? getIt<IAnalyticsService>()
-          : AnalyticsService(getIt<Logger>());
+          : LocalAnalyticsService(getIt<Logger>());
       final navigationService = NavigationService(getIt<Logger>(), analyticsService);
       getIt.registerSingleton<NavigationService>(navigationService);
 

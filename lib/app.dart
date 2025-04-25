@@ -7,8 +7,7 @@ import 'core/data/services/interfaces/navigation_service_interface.dart';
 import 'core/theme/app_theme.dart';
 import 'core/auth/auth_service.dart';
 import 'core/data/services/interfaces/analytics_service_interface.dart';
-import 'core/services/analytics_service.dart';
-import 'core/services/remote_config_service.dart';
+import 'core/data/services/interfaces/remote_config_service_interface.dart';
 import 'core/services/theme_service.dart';
 import 'core/widgets/maintenance_banner.dart';
 import 'core/di/service_locator.dart';
@@ -27,8 +26,8 @@ class PreparatorioConcursosApp extends StatelessWidget {
         ? getIt<IAnalyticsService>()
         : null;
 
-    final remoteConfigService = getIt.isRegistered<RemoteConfigService>()
-        ? getIt<RemoteConfigService>()
+    final remoteConfigService = getIt.isRegistered<IRemoteConfigService>()
+        ? getIt<IRemoteConfigService>()
         : null;
 
     final navigationService = getIt.isRegistered<INavigationService>()

@@ -6,6 +6,7 @@ import 'core/auth/auth_service.dart';
 import 'core/di/service_locator.dart';
 import 'core/data/services/services.dart';
 import 'core/data/services/interfaces/analytics_service_interface.dart';
+import 'core/data/services/interfaces/remote_config_service_interface.dart';
 import 'core/data/services/ia_service_factory.dart';
 import 'core/data/services/interfaces/secure_storage_service_interface.dart';
 import 'core/services/temp_secure_storage_service.dart';
@@ -14,9 +15,9 @@ import 'core/data/services/mercado_service.dart';
 import 'core/services/document_classifier_service.dart';
 import 'core/services/audio_explanation_service.dart';
 import 'core/services/connectivity_service.dart';
-import 'core/services/analytics_service.dart';
+import 'core/services/local_analytics_service.dart';
+import 'core/services/local_config_service.dart';
 import 'core/services/theme_service.dart';
-import 'core/services/remote_config_service.dart';
 import 'core/utils/cache_manager.dart';
 import 'core/utils/logger.dart';
 import 'app.dart';
@@ -92,15 +93,15 @@ void main() async {
       ? getIt.get<ThemeService>()
       : ThemeService(
           getIt.isRegistered<Logger>() ? getIt.get<Logger>() : Logger(),
-          getIt.isRegistered<IAnalyticsService>() ? getIt.get<IAnalyticsService>() : AnalyticsService(Logger()),
+          getIt.isRegistered<IAnalyticsService>() ? getIt.get<IAnalyticsService>() : LocalAnalyticsService(Logger()),
         );
 
   // Criar instância do RemoteConfigService
-  final remoteConfigService = getIt.isRegistered<RemoteConfigService>()
-      ? getIt.get<RemoteConfigService>()
-      : RemoteConfigService(
+  final remoteConfigService = getIt.isRegistered<IRemoteConfigService>()
+      ? getIt.get<IRemoteConfigService>()
+      : LocalConfigService(
           getIt.isRegistered<Logger>() ? getIt.get<Logger>() : Logger(),
-          getIt.isRegistered<IAnalyticsService>() ? getIt.get<IAnalyticsService>() : AnalyticsService(Logger()),
+          getIt.isRegistered<IAnalyticsService>() ? getIt.get<IAnalyticsService>() : LocalAnalyticsService(Logger()),
         );
 
   // Conectar o serviço de sessão de estudo com o serviço de mercado
@@ -170,7 +171,7 @@ void main() async {
         ChangeNotifierProvider.value(value: documentStorageService),
         ChangeNotifierProvider.value(value: mercadoService),
         ChangeNotifierProvider.value(value: themeService),
-        Provider.value(value: remoteConfigService),
+        Provider<IRemoteConfigService>.value(value: remoteConfigService),
         Provider.value(value: documentClassifierService),
       ],
       child: PreparatorioConcursosApp(),

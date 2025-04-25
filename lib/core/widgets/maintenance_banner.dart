@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:preparatorio_concursos/core/services/remote_config_service.dart';
+import 'package:preparatorio_concursos/core/data/services/interfaces/remote_config_service_interface.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 /// Widget para exibir um banner de manutenção ou atualização
@@ -11,13 +11,13 @@ class MaintenanceBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final remoteConfigService = Provider.of<RemoteConfigService>(context, listen: false);
-    
+    final remoteConfigService = Provider.of<IRemoteConfigService>(context, listen: false);
+
     // Verificar se o aplicativo está em modo de manutenção
     if (remoteConfigService.isInMaintenanceMode) {
       return _buildMaintenanceScreen(context, remoteConfigService.maintenanceMessage);
     }
-    
+
     // Verificar se o aplicativo precisa ser atualizado
     if (remoteConfigService.needsUpdate) {
       if (remoteConfigService.isForceUpdate) {
@@ -26,10 +26,10 @@ class MaintenanceBanner extends StatelessWidget {
         return _buildUpdateBanner(context, remoteConfigService.updateMessage, child);
       }
     }
-    
+
     return child;
   }
-  
+
   /// Constrói a tela de manutenção
   Widget _buildMaintenanceScreen(BuildContext context, String message) {
     return Scaffold(
@@ -74,7 +74,7 @@ class MaintenanceBanner extends StatelessWidget {
       ),
     );
   }
-  
+
   /// Constrói a tela de atualização
   Widget _buildUpdateScreen(BuildContext context, String message) {
     return Scaffold(
@@ -115,7 +115,7 @@ class MaintenanceBanner extends StatelessWidget {
       ),
     );
   }
-  
+
   /// Constrói o banner de atualização
   Widget _buildUpdateBanner(BuildContext context, String message, Widget child) {
     return Scaffold(
@@ -146,12 +146,12 @@ class MaintenanceBanner extends StatelessWidget {
       ),
     );
   }
-  
+
   /// Abre a loja de aplicativos
   Future<void> _openAppStore() async {
     // URL da loja de aplicativos
     const url = 'https://play.google.com/store/apps/details?id=com.example.preparatorio_concursos';
-    
+
     if (await canLaunchUrl(Uri.parse(url))) {
       await launchUrl(Uri.parse(url));
     }

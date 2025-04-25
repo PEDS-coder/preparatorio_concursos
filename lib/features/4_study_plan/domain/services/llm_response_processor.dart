@@ -172,7 +172,91 @@ class LLMResponseProcessor {
 
       // Extrair dados de cotas
       if (concurso.containsKey('cotas')) resultado['cotas'] = concurso['cotas'];
-        }
+    }
+
+    // Extrair dados básicos do nível superior (formato do prompt concurso_conteudo_prompt.txt)
+    // Estes campos podem estar no nível superior do JSON, sem a chave 'concurso'
+    if (json.containsKey('titulo')) resultado['titulo'] = json['titulo'];
+    if (json.containsKey('orgao')) resultado['orgao'] = json['orgao'];
+    if (json.containsKey('banca')) resultado['banca'] = json['banca'];
+
+    // Extrair dados de inscrição do nível superior
+    if (json.containsKey('inscricoes') && json['inscricoes'] is Map) {
+      Map<String, dynamic> inscricoes = json['inscricoes'];
+      if (inscricoes.containsKey('inicio')) resultado['inicioInscricao'] = inscricoes['inicio'];
+      if (inscricoes.containsKey('fim')) resultado['fimInscricao'] = inscricoes['fim'];
+      if (inscricoes.containsKey('taxa')) resultado['valorInscricao'] = inscricoes['taxa'];
+    }
+
+    // Extrair informações de período de inscrição
+    if (json.containsKey('periodo_inscricao')) {
+      if (json['periodo_inscricao'] is Map) {
+        Map<String, dynamic> periodoInscricao = json['periodo_inscricao'];
+        if (periodoInscricao.containsKey('inicio')) resultado['inicioInscricao'] = periodoInscricao['inicio'];
+        if (periodoInscricao.containsKey('fim')) resultado['fimInscricao'] = periodoInscricao['fim'];
+      } else if (json['periodo_inscricao'] is String) {
+        // Se for uma string, assumir que é o período completo
+        resultado['periodoInscricao'] = json['periodo_inscricao'];
+      }
+    }
+
+    // Extrair taxa de inscrição
+    if (json.containsKey('taxa_inscricao')) {
+      resultado['valorInscricao'] = json['taxa_inscricao'];
+    }
+
+    // Extrair data da prova
+    if (json.containsKey('data_prova')) {
+      resultado['dataProva'] = json['data_prova'];
+    }
+
+    // Extrair local da prova
+    if (json.containsKey('local_prova')) {
+      resultado['localProva'] = json['local_prova'];
+    }
+
+    // Extrair duração da prova
+    if (json.containsKey('duracao_prova')) {
+      resultado['duracaoProva'] = json['duracao_prova'];
+    }
+
+    // Extrair total de questões
+    if (json.containsKey('total_questoes')) {
+      resultado['totalQuestoes'] = json['total_questoes'];
+    }
+
+    // Extrair formato da prova
+    if (json.containsKey('formato_prova')) {
+      if (json['formato_prova'] is List) {
+        resultado['formatoProva'] = (json['formato_prova'] as List).join(', ');
+      } else {
+        resultado['formatoProva'] = json['formato_prova'].toString();
+      }
+    }
+
+    // Extrair tema da prova subjetiva
+    if (json.containsKey('tema_prova_subjetiva')) {
+      resultado['temaProvaSubjetiva'] = json['tema_prova_subjetiva'];
+    }
+
+    // Extrair critérios de aprovação
+    if (json.containsKey('criterios_aprovacao')) {
+      resultado['criteriosAprovacao'] = json['criterios_aprovacao'];
+    }
+
+    // Extrair critérios de reprovação
+    if (json.containsKey('criterios_reprovacao')) {
+      resultado['criteriosReprovacao'] = json['criterios_reprovacao'];
+    }
+
+    // Extrair critérios de desempate
+    if (json.containsKey('criterios_desempate')) {
+      if (json['criterios_desempate'] is List) {
+        resultado['criteriosDesempate'] = json['criterios_desempate'];
+      } else {
+        resultado['criteriosDesempate'] = json['criterios_desempate'].toString();
+      }
+    }
 
     // Verificar se há dados de cargo
     if (json.containsKey('cargo')) {

@@ -1,3 +1,39 @@
+# Plano de Correção do Processador de Resposta LLM
+
+## Análise do Problema
+
+O problema está na incompatibilidade entre a estrutura do JSON gerado pelo prompt `concurso_conteudo_prompt.txt` e a estrutura esperada pelo processador de resposta LLM (`llm_response_processor.dart`).
+
+1. **Estrutura gerada pelo prompt**: O prompt `concurso_conteudo_prompt.txt` instrui a LLM a gerar um JSON com chaves de nível superior como "prova", "vagas", "cotas" e "conteudo_programatico".
+
+2. **Estrutura esperada pelo processador**: O processador de resposta LLM (`llm_response_processor.dart`) espera encontrar uma chave "concurso" no nível superior do JSON, e dentro dela, outras chaves como "titulo", "orgao", "banca", e sub-objetos como "inscricoes" e "prova".
+
+3. **Resultado**: Como o JSON gerado não tem a estrutura esperada, o processador não consegue encontrar as informações necessárias, resultando em "Não informado" para vários campos na tela de Resumo do Plano.
+
+## Plano de Implementação
+
+Vamos modificar o processador para aceitar a estrutura gerada pelo prompt atual, já que o prompt `concurso_conteudo_prompt.txt` parece ser o padrão atual do projeto e provavelmente já está sendo usado em outros lugares.
+
+### Passos detalhados:
+
+1. Modificar o método `_extrairDadosConcursoCargo` no arquivo `llm_response_processor.dart` para buscar as informações diretamente nas chaves de nível superior do JSON, em vez de esperar uma chave "concurso".
+2. Testar a solução para garantir que as informações estão sendo exibidas corretamente na tela de Resumo do Plano.
+
+## Implementação Realizada
+
+✅ Modificado o método `_extrairDadosConcursoCargo` no arquivo `llm_response_processor.dart` para:
+   - Manter a compatibilidade com a estrutura antiga (com a chave "concurso")
+   - Adicionar suporte para a estrutura nova (com chaves de nível superior)
+   - Extrair informações básicas (título, órgão, banca) do nível superior
+   - Extrair informações de inscrição (período, taxa) do nível superior
+   - Extrair informações da prova (data, local, formato, total de questões, duração, tema da prova subjetiva, critérios de aprovação, reprovação e desempate) do nível superior
+
+## Benefícios Obtidos
+
+1. **Compatibilidade com ambos os formatos**: O processador agora aceita tanto o formato antigo (com a chave "concurso") quanto o novo (com chaves de nível superior).
+2. **Exibição correta das informações**: As informações extraídas do edital agora são exibidas corretamente na tela de Resumo do Plano.
+3. **Sem necessidade de alterar o prompt**: Não foi necessário modificar o prompt `concurso_conteudo_prompt.txt`, mantendo a compatibilidade com outros componentes do sistema que possam estar usando esse prompt.
+
 # Plano de Refatoração do ExtratorDadosService
 
 ## Análise do Problema
@@ -107,3 +143,67 @@ Além disso, foram criados extractors para cada fonte de dados:
 - `DadosOriginaisExtractor`: Para extração de dados originais do edital
 
 Foram adicionados testes unitários para os novos serviços, garantindo que funcionem corretamente.
+
+# Plano de Remoção Temporária do Firebase
+
+## Análise da Situação Atual
+
+O projeto Concurseiro Pro atualmente utiliza o Firebase para quatro serviços principais:
+
+1. **Firebase Analytics**: Para rastreamento de eventos e comportamento do usuário
+2. **Firebase Crashlytics**: Para monitoramento de falhas e erros
+3. **Firebase Performance**: Para monitoramento de desempenho
+4. **Firebase Remote Config**: Para configurações remotas
+
+Como o projeto está em fase de desenvolvimento e ainda não foi lançado comercialmente, esses serviços adicionam complexidade desnecessária neste momento.
+
+## Plano de Implementação
+
+### 1. Criar implementações alternativas para os serviços do Firebase
+
+✅ Implementar versões simplificadas dos serviços que usam apenas logs locais
+✅ Manter a mesma interface para facilitar a reintegração futura
+
+### 2. Remover dependências do Firebase do pubspec.yaml
+
+✅ Remover os pacotes firebase_core, firebase_analytics, firebase_crashlytics, firebase_performance e firebase_remote_config
+
+### 3. Atualizar os serviços que dependem do Firebase
+
+✅ Atualizar AnalyticsService para usar implementação local (LocalAnalyticsService)
+✅ Atualizar RemoteConfigService para usar configurações locais (LocalConfigService)
+
+### 4. Atualizar os módulos de injeção de dependência
+
+✅ Atualizar o módulo AnalyticsModule para usar LocalAnalyticsService
+✅ Criar o módulo ConfigModule para usar LocalConfigService
+✅ Atualizar o arquivo service_locator.dart para registrar os novos serviços
+
+### 5. Atualizar as referências aos serviços
+
+✅ Atualizar o arquivo main.dart para usar as implementações locais
+✅ Atualizar o arquivo app.dart para usar a interface IRemoteConfigService
+✅ Atualizar o widget MaintenanceBanner para usar a interface IRemoteConfigService
+
+### 6. Corrigir erros de compilação
+
+✅ Criar interfaces para Trace e HttpMetric
+✅ Implementar corretamente as interfaces no LocalAnalyticsService
+✅ Corrigir os métodos da interface IAnalyticsService
+
+### 7. Testar a aplicação sem o Firebase
+
+- Verificar se todas as funcionalidades continuam funcionando corretamente
+- Garantir que não há dependências ocultas do Firebase
+
+## Implementação Realizada
+
+A remoção temporária do Firebase foi implementada com sucesso. Foram criadas implementações locais para os serviços do Firebase que mantêm a mesma interface, permitindo uma fácil reintegração no futuro. As dependências do Firebase foram removidas do pubspec.yaml e os módulos de injeção de dependência foram atualizados para usar as implementações locais.
+
+## Benefícios Obtidos
+
+1. **Simplificação do desenvolvimento**: Remoção de dependências externas que não são necessárias nesta fase
+2. **Redução da complexidade**: Código mais simples e direto, sem necessidade de lidar com serviços externos
+3. **Melhor desempenho**: Menos overhead de inicialização e comunicação com serviços externos
+4. **Facilidade de testes**: Mais fácil testar a aplicação sem dependências externas
+5. **Preparação para o futuro**: Mantém a mesma interface, permitindo uma fácil reintegração quando necessário
