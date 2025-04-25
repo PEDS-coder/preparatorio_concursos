@@ -66,6 +66,7 @@ mixin IAServiceImplementations {
 
         // Tentar converter para JSON
         final Map<String, dynamic> resultado = jsonDecode(respostaLimpa);
+
         return resultado;
       } catch (e) {
         print('Erro ao converter resposta para JSON: $e');
@@ -106,81 +107,44 @@ mixin IAServiceImplementations {
       }
 
       // Informar progresso
-      onProgress('Enviando PDF para análise detalhada do cargo...', 0.3);
+      onProgress('Extraindo conteúdo detalhado do cargo...', 0.3);
 
-      // Carregar o prompt para análise detalhada do cargo
-      final promptService = PromptService();
-      final promptTemplate = await promptService.loadConcursoConteudoPrompt();
-
-      // Personalizar o prompt com o nome do cargo
-      final prompt = promptService.customizePrompt(promptTemplate, {
-        'CARGO_ALVO': cargoNome,
-      });
-
-      // Fazer a chamada à API com o PDF e o prompt personalizado
-      final String resposta = await iaService.processarPdf(prompt, edital.pdfBytes!, pdfName: edital.nomeArquivo);
+      // Chamar diretamente o método que retorna o Map já processado
+      final Map<String, dynamic> resultado = await iaService.extrairConcursoConteudo(
+        pdfBytes: edital.pdfBytes!,
+        cargoAlvo: cargoNome,
+        pdfName: edital.nomeArquivo,
+      );
 
       // Informar progresso
       onProgress('Processando resultados da análise...', 0.7);
 
-      // Converter a resposta para JSON
+      // O resultado já é um Map decodificado, vindo de extrairConcursoConteudo
+      // Apenas verificar a estrutura esperada
       try {
-        // Limpar a resposta removendo delimitadores de código JSON
-        String respostaLimpa = resposta;
-
-        // Remover delimitadores de código JSON no início (```json)
-        if (respostaLimpa.trim().startsWith('```json')) {
-          respostaLimpa = respostaLimpa.replaceFirst(RegExp(r'^\s*```json\s*'), '');
-        } else if (respostaLimpa.trim().startsWith('```')) {
-          respostaLimpa = respostaLimpa.replaceFirst(RegExp(r'^\s*```\s*'), '');
-        }
-
-        // Remover delimitadores de código no final (```)
-        if (respostaLimpa.trim().endsWith('```')) {
-          respostaLimpa = respostaLimpa.replaceFirst(RegExp(r'\s*```\s*$'), '');
-        }
-
-        print('Resposta limpa: ${respostaLimpa.substring(0, respostaLimpa.length > 100 ? 100 : respostaLimpa.length)}...');
-
-        // Tentar converter para JSON
-        final Map<String, dynamic> resultado = jsonDecode(respostaLimpa);
-
         // Verificar se o resultado contém o conteúdo programático
-        if (!resultado.containsKey('conteudo_programatico') || resultado['conteudo_programatico'] is! List) {
-          // Se não tiver o conteúdo programático no formato esperado, tentar extrair do campo 'cargo'
-          if (resultado.containsKey('cargo') && resultado['cargo'] is Map) {
-            // Verificar se o conteúdo programático está no formato 'cargo.conteudo_programatico.materias'
-            if (resultado['cargo'].containsKey('conteudo_programatico') &&
-                resultado['cargo']['conteudo_programatico'] is Map &&
-                resultado['cargo']['conteudo_programatico'].containsKey('materias') &&
-                resultado['cargo']['conteudo_programatico']['materias'] is List) {
+        if (!resultado.containsKey('concurso') ||
+            !(resultado['concurso'] is Map) ||
+            !(resultado['concurso'] as Map).containsKey('conteudo_programatico') ||
+            !((resultado['concurso'] as Map)['conteudo_programatico'] is List)) {
 
-              // Criar um novo resultado com o conteúdo programático
-              return {
-                'conteudo_programatico': resultado['cargo']['conteudo_programatico']['materias'],
-              };
-            }
-
-            // Verificar se o conteúdo programático está no formato 'cargo.conteudo_programatico'
-            if (resultado['cargo'].containsKey('conteudo_programatico') &&
-                resultado['cargo']['conteudo_programatico'] is List) {
-
-              // Criar um novo resultado com o conteúdo programático
-              return {
-                'conteudo_programatico': resultado['cargo']['conteudo_programatico'],
-              };
-            }
+          // Log detalhado da estrutura recebida se estiver incorreta
+          print('[IAServiceImplementations] Estrutura recebida de extrairConcursoConteudo inválida:');
+          try {
+            print(jsonEncode(resultado)); // Tenta imprimir o JSON para depuração
+          } catch (_) {
+            print(resultado.toString()); // Imprime como string se não for JSON válido
           }
-
-          throw Exception('Resposta da API não contém conteúdo programático');
         }
 
-        return resultado;
+        throw Exception('Resposta da API não contém a estrutura esperada com concurso.conteudo_programatico');
       } catch (e) {
-        print('Erro ao converter resposta para JSON: $e');
-        print('Resposta recebida: ${resposta.substring(0, resposta.length > 100 ? 100 : resposta.length)}...');
-        throw Exception('Erro ao processar resposta da API: $e');
+        print('Erro ao analisar cargo: $e');
       }
+
+      // O resultado de extrairConcursoConteudo já deve ter a estrutura correta ('concurso' -> 'conteudo_programatico')
+      // Apenas retorná-lo
+      return resultado;
     } catch (e) {
       print('Erro ao analisar cargo: $e');
       throw Exception('Erro ao analisar cargo: $e');

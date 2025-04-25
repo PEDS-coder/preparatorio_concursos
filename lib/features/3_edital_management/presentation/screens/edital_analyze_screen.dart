@@ -248,6 +248,18 @@ class _EditalAnalyzeScreenState extends State<EditalAnalyzeScreen> {
       return;
     }
 
+    // Verificar tamanho do arquivo de acordo com os limites da LLM
+    final file = _selectedFiles.first;
+    final int fileSizeInMB = file.size ~/ (1024 * 1024);
+
+    // Verificar se o arquivo está dentro dos limites da LLM (50MB)
+    if (fileSizeInMB > 50) {
+      setState(() {
+        _errorMessage = 'O arquivo PDF excede o limite de tamanho da LLM (50MB). Por favor, use um arquivo menor.';
+      });
+      return;
+    }
+
     setState(() {
       _isLoading = true;
       _errorMessage = null;
@@ -266,11 +278,33 @@ class _EditalAnalyzeScreenState extends State<EditalAnalyzeScreen> {
           });
         },
       );
+
+      // Se chegou aqui, a análise foi concluída com sucesso
+      // Navegar para a próxima tela ou mostrar mensagem de sucesso
+      Navigator.pushReplacementNamed(context, '/cargo_select');
+
     } catch (e) {
       Logger.error('Erro ao analisar edital: $e');
+
+      // Formatar a mensagem de erro para ser mais amigável
+      String errorMessage = 'Erro ao analisar edital.';
+
+      if (e.toString().contains('excede o limite')) {
+        errorMessage = 'O arquivo PDF excede o limite de tamanho da LLM (50MB). Por favor, use um arquivo menor.';
+      } else if (e.toString().contains('tempo limite')) {
+        errorMessage = 'A análise do edital excedeu o tempo limite. Verifique sua conexão com a internet e tente novamente.';
+      } else if (e.toString().contains('API Key não configurada')) {
+        errorMessage = 'A chave da API não está configurada. Por favor, configure a API nas configurações.';
+      } else if (e.toString().contains('Falha na chamada da API')) {
+        errorMessage = 'Falha na comunicação com a API. Verifique sua conexão com a internet e tente novamente.';
+      } else {
+        // Mensagem genérica para outros erros
+        errorMessage = 'Ocorreu um erro durante a análise do edital: ${e.toString()}';
+      }
+
       setState(() {
         _isLoading = false;
-        _errorMessage = 'Erro ao analisar edital: ${e.toString()}';
+        _errorMessage = errorMessage;
       });
     }
   }

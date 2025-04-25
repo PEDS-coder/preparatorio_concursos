@@ -1,42 +1,32 @@
 import '../../../../core/data/models/models.dart';
+import 'chaves_busca.dart';
+import 'extrator_dados_service.dart';
 
 /// Serviço para obtenção de dados de cotas
 class CotasService {
+  static final ExtratorDadosService _extrator = ExtratorDadosService();
+
   /// Obtém informações sobre cotas
   static String obterInformacoes(Edital? edital) {
-    if (edital == null || edital.dadosExtraidos.cotas == null || edital.dadosExtraidos.cotas!.isEmpty) {
-      // Verificar nos dados originais
-      if (edital != null && edital.dadosOriginais != null && edital.dadosOriginais!.containsKey('cotas')) {
-        final cotas = edital.dadosOriginais!['cotas'];
-        if (cotas is List && cotas.isNotEmpty) {
-          List<String> cotasInfo = [];
-          for (var cota in cotas) {
-            if (cota is Map && cota.containsKey('nome')) {
-              String cotaStr = cota['nome'].toString();
-              if (cota.containsKey('percentual') && cota['percentual'] != null) {
-                cotaStr += ' (${cota['percentual']}%)';
-              }
-              cotasInfo.add(cotaStr);
-            }
-          }
-          if (cotasInfo.isNotEmpty) {
-            return cotasInfo.join(', ');
-          }
-        }
-      }
+    if (edital == null) return 'Não informado';
 
-      return 'Não informado';
-    }
+    // Criar um plano temporário para usar o extrator
+    final planoTemp = PlanoEstudo(
+      id: 'temp_${DateTime.now().millisecondsSinceEpoch}',
+      userId: 'temp_user',
+      editalId: edital.id,
+      cargoIds: [],
+      dataCriacao: DateTime.now(),
+      dataInicio: DateTime.now(),
+      dataFim: DateTime.now().add(const Duration(days: 90)),
+      horasSemanais: <String, int>{},
+      ferramentas: [],
+      materiasProficiencia: <MateriaProficiencia>[],
+      recompensas: [],
+      sessoesEstudo: [],
+      metadados: {},
+    );
 
-    List<String> cotasInfo = [];
-    for (var cota in edital.dadosExtraidos.cotas!) {
-      String cotaStr = cota.nome;
-      if (cota.percentual != null) {
-        cotaStr += ' (${cota.percentual}%)';
-      }
-      cotasInfo.add(cotaStr);
-    }
-
-    return cotasInfo.join(', ');
+    return _extrator.buscarCampo(planoTemp, edital, ChavesBusca.COTAS);
   }
 }

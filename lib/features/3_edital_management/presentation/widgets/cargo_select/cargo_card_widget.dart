@@ -84,34 +84,36 @@ class CargoCardWidget extends StatelessWidget {
                   ),
                 ),
               const SizedBox(height: 12),
-              
+
               // Informações do cargo
               CargoInfoItemWidget(
-                label: 'Salário', 
-                value: 'R\$ ${_formatarSalario(cargo.salario)}', 
+                label: 'Salário',
+                value: cargo.salario > 0 ? 'R\$ ${_formatarSalario(cargo.salario)}' : 'Não informado',
                 icon: Icons.attach_money
               ),
               CargoInfoItemWidget(
-                label: 'Escolaridade', 
-                value: cargo.escolaridade, 
+                label: 'Escolaridade',
+                value: cargo.escolaridade != 'Não informado' && cargo.escolaridade != 'Não especificado'
+                  ? cargo.escolaridade
+                  : (cargo.nivel != 'Não informado' ? cargo.nivel : 'Não informado'),
                 icon: Icons.school
               ),
               if (cargo.dataProva != null)
                 CargoInfoItemWidget(
-                  label: 'Data da Prova', 
-                  value: DateFormat('dd/MM/yyyy').format(cargo.dataProva!), 
+                  label: 'Data da Prova',
+                  value: DateFormat('dd/MM/yyyy').format(cargo.dataProva!),
                   icon: Icons.calendar_today
                 ),
               if (cargo.horarioProva != null && cargo.horarioProva!.isNotEmpty)
                 CargoInfoItemWidget(
-                  label: 'Horário da Prova', 
-                  value: cargo.horarioProva!, 
+                  label: 'Horário da Prova',
+                  value: cargo.horarioProva!,
                   icon: Icons.access_time
                 ),
               if (cargo.requisitos != 'Não informado')
                 CargoInfoItemWidget(
-                  label: 'Requisitos', 
-                  value: cargo.requisitos, 
+                  label: 'Requisitos',
+                  value: cargo.requisitos,
                   icon: Icons.assignment_ind
                 ),
               const SizedBox(height: 16),

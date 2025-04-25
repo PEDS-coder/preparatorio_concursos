@@ -1,22 +1,27 @@
 import 'dart:convert';
-import 'dart:typed_data';
 import 'dart:io';
+import 'dart:math';
+import 'dart:typed_data';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
-import 'package:preparatorio_concursos/core/data/services/base_ia_service.dart';
-import 'package:preparatorio_concursos/core/data/models/flashcard.dart';
-import 'package:preparatorio_concursos/core/services/prompt_service.dart';
-import 'package:preparatorio_concursos/core/utils/app_logger.dart';
+
+import '../../data/models/flashcard.dart';
+import '../../services/prompt_service.dart';
+import '../../services/connectivity_service.dart';
+import 'base_ia_service.dart';
 import 'ia_service_implementations.dart';
+import 'interfaces/ia_service_interface.dart';
 
 /// Implementação oficial do serviço de IA para o Gemini
-class GeminiOfficialService extends BaseIAService with IAServiceImplementations {
+class GeminiOfficialService extends BaseIAService with IAServiceImplementations implements IAServiceInterface {
+  final PromptService _promptService = PromptService();
   final String _geminiBaseUrl = 'https://generativelanguage.googleapis.com/v1beta/models';
   final String _geminiModel = 'gemini-2.5-pro-exp-03-25';
   final List<String> _geminiModelsAlternatives = [
     'gemini-2.5-pro-exp-03-25',
+    'gemini-2.5-pro-preview-03-25',
+    'gemini-2.5-flash-preview-04-17',
   ];
-
-  final PromptService _promptService = PromptService();
 
   GeminiOfficialService() : super('gemini_official');
 
@@ -41,10 +46,154 @@ class GeminiOfficialService extends BaseIAService with IAServiceImplementations 
     return true;
   }
 
+  /// Timeout para teste de conexão (10 segundos)
+  static const Duration _testConnectionTimeout = Duration(seconds: 10);
+
   @override
   Future<bool> testApiKey(String apiKey, String apiType) async {
+    print('[GeminiOfficialService] ===== INÍCIO DO TESTE DE CHAVE API =====');
+    print('[GeminiOfficialService] Tipo de API: $apiType');
+    print('[GeminiOfficialService] Modelos a serem testados: ${_geminiModelsAlternatives.join(", ")}');
+    print('[GeminiOfficialService] Chave API: ${apiKey.length} caracteres');
+    print('[GeminiOfficialService] Plataforma: ${Platform.operatingSystem}');
+
+    if (apiKey.isEmpty) {
+      print('[GeminiOfficialService] ERRO: Chave API vazia');
+      return false;
+    }
+
     try {
-      final url = '$_geminiBaseUrl/${_geminiModelsAlternatives.first}:generateContent?key=$apiKey';
+      print('[GeminiOfficialService] Testando chave API: ${apiKey.substring(0, min(5, apiKey.length))}...');
+
+      // Verificar se a chave API tem o formato correto para o Gemini
+      if (!apiKey.startsWith('AI')) {
+        print('[GeminiOfficialService] Formato de chave API inválido: não começa com "AI"');
+        print('[GeminiOfficialService] Prefixo da chave: ${apiKey.substring(0, min(2, apiKey.length))}');
+        return false;
+      }
+
+      // Verificar se o serviço da API está acessível
+      print('[GeminiOfficialService] Verificando disponibilidade do serviço Gemini...');
+
+      // No Windows, usar uma abordagem mais robusta para verificar a conectividade
+      bool serviceReachable;
+      if (Platform.isWindows) {
+        print('[GeminiOfficialService] Usando abordagem específica para Windows');
+        serviceReachable = await _verificarDisponibilidadeServicoWindows();
+      } else {
+        serviceReachable = await ConnectivityService.canReachService('https://generativelanguage.googleapis.com');
+      }
+
+      if (!serviceReachable) {
+        print('[GeminiOfficialService] Serviço Gemini inacessível. Verifique sua conexão com a internet.');
+        return false;
+      }
+
+      print('[GeminiOfficialService] Serviço Gemini acessível.');
+
+      // Verificar disponibilidade dos modelos
+      print('[GeminiOfficialService] Verificando disponibilidade dos modelos da família Gemini 2.5...');
+      print('[GeminiOfficialService] Modelos disponíveis para teste: ${_geminiModelsAlternatives.join(", ")}');
+
+      // Implementar retry com backoff exponencial
+      for (int tentativa = 1; tentativa <= 3; tentativa++) {
+        print('[GeminiOfficialService] Tentativa $tentativa de 3');
+
+        // Primeiro, tentar o modelo principal
+        print('[GeminiOfficialService] Tentando modelo principal: $_geminiModel');
+        final bool modeloExperimental = await _verificarDisponibilidadeModelo(_geminiModel, apiKey);
+        if (modeloExperimental) {
+          print('[GeminiOfficialService] Modelo principal $_geminiModel está disponível!');
+          print('[GeminiOfficialService] ===== FIM DO TESTE DE CHAVE API: SUCESSO =====');
+          return true;
+        }
+
+        // Se falhar, tentar os modelos alternativos
+        for (final modelo in _geminiModelsAlternatives) {
+          if (modelo == _geminiModel) continue; // Pular o modelo principal que já foi testado
+
+          print('[GeminiOfficialService] Tentando modelo alternativo: $modelo');
+          final bool modeloDisponivel = await _verificarDisponibilidadeModelo(modelo, apiKey);
+          if (modeloDisponivel) {
+            print('[GeminiOfficialService] Modelo alternativo $modelo está disponível!');
+            _updateDefaultModel(modelo);
+            print('[GeminiOfficialService] ===== FIM DO TESTE DE CHAVE API: SUCESSO COM MODELO ALTERNATIVO =====');
+            return true;
+          }
+        }
+
+        // Se todas as tentativas falharem, aguardar antes de tentar novamente
+        if (tentativa < 3) {
+          final delay = Duration(seconds: pow(2, tentativa).toInt());
+          print('[GeminiOfficialService] Aguardando ${delay.inSeconds} segundos antes da próxima tentativa...');
+          await Future.delayed(delay);
+        }
+      }
+
+      // Se chegou aqui, nenhum modelo funcionou
+      print('[GeminiOfficialService] Nenhum modelo disponível funcionou com a chave fornecida');
+      print('[GeminiOfficialService] ===== FIM DO TESTE DE CHAVE API: FALHA =====');
+      return false;
+    } catch (e) {
+      print('[GeminiOfficialService] Exceção geral ao testar chave API: $e');
+      print('[GeminiOfficialService] ===== FIM DO TESTE DE CHAVE API: ERRO =====');
+      return false;
+    }
+  }
+
+  /// Verifica a disponibilidade do serviço Gemini no Windows
+  Future<bool> _verificarDisponibilidadeServicoWindows() async {
+    print('[GeminiOfficialService] Verificando disponibilidade do serviço Gemini no Windows...');
+
+    try {
+      // Tentar acessar a URL base do Gemini
+      final response = await http.get(
+        Uri.parse('https://generativelanguage.googleapis.com'),
+        headers: {'Content-Type': 'application/json'},
+      ).timeout(
+        const Duration(seconds: 10),
+        onTimeout: () {
+          print('[GeminiOfficialService] Timeout ao verificar disponibilidade do serviço Gemini no Windows');
+          throw Exception('Timeout');
+        },
+      );
+
+      print('[GeminiOfficialService] Resposta do serviço Gemini: ${response.statusCode}');
+
+      // Qualquer resposta (mesmo 404) indica que o serviço está acessível
+      // O importante é que a requisição não falhe por problemas de rede
+      return true;
+    } catch (e) {
+      print('[GeminiOfficialService] Erro ao verificar disponibilidade do serviço Gemini no Windows: $e');
+
+      // Tentar uma abordagem alternativa
+      try {
+        print('[GeminiOfficialService] Tentando abordagem alternativa...');
+
+        // Verificar se há conexão com a internet
+        final bool isConnected = await ConnectivityService.isConnected();
+        if (!isConnected) {
+          print('[GeminiOfficialService] Sem conexão com a internet no Windows');
+          return false;
+        }
+
+        // Se há conexão com a internet, assumir que o serviço está acessível
+        // Isso é um fallback para contornar possíveis problemas de firewall
+        print('[GeminiOfficialService] Conexão com a internet detectada, assumindo que o serviço está acessível');
+        return true;
+      } catch (e) {
+        print('[GeminiOfficialService] Erro na abordagem alternativa: $e');
+        return false;
+      }
+    }
+  }
+
+  /// Verifica se um modelo específico está disponível com a chave API fornecida
+  Future<bool> _verificarDisponibilidadeModelo(String modelo, String apiKey) async {
+    print('[GeminiOfficialService] ----- INÍCIO DO TESTE DO MODELO: $modelo -----');
+    try {
+      print('[GeminiOfficialService] Testando modelo: $modelo');
+      final url = '$_geminiBaseUrl/$modelo:generateContent?key=$apiKey';
       final testBody = jsonEncode({
         'contents': [
           {
@@ -55,20 +204,124 @@ class GeminiOfficialService extends BaseIAService with IAServiceImplementations 
         ],
         'generationConfig': {'maxOutputTokens': 10}
       });
-      final response = await http.post(
-        Uri.parse(url),
-        headers: {'Content-Type': 'application/json'},
-        body: testBody,
-      );
-      return response.statusCode == 200;
-    } catch (_) {
+
+      print('[GeminiOfficialService] Corpo da requisição: $testBody');
+      print('[GeminiOfficialService] Enviando requisição para: ${url.replaceAll(apiKey, "API_KEY_HIDDEN")}');
+
+      http.Response? response;
+      try {
+        response = await http.post(
+          Uri.parse(url),
+          headers: {'Content-Type': 'application/json'},
+          body: testBody,
+        ).timeout(
+          _testConnectionTimeout,
+          onTimeout: () {
+            print('[GeminiOfficialService] Timeout ao testar modelo $modelo');
+            throw Exception('Timeout ao testar conexão com a API');
+          },
+        );
+
+        print('[GeminiOfficialService] Resposta do modelo $modelo: ${response.statusCode}');
+        print('[GeminiOfficialService] Corpo da resposta: ${response.body}');
+      } catch (e) {
+        print('[GeminiOfficialService] ERRO NA REQUISIÇÃO HTTP: $e');
+        return false;
+      }
+
+      if (response != null && response.statusCode == 200) {
+        print('[GeminiOfficialService] Teste bem-sucedido com o modelo: $modelo');
+        print('[GeminiOfficialService] ----- FIM DO TESTE DO MODELO: $modelo (SUCESSO) -----');
+        return true;
+      } else if (response != null && response.statusCode == 400) {
+        // Tentar extrair mensagem de erro mais específica
+        try {
+          final errorJson = jsonDecode(response.body);
+          final errorMessage = errorJson['error']?['message'] ?? 'Requisição inválida';
+          print('[GeminiOfficialService] Erro 400 com modelo $modelo: $errorMessage');
+
+          // Verificar se o erro é relacionado ao modelo não existir
+          if (errorMessage.contains('Model not found') ||
+              errorMessage.contains('not found') ||
+              errorMessage.contains('does not exist')) {
+            print('[GeminiOfficialService] O modelo $modelo não existe ou não está disponível.');
+            return false;
+          }
+
+          // Verificar se o erro é relacionado a um modelo experimental
+          if (errorMessage.contains('experimental') ||
+              errorMessage.contains('preview')) {
+            print('[GeminiOfficialService] O modelo $modelo é experimental e pode ter restrições de acesso.');
+            return false;
+          }
+        } catch (e) {
+          print('[GeminiOfficialService] Erro 400 com modelo $modelo sem detalhes: ${response.body}');
+        }
+      } else if (response != null && (response.statusCode == 401 || response.statusCode == 403)) {
+        print('[GeminiOfficialService] Chave API inválida ou sem permissão para modelo $modelo: ${response.statusCode}');
+
+        // Tentar extrair mensagem de erro mais específica
+        try {
+          final errorJson = jsonDecode(response.body);
+          final errorMessage = errorJson['error']?['message'] ?? 'Acesso negado';
+          print('[GeminiOfficialService] Detalhes do erro: $errorMessage');
+
+          // Se o erro for específico para este modelo, pode ser que outros modelos funcionem
+          if (errorMessage.contains('not have permission') ||
+              errorMessage.contains('permission denied') ||
+              errorMessage.contains('unauthorized') ||
+              errorMessage.contains('access denied')) {
+
+            if (errorMessage.contains(modelo)) {
+              print('[GeminiOfficialService] Sem permissão para o modelo $modelo.');
+              return false;
+            }
+
+            // Se a mensagem menciona Gemini 2.5 ou modelos experimentais
+            if (errorMessage.contains('2.5') ||
+                errorMessage.contains('experimental') ||
+                errorMessage.contains('preview')) {
+              print('[GeminiOfficialService] Sem permissão para modelos Gemini 2.5 ou experimentais.');
+              return false;
+            }
+          }
+        } catch (e) {
+          print('[GeminiOfficialService] Não foi possível extrair detalhes do erro: $e');
+        }
+
+        // Se a chave é inválida para um modelo, provavelmente é inválida para todos
+        return false;
+      } else if (response != null) {
+        print('[GeminiOfficialService] Erro no teste do modelo $modelo: ${response.statusCode} ${response.body}');
+      }
+      print('[GeminiOfficialService] ----- FIM DO TESTE DO MODELO: $modelo (FALHA) -----');
       return false;
+    } catch (e) {
+      print('[GeminiOfficialService] Exceção ao testar modelo $modelo: $e');
+      print('[GeminiOfficialService] ----- FIM DO TESTE DO MODELO: $modelo (ERRO) -----');
+      return false;
+    }
+  }
+
+  // Método para atualizar o modelo padrão quando um teste for bem-sucedido
+  void _updateDefaultModel(String workingModel) {
+    print('[GeminiOfficialService] Atualizando modelo padrão para: $workingModel');
+    // Não podemos alterar a constante _geminiModel, mas podemos garantir que o modelo
+    // que funcionou seja o primeiro da lista de alternativas
+    if (_geminiModelsAlternatives.first != workingModel) {
+      _geminiModelsAlternatives.remove(workingModel);
+      _geminiModelsAlternatives.insert(0, workingModel);
     }
   }
 
   @override
   Future<bool> testApiConnection() async {
-    if (!isConfigured) return false;
+    if (!isConfigured) {
+      print('[GeminiOfficialService] Teste de conexão falhou: API não configurada');
+      return false;
+    }
+
+    print('[GeminiOfficialService] Testando conexão com a API usando a chave configurada');
     return await testApiKey(apiKey_!, apiType);
   }
 
@@ -87,7 +340,12 @@ class GeminiOfficialService extends BaseIAService with IAServiceImplementations 
     if (!isConfigured) {
       throw Exception('API Key não configurada');
     }
-    final url = '$_geminiBaseUrl/$_geminiModel:generateContent?key=$apiKey_';
+
+    // Usar o primeiro modelo da lista de alternativas, que deve ser o modelo que funcionou no teste
+    final modeloAtivo = _geminiModelsAlternatives.isNotEmpty ? _geminiModelsAlternatives.first : _geminiModel;
+    print('[GeminiOfficialService] Chamando API com modelo: $modeloAtivo');
+
+    final url = '$_geminiBaseUrl/$modeloAtivo:generateContent?key=$apiKey_';
     final Map<String, dynamic> requestBody = {
       'contents': [
         {
@@ -108,28 +366,63 @@ class GeminiOfficialService extends BaseIAService with IAServiceImplementations 
         {'category': 'HARM_CATEGORY_DANGEROUS_CONTENT','threshold': 'BLOCK_MEDIUM_AND_ABOVE'}
       ]
     };
+
+    print('[GeminiOfficialService] Enviando requisição para: $url');
     final body = jsonEncode(requestBody);
-    final response = await http.post(
-      Uri.parse(url),
-      headers: {'Content-Type': 'application/json'},
-      body: body,
-    );
-    if (response.statusCode == 200) {
-      final jsonResponse = jsonDecode(response.body);
-      String text = '';
-      if (jsonResponse['candidates'] != null &&
-          jsonResponse['candidates'].isNotEmpty &&
-          jsonResponse['candidates'][0]['content'] != null &&
-          jsonResponse['candidates'][0]['content']['parts'] != null &&
-          jsonResponse['candidates'][0]['content']['parts'].isNotEmpty) {
-        text = jsonResponse['candidates'][0]['content']['parts'][0]['text'] ?? '';
+
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {'Content-Type': 'application/json'},
+        body: body,
+      ).timeout(
+        const Duration(seconds: 60),
+        onTimeout: () {
+          print('[GeminiOfficialService] Timeout na chamada da API');
+          throw Exception('A requisição excedeu o tempo limite de 60 segundos.');
+        },
+      );
+
+      print('[GeminiOfficialService] Resposta recebida: ${response.statusCode}');
+
+      if (response.statusCode == 200) {
+        final jsonResponse = jsonDecode(response.body);
+        String text = '';
+        if (jsonResponse['candidates'] != null &&
+            jsonResponse['candidates'].isNotEmpty &&
+            jsonResponse['candidates'][0]['content'] != null &&
+            jsonResponse['candidates'][0]['content']['parts'] != null &&
+            jsonResponse['candidates'][0]['content']['parts'].isNotEmpty) {
+          text = jsonResponse['candidates'][0]['content']['parts'][0]['text'] ?? '';
+        }
+        if (text.isEmpty) {
+          print('[GeminiOfficialService] Resposta vazia da API Gemini');
+          throw Exception('Resposta vazia da API Gemini');
+        }
+        return text;
+      } else if (response.statusCode == 400) {
+        // Tentar extrair mensagem de erro mais específica
+        try {
+          final errorJson = jsonDecode(response.body);
+          final errorMessage = errorJson['error']?['message'] ?? 'Requisição inválida';
+          print('[GeminiOfficialService] Erro 400: $errorMessage');
+          throw Exception('Erro na requisição: $errorMessage');
+        } catch (e) {
+          throw Exception('Requisição inválida: ${response.body}');
+        }
+      } else if (response.statusCode == 401 || response.statusCode == 403) {
+        print('[GeminiOfficialService] Erro de autenticação: ${response.statusCode}');
+        throw Exception('Erro de autenticação: verifique sua chave API');
+      } else if (response.statusCode == 429) {
+        print('[GeminiOfficialService] Limite de requisições excedido: ${response.statusCode}');
+        throw Exception('Limite de requisições excedido. Aguarde alguns minutos e tente novamente.');
+      } else {
+        print('[GeminiOfficialService] Erro na chamada da API: ${response.statusCode} ${response.body}');
+        throw Exception('Falha na chamada da API Gemini: ${response.statusCode} ${response.body}');
       }
-      if (text.isEmpty) {
-        throw Exception('Resposta vazia da API Gemini');
-      }
-      return text;
-    } else {
-      throw Exception('Falha na chamada da API Gemini: ${response.statusCode} ${response.body}');
+    } catch (e) {
+      print('[GeminiOfficialService] Exceção ao chamar API: $e');
+      rethrow;
     }
   }
 
@@ -220,7 +513,7 @@ class GeminiOfficialService extends BaseIAService with IAServiceImplementations 
 
 
   @override
-  Future<String> extrairConcursoConteudo({required Uint8List pdfBytes, required String cargoAlvo, String? pdfName}) async {
+  Future<Map<String, dynamic>> extrairConcursoConteudo({required Uint8List pdfBytes, required String cargoAlvo, String? pdfName}) async {
     if (!isConfigured) throw Exception('API Key não configurada');
 
     // Log para depuração
@@ -236,21 +529,36 @@ class GeminiOfficialService extends BaseIAService with IAServiceImplementations 
     print('[GeminiOfficialService] Prompt personalizado com cargo alvo: $cargoAlvo');
 
     try {
-      final resposta = await callGeminiApiWithPdf(prompt, pdfBytes, pdfName: pdfName);
+      final respostaBruta = await callGeminiApiWithPdf(prompt, pdfBytes, pdfName: pdfName);
 
       // Log para depuração
-      print('[GeminiOfficialService] Resposta recebida com tamanho: ${resposta.length} caracteres');
-      print('[GeminiOfficialService] Início da resposta: ${resposta.substring(0, resposta.length > 100 ? 100 : resposta.length)}');
+      print('[GeminiOfficialService] Resposta BRUTA recebida com tamanho: ${respostaBruta.length} caracteres');
+      print('[GeminiOfficialService] Início da resposta BRUTA: ${respostaBruta.substring(0, respostaBruta.length > 100 ? 100 : respostaBruta.length)}');
 
-      // Verificar se a resposta é um JSON válido
-      try {
-        final json = jsonDecode(resposta);
-        print('[GeminiOfficialService] Resposta é um JSON válido com ${json.keys.length} chaves: ${json.keys.join(', ')}');
-      } catch (e) {
-        print('[GeminiOfficialService] Resposta não é um JSON válido: $e');
+      // Limpar delimitadores markdown
+      String respostaLimpa = respostaBruta.trim();
+      if (respostaLimpa.startsWith('```json')) {
+        respostaLimpa = respostaLimpa.substring(7).trim();
+      } else if (respostaLimpa.startsWith('```')) {
+         respostaLimpa = respostaLimpa.substring(3).trim();
+      }
+      if (respostaLimpa.endsWith('```')) {
+        respostaLimpa = respostaLimpa.substring(0, respostaLimpa.length - 3).trim();
       }
 
-      return resposta;
+      print('[GeminiOfficialService] Resposta LIMPA: ${respostaLimpa.substring(0, respostaLimpa.length > 100 ? 100 : respostaLimpa.length)}');
+
+      try {
+        // Decodificar a resposta limpa
+        final jsonDecodificado = jsonDecode(respostaLimpa) as Map<String, dynamic>;
+        print('[GeminiOfficialService] Resposta decodificada com ${jsonDecodificado.keys.length} chaves: ${jsonDecodificado.keys.join(', ')}');
+        return jsonDecodificado; // Retorna o mapa decodificado
+      } catch (e) {
+        print('[GeminiOfficialService] Erro ao decodificar JSON da resposta LIMPA: $e');
+        print('[GeminiOfficialService] Resposta LIMPA que falhou no decode: $respostaLimpa');
+        // Lança uma exceção mais específica para falha de decode
+        throw Exception('Falha ao decodificar JSON da resposta da API: $e');
+      }
     } catch (e) {
       print('[GeminiOfficialService] Erro ao extrair conteúdo do concurso: $e');
       throw Exception('Erro ao extrair conteúdo do concurso: $e');
@@ -622,20 +930,90 @@ class GeminiOfficialService extends BaseIAService with IAServiceImplementations 
     }
   }
 
+  /// Tamanho máximo recomendado para PDFs (20MB)
+  static const int _maxRecommendedPdfSize = 20 * 1024 * 1024;
+
+  /// Tamanho máximo permitido pela API Gemini (50MB)
+  static const int _maxAllowedPdfSize = 50 * 1024 * 1024;
+
+  /// Timeout para requisições HTTP (2 minutos para arquivos pequenos, 10 minutos para grandes)
+  static const Duration _defaultHttpTimeout = Duration(minutes: 2);
+  static const Duration _largeFileHttpTimeout = Duration(minutes: 10);
+
+  /// Limite para considerar um arquivo como grande (5MB)
+  static const int _largeFileSizeThreshold = 5 * 1024 * 1024;
+
+  // NOTA: A API Gemini requer que os arquivos sejam enviados como parte do corpo da requisição em formato base64.
+  // Isso é uma exigência da API, não uma escolha da aplicação.
+  // Referência: https://ai.google.dev/tutorials/rest_api
   Future<String> callGeminiApiWithPdf(String prompt, Uint8List pdfBytes, {String? pdfName}) async {
     if (!isConfigured) {
       throw Exception('API Key não configurada');
     }
 
+    // Verificar se o PDF está vazio
+    if (pdfBytes.isEmpty) {
+      throw Exception('O arquivo PDF está vazio.');
+    }
+
     try {
-      // Verificar conectividade com a internet antes de fazer a chamada
-      final url = '$_geminiBaseUrl/$_geminiModel:generateContent?key=$apiKey_';
-      final String pdfBase64 = base64Encode(pdfBytes);
       final String fileName = pdfName ?? 'edital.pdf';
+
+      // Verificar tamanho do arquivo de acordo com os limites da LLM
+      final int pdfSizeInMB = pdfBytes.length ~/ (1024 * 1024);
+      print('[GeminiOfficialService] Tamanho do PDF: $pdfSizeInMB MB');
+
+      // Verificar se o arquivo está dentro do limite recomendado
+      if (pdfBytes.length > _maxRecommendedPdfSize) {
+        print('[GeminiOfficialService] AVISO: PDF excede o tamanho recomendado de ${_maxRecommendedPdfSize ~/ (1024 * 1024)}MB');
+        // Continuar, mas com aviso
+      }
+
+      // Verificar se o arquivo está dentro do limite máximo permitido
+      if (pdfBytes.length > _maxAllowedPdfSize) {
+        print('[GeminiOfficialService] ERRO: PDF excede o limite máximo da LLM (${_maxAllowedPdfSize ~/ (1024 * 1024)}MB)');
+        throw Exception('O arquivo PDF excede o limite de tamanho da LLM (${_maxAllowedPdfSize ~/ (1024 * 1024)}MB). Por favor, use um arquivo menor.');
+      }
 
       // Log para depuração
       print('[GeminiOfficialService] Enviando PDF para análise: $fileName (${pdfBytes.length} bytes)');
 
+      // Usar o primeiro modelo da lista de alternativas, que deve ser o modelo que funcionou no teste
+      final modeloAtivo = _geminiModelsAlternatives.isNotEmpty ? _geminiModelsAlternatives.first : _geminiModel;
+      print('[GeminiOfficialService] Processando PDF com modelo: $modeloAtivo');
+
+      // Verificar conectividade com a internet antes de fazer a chamada
+      final url = '$_geminiBaseUrl/$modeloAtivo:generateContent?key=$apiKey_';
+
+      // Determinar o timeout com base no tamanho do arquivo
+      final httpTimeout = pdfBytes.length > _largeFileSizeThreshold
+          ? _largeFileHttpTimeout
+          : _defaultHttpTimeout;
+
+      // NOTA: A API Gemini requer que os arquivos sejam enviados como parte do corpo da requisição em formato base64.
+      // Isso é uma exigência da API, não uma escolha da aplicação.
+      print('[GeminiOfficialService] Preparando PDF para envio conforme requisitos da API Gemini...');
+
+      // Usar isolate para conversão base64 em arquivos grandes para evitar bloquear a UI
+      String pdfBase64;
+      try {
+        // Converter em chunks para evitar problemas de memória
+        if (pdfBytes.length > _largeFileSizeThreshold) {
+          print('[GeminiOfficialService] Arquivo grande detectado, usando conversão otimizada');
+          pdfBase64 = await _encodeBase64InChunks(pdfBytes);
+        } else {
+          // A API Gemini requer que os arquivos sejam enviados em formato base64
+          pdfBase64 = base64Encode(pdfBytes);
+        }
+
+        print('[GeminiOfficialService] PDF preparado para envio. Tamanho base64: ${pdfBase64.length} caracteres');
+      } catch (e) {
+        print('[GeminiOfficialService] Erro ao preparar PDF para envio: $e');
+        throw Exception('Erro ao processar o arquivo PDF: não foi possível preparar o arquivo para envio. Tente com um arquivo menor.');
+      }
+
+      // Preparar o corpo da requisição conforme documentação da API Gemini
+      print('[GeminiOfficialService] Preparando corpo da requisição...');
       final Map<String, dynamic> requestBody = {
         'contents': [
           {
@@ -654,24 +1032,86 @@ class GeminiOfficialService extends BaseIAService with IAServiceImplementations 
           'temperature': 0.0,
           'maxOutputTokens': 65536,
           'topP': 0.2,
-        }
+        },
+        'safetySettings': [
+          {'category': 'HARM_CATEGORY_HARASSMENT','threshold': 'BLOCK_MEDIUM_AND_ABOVE'},
+          {'category': 'HARM_CATEGORY_HATE_SPEECH','threshold': 'BLOCK_MEDIUM_AND_ABOVE'},
+          {'category': 'HARM_CATEGORY_SEXUALLY_EXPLICIT','threshold': 'BLOCK_MEDIUM_AND_ABOVE'},
+          {'category': 'HARM_CATEGORY_DANGEROUS_CONTENT','threshold': 'BLOCK_MEDIUM_AND_ABOVE'}
+        ]
       };
-      final body = jsonEncode(requestBody);
+
+      // Codificar o corpo da requisição para JSON
+      print('[GeminiOfficialService] Codificando corpo da requisição para JSON...');
+      String body;
+      try {
+        body = jsonEncode(requestBody);
+        print('[GeminiOfficialService] Corpo da requisição codificado. Tamanho: ${body.length} caracteres');
+      } catch (e) {
+        print('[GeminiOfficialService] Erro na codificação JSON: $e');
+        throw Exception('Erro ao preparar a requisição: não foi possível codificar os dados. Tente com um arquivo menor.');
+      }
+
+      // Liberar memória
+      pdfBase64 = '';
 
       // Log para depuração
       print('[GeminiOfficialService] Enviando requisição para: $url');
 
-      final response = await http.post(
-        Uri.parse(url),
-        headers: {'Content-Type': 'application/json'},
-        body: body,
-      );
+      // Enviar a requisição com timeout
+      print('[GeminiOfficialService] Enviando requisição HTTP (timeout: ${httpTimeout.inMinutes} minutos)...');
+
+      // Implementar retry em caso de falha de rede
+      int retryCount = 0;
+      const maxRetries = 3;
+      http.Response? response;
+
+      while (retryCount < maxRetries) {
+        try {
+          response = await http.post(
+            Uri.parse(url),
+            headers: {'Content-Type': 'application/json'},
+            body: body,
+          ).timeout(
+            httpTimeout,
+            onTimeout: () {
+              print('[GeminiOfficialService] Timeout na requisição HTTP após ${httpTimeout.inMinutes} minutos');
+              throw Exception('A requisição excedeu o tempo limite de ${httpTimeout.inMinutes} minutos. O arquivo pode ser muito grande ou a conexão está lenta.');
+            },
+          );
+
+          // Se chegou aqui, a requisição foi bem-sucedida
+          break;
+        } catch (e) {
+          retryCount++;
+          if (retryCount >= maxRetries) {
+            print('[GeminiOfficialService] Falha após $maxRetries tentativas: $e');
+            rethrow;
+          }
+
+          print('[GeminiOfficialService] Falha na tentativa $retryCount: $e. Tentando novamente...');
+          await Future.delayed(Duration(seconds: 2 * retryCount)); // Backoff exponencial
+        }
+      }
+
+      if (response == null) {
+        throw Exception('Falha na comunicação com a API após $maxRetries tentativas.');
+      }
 
       // Log para depuração
       print('[GeminiOfficialService] Resposta recebida: ${response.statusCode}');
 
       if (response.statusCode == 200) {
-        final jsonResponse = jsonDecode(response.body);
+        // Decodificar a resposta com tratamento de memória
+        print('[GeminiOfficialService] Decodificando resposta JSON...');
+        Map<String, dynamic> jsonResponse;
+        try {
+          jsonResponse = jsonDecode(response.body);
+          print('[GeminiOfficialService] Resposta JSON decodificada com sucesso');
+        } catch (e) {
+          print('[GeminiOfficialService] Erro na decodificação JSON: $e');
+          throw Exception('Erro ao processar a resposta da API: não foi possível decodificar os dados.');
+        }
 
         // Log para depuração
         print('[GeminiOfficialService] Estrutura da resposta: ${jsonResponse.keys.join(', ')}');
@@ -688,43 +1128,63 @@ class GeminiOfficialService extends BaseIAService with IAServiceImplementations 
           print('[GeminiOfficialService] Texto extraído com sucesso (${text.length} caracteres)');
           return text;
         } else {
-          // Resposta com estrutura inesperada, tentar extrair o máximo de informações possível
-          print('[GeminiOfficialService] Estrutura de resposta inesperada: $jsonResponse');
+          // Se não conseguir extrair o texto, lançar uma exceção
+          print('[GeminiOfficialService] Estrutura de resposta inesperada');
+          throw Exception('Estrutura de resposta inesperada da API Gemini: Não foi possível encontrar o texto.');
+        }
+      } else if (response.statusCode == 429) {
+        // Erro de rate limit
+        print('[GeminiOfficialService] Erro de rate limit (429)');
+        throw Exception('Limite de requisições excedido. Aguarde alguns minutos e tente novamente.');
+      } else if (response.statusCode == 400) {
+        // Erro de requisição inválida
+        print('[GeminiOfficialService] Erro de requisição inválida (400): ${response.body}');
 
-          // Tentar extrair qualquer texto disponível
-          if (jsonResponse.containsKey('candidates') &&
-              jsonResponse['candidates'].isNotEmpty) {
-            final candidate = jsonResponse['candidates'][0];
-            print('[GeminiOfficialService] Candidato encontrado: ${candidate.keys.join(', ')}');
-
-            // Tentar diferentes caminhos para encontrar o texto
-            if (candidate.containsKey('content')) {
-              final content = candidate['content'];
-              if (content is Map && content.containsKey('text')) {
-                return content['text'];
-              } else if (content is String) {
-                return content;
-              }
-            }
-          }
-
-          // Se não conseguir extrair o texto, retornar uma resposta padrão
-          return '{"titulo": "Edital não processado", "banca": "Não identificada", "cargos": [{"nome": "Cargo não identificado", "vagas": 0, "salario": 0.0, "escolaridade": "Não identificada"}]}';
+        // Tentar extrair mensagem de erro mais específica
+        try {
+          final errorJson = jsonDecode(response.body);
+          final errorMessage = errorJson['error']?['message'] ?? 'Requisição inválida';
+          throw Exception('Erro na requisição: $errorMessage');
+        } catch (_) {
+          throw Exception('Requisição inválida. Verifique o formato do arquivo PDF.');
         }
       } else {
-        // Log para depuração
-        print('[GeminiOfficialService] Erro na chamada à API: ${response.statusCode} - ${response.body}');
-
-        // Retornar uma resposta padrão em caso de erro
-        return '{"titulo": "Erro ao processar edital", "banca": "Não identificada", "cargos": [{"nome": "Erro: ${response.statusCode}", "vagas": 0, "salario": 0.0, "escolaridade": "Não identificada"}]}';
+        // Lançar uma exceção detalhada
+        print('[GeminiOfficialService] Erro na resposta HTTP: ${response.statusCode}');
+        throw Exception('Falha na chamada da API Gemini: ${response.statusCode} ${response.body}');
       }
     } catch (e, stackTrace) {
       // Log para depuração
       print('[GeminiOfficialService] Exceção ao processar PDF: $e');
       print('[GeminiOfficialService] Stack trace: $stackTrace');
 
-      // Retornar uma resposta padrão em caso de exceção
-      return '{"titulo": "Exceção ao processar edital", "banca": "Não identificada", "cargos": [{"nome": "Erro: ${e.toString()}", "vagas": 0, "salario": 0.0, "escolaridade": "Não identificada"}]}';
+      // Relançar a exceção para ser tratada pelos métodos superiores
+      rethrow;
     }
+  }
+
+  /// Codifica um arquivo grande em base64 em chunks para evitar problemas de memória
+  Future<String> _encodeBase64InChunks(Uint8List bytes) async {
+    const int chunkSize = 1024 * 1024; // 1MB por chunk
+    final int totalChunks = (bytes.length / chunkSize).ceil();
+
+    print('[GeminiOfficialService] Codificando arquivo em $totalChunks chunks');
+
+    final StringBuffer buffer = StringBuffer();
+
+    for (int i = 0; i < totalChunks; i++) {
+      final int start = i * chunkSize;
+      final int end = (i + 1) * chunkSize > bytes.length ? bytes.length : (i + 1) * chunkSize;
+
+      final Uint8List chunk = bytes.sublist(start, end);
+      final String chunkBase64 = base64Encode(chunk);
+
+      buffer.write(chunkBase64);
+
+      // Liberar memória
+      await Future.delayed(Duration.zero);
+    }
+
+    return buffer.toString();
   }
 }

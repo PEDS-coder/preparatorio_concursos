@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
-import '../../../../core/data/models/edital.dart';
+import '../../../../core/data/models/edital.dart' as core;
 import '../../../../core/data/models/models.dart';
 import '../../../../core/data/models/dados_vaga.dart';
 import '../../../../core/data/services/edital_service.dart';
@@ -213,23 +213,26 @@ class CargoSelectionService {
         },
       );
 
-      // Verificar se o resultado contém as informações necessárias
-      if (resultado.containsKey('conteudo_programatico') && resultado['conteudo_programatico'] is List) {
+      // Log para inspecionar a resposta bruta da API
+      Logger.debug('Resultado da segunda chamada API: $resultado');
+
+      // Verificar se a resposta contém o objeto 'concurso' e, dentro dele, 'conteudo_programatico'
+      if (resultado.containsKey('concurso') &&
+          resultado['concurso'] is Map<String, dynamic> &&
+          (resultado['concurso'] as Map<String, dynamic>).containsKey('conteudo_programatico') &&
+          (resultado['concurso'] as Map<String, dynamic>)['conteudo_programatico'] is List) {
         // Atualizar progresso
         onProgress('Processando dados recebidos da API e atualizando conteúdo programático...', 0.9);
 
-        // Atualizar o conteúdo programático do cargo
         // Obter o edital atual
         final editalAtual = editalService.getEditalById(edital.id);
         if (editalAtual == null) {
           throw Exception('Edital não encontrado após atualização');
         }
 
-        // Verificar se há informações adicionais do concurso para atualizar
-        if (resultado.containsKey('concurso') && resultado['concurso'] is Map<String, dynamic>) {
-          // Atualizar informações do concurso no edital
-          _atualizarInformacoesEdital(editalAtual, resultado['concurso'] as Map<String, dynamic>);
-        }
+        // Atualizar informações gerais do concurso no edital
+        final dadosConcurso = resultado['concurso'] as Map<String, dynamic>; // Já verificado acima
+        _atualizarInformacoesEdital(editalAtual, dadosConcurso);
 
         // Encontrar o cargo a ser atualizado
         Cargo? cargoAtualizado;
@@ -246,7 +249,8 @@ class CargoSelectionService {
 
         // Processar o conteúdo programático
         List<ConteudoProgramatico> conteudoProgramatico = [];
-        for (var item in resultado['conteudo_programatico'] as List) {
+        final List<dynamic> conteudoRaw = dadosConcurso['conteudo_programatico'] as List;
+        for (var item in conteudoRaw) {
           if (item is Map<String, dynamic>) {
             conteudoProgramatico.add(ConteudoProgramatico.fromMap(item));
           }
@@ -420,10 +424,20 @@ class CargoSelectionService {
           }
         }
 
-        // Comentar temporariamente para evitar o erro de compilação
-        // if (cotasFormatadas.isNotEmpty) {
-        //   edital.dadosExtraidos.cotas = cotasFormatadas;
-        // }
+        // Atualizar as cotas no edital
+        if (cotasFormatadas.isNotEmpty) {
+          // Converter para o tipo correto do modelo
+          List<core.DadosCota> cotasModelo = cotasFormatadas.map((cota) =>
+            core.DadosCota(
+              nome: cota.nome,
+              percentual: cota.percentual,
+              numeroVagas: cota.numeroVagas,
+              criterios: cota.criterios
+            )
+          ).toList();
+
+          edital.dadosExtraidos.cotas = cotasModelo;
+        }
       }
 
       // Atualizar informações de vagas
@@ -518,7 +532,7 @@ class CargoSelectionService {
 
       // Formatar a data no padrão brasileiro
       return DateFormat('dd/MM/yyyy').format(data);
-    
+
       // Se não conseguir converter, retornar a string original
       return dataStr;
     } catch (e) {

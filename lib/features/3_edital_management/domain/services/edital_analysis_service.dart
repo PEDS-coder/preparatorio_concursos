@@ -84,6 +84,43 @@ class EditalAnalysisService {
         throw Exception('Resposta da API não contém informações básicas do edital');
       }
 
+      // Verificar e processar os dados dos cargos
+      if (resultado.containsKey('cargos') && resultado['cargos'] is List) {
+        // Log para depuração
+        Logger.debug('Processando ${resultado['cargos'].length} cargos da resposta da API');
+
+        // Verificar cada cargo para garantir que os dados estão corretos
+        for (var i = 0; i < resultado['cargos'].length; i++) {
+          var cargo = resultado['cargos'][i];
+
+          // Log para depuração
+          Logger.debug('Cargo ${i+1}: ${cargo['nome']} - Salário: ${cargo['salario']} - Escolaridade: ${cargo['escolaridade']}');
+
+          // Garantir que o salário seja processado corretamente
+          if (cargo['salario'] != null && cargo['salario'] is String) {
+            try {
+              // Remover caracteres não numéricos, exceto ponto e vírgula
+              String cleanedString = cargo['salario'].toString().replaceAll(RegExp(r'[^0-9.,]'), '');
+              // Substituir vírgula por ponto para o parse
+              cleanedString = cleanedString.replaceAll(',', '.');
+              // Remover pontos extras (milhares) se houver mais de um ponto decimal
+              if (cleanedString.split('.').length > 2) {
+                cleanedString = cleanedString.replaceAll(RegExp(r'\.(?=.*\.)'), ''); // Remove todos os pontos exceto o último
+              }
+
+              // Tentar converter para double
+              double salario = double.parse(cleanedString);
+              cargo['salario'] = salario;
+
+              // Log para depuração
+              Logger.debug('Salário convertido: $salario');
+            } catch (e) {
+              Logger.error('Erro ao converter salário: $e');
+            }
+          }
+        }
+      }
+
       // Atualizar progresso
       onProgress('Processando resultados da análise...', 0.9);
 
@@ -117,20 +154,18 @@ class EditalAnalysisService {
       // Navegar para a tela de seleção de cargos
       try {
         final navigationService = getIt<INavigationService>();
-        navigationService.navigateToRoute(
-          CargoSelectScreen(editalId: editalId),
-          routeName: 'CargoSelectScreen',
+        // Usar a rota nomeada definida no AppRouter
+        navigationService.navigateTo(
+          '/cargo/select',
+          arguments: {'editalId': editalId},
         );
       } catch (e) {
         print('Erro ao usar NavigationService: $e');
         // Fallback para navegação direta
-        Navigator.push(
+        Navigator.pushNamed(
           context,
-          MaterialPageRoute(
-            builder: (context) => CargoSelectScreen(
-              editalId: editalId,
-            ),
-          ),
+          '/cargo/select',
+          arguments: {'editalId': editalId},
         );
       }
     } catch (e) {

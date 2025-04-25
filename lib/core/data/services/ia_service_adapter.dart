@@ -100,7 +100,7 @@ class IAServiceAdapter implements IAServiceInterface {
   }
 
   @override
-  Future<String> extrairConcursoConteudo({required Uint8List pdfBytes, required String cargoAlvo, String? pdfName}) {
+  Future<Map<String, dynamic>> extrairConcursoConteudo({required Uint8List pdfBytes, required String cargoAlvo, String? pdfName}) {
     return _iaService.extrairConcursoConteudo(pdfBytes: pdfBytes, cargoAlvo: cargoAlvo, pdfName: pdfName);
   }
 

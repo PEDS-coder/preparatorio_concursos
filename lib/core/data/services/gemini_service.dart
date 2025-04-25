@@ -3,8 +3,11 @@ import 'dart:typed_data';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:preparatorio_concursos/core/data/services/base_ia_service.dart';
+import 'package:preparatorio_concursos/core/data/services/interfaces/ia_service_interface.dart';
+import '../../utils/app_logger.dart';
 import 'package:preparatorio_concursos/core/data/models/flashcard.dart';
 import 'package:preparatorio_concursos/core/services/prompt_service.dart';
+import 'package:preparatorio_concursos/core/services/connectivity_service.dart';
 import 'ia_service_implementations.dart';
 
 /// Implementação do serviço de IA para o Gemini
@@ -13,6 +16,8 @@ class GeminiService extends BaseIAService with IAServiceImplementations {
   final String _geminiModel = 'gemini-2.5-pro-exp-03-25';
   final List<String> _geminiModelsAlternatives = [
     'gemini-2.5-pro-exp-03-25',
+    'gemini-2.5-pro-preview-03-25',
+    'gemini-2.5-flash-preview-04-17',
   ];
 
   final PromptService _promptService = PromptService();
@@ -43,24 +48,108 @@ class GeminiService extends BaseIAService with IAServiceImplementations {
   @override
   Future<bool> testApiKey(String apiKey, String apiType) async {
     try {
-      final url = '$_geminiBaseUrl/${_geminiModelsAlternatives.first}:generateContent?key=$apiKey';
-      final testBody = jsonEncode({
-        'contents': [
-          {
-            'parts': [
-              {'text': 'Olá, teste de conexão.'}
-            ]
+      print('[GeminiService] Testando chave API: ${apiKey.substring(0, 5)}...');
+
+      // Verificar se a chave API tem o formato correto para o Gemini
+      if (!apiKey.startsWith('AI')) {
+        print('[GeminiService] Formato de chave API inválido: não começa com "AI"');
+        return false;
+      }
+
+      // Verificar se o serviço da API está acessível
+      print('[GeminiService] Verificando disponibilidade do serviço Gemini...');
+      final bool serviceReachable = await ConnectivityService.canReachService('https://generativelanguage.googleapis.com');
+      if (!serviceReachable) {
+        print('[GeminiService] Serviço Gemini inacessível. Verifique sua conexão com a internet.');
+        return false;
+      }
+      print('[GeminiService] Serviço Gemini acessível.');
+
+      // Tentar cada modelo alternativo até encontrar um que funcione
+      for (final modelo in _geminiModelsAlternatives) {
+        try {
+          print('[GeminiService] Testando modelo: $modelo');
+          final url = '$_geminiBaseUrl/$modelo:generateContent?key=$apiKey';
+          final testBody = jsonEncode({
+            'contents': [
+              {
+                'parts': [
+                  {'text': 'Olá, teste de conexão.'}
+                ]
+              }
+            ],
+            'generationConfig': {'maxOutputTokens': 10}
+          });
+
+          print('[GeminiService] Enviando requisição para: $url');
+          final response = await http.post(
+            Uri.parse(url),
+            headers: {'Content-Type': 'application/json'},
+            body: testBody,
+          ).timeout(
+            const Duration(seconds: 10),
+            onTimeout: () {
+              print('[GeminiService] Timeout ao testar modelo $modelo');
+              throw Exception('Timeout ao testar conexão com a API');
+            },
+          );
+
+          print('[GeminiService] Resposta do modelo $modelo: ${response.statusCode}');
+
+          if (response.statusCode == 200) {
+            print('[GeminiService] Teste bem-sucedido com o modelo: $modelo');
+            return true;
+          } else if (response.statusCode == 400) {
+            // Tentar extrair mensagem de erro mais específica
+            try {
+              final errorJson = jsonDecode(response.body);
+              final errorMessage = errorJson['error']?['message'] ?? 'Requisição inválida';
+              print('[GeminiService] Erro 400 com modelo $modelo: $errorMessage');
+
+              // Verificar se o erro é relacionado ao modelo não existir
+              if (errorMessage.contains('Model not found') ||
+                  errorMessage.contains('not found') ||
+                  errorMessage.contains('does not exist')) {
+                print('[GeminiService] O modelo $modelo não existe ou não está disponível. Tentando próximo modelo...');
+                continue;
+              }
+            } catch (e) {
+              print('[GeminiService] Erro 400 com modelo $modelo sem detalhes: ${response.body}');
+            }
+          } else if (response.statusCode == 401 || response.statusCode == 403) {
+            print('[GeminiService] Chave API inválida ou sem permissão para modelo $modelo: ${response.statusCode}');
+
+            // Tentar extrair mensagem de erro mais específica
+            try {
+              final errorJson = jsonDecode(response.body);
+              final errorMessage = errorJson['error']?['message'] ?? 'Acesso negado';
+              print('[GeminiService] Detalhes do erro: $errorMessage');
+
+              // Se o erro for específico para este modelo, tentar o próximo
+              if (errorMessage.contains('not have permission') && errorMessage.contains(modelo)) {
+                print('[GeminiService] Sem permissão para o modelo $modelo. Tentando próximo modelo...');
+                continue;
+              }
+            } catch (e) {
+              print('[GeminiService] Não foi possível extrair detalhes do erro: $e');
+            }
+
+            // Se a chave é inválida para um modelo, provavelmente é inválida para todos
+            return false;
+          } else {
+            print('[GeminiService] Erro no teste do modelo $modelo: ${response.statusCode} ${response.body}');
           }
-        ],
-        'generationConfig': {'maxOutputTokens': 10}
-      });
-      final response = await http.post(
-        Uri.parse(url),
-        headers: {'Content-Type': 'application/json'},
-        body: testBody,
-      );
-      return response.statusCode == 200;
-    } catch (_) {
+        } catch (e) {
+          print('[GeminiService] Exceção ao testar modelo $modelo: $e');
+          // Continuar tentando outros modelos
+        }
+      }
+
+      // Se chegou aqui, nenhum modelo funcionou
+      print('[GeminiService] Nenhum modelo disponível funcionou com a chave fornecida');
+      return false;
+    } catch (e) {
+      print('[GeminiService] Exceção geral ao testar chave API: $e');
       return false;
     }
   }
@@ -225,56 +314,39 @@ class GeminiService extends BaseIAService with IAServiceImplementations {
   }
 
   @override
-  Future<String> extrairConcursoConteudo({required Uint8List pdfBytes, required String cargoAlvo, String? pdfName}) async {
+  Future<Map<String, dynamic>> extrairConcursoConteudo({
+    required Uint8List pdfBytes,
+    required String cargoAlvo,
+    String? pdfName,
+  }) async {
     if (!isConfigured) throw Exception('API Key não configurada');
     final promptTemplate = await _promptService.loadConcursoConteudoPrompt();
     final prompt = _promptService.customizePrompt(promptTemplate, {
       'PDF_NAME': pdfName ?? '',
       'CARGO_ALVO': cargoAlvo,
     });
-    return await callGeminiApiWithPdf(prompt, pdfBytes, pdfName: pdfName);
-  }
+    final String respostaBruta = await callGeminiApiWithPdf(prompt, pdfBytes, pdfName: pdfName);
 
+    try {
+      // Limpar delimitadores de markdown, se presentes
+      String respostaLimpa = respostaBruta.trim();
+      if (respostaLimpa.startsWith('```json')) {
+        respostaLimpa = respostaLimpa.substring(7);
+      }
+      if (respostaLimpa.endsWith('```')) {
+        respostaLimpa = respostaLimpa.substring(0, respostaLimpa.length - 3);
+      }
+      respostaLimpa = respostaLimpa.trim();
 
-
-  @override
-  Future<String> gerarEsquema({required String texto, String? titulo}) async {
-    if (!isConfigured) throw Exception('API Key não configurada');
-    final promptTemplate = await _promptService.loadMindmapGenerationPrompt();
-    final prompt = _promptService.customizePrompt(promptTemplate, {
-      'TEXTO': texto,
-      'TITULO': titulo ?? '',
-    });
-    return await callApi(prompt);
-  }
-
-  @override
-  Future<List<Flashcard>> gerarFlashcards({
-    required String userId,
-    String? editalId,
-    required String materia,
-    required String texto,
-  }) async {
-    // Prompt para geração de flashcards
-    final promptTemplate = await _promptService.loadFlashcardGenerationPrompt();
-    final prompt = _promptService.customizePrompt(promptTemplate, {
-      'USER_ID': userId,
-      'EDITAL_ID': editalId ?? '',
-      'MATERIA': materia,
-      'TEXTO': texto,
-    });
-    final response = await callApi(prompt);
-    // Aqui espera-se que a resposta seja um JSON de flashcards
-    final List<dynamic> jsonList = jsonDecode(response);
-    return jsonList.map((json) => Flashcard(
-      id: json['id'] ?? '',
-      userId: json['userId'] ?? userId,
-      editalId: json['editalId'] ?? editalId,
-      materia: json['materia'] ?? materia,
-      pergunta: json['pergunta'] ?? '',
-      resposta: json['resposta'] ?? '',
-      fonte: json['fonte'] ?? 'ia',
-    )).toList();
+      // Decodificar o JSON
+      final Map<String, dynamic> resultadoJson = jsonDecode(respostaLimpa);
+      return resultadoJson;
+    } catch (e) {
+      AppLogger.e('GeminiService', 'Erro ao decodificar JSON da resposta de extrairConcursoConteudo: $e\nResposta Bruta: $respostaBruta');
+      // Relança a exceção para que a camada superior possa tratá-la
+      // Ou retorna um mapa de erro padrão, dependendo da estratégia de erro
+      rethrow; // Ou: return {'erro': 'Falha ao processar resposta da API', 'detalhes': e.toString()};
+    }
   }
 
   @override

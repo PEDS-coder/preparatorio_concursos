@@ -57,9 +57,22 @@ class PlanoMetadataProcessor {
     metadados['titulo'] = de.titulo ?? metadados['titulo'];
     metadados['orgao'] = de.orgao ?? metadados['orgao'];
     metadados['banca'] = de.banca ?? metadados['banca'];
+
+    // Dados de inscrição
+    metadados['inicioInscricao'] = de.inicioInscricao?.toIso8601String() ?? metadados['inicioInscricao'];
+    metadados['fimInscricao'] = de.fimInscricao?.toIso8601String() ?? metadados['fimInscricao'];
+    metadados['valorInscricao'] = de.valorTaxa ?? de.taxaInscricao ?? metadados['valorInscricao'];
+
+    // Dados da prova
     metadados['dataProva'] = de.dataProva ?? metadados['dataProva'];
-    metadados['valorInscricao'] = de.valorTaxa ?? metadados['valorInscricao'];
     metadados['localProva'] = de.localProva ?? metadados['localProva'];
+    metadados['totalQuestoes'] = de.totalQuestoes ?? metadados['totalQuestoes'];
+    metadados['formatoProva'] = de.formatoProva ?? metadados['formatoProva'];
+    metadados['duracaoProva'] = de.duracaoProva ?? metadados['duracaoProva'];
+    metadados['temaProvaSubjetiva'] = de.temaDiscursiva ?? metadados['temaProvaSubjetiva'];
+    metadados['criteriosAprovacao'] = de.criteriosAprovacao ?? metadados['criteriosAprovacao'];
+    metadados['criteriosReprovacao'] = de.criteriosReprovacao ?? metadados['criteriosReprovacao'];
+    metadados['criteriosDesempate'] = de.criteriosDesempate ?? metadados['criteriosDesempate'];
 
     _processarDadosProva(planoId, de, metadados);
     _processarCotas(de, metadados);
@@ -103,9 +116,93 @@ class PlanoMetadataProcessor {
     _logger.logArmazenamento(planoId, 'processando_dados_originais', {'chaves': edital.dadosOriginais!.keys.toList()});
     try {
       final orig = DynamicMapConverter.toStringDynamicMap(edital.dadosOriginais!);
+
+      // Extrair dados básicos
+      if (!metadados.containsKey('titulo') || metadados['titulo'] == null) {
+        metadados['titulo'] = orig['titulo'] ?? orig['titulo_concurso'];
+      }
+
+      if (!metadados.containsKey('orgao') || metadados['orgao'] == null) {
+        metadados['orgao'] = orig['orgao'] ?? orig['orgao_responsavel'];
+      }
+
+      if (!metadados.containsKey('banca') || metadados['banca'] == null) {
+        metadados['banca'] = orig['banca'] ?? orig['banca_organizadora'];
+      }
+
+      // Extrair dados de inscrição
+      if (orig.containsKey('inscricoes') && orig['inscricoes'] is Map) {
+        final inscricoesOriginal = orig['inscricoes'] as Map;
+
+        if (inscricoesOriginal.containsKey('inicio') && (!metadados.containsKey('inicioInscricao') || metadados['inicioInscricao'] == null)) {
+          metadados['inicioInscricao'] = inscricoesOriginal['inicio'];
+        }
+
+        if (inscricoesOriginal.containsKey('fim') && (!metadados.containsKey('fimInscricao') || metadados['fimInscricao'] == null)) {
+          metadados['fimInscricao'] = inscricoesOriginal['fim'];
+        }
+
+        if (inscricoesOriginal.containsKey('taxa') && (!metadados.containsKey('valorInscricao') || metadados['valorInscricao'] == null)) {
+          metadados['valorInscricao'] = inscricoesOriginal['taxa'];
+        }
+      }
+
+      // Extrair dados da prova
+      if (orig.containsKey('prova') && orig['prova'] is Map) {
+        final provaOriginal = orig['prova'] as Map;
+
+        if (provaOriginal.containsKey('data') && (!metadados.containsKey('dataProva') || metadados['dataProva'] == null)) {
+          metadados['dataProva'] = provaOriginal['data'];
+        }
+
+        if (provaOriginal.containsKey('local') && (!metadados.containsKey('localProva') || metadados['localProva'] == null)) {
+          metadados['localProva'] = provaOriginal['local'];
+        }
+
+        if (provaOriginal.containsKey('total_questoes') && (!metadados.containsKey('totalQuestoes') || metadados['totalQuestoes'] == null)) {
+          metadados['totalQuestoes'] = provaOriginal['total_questoes'];
+        }
+
+        if (provaOriginal.containsKey('formato') && (!metadados.containsKey('formatoProva') || metadados['formatoProva'] == null)) {
+          if (provaOriginal['formato'] is List) {
+            metadados['formatoProva'] = (provaOriginal['formato'] as List).join(', ');
+          } else {
+            metadados['formatoProva'] = provaOriginal['formato'].toString();
+          }
+        }
+
+        if (provaOriginal.containsKey('duracao') && (!metadados.containsKey('duracaoProva') || metadados['duracaoProva'] == null)) {
+          metadados['duracaoProva'] = provaOriginal['duracao'];
+        }
+
+        if (provaOriginal.containsKey('tema_discursiva') && (!metadados.containsKey('temaProvaSubjetiva') || metadados['temaProvaSubjetiva'] == null)) {
+          metadados['temaProvaSubjetiva'] = provaOriginal['tema_discursiva'];
+        }
+
+        if (provaOriginal.containsKey('criterios_aprovacao') && (!metadados.containsKey('criteriosAprovacao') || metadados['criteriosAprovacao'] == null)) {
+          metadados['criteriosAprovacao'] = provaOriginal['criterios_aprovacao'];
+        }
+
+        if (provaOriginal.containsKey('criterios_reprovacao') && (!metadados.containsKey('criteriosReprovacao') || metadados['criteriosReprovacao'] == null)) {
+          metadados['criteriosReprovacao'] = provaOriginal['criterios_reprovacao'];
+        }
+
+        if (provaOriginal.containsKey('criterios_desempate') && (!metadados.containsKey('criteriosDesempate') || metadados['criteriosDesempate'] == null)) {
+          if (provaOriginal['criterios_desempate'] is List) {
+            metadados['criteriosDesempate'] = provaOriginal['criterios_desempate'];
+          } else {
+            metadados['criteriosDesempate'] = provaOriginal['criterios_desempate'].toString();
+          }
+        }
+      }
+
       _processarDadosOriginaisProva(planoId, orig, metadados);
       _processarDadosOriginaisConcurso(planoId, orig, metadados);
       _processarDadosOriginaisCotas(planoId, orig, metadados);
+
+      _logger.logArmazenamento(planoId, 'dados_originais_transferidos', {
+        'chaves_transferidas': metadados.keys.toList(),
+      });
     } catch (e, s) {
       _logger.logArmazenamento(planoId, 'erro_converter_dados_originais', {'erro': e.toString(), 'stack': s.toString()});
     }
@@ -170,9 +267,31 @@ class PlanoMetadataProcessor {
 
     try {
       final inscOrig = DynamicMapConverter.toStringDynamicMap(inscricoesData);
+
+      // Extrair início e fim da inscrição
+      if (inscOrig.containsKey('inicio')) {
+        metadados['inicioInscricao'] ??= inscOrig['inicio'];
+      }
+
+      if (inscOrig.containsKey('fim')) {
+        metadados['fimInscricao'] ??= inscOrig['fim'];
+      }
+
+      // Extrair taxa de inscrição
+      if (inscOrig.containsKey('taxa')) {
+        metadados['valorInscricao'] ??= inscOrig['taxa'];
+      }
+
+      // Criar período de inscrições formatado
       if (inscOrig.containsKey('inicio') && inscOrig.containsKey('fim')) {
         metadados['periodoInscricoes'] ??= '${inscOrig['inicio']} a ${inscOrig['fim']}';
       }
+
+      _logger.logArmazenamento(planoId, 'dados_inscricoes_processados', {
+        'inicio': inscOrig['inicio'],
+        'fim': inscOrig['fim'],
+        'taxa': inscOrig['taxa'],
+      });
     } catch (e) {
       _logger.logArmazenamento(planoId, 'erro_processar_dados_originais_inscricoes', {'erro': e.toString()});
     }
@@ -306,9 +425,31 @@ class PlanoMetadataProcessor {
 
     try {
       final inscLLM = DynamicMapConverter.toStringDynamicMap(inscricoesLLMData);
+
+      // Extrair início e fim da inscrição
+      if (inscLLM.containsKey('inicio')) {
+        metadados['inicioInscricao'] = inscLLM['inicio']; // Sobrescreve sempre se presente
+      }
+
+      if (inscLLM.containsKey('fim')) {
+        metadados['fimInscricao'] = inscLLM['fim']; // Sobrescreve sempre se presente
+      }
+
+      // Extrair taxa de inscrição
+      if (inscLLM.containsKey('taxa')) {
+        metadados['valorInscricao'] = inscLLM['taxa']; // Sobrescreve sempre se presente
+      }
+
+      // Criar período de inscrições formatado
       if (inscLLM.containsKey('inicio') && inscLLM.containsKey('fim')) {
         metadados['periodoInscricoes'] = '${inscLLM['inicio']} a ${inscLLM['fim']}'; // Sobrescreve sempre se presente
       }
+
+      _logger.logArmazenamento(planoId, 'dados_inscricoes_llm_processados', {
+        'inicio': inscLLM['inicio'],
+        'fim': inscLLM['fim'],
+        'taxa': inscLLM['taxa'],
+      });
     } catch (e, s) {
       _logger.logArmazenamento(planoId, 'erro_converter_inscricoes_llm', {'erro': e.toString(), 'stack': s.toString()});
     }

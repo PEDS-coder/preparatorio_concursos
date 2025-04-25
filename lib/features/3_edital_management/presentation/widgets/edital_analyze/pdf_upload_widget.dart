@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:file_picker/file_picker.dart';
 import '../../../../../core/theme/app_theme.dart';
+import '../../../domain/services/pdf_upload_service.dart';
 
 /// Widget para upload de arquivos PDF
-class PdfUploadWidget extends StatelessWidget {
+class PdfUploadWidget extends StatefulWidget {
   final List<PlatformFile> selectedFiles;
   final Function(List<PlatformFile>) onFilesSelected;
   final VoidCallback onRemoveAllFiles;
@@ -16,6 +18,14 @@ class PdfUploadWidget extends StatelessWidget {
     required this.onRemoveAllFiles,
     required this.onRemoveFile,
   }) : super(key: key);
+
+  @override
+  _PdfUploadWidgetState createState() => _PdfUploadWidgetState();
+}
+
+class _PdfUploadWidgetState extends State<PdfUploadWidget> {
+  final PdfUploadService _pdfUploadService = PdfUploadService();
+  bool _isUploading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -45,12 +55,48 @@ class PdfUploadWidget extends StatelessWidget {
                 color: Colors.grey.shade700,
               ),
             ),
+            const SizedBox(height: 8),
+            Text(
+              'Tamanho máximo recomendado: ${_pdfUploadService.formatFileSize(PdfUploadService.maxPdfSizeBytes)}',
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.grey.shade600,
+                fontStyle: FontStyle.italic,
+              ),
+            ),
             const SizedBox(height: 16),
             _buildUploadButton(context),
             const SizedBox(height: 16),
-            if (selectedFiles.isNotEmpty) _buildSelectedFilesList(),
+            if (_isUploading) _buildUploadingIndicator(),
+            if (widget.selectedFiles.isNotEmpty) _buildSelectedFilesList(),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildUploadingIndicator() {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 24,
+            height: 24,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Text(
+            'Processando arquivo...',
+            style: TextStyle(
+              color: Colors.grey.shade700,
+              fontStyle: FontStyle.italic,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -58,12 +104,13 @@ class PdfUploadWidget extends StatelessWidget {
   Widget _buildUploadButton(BuildContext context) {
     return Center(
       child: ElevatedButton.icon(
-        onPressed: () => _pickPdfFile(context),
+        onPressed: _isUploading ? null : () => _pickPdfFile(context),
         icon: const Icon(Icons.upload_file),
         label: const Text('Selecionar Arquivo PDF'),
         style: ElevatedButton.styleFrom(
           backgroundColor: AppTheme.primaryColor,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          disabledBackgroundColor: Colors.grey.shade400,
         ),
       ),
     );
@@ -84,61 +131,140 @@ class PdfUploadWidget extends StatelessWidget {
               ),
             ),
             TextButton.icon(
-              onPressed: onRemoveAllFiles,
-              icon: const Icon(Icons.delete, size: 16, color: Colors.red),
-              label: const Text(
+              onPressed: _isUploading ? null : widget.onRemoveAllFiles,
+              icon: Icon(
+                Icons.delete,
+                size: 16,
+                color: _isUploading ? Colors.grey : Colors.red
+              ),
+              label: Text(
                 'Remover Todos',
-                style: TextStyle(color: Colors.red),
+                style: TextStyle(
+                  color: _isUploading ? Colors.grey : Colors.red
+                ),
               ),
             ),
           ],
         ),
         const SizedBox(height: 8),
-        ...selectedFiles.map((file) => _buildFileItem(file)).toList(),
+        ...widget.selectedFiles.map((file) => _buildFileItem(file)).toList(),
       ],
     );
   }
 
   Widget _buildFileItem(PlatformFile file) {
+    // Verificar se o arquivo está dentro do limite de tamanho
+    final bool isFileTooLarge = file.size > PdfUploadService.maxPdfSizeBytes;
+
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
-      color: Colors.grey.shade100,
+      color: isFileTooLarge ? Colors.red.shade50 : Colors.grey.shade100,
       child: ListTile(
-        leading: const Icon(Icons.picture_as_pdf, color: Colors.red),
+        leading: Icon(
+          Icons.picture_as_pdf,
+          color: isFileTooLarge ? Colors.red.shade700 : Colors.red,
+        ),
         title: Text(
           file.name,
-          style: const TextStyle(fontWeight: FontWeight.w500),
+          style: TextStyle(
+            fontWeight: FontWeight.w500,
+            color: isFileTooLarge ? Colors.red.shade700 : null,
+          ),
         ),
-        subtitle: Text(
-          '${(file.size / 1024).toStringAsFixed(2)} KB',
-          style: const TextStyle(fontSize: 12),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              _pdfUploadService.formatFileSize(file.size),
+              style: const TextStyle(fontSize: 12),
+            ),
+            if (isFileTooLarge)
+              Text(
+                'Arquivo muito grande! Recomendado: ${_pdfUploadService.formatFileSize(PdfUploadService.maxPdfSizeBytes)}',
+                style: TextStyle(
+                  fontSize: 11,
+                  color: Colors.red.shade700,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+          ],
         ),
         trailing: IconButton(
-          icon: const Icon(Icons.close, color: Colors.grey),
-          onPressed: () => onRemoveFile(file),
+          icon: Icon(
+            Icons.close,
+            color: _isUploading ? Colors.grey.shade400 : Colors.grey,
+          ),
+          onPressed: _isUploading ? null : () => widget.onRemoveFile(file),
         ),
       ),
     );
   }
 
   Future<void> _pickPdfFile(BuildContext context) async {
+    // Evitar múltiplos cliques
+    if (_isUploading) return;
+
+    setState(() {
+      _isUploading = true;
+    });
+
     try {
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['pdf'],
+      final result = await _pdfUploadService.pickPdfFiles(
         allowMultiple: true,
+        onError: (errorMessage) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(errorMessage),
+              backgroundColor: Colors.red,
+              duration: const Duration(seconds: 5),
+              action: SnackBarAction(
+                label: 'OK',
+                textColor: Colors.white,
+                onPressed: () {},
+              ),
+            ),
+          );
+
+          setState(() {
+            _isUploading = false;
+          });
+        },
+        onCancel: () {
+          setState(() {
+            _isUploading = false;
+          });
+        },
       );
 
-      if (result != null && result.files.isNotEmpty) {
-        onFilesSelected(result.files);
+      if (result != null) {
+        // Converter PdfUploadResult para List<PlatformFile>
+        final List<PlatformFile> platformFiles = [];
+
+        for (int i = 0; i < result.fileNames.length; i++) {
+          platformFiles.add(
+            PlatformFile(
+              name: result.fileNames[i],
+              size: result.bytesList[i].length,
+              path: result.filePaths[i],
+              bytes: kIsWeb ? result.bytesList[i] : null,
+            ),
+          );
+        }
+
+        widget.onFilesSelected(platformFiles);
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Erro ao selecionar arquivo: ${e.toString()}'),
           backgroundColor: Colors.red,
+          duration: const Duration(seconds: 5),
         ),
       );
+    } finally {
+      setState(() {
+        _isUploading = false;
+      });
     }
   }
 }

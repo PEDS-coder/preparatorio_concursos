@@ -126,7 +126,7 @@ class Cargo {
       id: map['id'] ?? '',
       nome: map['nome'] ?? 'Não informado',
       vagas: map['vagas'] is int ? map['vagas'] : null,
-      salario: map['salario'] is num ? (map['salario'] as num).toDouble() : 0.0,
+      salario: _parseSalario(map['salario']),
       taxaInscricao: map['taxaInscricao'] is num ? (map['taxaInscricao'] as num).toDouble() : 0.0,
       nivel: map['nivel'] ?? 'Não informado',
       escolaridade: map['escolaridade'] ?? 'Não informado',
@@ -135,6 +135,34 @@ class Cargo {
       dataProva: map['dataProva'] != null ? DateTime.parse(map['dataProva']) : null,
       horarioProva: map['horarioProva'],
     );
+  }
+
+  /// Função helper para tentar extrair um valor double de diferentes formatos de salário
+  static double _parseSalario(dynamic salarioValue) {
+    if (salarioValue is num) {
+      return salarioValue.toDouble();
+    } else if (salarioValue is String) {
+      try {
+        // Remove caracteres não numéricos, exceto ponto e vírgula
+        String cleanedString = salarioValue.replaceAll(RegExp(r'[^0-9.,]'), '');
+        // Substitui vírgula por ponto para o parse
+        cleanedString = cleanedString.replaceAll(',', '.');
+        // Remove pontos extras (milhares) se houver mais de um ponto decimal
+        if (cleanedString.split('.').length > 2) {
+           cleanedString = cleanedString.replaceAll(RegExp(r'\.(?=.*\.)'), ''); // Remove todos os pontos exceto o último
+        }
+        return double.parse(cleanedString);
+      } catch (e) {
+        // Se falhar, retorna 0.0
+        return 0.0;
+      }
+    }
+    return 0.0; // Retorna 0.0 se não for num nem String ou se a conversão falhar
+  }
+
+  @override
+  String toString() {
+    return nome;
   }
 }
 

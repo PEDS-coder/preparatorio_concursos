@@ -58,16 +58,12 @@ abstract class IAServiceInterface {
   /// Extrai informações básicas de um edital
   Future<String> extrairInfoBasicasEdital(Uint8List pdfBytes, {String? pdfName});
 
-
-
   /// Extrai dados do concurso e conteúdo programático para um cargo específico
-  Future<String> extrairConcursoConteudo({
+  Future<Map<String, dynamic>> extrairConcursoConteudo({
     required Uint8List pdfBytes,
     required String cargoAlvo,
     String? pdfName,
   });
-
-
 
   /// Gera um resumo a partir de um texto
   Future<String> gerarResumo(String texto);
@@ -93,7 +89,6 @@ abstract class IAServiceInterface {
     required String materia,
     required String texto,
   });
-
 
   /// Verifica se o texto está dentro do limite de tokens para o modelo atual
   bool isWithinTokenLimit(String texto);

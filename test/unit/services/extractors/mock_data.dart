@@ -9,10 +9,17 @@ class MockData {
   }) {
     return PlanoEstudo(
       id: id ?? 'plano_teste_123',
-      titulo: 'Plano de Estudos Teste',
+      userId: 'user_teste_123',
+      editalId: 'edital_teste_123',
+      cargoIds: ['cargo_teste_123'],
+      dataCriacao: DateTime.now(),
       dataInicio: DateTime.now(),
       dataFim: DateTime.now().add(const Duration(days: 30)),
-      cargoIds: ['cargo_teste_123'],
+      horasSemanais: {'segunda': 2, 'terça': 2, 'quarta': 2, 'quinta': 2, 'sexta': 2, 'sábado': 0, 'domingo': 0},
+      ferramentas: [],
+      materiasProficiencia: [],
+      recompensas: [],
+      sessoesEstudo: [],
       metadados: metadados ?? {},
     );
   }
@@ -25,10 +32,11 @@ class MockData {
   }) {
     return Edital(
       id: id ?? 'edital_teste_123',
+      userId: 'user_teste_123',
       nomeConcurso: 'Concurso Teste',
-      nomeArquivo: 'edital_teste.pdf',
       dataUpload: DateTime.now(),
       textoCompleto: 'Texto completo do edital de teste',
+      nomeArquivo: 'edital_teste.pdf',
       dadosOriginais: dadosOriginais ?? {
         'concurso': {
           'titulo': 'Concurso Teste Original',
@@ -59,14 +67,14 @@ class MockData {
         titulo: 'Concurso Teste Extraído',
         orgao: 'Órgão Teste Extraído',
         banca: 'Banca Teste Extraída',
-        dataProva: DateTime(2025, 12, 31),
+        dataProva: '31/12/2025',
         localProva: 'Local Teste Extraído',
         valorTaxa: 120.50,
         inicioInscricao: DateTime(2025, 1, 1),
         fimInscricao: DateTime(2025, 1, 31),
         cotas: [
-          Cota(nome: 'PcD', percentual: 10),
-          Cota(nome: 'Negros', percentual: 20),
+          DadosCota(nome: 'PcD', percentual: 10),
+          DadosCota(nome: 'Negros', percentual: 20),
         ],
         cargos: [
           Cargo(
@@ -78,6 +86,7 @@ class MockData {
             conteudoProgramatico: [
               ConteudoProgramatico(
                 nome: 'Matéria Teste',
+                tipo: 'comum',
                 topicos: ['Tópico 1', 'Tópico 2'],
               ),
             ],

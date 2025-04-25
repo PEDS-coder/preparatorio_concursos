@@ -8,10 +8,10 @@ set(BINARY_NAME "preparatorio_concursos")
 
 # Incluir configurações personalizadas
 include(${CMAKE_CURRENT_SOURCE_DIR}/app_config.cmake)
-include(${CMAKE_CURRENT_SOURCE_DIR}/firebase_config.cmake)
-
+# Firebase temporariamente desabilitado
+# include(${CMAKE_CURRENT_SOURCE_DIR}/firebase_config.cmake)
 # Aplicar patch para o Firebase SDK
-include(${CMAKE_CURRENT_SOURCE_DIR}/firebase_sdk_patch.cmake)
+# include(${CMAKE_CURRENT_SOURCE_DIR}/firebase_sdk_patch.cmake)
 
 # Usar o nome do aplicativo definido anteriormente
 set(APP_BINARY_NAME ${BINARY_NAME})
@@ -43,21 +43,22 @@ set(CMAKE_CXX_FLAGS_PROFILE "${CMAKE_CXX_FLAGS_RELEASE}")
 add_definitions(-DUNICODE -D_UNICODE)
 
 # Adicionar definições com base nas configurações do aplicativo
-if(APP_ENABLE_ANALYTICS)
-  add_definitions(-DAPP_ENABLE_ANALYTICS)
-endif()
-
-if(APP_ENABLE_CRASHLYTICS)
-  add_definitions(-DAPP_ENABLE_CRASHLYTICS)
-endif()
-
-if(APP_ENABLE_PERFORMANCE)
-  add_definitions(-DAPP_ENABLE_PERFORMANCE)
-endif()
-
-if(APP_ENABLE_REMOTE_CONFIG)
-  add_definitions(-DAPP_ENABLE_REMOTE_CONFIG)
-endif()
+# Firebase temporariamente desabilitado
+# if(APP_ENABLE_ANALYTICS)
+#   add_definitions(-DAPP_ENABLE_ANALYTICS)
+# endif()
+#
+# if(APP_ENABLE_CRASHLYTICS)
+#   add_definitions(-DAPP_ENABLE_CRASHLYTICS)
+# endif()
+#
+# if(APP_ENABLE_PERFORMANCE)
+#   add_definitions(-DAPP_ENABLE_PERFORMANCE)
+# endif()
+#
+# if(APP_ENABLE_REMOTE_CONFIG)
+#   add_definitions(-DAPP_ENABLE_REMOTE_CONFIG)
+# endif()
 
 if(APP_DARK_THEME_ENABLED)
   add_definitions(-DAPP_DARK_THEME_ENABLED)

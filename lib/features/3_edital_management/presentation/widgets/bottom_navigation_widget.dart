@@ -42,12 +42,11 @@ class BottomNavigationWidget extends StatelessWidget {
             ),
             ElevatedButton.icon(
               onPressed: () {
-                // Navegar para a tela de seleção de cargo
-                Navigator.push(
+                // Navegar para a tela de seleção de cargo usando a rota nomeada
+                Navigator.pushNamed(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => CargoSelectScreen(editalId: editalId),
-                  ),
+                  '/cargo/select',
+                  arguments: {'editalId': editalId},
                 );
               },
               icon: const Icon(Icons.check_circle),

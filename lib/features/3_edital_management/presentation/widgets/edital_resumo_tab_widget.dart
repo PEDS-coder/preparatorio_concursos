@@ -118,11 +118,10 @@ class EditalResumoTabWidget extends StatelessWidget {
               Expanded(
                 child: ElevatedButton.icon(
                   onPressed: () {
-                    Navigator.push(
+                    Navigator.pushNamed(
                       context,
-                      MaterialPageRoute(
-                        builder: (context) => CargoSelectScreen(editalId: editalId),
-                      ),
+                      '/cargo/select',
+                      arguments: {'editalId': editalId},
                     );
                   },
                   icon: const Icon(Icons.add_chart),

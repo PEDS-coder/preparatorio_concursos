@@ -102,11 +102,10 @@ class EditalCargosTabWidget extends StatelessWidget {
                     const SizedBox(height: 16),
                     OutlinedButton.icon(
                       onPressed: () {
-                        Navigator.push(
+                        Navigator.pushNamed(
                           context,
-                          MaterialPageRoute(
-                            builder: (context) => CargoSelectScreen(editalId: editalId),
-                          ),
+                          '/cargo/select',
+                          arguments: {'editalId': editalId},
                         );
                       },
                       icon: const Icon(Icons.add_chart),

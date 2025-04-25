@@ -26,13 +26,15 @@ Você é um Analista de Documentos Altamente Preciso, especializado na interpret
   "cargos": [
     {
       "nome": "Nome do Cargo 1",
+      "vagas": 10,
       "salario": 5000.00,
-      "escolaridade": "Nível de escolaridade exigido"
+      "escolaridade": "Diploma, devidamente registrado, de conclusão de curso de nível superior em Direito, fornecido por instituição de ensino superior reconhecida pelo MEC."
     },
     {
       "nome": "Nome do Cargo 2",
+      "vagas": 5,
       "salario": 6000.00,
-      "escolaridade": "Nível de escolaridade exigido"
+      "escolaridade": "Certificado, devidamente registrado, de conclusão de curso de ensino médio (antigo segundo grau), expedido por instituição de ensino reconhecida pelo órgão competente."
     }
   ]
 }
@@ -52,5 +54,9 @@ Você é um Analista de Documentos Altamente Preciso, especializado na interpret
 - Use arrays (colchetes) para representar múltiplos itens
 - Não inclua informações que não estejam no edital
 - Se alguma informação não estiver disponível, use null para valores numéricos e "Não informado" para strings
+
+**IMPORTANTE SOBRE SALÁRIO E ESCOLARIDADE:**
+- Para o campo `salario`, extraia o valor numérico EXATO do salário/vencimento/remuneração inicial/subsídio/soldo ou qualquer outro termo que represente o valor pago em troca do trabalho. Procure por tabelas de remuneração ou descrições específicas do valor para CADA cargo. Busque termos como "remuneração", "vencimento", "subsídio", "soldo", "estipêndio", "provento" ou qualquer outro termo que indique o valor monetário pago ao servidor. Se o valor for o mesmo para um grupo de cargos, aplique-o. Se REALMENTE não houver menção explícita do valor no edital para um cargo, retorne `null`.
+- Para o campo `escolaridade`, extraia a descrição DETALHADA do requisito de formação/escolaridade exigido. NÃO USE termos genéricos como "Nível Superior". Extraia a descrição completa como está no edital. EXEMPLOS: "Diploma, devidamente registrado, de conclusão de curso de nível superior em Direito, fornecido por instituição de ensino superior reconhecida pelo MEC.", "Certificado, devidamente registrado, de conclusão de curso de ensino médio (antigo segundo grau), expedido por instituição de ensino reconhecida pelo órgão competente.", "Graduação em Arquivologia e registro profissional". Se REALMENTE não houver menção explícita do requisito no edital para um cargo, retorne `null`.
 
 Sua resposta deve começar diretamente com o JSON, sem texto introdutório ou explicativo.

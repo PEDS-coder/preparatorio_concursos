@@ -214,9 +214,17 @@ class IAService extends ChangeNotifier with IAServiceImplementations implements 
   }
 
   @override
-  Future<String> extrairConcursoConteudo({required Uint8List pdfBytes, required String cargoAlvo, String? pdfName}) async {
+  Future<Map<String, dynamic>> extrairConcursoConteudo({required Uint8List pdfBytes, required String cargoAlvo, String? pdfName}) async {
     // Implementação simulada
-    return 'Conteúdo simulado para o cargo $cargoAlvo';
+    return {
+      'concurso': {
+        'cargo': cargoAlvo,
+        'conteudo_programatico': {
+          'Gerais': ['Português Simulado', 'Raciocínio Lógico Simulado'],
+          'Específicas': ['Conhecimento Específico Simulado 1', 'Conhecimento Específico Simulado 2']
+        }
+      }
+    };
   }
 
   @override

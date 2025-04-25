@@ -127,15 +127,9 @@ void main() async {
   final bool isConnected = await ConnectivityService.isConnected();
   print('Conectividade com a internet: ${isConnected ? "OK" : "Falha"}');
 
-  // Verificar proativamente a configuração da API LLM
-  print('Verificando configuração da API LLM...');
-  try {
-    await apiConfigService.verificarConfiguracao();
-    print('Configuração da API LLM verificada com sucesso');
-  } catch (e) {
-    print('ERRO ao verificar configuração da API LLM: $e');
-    // Continuar mesmo com erro
-  }
+  // Não verificar proativamente a configuração da API LLM na inicialização
+  // Isso será feito quando o usuário acessar a tela de configuração da API
+  print('Configuração da API LLM será verificada quando necessário');
   final documentClassifierService = DocumentClassifierService(iaService);
 
   // Carregar dados iniciais
@@ -156,6 +150,11 @@ void main() async {
   // Desabilitar a verificação de tipo do Provider para permitir o uso de IAServiceInterface
   Provider.debugCheckInvalidValueType = null;
 
+  // Obter o serviço de armazenamento seguro
+  final secureStorageService = getIt.isRegistered<ISecureStorageService>()
+      ? getIt.get<ISecureStorageService>()
+      : TempSecureStorageService(Logger());
+
   runApp(
     MultiProvider(
       providers: [
@@ -173,6 +172,8 @@ void main() async {
         ChangeNotifierProvider.value(value: themeService),
         Provider<IRemoteConfigService>.value(value: remoteConfigService),
         Provider.value(value: documentClassifierService),
+        // Adicionar o serviço de armazenamento seguro como Provider
+        Provider<ISecureStorageService>.value(value: secureStorageService),
       ],
       child: PreparatorioConcursosApp(),
     ),

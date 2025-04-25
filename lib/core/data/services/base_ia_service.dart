@@ -318,44 +318,11 @@ abstract class BaseIAService extends ChangeNotifier implements IAServiceInterfac
   }
 
   @override
-  Future<String> extrairConcursoConteudo({
+  Future<Map<String, dynamic>> extrairConcursoConteudo({
     required Uint8List pdfBytes,
     required String cargoAlvo,
     String? pdfName,
-  }) async {
-    if (!isConfigured) {
-      throw Exception('API Key não configurada');
-    }
-
-    try {
-      // Carregar o prompt para extração de dados do concurso e conteúdo programático
-      String promptTemplate;
-      try {
-        // Usar o novo prompt para extração de dados do concurso e conteúdo programático
-        promptTemplate = await _promptService.loadConcursoConteudoPrompt();
-      } catch (e) {
-        AppLogger.e('BaseIAService', 'Erro ao carregar prompt de concurso e conteúdo', e);
-        // Usar prompt de fallback em caso de erro
-        promptTemplate = await _promptService.loadFallbackCargoInfoPrompt();
-      }
-
-      // Substituir o placeholder do cargo alvo
-      if (promptTemplate.contains('[CARGO_ALVO]')) {
-        promptTemplate = promptTemplate.replaceAll('[CARGO_ALVO]', cargoAlvo);
-      }
-
-      // Implementação específica para cada provedor
-      AppLogger.i('BaseIAService', 'Chamando processarPdf para processar o PDF...');
-      final resultado = await processarPdf(promptTemplate, pdfBytes, pdfName: pdfName);
-      AppLogger.i('BaseIAService', 'PDF processado com sucesso!');
-      return resultado;
-    } catch (e) {
-      AppLogger.e('BaseIAService', 'Erro ao extrair dados do concurso e conteúdo programático', e);
-      rethrow;
-    }
-  }
-
-
+  });
 
   @override
   Future<String> gerarResumo(String texto) async {

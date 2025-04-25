@@ -165,9 +165,9 @@ class EditalAnalyzer {
       _reportProgress(0.1, 'Extraindo dados do concurso e conteúdo programático para o cargo: $cargoAlvo...');
 
       // Chamar a API para extrair os dados do concurso e conteúdo programático
-      final String resultado = await iaService.extrairConcursoConteudo(pdfBytes: pdfBytes, cargoAlvo: cargoAlvo);
+      final Map<String, dynamic> resultado = await iaService.extrairConcursoConteudo(pdfBytes: pdfBytes, cargoAlvo: cargoAlvo);
 
-      if (resultado == null || resultado.isEmpty) {
+      if (resultado.isEmpty) {
         _log('Resultado da extração de dados do concurso e conteúdo programático vazio');
         return null;
       }
@@ -175,8 +175,8 @@ class EditalAnalyzer {
       _reportProgress(0.7, 'Processando resultado da extração...');
       _log('Resultado da extração de dados do concurso e conteúdo programático recebido. Processando resposta...');
 
-      // Processar o resultado (preferencialmente JSON)
-      return _processarRespostaLLM(resultado);
+      // Retornar o resultado diretamente, já que é um Map<String, dynamic>
+      return resultado;
     } catch (e, stackTrace) {
       _log('Erro na extração de dados do concurso e conteúdo programático: $e\nStackTrace: $stackTrace');
       rethrow;
@@ -369,15 +369,133 @@ class EditalAnalyzer {
         }
       }
 
-      // Adicionar dados da prova e cotas ao objeto DadosExtraidos
-      final dadosExtraidos = DadosExtraidos.fromMap(dadosJson);
-      dadosExtraidos.dadosProva = dadosProva;
-      dadosExtraidos.cotas = cotas;
+      // Processar dados de inscrição
+      DateTime? inicioInscricao;
+      DateTime? fimInscricao;
+      dynamic valorTaxa;
 
-      return dadosExtraidos;
+      // Tentar extrair do objeto inscricoes
+      if (dadosJson.containsKey('inscricoes') && dadosJson['inscricoes'] is Map) {
+        final inscricoes = dadosJson['inscricoes'];
+        if (inscricoes.containsKey('inicio')) {
+          inicioInscricao = _parseDataSegura(inscricoes['inicio']);
+        }
+        if (inscricoes.containsKey('fim')) {
+          fimInscricao = _parseDataSegura(inscricoes['fim']);
+        }
+        if (inscricoes.containsKey('taxa')) {
+          valorTaxa = inscricoes['taxa'];
+        }
+      }
+
+      // Tentar extrair do período de inscrição
+      if (dadosJson.containsKey('periodo_inscricao')) {
+        if (dadosJson['periodo_inscricao'] is Map) {
+          final periodoInscricao = dadosJson['periodo_inscricao'];
+          if (periodoInscricao.containsKey('inicio')) {
+            inicioInscricao = _parseDataSegura(periodoInscricao['inicio']);
+          }
+          if (periodoInscricao.containsKey('fim')) {
+            fimInscricao = _parseDataSegura(periodoInscricao['fim']);
+          }
+        }
+      }
+
+      // Tentar extrair taxa de inscrição
+      if (dadosJson.containsKey('taxa_inscricao')) {
+        valorTaxa = dadosJson['taxa_inscricao'];
+      }
+
+      // Processar dados da prova
+      String? dataProva;
+      String? localProva;
+      int? totalQuestoes;
+      String? formatoProva;
+      String? duracaoProva;
+      String? temaDiscursiva;
+
+      // Tentar extrair do nível superior
+      if (dadosJson.containsKey('data_prova')) {
+        dataProva = dadosJson['data_prova'];
+      }
+      if (dadosJson.containsKey('local_prova')) {
+        localProva = dadosJson['local_prova'];
+      }
+      if (dadosJson.containsKey('total_questoes')) {
+        totalQuestoes = dadosJson['total_questoes'] is int ? dadosJson['total_questoes'] : null;
+      }
+      if (dadosJson.containsKey('formato_prova')) {
+        if (dadosJson['formato_prova'] is List) {
+          formatoProva = (dadosJson['formato_prova'] as List).join(', ');
+        } else {
+          formatoProva = dadosJson['formato_prova'].toString();
+        }
+      }
+      if (dadosJson.containsKey('duracao_prova')) {
+        duracaoProva = dadosJson['duracao_prova'];
+      }
+      if (dadosJson.containsKey('tema_prova_subjetiva')) {
+        temaDiscursiva = dadosJson['tema_prova_subjetiva'];
+      }
+
+      // Criar o objeto DadosExtraidos
+      return DadosExtraidos(
+        titulo: dadosJson['titulo'] ?? dadosJson['titulo_concurso'],
+        orgao: dadosJson['orgao'] ?? dadosJson['orgao_responsavel'],
+        banca: dadosJson['banca'] ?? dadosJson['banca_organizadora'],
+        dataProva: dataProva,
+        inicioInscricao: inicioInscricao,
+        fimInscricao: fimInscricao,
+        valorTaxa: valorTaxa,
+        localProva: localProva,
+        cargos: dadosJson['cargos'] != null
+            ? List<Cargo>.from(dadosJson['cargos'].map((x) => Cargo.fromMap(x)))
+            : [],
+        textoCompleto: dadosJson['textoCompleto'] ?? '',
+        dadosProva: dadosProva,
+        cotas: cotas,
+        // Propriedades adicionais
+        periodoInscricaoInicio: dadosJson['periodo_inscricao_inicio'],
+        periodoInscricaoFim: dadosJson['periodo_inscricao_fim'],
+        taxaInscricao: dadosJson['taxa_inscricao'] is num ? (dadosJson['taxa_inscricao'] as num).toDouble() : null,
+        totalQuestoes: totalQuestoes,
+        formatoProva: formatoProva,
+        duracaoProva: duracaoProva,
+        temaDiscursiva: temaDiscursiva,
+        criteriosAprovacao: dadosJson['criterios_aprovacao'],
+        criteriosReprovacao: dadosJson['criterios_reprovacao'],
+        criteriosDesempate: dadosJson['criterios_desempate'] is List ? List<String>.from(dadosJson['criterios_desempate']) : null,
+        // Estruturas aninhadas
+        concurso: dadosJson['concurso'] is Map ? Map<String, dynamic>.from(dadosJson['concurso']) : null,
+        prova: dadosJson['prova'] is Map ? Map<String, dynamic>.from(dadosJson['prova']) : null,
+      );
     } catch (e, stackTrace) {
       _log('Erro ao converter para DadosExtraidos: $e\nStackTrace: $stackTrace');
       throw EditalAnalysisException('Erro ao converter dados extraídos: $e');
+    }
+  }
+
+  /// Método auxiliar para parsear datas com tratamento de erro
+  DateTime? _parseDataSegura(dynamic valor) {
+    if (valor == null) return null;
+    try {
+      if (valor is String) {
+        // Tentar formatos comuns de data
+        if (valor.contains('/')) {
+          // Formato dd/mm/yyyy
+          final partes = valor.split('/');
+          if (partes.length == 3) {
+            return DateTime(int.parse(partes[2]), int.parse(partes[1]), int.parse(partes[0]));
+          }
+        } else if (valor.contains('-')) {
+          // Formato yyyy-mm-dd
+          return DateTime.parse(valor);
+        }
+      }
+      return null;
+    } catch (e) {
+      _log('Erro ao parsear data: $e');
+      return null;
     }
   }
 

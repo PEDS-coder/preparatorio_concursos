@@ -28,12 +28,44 @@ class EditalSaveService {
     final List<Cargo> cargos = [];
     if (dadosMap['cargos'] != null && dadosMap['cargos'] is List) {
       for (var cargoMap in dadosMap['cargos']) {
+        // Processar o salário corretamente
+        double salario = 0.0;
+        if (cargoMap['salario'] != null) {
+          if (cargoMap['salario'] is num) {
+            salario = (cargoMap['salario'] as num).toDouble();
+          } else if (cargoMap['salario'] is String) {
+            try {
+              // Remover caracteres não numéricos, exceto ponto e vírgula
+              String cleanedString = cargoMap['salario'].toString().replaceAll(RegExp(r'[^0-9.,]'), '');
+              // Substituir vírgula por ponto para o parse
+              cleanedString = cleanedString.replaceAll(',', '.');
+              // Remover pontos extras (milhares) se houver mais de um ponto decimal
+              if (cleanedString.split('.').length > 2) {
+                cleanedString = cleanedString.replaceAll(RegExp(r'\.(?=.*\.)'), ''); // Remove todos os pontos exceto o último
+              }
+              salario = double.parse(cleanedString);
+            } catch (e) {
+              debugPrint('Erro ao converter salário: $e');
+              salario = 0.0;
+            }
+          }
+        }
+
+        // Processar a escolaridade corretamente
+        String escolaridade = cargoMap['escolaridade'] ?? 'Não especificado';
+        // Garantir que a escolaridade não seja truncada
+        if (escolaridade is String && escolaridade.isNotEmpty) {
+          // Manter a escolaridade como está, sem modificações
+        } else {
+          escolaridade = 'Não especificado';
+        }
+
         cargos.add(Cargo(
           id: '${DateTime.now().millisecondsSinceEpoch}_' + (cargoMap['nome'] ?? ''),
           nome: cargoMap['nome'] ?? 'Cargo sem nome',
           vagas: cargoMap['vagas'] ?? 0,
-          salario: cargoMap['salario'] ?? 0.0,
-          escolaridade: cargoMap['escolaridade'] ?? 'Não especificado',
+          salario: salario,
+          escolaridade: escolaridade,
           dataProva: cargoMap['dataProva'] != null ? DateTime.parse(cargoMap['dataProva']) : null,
           conteudoProgramatico: [],
         ));

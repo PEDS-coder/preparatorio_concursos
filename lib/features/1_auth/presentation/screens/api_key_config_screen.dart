@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/data/services/interfaces/ia_service_interface.dart';
+import '../../../../core/data/services/interfaces/secure_storage_service_interface.dart';
 import '../../../../core/services/api_config_service.dart';
 import '../../../../core/services/audio_explanation_service.dart';
 import 'api_info_screen.dart';
@@ -27,6 +28,14 @@ class _ApiKeyConfigScreenState extends State<ApiKeyConfigScreen> {
   void initState() {
     super.initState();
     _loadSavedApiKey();
+
+    // Limpar o status de validação ao iniciar a tela
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final apiConfigService = Provider.of<ApiConfigService>(context, listen: false);
+      if (apiConfigService.validationStatus.isNotEmpty) {
+        apiConfigService.resetValidationStatus();
+      }
+    });
   }
 
   @override
@@ -80,21 +89,27 @@ class _ApiKeyConfigScreenState extends State<ApiKeyConfigScreen> {
       );
 
       try {
+        // Obter o serviço de configuração da API
+        final apiConfigService = Provider.of<ApiConfigService>(context, listen: false);
+
         // Validar a chave do LLM (Gemini)
         final iaService = Provider.of<IAServiceInterface>(context, listen: false);
 
         // Usar o serviço Gemini Official
         iaService.setApiType('gemini_official');
 
-        final llmResult = await iaService.setApiKey(
-          _apiKeyController.text.trim(),
-          'gemini_official',
-        );
+        // Salvar a chave API no armazenamento seguro
+        final secureStorage = Provider.of<ISecureStorageService>(context, listen: false);
+        await secureStorage.saveSecure('api_key', _apiKeyController.text.trim());
+        await secureStorage.saveSecure('api_type', 'gemini_official');
+
+        // Verificar a configuração usando o serviço de configuração da API
+        final bool isConfigValid = await apiConfigService.verificarConfiguracao();
 
         // Fechar o SnackBar de validação
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
 
-        if (!llmResult['success']) {
+        if (!isConfigValid) {
           // Mostrar mensagem de erro
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -102,7 +117,7 @@ class _ApiKeyConfigScreenState extends State<ApiKeyConfigScreen> {
                 children: [
                   const Icon(Icons.error_outline, color: Colors.white),
                   const SizedBox(width: 12),
-                  Expanded(child: Text('Erro na chave do LLM: ${llmResult['message']}')),
+                  Expanded(child: Text('Erro na chave do LLM: ${apiConfigService.configErrorMessage ?? "Chave inválida"}')),
                 ],
               ),
               backgroundColor: Colors.red,
@@ -112,7 +127,7 @@ class _ApiKeyConfigScreenState extends State<ApiKeyConfigScreen> {
 
           setState(() {
             _isLoading = false;
-            _errorMessage = 'Erro na chave do LLM: ${llmResult['message']}';
+            _errorMessage = 'Erro na chave do LLM: ${apiConfigService.configErrorMessage ?? "Chave inválida"}';
           });
           return;
         }
@@ -170,6 +185,144 @@ class _ApiKeyConfigScreenState extends State<ApiKeyConfigScreen> {
         });
       }
     }
+  }
+
+  /// Método para forçar a validação da chave API no Windows
+  Future<void> _forcarValidacao() async {
+    if (_apiKeyController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Por favor, insira uma chave API válida'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    if (!_apiKeyController.text.trim().startsWith('AI')) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Chave Gemini inválida. Deve começar com "AI"'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    // Mostrar SnackBar de validação
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Row(
+          children: [
+            SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)),
+            SizedBox(width: 12),
+            Text('Forçando validação para Windows...'),
+          ],
+        ),
+        backgroundColor: Colors.blue.shade700,
+        duration: const Duration(seconds: 10),
+      ),
+    );
+
+    try {
+      // Obter o serviço de configuração da API
+      final apiConfigService = Provider.of<ApiConfigService>(context, listen: false);
+
+      // Validar a chave do LLM (Gemini)
+      final iaService = Provider.of<IAServiceInterface>(context, listen: false);
+
+      // Usar o serviço Gemini Official
+      iaService.setApiType('gemini_official');
+
+      // Salvar a chave API no armazenamento seguro
+      final secureStorage = Provider.of<ISecureStorageService>(context, listen: false);
+      await secureStorage.saveSecure('api_key', _apiKeyController.text.trim());
+      await secureStorage.saveSecure('api_type', 'gemini_official');
+
+      // Configurar o serviço de IA com a chave API
+      await iaService.configurarApiKey(_apiKeyController.text.trim());
+
+      // Fechar o SnackBar de validação
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
+      // Salvar que o usuário configurou a API
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('api_key_configured', true);
+
+      // Mostrar mensagem de sucesso
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Row(
+            children: [
+              Icon(Icons.check_circle, color: Colors.white),
+              SizedBox(width: 12),
+              Expanded(child: Text('Validação forçada com sucesso! A chave API foi salva.')),
+            ],
+          ),
+          backgroundColor: Colors.green,
+          duration: Duration(seconds: 3),
+        ),
+      );
+
+      setState(() {
+        _isLoading = false;
+      });
+
+      // Iniciar verificação assíncrona
+      _verificarApiAssincronamente();
+
+      // Navegar para a tela de análise de edital após um breve atraso para mostrar a mensagem
+      Future.delayed(const Duration(seconds: 2), () {
+        Navigator.pushReplacementNamed(context, '/edital/analyze');
+      });
+    } catch (e) {
+      // Fechar o SnackBar de validação
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
+      // Mostrar mensagem de erro
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.error_outline, color: Colors.white),
+              const SizedBox(width: 12),
+              Expanded(child: Text('Erro ao forçar validação: $e')),
+            ],
+          ),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 5),
+        ),
+      );
+
+      setState(() {
+        _isLoading = false;
+        _errorMessage = 'Erro ao forçar validação: $e';
+      });
+    }
+  }
+
+  /// Método para verificar a API assincronamente
+  void _verificarApiAssincronamente() {
+    // Executar em um isolate separado para não bloquear a UI
+    Future.delayed(const Duration(seconds: 2), () async {
+      try {
+        final apiConfigService = Provider.of<ApiConfigService>(context, listen: false);
+        final bool isValid = await apiConfigService.verificarConfiguracao();
+
+        if (isValid) {
+          print('Verificação assíncrona da API: Sucesso');
+        } else {
+          print('Verificação assíncrona da API: Falha');
+        }
+      } catch (e) {
+        print('Erro na verificação assíncrona da API: $e');
+      }
+    });
   }
 
   @override
@@ -398,49 +551,221 @@ class _ApiKeyConfigScreenState extends State<ApiKeyConfigScreen> {
                             return null;
                           },
                         ),
-                        if (_errorMessage != null) ...[
-                          const SizedBox(height: 16),
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: Colors.red.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: Colors.red.withOpacity(0.3)),
-                            ),
-                            child: Row(
-                              children: [
-                                const Icon(Icons.error_outline, color: Colors.red),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Text(
-                                    _errorMessage!,
-                                    style: const TextStyle(color: Colors.red),
+                        // Status da validação
+                        Consumer<ApiConfigService>(
+                          builder: (context, apiConfigService, child) {
+                            if (apiConfigService.isVerifyingConfig || apiConfigService.validationStatus.isNotEmpty) {
+                              return Padding(
+                                padding: const EdgeInsets.only(top: 16.0),
+                                child: Container(
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    color: _getStatusColor(apiConfigService.validationStatus).withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(
+                                      color: _getStatusColor(apiConfigService.validationStatus).withOpacity(0.3),
+                                    ),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Icon(
+                                            _getStatusIcon(apiConfigService.validationStatus),
+                                            size: 16,
+                                            color: _getStatusColor(apiConfigService.validationStatus),
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Expanded(
+                                            child: Text(
+                                              'Status: ${_getStatusMessage(apiConfigService.validationStatus)}',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                color: _getStatusColor(apiConfigService.validationStatus),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      if (apiConfigService.isVerifyingConfig)
+                                        Padding(
+                                          padding: const EdgeInsets.only(top: 8),
+                                          child: LinearProgressIndicator(
+                                            backgroundColor: Colors.grey.shade200,
+                                            valueColor: AlwaysStoppedAnimation<Color>(
+                                              _getStatusColor(apiConfigService.validationStatus),
+                                            ),
+                                          ),
+                                        ),
+                                      if (apiConfigService.configErrorMessage != null && apiConfigService.configErrorMessage!.isNotEmpty)
+                                        Padding(
+                                          padding: const EdgeInsets.only(top: 8),
+                                          child: Text(
+                                            apiConfigService.configErrorMessage!,
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.red.shade700,
+                                            ),
+                                          ),
+                                        ),
+                                      if (apiConfigService.lastValidationTime != null)
+                                        Padding(
+                                          padding: const EdgeInsets.only(top: 4),
+                                          child: Text(
+                                            'Última verificação: ${_formatDateTime(apiConfigService.lastValidationTime!)}',
+                                            style: TextStyle(
+                                              fontSize: 11,
+                                              color: isDarkMode ? Colors.white70 : Colors.black54,
+                                            ),
+                                          ),
+                                        ),
+                                    ],
                                   ),
                                 ),
-                              ],
-                            ),
-                          ),
-                        ],
-                        const SizedBox(height: 24),
-                        ElevatedButton(
-                          onPressed: _isLoading ? null : _saveApiKey,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppTheme.primaryColor,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          child: _isLoading
-                              ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              );
+                            } else if (_errorMessage != null) {
+                              return Padding(
+                                padding: const EdgeInsets.only(top: 16.0),
+                                child: Container(
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    color: Colors.red.withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(color: Colors.red.withOpacity(0.3)),
                                   ),
-                                )
-                              : const Text('Validar e Salvar'),
+                                  child: Row(
+                                    children: [
+                                      const Icon(Icons.error_outline, color: Colors.red),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: Text(
+                                          _errorMessage!,
+                                          style: const TextStyle(color: Colors.red),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            } else {
+                              return const SizedBox.shrink();
+                            }
+                          },
+                        ),
+                        const SizedBox(height: 24),
+                        Consumer<ApiConfigService>(
+                          builder: (context, apiConfigService, child) {
+                            // No Windows, mostrar botão adicional para forçar validação
+                            if (Platform.isWindows) {
+                              return Column(
+                                children: [
+                                  ElevatedButton(
+                                    onPressed: _isLoading || apiConfigService.isVerifyingConfig ? null : _saveApiKey,
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: AppTheme.primaryColor,
+                                      padding: const EdgeInsets.symmetric(vertical: 16),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      disabledBackgroundColor: Colors.grey.shade400,
+                                    ),
+                                    child: _isLoading || apiConfigService.isVerifyingConfig
+                                        ? Row(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              const SizedBox(
+                                                height: 20,
+                                                width: 20,
+                                                child: CircularProgressIndicator(
+                                                  strokeWidth: 2,
+                                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                                ),
+                                              ),
+                                              const SizedBox(width: 12),
+                                              Text(
+                                                apiConfigService.isVerifyingConfig ? 'Verificando...' : 'Validando...',
+                                                style: const TextStyle(color: Colors.white),
+                                              ),
+                                            ],
+                                          )
+                                        : const Text('Validar e Salvar'),
+                                  ),
+                                  const SizedBox(height: 12),
+                                  ElevatedButton(
+                                    onPressed: _isLoading || apiConfigService.isVerifyingConfig ? null : _forcarValidacao,
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.blue,
+                                      padding: const EdgeInsets.symmetric(vertical: 16),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      disabledBackgroundColor: Colors.grey.shade400,
+                                    ),
+                                    child: _isLoading || apiConfigService.isVerifyingConfig
+                                        ? Row(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              const SizedBox(
+                                                height: 20,
+                                                width: 20,
+                                                child: CircularProgressIndicator(
+                                                  strokeWidth: 2,
+                                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                                ),
+                                              ),
+                                              const SizedBox(width: 12),
+                                              Text(
+                                                'Aguarde...',
+                                                style: const TextStyle(color: Colors.white),
+                                              ),
+                                            ],
+                                          )
+                                        : const Text('Forçar Validação (Windows)'),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  const Text(
+                                    'Use "Forçar Validação" apenas se a validação normal falhar no Windows.',
+                                    style: TextStyle(color: Colors.grey, fontSize: 12),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
+                              );
+                            } else {
+                              // Para outras plataformas, mostrar apenas o botão normal
+                              return ElevatedButton(
+                                onPressed: _isLoading || apiConfigService.isVerifyingConfig ? null : _saveApiKey,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppTheme.primaryColor,
+                                  padding: const EdgeInsets.symmetric(vertical: 16),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  disabledBackgroundColor: Colors.grey.shade400,
+                                ),
+                                child: _isLoading || apiConfigService.isVerifyingConfig
+                                    ? Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          const SizedBox(
+                                            height: 20,
+                                            width: 20,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                            ),
+                                          ),
+                                          const SizedBox(width: 12),
+                                          Text(
+                                            apiConfigService.isVerifyingConfig ? 'Verificando...' : 'Validando...',
+                                            style: const TextStyle(color: Colors.white),
+                                          ),
+                                        ],
+                                      )
+                                    : const Text('Validar e Salvar'),
+                              );
+                            }
+                          },
                         ),
                       ],
                     ),
@@ -478,11 +803,20 @@ class _ApiKeyConfigScreenState extends State<ApiKeyConfigScreen> {
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          'Nota: O modelo acima é experimental e oferece maior capacidade de saída. Você pode obter uma chave API gratuita no Google AI Studio.',
+                          'Nota: O aplicativo tentará usar o modelo experimental gemini-2.5-pro-exp-03-25. Se este modelo não estiver disponível, o sistema tentará os modelos gemini-2.5-pro-preview-03-25 ou gemini-2.5-flash-preview-04-17. Você pode obter uma chave API gratuita no Google AI Studio (aistudio.google.com).',
                           style: TextStyle(
                             fontSize: 12,
                             fontStyle: FontStyle.italic,
                             color: isDarkMode ? Colors.white70 : Colors.black54,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Importante: Certifique-se de que sua chave API tenha permissão para acessar os modelos da família Gemini 2.5.',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: isDarkMode ? Colors.orange[300] : Colors.orange[800],
                           ),
                         ),
                       ],
@@ -658,5 +992,74 @@ class _ApiKeyConfigScreenState extends State<ApiKeyConfigScreen> {
         ],
       ),
     );
+  }
+
+  // Retorna a cor apropriada com base no status
+  Color _getStatusColor(String status) {
+    if (status.isEmpty) {
+      return Colors.grey;
+    } else if (status.startsWith('Sucesso')) {
+      return Colors.green;
+    } else if (status.startsWith('Falha')) {
+      return Colors.red;
+    } else if (status.startsWith('Erro')) {
+      return Colors.red.shade700;
+    } else if (status.startsWith('Aguardando')) {
+      return Colors.orange;
+    } else if (status.startsWith('Tentativa')) {
+      return Colors.blue;
+    } else {
+      return Colors.blue;
+    }
+  }
+
+  // Retorna o ícone apropriado com base no status
+  IconData _getStatusIcon(String status) {
+    if (status.isEmpty) {
+      return Icons.info_outline;
+    } else if (status.startsWith('Sucesso')) {
+      return Icons.check_circle_outline;
+    } else if (status.startsWith('Falha') || status.startsWith('Erro')) {
+      return Icons.error_outline;
+    } else if (status.startsWith('Aguardando')) {
+      return Icons.hourglass_empty;
+    } else if (status.startsWith('Tentativa')) {
+      return Icons.refresh;
+    } else {
+      return Icons.sync;
+    }
+  }
+
+  // Retorna uma mensagem amigável com base no status
+  String _getStatusMessage(String status) {
+    if (status.isEmpty) {
+      return 'Aguardando verificação';
+    } else if (status.startsWith('Sucesso')) {
+      return 'Verificação bem-sucedida';
+    } else if (status.startsWith('Falha') || status.startsWith('Erro')) {
+      return 'Falha na verificação';
+    } else if (status.startsWith('Aguardando')) {
+      return 'Aguardando...';
+    } else if (status.startsWith('Tentativa')) {
+      return 'Verificando...';
+    } else {
+      return 'Em andamento...';
+    }
+  }
+
+  // Formata a data e hora
+  String _formatDateTime(DateTime dateTime) {
+    final now = DateTime.now();
+    final difference = now.difference(dateTime);
+
+    if (difference.inSeconds < 60) {
+      return 'Agora mesmo';
+    } else if (difference.inMinutes < 60) {
+      return 'Há ${difference.inMinutes} minutos';
+    } else if (difference.inHours < 24) {
+      return 'Há ${difference.inHours} horas';
+    } else {
+      return '${dateTime.day.toString().padLeft(2, '0')}/${dateTime.month.toString().padLeft(2, '0')}/${dateTime.year} às ${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
+    }
   }
 }

@@ -142,35 +142,95 @@ class CargoConverter {
   static double _extrairSalario(Map<String, dynamic> cargoJson) {
     try {
       // Lista de possíveis campos para salário
-      final salaryFields = ['salario', 'remuneracao', 'vencimento', 'valor', 'remuneração', 'salário'];
+      final salaryFields = [
+        'salario', 'remuneracao', 'vencimento', 'valor', 'remuneração', 'salário',
+        'subsídio', 'subsidio', 'soldo', 'estipêndio', 'estipendio', 'provento',
+        'remuneracao_inicial', 'remuneração_inicial', 'vencimento_inicial',
+        'salario_inicial', 'salário_inicial', 'valor_remuneracao', 'valor_salario'
+      ];
+
+      // Log para depuração
+      debugPrint('Extraindo salário do cargo: ${cargoJson['nome']}');
 
       // Verificar cada campo possível
       for (var field in salaryFields) {
         if (cargoJson.containsKey(field)) {
           var value = cargoJson[field];
+          debugPrint('  Campo encontrado: $field = $value');
 
           // Se for um número, converter diretamente
           if (value is num) {
+            debugPrint('  Valor numérico: $value');
             return value.toDouble();
           }
           // Se for uma string, tentar extrair o valor numérico
           else if (value is String) {
+            debugPrint('  Valor string: $value');
+
             // Verificar se a string contém vírgula como separador decimal
             if (value.contains(',') && !value.contains('.')) {
               // Substituir vírgula por ponto para o parsing correto
               value = value.replaceAll(',', '.');
+              debugPrint('  Após substituir vírgula por ponto: $value');
             }
 
             // Remover caracteres não numéricos, exceto ponto decimal
-            final String valueStr = value.replaceAll(RegExp(r'[^\d.]'), '').trim();
+            String valueStr = value.replaceAll(RegExp(r'[^0-9.,]'), '').trim();
+            debugPrint('  Após remover caracteres não numéricos: $valueStr');
+
+            // Substituir vírgula por ponto (caso ainda haja vírgula)
+            valueStr = valueStr.replaceAll(',', '.');
+
+            // Remover pontos extras (milhares) se houver mais de um ponto decimal
+            if (valueStr.split('.').length > 2) {
+              valueStr = valueStr.replaceAll(RegExp(r'\.(?=.*\.)'), ''); // Remove todos os pontos exceto o último
+              debugPrint('  Após remover pontos extras: $valueStr');
+            }
+
             if (valueStr.isNotEmpty) {
-              return double.tryParse(valueStr) ?? 0.0;
+              try {
+                final double result = double.parse(valueStr);
+                debugPrint('  Valor convertido: $result');
+                return result;
+              } catch (e) {
+                debugPrint('  Erro ao converter para double: $e');
+              }
+            }
+          }
+        }
+      }
+
+      // Buscar em campos de descrição ou texto completo
+      if (cargoJson.containsKey('descricao') || cargoJson.containsKey('descrição')) {
+        String descricao = (cargoJson['descricao'] ?? cargoJson['descrição'] ?? '').toString();
+        debugPrint('  Buscando valor na descrição: ${descricao.substring(0, descricao.length > 50 ? 50 : descricao.length)}...');
+
+        // Buscar padrões de salário na descrição
+        final RegExp regexSalario = RegExp(r'R\$\s*([0-9.,]+)', caseSensitive: false);
+        final matches = regexSalario.allMatches(descricao);
+
+        if (matches.isNotEmpty) {
+          // Pegar o primeiro match
+          final match = matches.first;
+          if (match.groupCount >= 1) {
+            String valorStr = match.group(1)!;
+            debugPrint('  Valor encontrado na descrição: $valorStr');
+
+            // Processar o valor
+            valorStr = valorStr.replaceAll('.', '').replaceAll(',', '.');
+            try {
+              final double result = double.parse(valorStr);
+              debugPrint('  Valor convertido da descrição: $result');
+              return result;
+            } catch (e) {
+              debugPrint('  Erro ao converter valor da descrição: $e');
             }
           }
         }
       }
 
       // Se não encontrou nada, retornar 0.0
+      debugPrint('  Nenhum valor de salário encontrado, retornando 0.0');
       return 0.0;
     } catch (e) {
       debugPrint('Erro ao extrair salário: $e');

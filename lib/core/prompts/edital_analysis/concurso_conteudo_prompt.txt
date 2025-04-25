@@ -69,6 +69,8 @@ DIREITO ADMINISTRATIVO (10 questões)
 DIREITO CIVIL (10 questões)
 DIREITO PROCESSUAL CIVIL (10 questões)
 
+**REFORÇO CRÍTICO:** O nome "Conhecimentos Específicos" NUNCA deve aparecer como um `nome` de matéria na sua resposta JSON. Se o edital tiver uma seção com este título, você DEVE extrair CADA disciplina listada DENTRO dessa seção como uma matéria separada, cada uma com seus próprios tópicos. Ignore o título geral "Conhecimentos Específicos" e foque nas disciplinas reais que ele contém.
+
 Você deve ser capaz de entender todas essas possibilidades e identificar a lógica aplicada ao edital encaminhado para determinar exatamente quais são as matérias que serão cobradas na prova objetiva do CARGO ALVO.
 
 **Cargo Alvo:**
@@ -129,104 +131,104 @@ Esteja ciente de que a estrutura desses documentos varia enormemente. As informa
    - Para matérias sem número explícito de questões, distribua as questões restantes de forma equânime
    - Se a divisão não for exata, distribua as questões restantes uma a uma entre as matérias sem número explícito, na ordem em que aparecem no edital
 
-**Informações Adicionais:**
-- Período de inscrições (início e fim)
-- Data da prova
-- Taxa de inscrição
-- Local de realização das provas
-- Duração da prova
-
-**Instruções Detalhadas:**
-Adicione as informações acima ao JSON de saída, garantindo que sejam extraídas e formatadas corretamente.
-
-4. **Formate a Saída em JSON:**
+5. **Formate a Saída em JSON:**
    Organize as informações extraídas no seguinte formato JSON:
 
 ```json
 {
-  "prova": {
-    "total_questoes": 100,
-    "formato": ["objetiva", "discursiva"],
-    "tema_discursiva": "Tema da prova discursiva (se houver)",
-    "criterios_aprovacao": "Descrição dos critérios de aprovação",
-    "criterios_desempate": ["Matéria 1", "Matéria 2", "Idade"]
-  },
-  "vagas": {
-    "imediatas": 10,
-    "cadastro_reserva": true,
-    "distribuicao_geografica": {
-      "Região A": 5,
-      "Região B": 5
+  "concurso": {
+    "inscricoes": {
+      "inicio": "DD/MM/AAAA ou AAAA-MM-DD",
+      "fim": "DD/MM/AAAA ou AAAA-MM-DD",
+      "taxa": 150.00
     },
-    "total_consolidado": 10
-  },
-  "cotas": [
-    {
-      "nome": "Negros (Pretos e Pardos)",
-      "percentual": 20,
-      "numero_vagas": 5,
-      "criterios": "Autodeclaração e procedimento de heteroidentificação"
+    "prova": {
+      "data": "DD/MM/AAAA ou AAAA-MM-DD",
+      "local": "Cidade(s) ou 'A definir'",
+      "duracao": "X horas",
+      "total_questoes": 100,
+      "formato": ["objetiva", "discursiva"],
+      "tema_discursiva": "Tema da prova discursiva (se houver)",
+      "criterios_aprovacao": "Descrição dos critérios de aprovação",
+      "criterios_desempate": ["Matéria 1", "Matéria 2", "Idade"]
     },
-    {
-      "nome": "Pessoas com Deficiência (PcD)",
-      "percentual": 10,
-      "numero_vagas": 2,
-      "criterios": "Laudo médico atestando a espécie e o grau da deficiência"
+    "vagas": {
+      "imediatas": 10,
+      "cadastro_reserva": true,
+      "distribuicao_geografica": {
+        "Região A": 5,
+        "Região B": 5
+      },
+      "total_consolidado": 10
     },
-    {
-      "nome": "Minorias Étnico-Raciais (população indígena, quilombolas, ciganos, povos/comunidades tradicionais)",
-      "percentual": 5,
-      "numero_vagas": 1,
-      "criterios": "Declaração de pertencimento étnico"
-    }
-  ],
-  "conteudo_programatico": [
-    {
-      "nome": "Nome da Disciplina/Matéria 1",
-      "tipo": "comum",
-      "peso_maior": true,
-      "criterio_desempate": false,
-      "numero_questoes": 10,
-      "questoes_estimadas": false,
-      "total_questoes_grupo": 35,
-      "grupo_materia": "Módulo I",
-      "topicos": [
-        "Tópico 1.1",
-        "Tópico 1.2",
-        "..."
-      ]
-    },
-    {
-      "nome": "Nome da Disciplina/Matéria 2",
-      "tipo": "especifico",
-      "peso_maior": false,
-      "criterio_desempate": true,
-      "numero_questoes": 5,
-      "questoes_estimadas": false,
-      "total_questoes_grupo": 45,
-      "grupo_materia": "Módulo II",
-      "topicos": [
-        "Tópico 2.1",
-        "Tópico 2.2",
-        "..."
-      ]
-    },
-    {
-      "nome": "Nome da Disciplina/Matéria 3",
-      "tipo": "comum",
-      "peso_maior": false,
-      "criterio_desempate": false,
-      "numero_questoes": 7,
-      "questoes_estimadas": true,
-      "total_questoes_grupo": 35,
-      "grupo_materia": "Módulo I",
-      "topicos": [
-        "Tópico 3.1",
-        "Tópico 3.2",
-        "..."
-      ]
-    }
-  ]
+    "cotas": [
+      {
+        "nome": "Negros (Pretos e Pardos)",
+        "percentual": 20,
+        "numero_vagas": 5,
+        "criterios": "Autodeclaração e procedimento de heteroidentificação"
+      },
+      {
+        "nome": "Pessoas com Deficiência (PcD)",
+        "percentual": 10,
+        "numero_vagas": 2,
+        "criterios": "Laudo médico atestando a espécie e o grau da deficiência"
+      },
+      {
+        "nome": "Minorias Étnico-Raciais (população indígena, quilombolas, ciganos, povos/comunidades tradicionais)",
+        "percentual": 5,
+        "numero_vagas": 1,
+        "criterios": "Declaração de pertencimento étnico"
+      }
+    ],
+    "conteudo_programatico": [
+      {
+        "nome": "Nome da Disciplina/Matéria 1",
+        "tipo": "comum",
+        "peso_maior": true,
+        "criterio_desempate": false,
+        "numero_questoes": 10,
+        "questoes_estimadas": false,
+        "total_questoes_grupo": 35,
+        "grupo_materia": "Módulo I",
+        "topicos": [
+          "Tópico 1.1",
+          "Tópico 1.2",
+          "..."
+        ]
+      },
+      {
+        "nome": "Nome da Disciplina/Matéria 2",
+        "tipo": "especifico",
+        "peso_maior": false,
+        "criterio_desempate": true,
+        "numero_questoes": 5,
+        "questoes_estimadas": false,
+        "total_questoes_grupo": 45,
+        "grupo_materia": "Módulo II",
+        "topicos": [
+          "Tópico 2.1",
+          "Tópico 2.2",
+          "..."
+        ]
+      },
+      {
+        "nome": "Nome da Disciplina/Matéria 3",
+        "tipo": "comum",
+        "peso_maior": false,
+        "criterio_desempate": false,
+        "numero_questoes": 7,
+        "questoes_estimadas": true,
+        "total_questoes_grupo": 35,
+        "grupo_materia": "Módulo I",
+        "topicos": [
+          "Tópico 3.1",
+          "Tópico 3.2",
+          "..."
+        ]
+      }
+    ]
+  }
 }
 ```
 
