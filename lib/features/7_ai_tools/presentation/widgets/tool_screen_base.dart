@@ -51,10 +51,10 @@ class ToolScreenBase extends StatelessWidget {
               color: toolTheme.color,
               size: 24,
             ),
-            SizedBox(width: 8),
+            const SizedBox(width: 8),
             Text(
               title,
-              style: TextStyle(
+              style: const TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
               ),
@@ -185,7 +185,7 @@ class PremiumRequiredWidget extends StatelessWidget {
 
                     // Mostrar confirmação
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
+                      const SnackBar(
                         content: Text('Parabéns! Você agora é um usuário Premium.'),
                         backgroundColor: AppTheme.successColor,
                       ),

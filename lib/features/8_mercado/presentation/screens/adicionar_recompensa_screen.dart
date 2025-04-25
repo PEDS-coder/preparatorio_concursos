@@ -7,6 +7,8 @@ import '../../../../core/widgets/gradient_button.dart';
 import '../../../../core/widgets/styled_text_field.dart';
 
 class AdicionarRecompensaScreen extends StatefulWidget {
+  const AdicionarRecompensaScreen({super.key});
+
   @override
   _AdicionarRecompensaScreenState createState() => _AdicionarRecompensaScreenState();
 }
@@ -74,7 +76,7 @@ class _AdicionarRecompensaScreenState extends State<AdicionarRecompensaScreen> {
       );
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('Recompensa adicionada com sucesso!'),
           backgroundColor: Colors.green,
         ),
@@ -96,17 +98,17 @@ class _AdicionarRecompensaScreenState extends State<AdicionarRecompensaScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Adicionar Recompensa'),
+        title: const Text('Adicionar Recompensa'),
         backgroundColor: AppTheme.primaryColor,
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Form(
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
+              const Text(
                 'Nova Recompensa',
                 style: TextStyle(
                   fontSize: 24,
@@ -114,7 +116,7 @@ class _AdicionarRecompensaScreenState extends State<AdicionarRecompensaScreen> {
                   color: Colors.white,
                 ),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Text(
                 'Crie uma recompensa personalizada para trocar por moedas',
                 style: TextStyle(
@@ -122,17 +124,17 @@ class _AdicionarRecompensaScreenState extends State<AdicionarRecompensaScreen> {
                   color: Colors.white.withOpacity(0.7),
                 ),
               ),
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
 
               // Título
-              Text(
+              const Text(
                 'Título',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               StyledTextField(
                 controller: _tituloController,
                 hintText: 'Ex: Assistir um episódio de série',
@@ -144,46 +146,46 @@ class _AdicionarRecompensaScreenState extends State<AdicionarRecompensaScreen> {
                   return null;
                 },
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
 
               // Descrição
-              Text(
+              const Text(
                 'Descrição (opcional)',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               StyledTextField(
                 controller: _descricaoController,
                 hintText: 'Ex: 30 minutos de pausa para assistir minha série favorita',
                 prefixIcon: Icons.description,
                 maxLines: 3,
               ),
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
 
               // Categoria
-              Text(
+              const Text(
                 'Categoria',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               _buildCategoriaSelector(),
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
 
               // Custo em moedas
-              Text(
+              const Text(
                 'Custo em Moedas',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               StyledTextField(
                 controller: _custoController,
                 hintText: 'Ex: 250',
@@ -202,8 +204,8 @@ class _AdicionarRecompensaScreenState extends State<AdicionarRecompensaScreen> {
                   return null;
                 },
               ),
-              SizedBox(height: 8),
-              Text(
+              const SizedBox(height: 8),
+              const Text(
                 'Dica: O custo sugerido é baseado na categoria selecionada',
                 style: TextStyle(
                   fontSize: 12,
@@ -211,24 +213,24 @@ class _AdicionarRecompensaScreenState extends State<AdicionarRecompensaScreen> {
                   fontStyle: FontStyle.italic,
                 ),
               ),
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
 
               // Mensagem de erro
               if (_errorMessage != null)
                 Container(
-                  padding: EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     color: Colors.red.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.error_outline, color: Colors.red),
-                      SizedBox(width: 12),
+                      const Icon(Icons.error_outline, color: Colors.red),
+                      const SizedBox(width: 12),
                       Expanded(
                         child: Text(
                           _errorMessage!,
-                          style: TextStyle(color: Colors.red),
+                          style: const TextStyle(color: Colors.red),
                         ),
                       ),
                     ],
@@ -236,11 +238,12 @@ class _AdicionarRecompensaScreenState extends State<AdicionarRecompensaScreen> {
                 ),
 
               // Botão de salvar
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
               _isLoading
-                  ? Center(child: CircularProgressIndicator())
+                  ? const Center(child: CircularProgressIndicator())
                   : GradientButton(
                       onPressed: _salvarRecompensa,
+                      fullWidth: true,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -249,7 +252,6 @@ class _AdicionarRecompensaScreenState extends State<AdicionarRecompensaScreen> {
                           Text('SALVAR RECOMPENSA'),
                         ],
                       ),
-                      fullWidth: true,
                     ),
             ],
           ),
@@ -261,7 +263,7 @@ class _AdicionarRecompensaScreenState extends State<AdicionarRecompensaScreen> {
   Widget _buildCategoriaSelector() {
     return ModernCard(
       child: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Column(
           children: [
             _buildCategoriaOption(
@@ -271,7 +273,7 @@ class _AdicionarRecompensaScreenState extends State<AdicionarRecompensaScreen> {
               Icons.coffee,
               Colors.green,
             ),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             _buildCategoriaOption(
               'media',
               'Média',
@@ -279,7 +281,7 @@ class _AdicionarRecompensaScreenState extends State<AdicionarRecompensaScreen> {
               Icons.movie,
               Colors.orange,
             ),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             _buildCategoriaOption(
               'grande',
               'Grande',
@@ -310,7 +312,7 @@ class _AdicionarRecompensaScreenState extends State<AdicionarRecompensaScreen> {
         });
       },
       child: Container(
-        padding: EdgeInsets.all(12),
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: isSelected ? color.withOpacity(0.2) : Colors.transparent,
           borderRadius: BorderRadius.circular(8),
@@ -322,7 +324,7 @@ class _AdicionarRecompensaScreenState extends State<AdicionarRecompensaScreen> {
         child: Row(
           children: [
             Container(
-              padding: EdgeInsets.all(8),
+              padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: color.withOpacity(0.2),
                 shape: BoxShape.circle,
@@ -333,7 +335,7 @@ class _AdicionarRecompensaScreenState extends State<AdicionarRecompensaScreen> {
                 size: 24,
               ),
             ),
-            SizedBox(width: 16),
+            const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -346,7 +348,7 @@ class _AdicionarRecompensaScreenState extends State<AdicionarRecompensaScreen> {
                       color: isSelected ? color : Colors.white,
                     ),
                   ),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   Text(
                     description,
                     style: TextStyle(

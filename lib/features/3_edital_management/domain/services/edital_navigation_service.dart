@@ -13,7 +13,7 @@ class EditalNavigationService {
 
     if (edital == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Edital não encontrado')),
+        const SnackBar(content: Text('Edital não encontrado')),
       );
       return;
     }
@@ -72,14 +72,14 @@ class EditalNavigationService {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Excluir Edital'),
+        title: const Text('Excluir Edital'),
         content: Text(
           'Tem certeza que deseja excluir o edital "${edital.nomeConcurso}"? Esta ação não pode ser desfeita.',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Cancelar'),
+            child: const Text('Cancelar'),
           ),
           TextButton(
             onPressed: () {
@@ -88,7 +88,7 @@ class EditalNavigationService {
               Navigator.pop(context); // Fechar o diálogo
               Navigator.pop(context); // Voltar para a tela anterior
             },
-            child: Text(
+            child: const Text(
               'Excluir',
               style: TextStyle(color: Colors.red),
             ),

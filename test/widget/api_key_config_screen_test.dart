@@ -80,7 +80,7 @@ void main() {
       await tester.pumpWidget(createApiKeyConfigScreen());
 
       // Preencher o formulário
-      await tester.enterText(find.byKey(ValueKey('api_key_field')), 'test_api_key');
+      await tester.enterText(find.byKey(const ValueKey('api_key_field')), 'test_api_key');
 
       // Submeter o formulário
       await tester.tap(find.byType(ElevatedButton));

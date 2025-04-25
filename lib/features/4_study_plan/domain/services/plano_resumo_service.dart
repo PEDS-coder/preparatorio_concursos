@@ -5,6 +5,7 @@ import '../../../../core/data/services/edital_service.dart';
 import '../../../../core/utils/plano_data_logger.dart';
 import 'calendario_service.dart';
 import 'extrator_dados_service.dart';
+import 'plano_dados_service.dart';
 
 /// Serviço para gerenciamento do resumo do plano
 class PlanoResumoService {
@@ -12,14 +13,15 @@ class PlanoResumoService {
   final EditalService _editalService;
   final CalendarioService _calendarioService;
   final ExtratorDadosService _extratoService;
+  final PlanoDadosService _planoDadosService;
   final PlanoDataLogger _logger = PlanoDataLogger();
 
   PlanoResumoService(
-    this._planoService, 
+    this._planoService,
     this._editalService,
     this._calendarioService,
     this._extratoService,
-  );
+  ) : _planoDadosService = PlanoDadosService();
 
   /// Carrega o plano de estudos e o edital associado
   Future<Map<String, dynamic>> carregarPlano(String planoId) async {
@@ -66,7 +68,7 @@ class PlanoResumoService {
       final Map<DateTime, List<SessaoEstudo>> sessoesPorDia = _calendarioService.agruparSessoesPorDia(plano.sessoesEstudo);
 
       _logger.logRecuperacao(plano.id, 'processando_sessoes', 'Processando ${plano.sessoesEstudo.length} sessões de estudo');
-      
+
       Map<String, int> sessoesContagem = {};
       sessoesPorDia.forEach((data, sessoes) {
         final dataStr = '${data.day}/${data.month}/${data.year}';
@@ -99,13 +101,16 @@ class PlanoResumoService {
             'cargos': edital.dadosExtraidos.cargos.length,
             'dadosOriginais': edital.dadosOriginais != null ? 'presente' : 'ausente',
           });
+
+          // Extrair dados do edital para o plano
+          await _planoDadosService.extrairDadosEditalParaPlano(plano, edital);
         } else {
           _logger.logRecuperacao(plano.id, 'edital_nao_encontrado', 'Edital não encontrado com ID: ${plano.editalId}');
         }
       }
 
       _logger.logRecuperacao(plano.id, 'carregamento_concluido', 'Plano carregado com sucesso');
-      
+
       return {
         'plano': plano,
         'edital': edital,
@@ -129,7 +134,7 @@ class PlanoResumoService {
     // Encontrar o cargo selecionado
     final cargoId = plano.cargoIds.first;
     final cargos = edital.dadosExtraidos.cargos;
-    
+
     try {
       return cargos.firstWhere(
         (cargo) => cargo.id == cargoId || cargo.nome == cargoId,

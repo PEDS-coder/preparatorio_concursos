@@ -1,15 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:provider/single_child_widget.dart';
-import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'core/mocks/firebase_config.dart';
 import 'core/auth/auth_service.dart';
-import 'core/auth/google_oauth_service.dart';
 import 'core/di/service_locator.dart';
 import 'core/data/services/services.dart';
-import 'core/data/services/interfaces/ia_service_interface.dart';
 import 'core/data/services/interfaces/analytics_service_interface.dart';
 import 'core/data/services/ia_service_factory.dart';
 import 'core/data/services/interfaces/secure_storage_service_interface.dart';
@@ -17,7 +12,6 @@ import 'core/services/temp_secure_storage_service.dart';
 import 'core/data/services/document_storage_service.dart';
 import 'core/data/services/mercado_service.dart';
 import 'core/services/document_classifier_service.dart';
-import 'core/services/api_config_service.dart';
 import 'core/services/audio_explanation_service.dart';
 import 'core/services/connectivity_service.dart';
 import 'core/services/analytics_service.dart';
@@ -25,8 +19,6 @@ import 'core/services/theme_service.dart';
 import 'core/services/remote_config_service.dart';
 import 'core/utils/cache_manager.dart';
 import 'core/utils/logger.dart';
-import 'core/navigation/navigation_service.dart';
-import 'core/di/service_locator.config.dart' as config;
 import 'app.dart';
 
 void main() async {

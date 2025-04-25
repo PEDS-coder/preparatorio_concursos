@@ -12,6 +12,8 @@ import '../screens/adicionar_recompensa_screen.dart';
 import '../screens/historico_moedas_screen.dart';
 
 class MercadoTab extends StatefulWidget {
+  const MercadoTab({super.key});
+
   @override
   _MercadoTabState createState() => _MercadoTabState();
 }
@@ -41,7 +43,7 @@ class _MercadoTabState extends State<MercadoTab> with SingleTickerProviderStateM
     final isPremium = authService.isPremium;
 
     if (usuario == null) {
-      return Center(
+      return const Center(
         child: Text(
           'Você precisa estar autenticado para acessar o Mercado Aprovação',
           style: TextStyle(color: Colors.white),
@@ -60,12 +62,12 @@ class _MercadoTabState extends State<MercadoTab> with SingleTickerProviderStateM
     final horasSemanais = mercadoService.getHorasEstudoSemanais(usuario.id);
 
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Cabeçalho
-          Text(
+          const Text(
             'Mercado Aprovação',
             style: TextStyle(
               fontSize: 28,
@@ -73,7 +75,7 @@ class _MercadoTabState extends State<MercadoTab> with SingleTickerProviderStateM
               color: Colors.white,
             ),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
             'Troque suas moedas por recompensas personalizadas',
             style: TextStyle(
@@ -81,15 +83,15 @@ class _MercadoTabState extends State<MercadoTab> with SingleTickerProviderStateM
               color: Colors.white.withOpacity(0.7),
             ),
           ),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
 
           // Saldo de moedas
           _buildSaldoCard(usuario.pontosGamificacao),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
 
           // Estatísticas
           _buildEstatisticasRow(horasEstudadas, streakAtual, horasSemanais),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
 
           // Botão para adicionar recompensa
           GradientButton(
@@ -99,6 +101,7 @@ class _MercadoTabState extends State<MercadoTab> with SingleTickerProviderStateM
                 MaterialPageRoute(builder: (context) => AdicionarRecompensaScreen()),
               );
             },
+            fullWidth: true,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -107,9 +110,8 @@ class _MercadoTabState extends State<MercadoTab> with SingleTickerProviderStateM
                 Text('ADICIONAR RECOMPENSA'),
               ],
             ),
-            fullWidth: true,
           ),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
 
           // Abas de recompensas
           Container(
@@ -122,7 +124,7 @@ class _MercadoTabState extends State<MercadoTab> with SingleTickerProviderStateM
                 TabBar(
                   controller: _tabController,
                   indicatorColor: AppTheme.primaryColor,
-                  tabs: [
+                  tabs: const [
                     Tab(text: 'Disponíveis'),
                     Tab(text: 'Resgatadas'),
                   ],
@@ -155,7 +157,7 @@ class _MercadoTabState extends State<MercadoTab> with SingleTickerProviderStateM
   Widget _buildSaldoCard(int saldo) {
     return ModernCard(
       child: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Row(
           children: [
             Container(
@@ -165,13 +167,13 @@ class _MercadoTabState extends State<MercadoTab> with SingleTickerProviderStateM
                 color: Colors.amber.withOpacity(0.2),
                 shape: BoxShape.circle,
               ),
-              child: Icon(
+              child: const Icon(
                 Icons.monetization_on,
                 color: Colors.amber,
                 size: 32,
               ),
             ),
-            SizedBox(width: 16),
+            const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -183,10 +185,10 @@ class _MercadoTabState extends State<MercadoTab> with SingleTickerProviderStateM
                       color: Colors.white.withOpacity(0.7),
                     ),
                   ),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   Text(
                     '$saldo Moedas',
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
@@ -196,8 +198,8 @@ class _MercadoTabState extends State<MercadoTab> with SingleTickerProviderStateM
               ),
             ),
             TextButton.icon(
-              icon: Icon(Icons.history),
-              label: Text('Histórico'),
+              icon: const Icon(Icons.history),
+              label: const Text('Histórico'),
               onPressed: () {
                 Navigator.push(
                   context,
@@ -225,7 +227,7 @@ class _MercadoTabState extends State<MercadoTab> with SingleTickerProviderStateM
             Colors.blue,
           ),
         ),
-        SizedBox(width: 12),
+        const SizedBox(width: 12),
         Expanded(
           child: _buildEstatisticaCard(
             'Streak Atual',
@@ -234,7 +236,7 @@ class _MercadoTabState extends State<MercadoTab> with SingleTickerProviderStateM
             Colors.orange,
           ),
         ),
-        SizedBox(width: 12),
+        const SizedBox(width: 12),
         Expanded(
           child: _buildEstatisticaCard(
             'Horas Semanais',
@@ -250,7 +252,7 @@ class _MercadoTabState extends State<MercadoTab> with SingleTickerProviderStateM
   Widget _buildEstatisticaCard(String titulo, String valor, IconData icone, Color cor) {
     return ModernCard(
       child: Padding(
-        padding: EdgeInsets.all(12),
+        padding: const EdgeInsets.all(12),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -259,16 +261,16 @@ class _MercadoTabState extends State<MercadoTab> with SingleTickerProviderStateM
               color: cor,
               size: 24,
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
               valor,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
               ),
             ),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             Text(
               titulo,
               style: TextStyle(
@@ -286,7 +288,7 @@ class _MercadoTabState extends State<MercadoTab> with SingleTickerProviderStateM
   Widget _buildEmptyState(String mensagem) {
     return Center(
       child: Padding(
-        padding: EdgeInsets.all(24),
+        padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -295,10 +297,10 @@ class _MercadoTabState extends State<MercadoTab> with SingleTickerProviderStateM
               size: 64,
               color: Colors.grey.withOpacity(0.5),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(
               mensagem,
-              style: TextStyle(
+              style: const TextStyle(
                 color: Colors.grey,
                 fontSize: 16,
               ),
@@ -312,7 +314,7 @@ class _MercadoTabState extends State<MercadoTab> with SingleTickerProviderStateM
 
   Widget _buildRecompensasList(List<RecompensaMercado> recompensas, MercadoService mercadoService, bool podeResgatar) {
     return ListView.builder(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       itemCount: recompensas.length,
       itemBuilder: (context, index) {
         final recompensa = recompensas[index];
@@ -347,7 +349,7 @@ class _MercadoTabState extends State<MercadoTab> with SingleTickerProviderStateM
     }
 
     return Card(
-      margin: EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.only(bottom: 16),
       color: AppTheme.darkCardColor,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
@@ -357,14 +359,14 @@ class _MercadoTabState extends State<MercadoTab> with SingleTickerProviderStateM
         ),
       ),
       child: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
                 Container(
-                  padding: EdgeInsets.all(8),
+                  padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
                     color: categoriaColor.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(8),
@@ -375,20 +377,20 @@ class _MercadoTabState extends State<MercadoTab> with SingleTickerProviderStateM
                     size: 24,
                   ),
                 ),
-                SizedBox(width: 12),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         recompensa.titulo,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                         ),
                       ),
-                      SizedBox(height: 4),
+                      const SizedBox(height: 4),
                       Text(
                         recompensa.descricao,
                         style: TextStyle(
@@ -401,21 +403,21 @@ class _MercadoTabState extends State<MercadoTab> with SingleTickerProviderStateM
                 ),
               ],
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Row(
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.monetization_on,
                       color: Colors.amber,
                       size: 16,
                     ),
-                    SizedBox(width: 4),
+                    const SizedBox(width: 4),
                     Text(
                       '${recompensa.custoMoedas} Moedas',
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Colors.amber,
                         fontWeight: FontWeight.bold,
                       ),
@@ -425,15 +427,15 @@ class _MercadoTabState extends State<MercadoTab> with SingleTickerProviderStateM
                 if (recompensa.resgatada)
                   Row(
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.check_circle,
                         color: Colors.green,
                         size: 16,
                       ),
-                      SizedBox(width: 4),
+                      const SizedBox(width: 4),
                       Text(
                         'Resgatado em ${DateFormat('dd/MM/yyyy').format(recompensa.dataResgate!)}',
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: Colors.green,
                           fontSize: 12,
                         ),
@@ -444,8 +446,8 @@ class _MercadoTabState extends State<MercadoTab> with SingleTickerProviderStateM
                   Row(
                     children: [
                       TextButton.icon(
-                        icon: Icon(Icons.delete, size: 16),
-                        label: Text('Excluir'),
+                        icon: const Icon(Icons.delete, size: 16),
+                        label: const Text('Excluir'),
                         onPressed: () async {
                           final confirmacao = await _confirmarExclusao(context);
                           if (confirmacao) {
@@ -454,13 +456,13 @@ class _MercadoTabState extends State<MercadoTab> with SingleTickerProviderStateM
                         },
                         style: TextButton.styleFrom(
                           foregroundColor: Colors.red,
-                          padding: EdgeInsets.symmetric(horizontal: 8),
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
                         ),
                       ),
-                      SizedBox(width: 8),
+                      const SizedBox(width: 8),
                       ElevatedButton.icon(
-                        icon: Icon(Icons.redeem, size: 16),
-                        label: Text('Resgatar'),
+                        icon: const Icon(Icons.redeem, size: 16),
+                        label: const Text('Resgatar'),
                         onPressed: saldoSuficiente
                             ? () async {
                                 final confirmacao = await _confirmarResgate(context, recompensa);
@@ -472,7 +474,7 @@ class _MercadoTabState extends State<MercadoTab> with SingleTickerProviderStateM
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppTheme.primaryColor,
                           foregroundColor: Colors.white,
-                          padding: EdgeInsets.symmetric(horizontal: 12),
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
                           disabledBackgroundColor: Colors.grey.withOpacity(0.3),
                         ),
                       ),
@@ -490,27 +492,27 @@ class _MercadoTabState extends State<MercadoTab> with SingleTickerProviderStateM
     return await showDialog<bool>(
           context: context,
           builder: (context) => AlertDialog(
-            title: Text('Confirmar Resgate'),
+            title: const Text('Confirmar Resgate'),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Você deseja resgatar a seguinte recompensa?'),
-                SizedBox(height: 16),
+                const Text('Você deseja resgatar a seguinte recompensa?'),
+                const SizedBox(height: 16),
                 Text(
                   recompensa.titulo,
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 Text(recompensa.descricao),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 Row(
                   children: [
-                    Icon(Icons.monetization_on, color: Colors.amber, size: 16),
-                    SizedBox(width: 4),
+                    const Icon(Icons.monetization_on, color: Colors.amber, size: 16),
+                    const SizedBox(width: 4),
                     Text(
                       '${recompensa.custoMoedas} Moedas',
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Colors.amber,
                         fontWeight: FontWeight.bold,
                       ),
@@ -522,14 +524,14 @@ class _MercadoTabState extends State<MercadoTab> with SingleTickerProviderStateM
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(false),
-                child: Text('CANCELAR'),
+                child: const Text('CANCELAR'),
               ),
               TextButton(
                 onPressed: () => Navigator.of(context).pop(true),
-                child: Text('RESGATAR'),
                 style: TextButton.styleFrom(
                   foregroundColor: AppTheme.primaryColor,
                 ),
+                child: Text('RESGATAR'),
               ),
             ],
           ),
@@ -541,19 +543,19 @@ class _MercadoTabState extends State<MercadoTab> with SingleTickerProviderStateM
     return await showDialog<bool>(
           context: context,
           builder: (context) => AlertDialog(
-            title: Text('Confirmar Exclusão'),
-            content: Text('Tem certeza que deseja excluir esta recompensa?'),
+            title: const Text('Confirmar Exclusão'),
+            content: const Text('Tem certeza que deseja excluir esta recompensa?'),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(false),
-                child: Text('CANCELAR'),
+                child: const Text('CANCELAR'),
               ),
               TextButton(
                 onPressed: () => Navigator.of(context).pop(true),
-                child: Text('EXCLUIR'),
                 style: TextButton.styleFrom(
                   foregroundColor: Colors.red,
                 ),
+                child: Text('EXCLUIR'),
               ),
             ],
           ),

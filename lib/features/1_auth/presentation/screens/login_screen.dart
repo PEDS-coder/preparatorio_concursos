@@ -10,6 +10,8 @@ import '../../../../core/widgets/gradient_button.dart';
 import '../../../../core/widgets/styled_text_field.dart';
 
 class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
   @override
   _LoginScreenState createState() => _LoginScreenState();
 }
@@ -126,12 +128,12 @@ class _LoginScreenState extends State<LoginScreen> {
                       Align(
                         alignment: Alignment.topLeft,
                         child: IconButton(
-                          icon: Icon(Icons.arrow_back, color: Colors.white),
+                          icon: const Icon(Icons.arrow_back, color: Colors.white),
                           onPressed: () => Navigator.pop(context),
                         ),
                       ),
 
-                      SizedBox(height: 20),
+                      const SizedBox(height: 20),
 
                       // Logo
                       Center(
@@ -149,7 +151,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                             ],
                           ),
-                          child: Center(
+                          child: const Center(
                             child: Icon(
                               Icons.school,
                               size: 40,
@@ -159,10 +161,10 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
 
-                      SizedBox(height: 30),
+                      const SizedBox(height: 30),
 
                       // Título
-                      Text(
+                      const Text(
                         'Entrar',
                         textAlign: TextAlign.center,
                         style: TextStyle(
@@ -173,7 +175,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
 
-                      SizedBox(height: 10),
+                      const SizedBox(height: 10),
 
                       // Subtítulo
                       Text(
@@ -185,14 +187,14 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
 
-                      SizedBox(height: 40),
+                      const SizedBox(height: 40),
 
                       // Campo de email
                       TextFormField(
                         decoration: InputDecoration(
                           labelText: 'Email',
                           hintText: 'Seu endereço de email',
-                          prefixIcon: Icon(Icons.email_outlined, color: AppTheme.secondaryColor),
+                          prefixIcon: const Icon(Icons.email_outlined, color: AppTheme.secondaryColor),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
@@ -210,14 +212,14 @@ class _LoginScreenState extends State<LoginScreen> {
                         },
                       ),
 
-                      SizedBox(height: 20),
+                      const SizedBox(height: 20),
 
                       // Campo de senha
                       TextFormField(
                         decoration: InputDecoration(
                           labelText: 'Senha',
                           hintText: 'Sua senha',
-                          prefixIcon: Icon(Icons.lock_outline, color: AppTheme.secondaryColor),
+                          prefixIcon: const Icon(Icons.lock_outline, color: AppTheme.secondaryColor),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
@@ -235,7 +237,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         },
                       ),
 
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
 
                       // Link de esqueci a senha
                       Align(
@@ -244,7 +246,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           onPressed: () {
                             // Implementar recuperação de senha
                           },
-                          child: Text(
+                          child: const Text(
                             'Esqueceu a senha?',
                             style: TextStyle(
                               color: AppTheme.secondaryColor,
@@ -257,8 +259,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       // Mensagem de erro
                       if (_errorMessage != null)
                         Container(
-                          margin: EdgeInsets.only(top: 16),
-                          padding: EdgeInsets.all(12),
+                          margin: const EdgeInsets.only(top: 16),
+                          padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
                             color: AppTheme.errorColor.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(12),
@@ -269,16 +271,16 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           child: Row(
                             children: [
-                              Icon(
+                              const Icon(
                                 Icons.error_outline,
                                 color: AppTheme.errorColor,
                                 size: 20,
                               ),
-                              SizedBox(width: 10),
+                              const SizedBox(width: 10),
                               Expanded(
                                 child: Text(
                                   _errorMessage!,
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     color: AppTheme.errorColor,
                                     fontSize: 14,
                                   ),
@@ -288,11 +290,11 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
 
-                      SizedBox(height: 30),
+                      const SizedBox(height: 30),
 
                       // Botão de login
                       _isLoading
-                          ? Center(
+                          ? const Center(
                               child: CircularProgressIndicator(
                                 valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
                               ),
@@ -301,17 +303,17 @@ class _LoginScreenState extends State<LoginScreen> {
                               onPressed: _login,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: AppTheme.secondaryColor,
-                                padding: EdgeInsets.symmetric(vertical: 16),
-                                minimumSize: Size(double.infinity, 48),
+                                padding: const EdgeInsets.symmetric(vertical: 16),
+                                minimumSize: const Size(double.infinity, 48),
                                 elevation: 4,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                               ),
-                              child: Text('ENTRAR'),
+                              child: const Text('ENTRAR'),
                             ),
 
-                      SizedBox(height: 30),
+                      const SizedBox(height: 30),
 
                       // Link para cadastro
                       Row(
@@ -327,7 +329,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             onPressed: () {
                               Navigator.pushReplacementNamed(context, '/register');
                             },
-                            child: Text(
+                            child: const Text(
                               'Cadastre-se',
                               style: TextStyle(
                                 color: AppTheme.primaryColor,

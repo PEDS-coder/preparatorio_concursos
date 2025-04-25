@@ -128,6 +128,12 @@ class LLMResponseProcessor {
   Map<String, dynamic> _extrairDadosConcursoCargo(Map<String, dynamic> json, String planoId) {
     Map<String, dynamic> resultado = Map.from(json);
 
+    // Log para depuração
+    logger.logProcessamentoLLM(planoId, 'json_recebido_para_extracao', {
+      'chaves_json': json.keys.toList(),
+      'tamanho_json': json.toString().length,
+    });
+
     // Verificar se há dados de concurso
     if (json.containsKey('concurso')) {
       logger.logProcessamentoLLM(planoId, 'dados_concurso_encontrados', 'Dados do concurso encontrados no JSON');
@@ -137,38 +143,36 @@ class LLMResponseProcessor {
 
       // Extrair dados específicos do concurso para o nível superior
       Map<String, dynamic> concurso = json['concurso'];
-      if (concurso is Map) {
-        // Extrair dados básicos
-        if (concurso.containsKey('titulo')) resultado['titulo'] = concurso['titulo'];
-        if (concurso.containsKey('orgao')) resultado['orgao'] = concurso['orgao'];
-        if (concurso.containsKey('banca')) resultado['banca'] = concurso['banca'];
+      // Extrair dados básicos
+      if (concurso.containsKey('titulo')) resultado['titulo'] = concurso['titulo'];
+      if (concurso.containsKey('orgao')) resultado['orgao'] = concurso['orgao'];
+      if (concurso.containsKey('banca')) resultado['banca'] = concurso['banca'];
 
-        // Extrair dados de inscrição
-        if (concurso.containsKey('inscricoes') && concurso['inscricoes'] is Map) {
-          Map<String, dynamic> inscricoes = concurso['inscricoes'];
-          if (inscricoes.containsKey('inicio')) resultado['inicioInscricao'] = inscricoes['inicio'];
-          if (inscricoes.containsKey('fim')) resultado['fimInscricao'] = inscricoes['fim'];
-          if (inscricoes.containsKey('taxa')) resultado['valorInscricao'] = inscricoes['taxa'];
-        }
-
-        // Extrair dados da prova
-        if (concurso.containsKey('prova') && concurso['prova'] is Map) {
-          Map<String, dynamic> prova = concurso['prova'];
-          if (prova.containsKey('data')) resultado['dataProva'] = prova['data'];
-          if (prova.containsKey('local')) resultado['localProva'] = prova['local'];
-          if (prova.containsKey('total_questoes')) resultado['totalQuestoes'] = prova['total_questoes'];
-          if (prova.containsKey('formato')) resultado['formatoProva'] = prova['formato'];
-          if (prova.containsKey('duracao')) resultado['duracaoProva'] = prova['duracao'];
-          if (prova.containsKey('tema_discursiva')) resultado['temaProvaSubjetiva'] = prova['tema_discursiva'];
-          if (prova.containsKey('criterios_aprovacao')) resultado['criteriosAprovacao'] = prova['criterios_aprovacao'];
-          if (prova.containsKey('criterios_reprovacao')) resultado['criteriosReprovacao'] = prova['criterios_reprovacao'];
-          if (prova.containsKey('criterios_desempate')) resultado['criteriosDesempate'] = prova['criterios_desempate'];
-        }
-
-        // Extrair dados de cotas
-        if (concurso.containsKey('cotas')) resultado['cotas'] = concurso['cotas'];
+      // Extrair dados de inscrição
+      if (concurso.containsKey('inscricoes') && concurso['inscricoes'] is Map) {
+        Map<String, dynamic> inscricoes = concurso['inscricoes'];
+        if (inscricoes.containsKey('inicio')) resultado['inicioInscricao'] = inscricoes['inicio'];
+        if (inscricoes.containsKey('fim')) resultado['fimInscricao'] = inscricoes['fim'];
+        if (inscricoes.containsKey('taxa')) resultado['valorInscricao'] = inscricoes['taxa'];
       }
-    }
+
+      // Extrair dados da prova
+      if (concurso.containsKey('prova') && concurso['prova'] is Map) {
+        Map<String, dynamic> prova = concurso['prova'];
+        if (prova.containsKey('data')) resultado['dataProva'] = prova['data'];
+        if (prova.containsKey('local')) resultado['localProva'] = prova['local'];
+        if (prova.containsKey('total_questoes')) resultado['totalQuestoes'] = prova['total_questoes'];
+        if (prova.containsKey('formato')) resultado['formatoProva'] = prova['formato'];
+        if (prova.containsKey('duracao')) resultado['duracaoProva'] = prova['duracao'];
+        if (prova.containsKey('tema_discursiva')) resultado['temaProvaSubjetiva'] = prova['tema_discursiva'];
+        if (prova.containsKey('criterios_aprovacao')) resultado['criteriosAprovacao'] = prova['criterios_aprovacao'];
+        if (prova.containsKey('criterios_reprovacao')) resultado['criteriosReprovacao'] = prova['criterios_reprovacao'];
+        if (prova.containsKey('criterios_desempate')) resultado['criteriosDesempate'] = prova['criterios_desempate'];
+      }
+
+      // Extrair dados de cotas
+      if (concurso.containsKey('cotas')) resultado['cotas'] = concurso['cotas'];
+        }
 
     // Verificar se há dados de cargo
     if (json.containsKey('cargo')) {
@@ -179,44 +183,55 @@ class LLMResponseProcessor {
 
       // Extrair dados específicos do cargo para o nível superior
       Map<String, dynamic> cargo = json['cargo'];
-      if (cargo is Map) {
-        if (cargo.containsKey('nome')) resultado['nomeCargo'] = cargo['nome'];
-        if (cargo.containsKey('vagas')) resultado['vagas'] = cargo['vagas'];
-        if (cargo.containsKey('escolaridade')) resultado['escolaridade'] = cargo['escolaridade'];
-        if (cargo.containsKey('salario')) resultado['salario'] = cargo['salario'];
-        if (cargo.containsKey('nivel')) resultado['nivel'] = cargo['nivel'];
+      if (cargo.containsKey('nome')) resultado['nomeCargo'] = cargo['nome'];
+      if (cargo.containsKey('vagas')) resultado['vagas'] = cargo['vagas'];
+      if (cargo.containsKey('escolaridade')) resultado['escolaridade'] = cargo['escolaridade'];
+      if (cargo.containsKey('salario')) resultado['salario'] = cargo['salario'];
+      if (cargo.containsKey('nivel')) resultado['nivel'] = cargo['nivel'];
 
-        // Extrair conteúdo programático
-        if (cargo.containsKey('conteudo_programatico') && cargo['conteudo_programatico'] is Map) {
-          Map<String, dynamic> conteudo = cargo['conteudo_programatico'];
-          if (conteudo.containsKey('materias')) {
-            resultado['grupos'] = [
-              {
-                'nome': 'Conteúdo Programático',
-                'materias': conteudo['materias']
-              }
-            ];
-          }
+      // Extrair conteúdo programático
+      if (cargo.containsKey('conteudo_programatico') && cargo['conteudo_programatico'] is Map) {
+        Map<String, dynamic> conteudo = cargo['conteudo_programatico'];
+        if (conteudo.containsKey('materias')) {
+          resultado['grupos'] = [
+            {
+              'nome': 'Conteúdo Programático',
+              'materias': conteudo['materias']
+            }
+          ];
         }
       }
-    }
+        }
 
     // Verificar se há dados de prova diretamente no JSON
     if (json.containsKey('prova') && json['prova'] is Map) {
       logger.logProcessamentoLLM(planoId, 'dados_prova_encontrados', 'Dados da prova encontrados diretamente no JSON');
 
       Map<String, dynamic> prova = json['prova'];
+      resultado['prova'] = prova; // Armazenar o objeto prova completo
 
       // Extrair dados da prova para o nível superior
       if (prova.containsKey('data')) resultado['dataProva'] = prova['data'];
       if (prova.containsKey('local')) resultado['localProva'] = prova['local'];
       if (prova.containsKey('total_questoes')) resultado['totalQuestoes'] = prova['total_questoes'];
-      if (prova.containsKey('formato')) resultado['formatoProva'] = prova['formato'];
+      if (prova.containsKey('formato')) {
+        if (prova['formato'] is List) {
+          resultado['formatoProva'] = (prova['formato'] as List).join(', ');
+        } else {
+          resultado['formatoProva'] = prova['formato'].toString();
+        }
+      }
       if (prova.containsKey('duracao')) resultado['duracaoProva'] = prova['duracao'];
       if (prova.containsKey('tema_discursiva')) resultado['temaProvaSubjetiva'] = prova['tema_discursiva'];
       if (prova.containsKey('criterios_aprovacao')) resultado['criteriosAprovacao'] = prova['criterios_aprovacao'];
       if (prova.containsKey('criterios_reprovacao')) resultado['criteriosReprovacao'] = prova['criterios_reprovacao'];
-      if (prova.containsKey('criterios_desempate')) resultado['criteriosDesempate'] = prova['criterios_desempate'];
+      if (prova.containsKey('criterios_desempate')) {
+        if (prova['criterios_desempate'] is List) {
+          resultado['criteriosDesempate'] = prova['criterios_desempate'];
+        } else {
+          resultado['criteriosDesempate'] = prova['criterios_desempate'].toString();
+        }
+      }
     }
 
     // Verificar se há dados de cotas diretamente no JSON
@@ -235,12 +250,20 @@ class LLMResponseProcessor {
     if (json.containsKey('conteudo_programatico') && json['conteudo_programatico'] is List) {
       logger.logProcessamentoLLM(planoId, 'conteudo_programatico_encontrado', 'Conteúdo programático encontrado diretamente no JSON');
 
+      // Armazenar o conteúdo programático completo
+      resultado['conteudo_programatico_completo'] = json['conteudo_programatico'];
+
       // Agrupar o conteúdo programático por grupo
       Map<String, List<dynamic>> gruposMaterias = {};
 
       for (var materia in json['conteudo_programatico']) {
-        if (materia is Map && materia.containsKey('grupo_materia')) {
-          String grupo = materia['grupo_materia'] ?? 'Sem Grupo';
+        if (materia is Map) {
+          String grupo = 'Sem Grupo';
+
+          // Verificar se há grupo_materia definido
+          if (materia.containsKey('grupo_materia') && materia['grupo_materia'] != null && materia['grupo_materia'].toString().isNotEmpty) {
+            grupo = materia['grupo_materia'].toString();
+          }
 
           if (!gruposMaterias.containsKey(grupo)) {
             gruposMaterias[grupo] = [];
@@ -261,6 +284,22 @@ class LLMResponseProcessor {
       });
 
       resultado['grupos'] = grupos;
+
+      // Extrair lista de matérias para uso no plano
+      List<String> materias = [];
+      for (var materia in json['conteudo_programatico']) {
+        if (materia is Map && materia.containsKey('nome')) {
+          materias.add(materia['nome'].toString());
+        }
+      }
+
+      if (materias.isNotEmpty) {
+        resultado['materias'] = materias;
+        logger.logProcessamentoLLM(planoId, 'materias_extraidas', {
+          'total_materias': materias.length,
+          'materias': materias,
+        });
+      }
     }
 
     // Registrar os dados extraídos

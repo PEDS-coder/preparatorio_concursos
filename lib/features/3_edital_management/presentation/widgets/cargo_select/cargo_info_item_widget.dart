@@ -16,18 +16,18 @@ class CargoInfoItemWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.only(bottom: 10),
       child: Row(
         children: [
           Container(
-            padding: EdgeInsets.all(4),
+            padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
               color: Colors.blue.shade50,
               borderRadius: BorderRadius.circular(4),
             ),
             child: Icon(icon, size: 16, color: Colors.blue.shade700),
           ),
-          SizedBox(width: 8),
+          const SizedBox(width: 8),
           Text(
             '$label:',
             style: TextStyle(
@@ -35,11 +35,11 @@ class CargoInfoItemWidget extends StatelessWidget {
               color: Colors.grey.shade800,
             ),
           ),
-          SizedBox(width: 6),
+          const SizedBox(width: 6),
           Expanded(
             child: Text(
               value,
-              style: TextStyle(
+              style: const TextStyle(
                 color: Colors.black87,
                 fontWeight: FontWeight.w500,
               ),

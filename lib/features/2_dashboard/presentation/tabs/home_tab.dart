@@ -6,6 +6,8 @@ import '../../../../core/data/services/plano_estudo_service.dart';
 import '../../../../core/theme/app_theme.dart';
 
 class HomeTab extends StatelessWidget {
+  const HomeTab({super.key});
+
   @override
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context);
@@ -21,20 +23,20 @@ class HomeTab extends StatelessWidget {
     final proximosItens = planoService.getCronogramaByDate(hoje);
 
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Saudação
           Text(
-            'Olá, ${usuario?.nome?.split(' ')[0] ?? 'Concurseiro'}!',
-            style: TextStyle(
+            'Olá, ${usuario?.nome.split(' ')[0] ?? 'Concurseiro'}!',
+            style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
               color: AppTheme.primaryColor,
             ),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
             'Vamos estudar hoje?',
             style: TextStyle(
@@ -42,7 +44,7 @@ class HomeTab extends StatelessWidget {
               color: Colors.grey.shade600,
             ),
           ),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
 
           // Próxima sessão de estudo
           Card(
@@ -51,11 +53,11 @@ class HomeTab extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
             ),
             child: Padding(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
+                  const Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
@@ -71,11 +73,11 @@ class HomeTab extends StatelessWidget {
                       ),
                     ],
                   ),
-                  SizedBox(height: 12),
+                  const SizedBox(height: 12),
                   Row(
                     children: [
-                      Icon(Icons.calendar_today, color: AppTheme.primaryColor),
-                      SizedBox(width: 8),
+                      const Icon(Icons.calendar_today, color: AppTheme.primaryColor),
+                      const SizedBox(width: 8),
                       Text(
                         proximosItens.isNotEmpty
                             ? '${_formatHora(proximosItens.first.dataHoraInicio)} - ${_formatHora(proximosItens.first.dataHoraFim)}'
@@ -83,11 +85,11 @@ class HomeTab extends StatelessWidget {
                       ),
                     ],
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Row(
                     children: [
-                      Icon(Icons.subject, color: AppTheme.primaryColor),
-                      SizedBox(width: 8),
+                      const Icon(Icons.subject, color: AppTheme.primaryColor),
+                      const SizedBox(width: 8),
                       Text(
                         proximosItens.isNotEmpty
                             ? proximosItens.first.nomeMateria
@@ -95,11 +97,11 @@ class HomeTab extends StatelessWidget {
                       ),
                     ],
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Row(
                     children: [
-                      Icon(Icons.book, color: AppTheme.primaryColor),
-                      SizedBox(width: 8),
+                      const Icon(Icons.book, color: AppTheme.primaryColor),
+                      const SizedBox(width: 8),
                       Text(
                         proximosItens.isNotEmpty
                             ? proximosItens.first.atividadeSugerida
@@ -107,39 +109,39 @@ class HomeTab extends StatelessWidget {
                       ),
                     ],
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () {
                       Navigator.pushNamed(context, '/sessao/iniciar');
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.primaryColor,
-                      minimumSize: Size(double.infinity, 45),
+                      minimumSize: const Size(double.infinity, 45),
                     ),
-                    child: Text('Iniciar Sessão'),
+                    child: const Text('Iniciar Sessão'),
                   ),
                 ],
               ),
             ),
           ),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
 
           // Seu progresso
-          Text(
+          const Text(
             'Seu Progresso',
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
             ),
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           Card(
             elevation: 4,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
             child: Padding(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               child: Column(
                 children: [
                   Row(
@@ -147,7 +149,7 @@ class HomeTab extends StatelessWidget {
                     children: [
                       _buildProgressItem(
                         'Horas Estudadas',
-                        '${(sessaoService.calcularTempoTotalEstudo(usuario?.id ?? '') / 60).toStringAsFixed(1)}',
+                        (sessaoService.calcularTempoTotalEstudo(usuario?.id ?? '') / 60).toStringAsFixed(1),
                         Icons.access_time,
                       ),
                       _buildProgressItem(
@@ -162,29 +164,29 @@ class HomeTab extends StatelessWidget {
                       ),
                     ],
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   OutlinedButton(
                     onPressed: () {
                       Navigator.pushNamed(context, '/gamificacao');
                     },
                     style: OutlinedButton.styleFrom(
                       foregroundColor: AppTheme.primaryColor,
-                      side: BorderSide(color: AppTheme.primaryColor),
-                      minimumSize: Size(double.infinity, 40),
+                      side: const BorderSide(color: AppTheme.primaryColor),
+                      minimumSize: const Size(double.infinity, 40),
                     ),
-                    child: Text('Ver Detalhes'),
+                    child: const Text('Ver Detalhes'),
                   ),
                 ],
               ),
             ),
           ),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
 
           // Recomendações
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
+              const Text(
                 'Recomendações para Você',
                 style: TextStyle(
                   fontSize: 20,
@@ -193,12 +195,12 @@ class HomeTab extends StatelessWidget {
               ),
               if (!isPremium)
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: Colors.amber,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Row(
+                  child: const Row(
                     children: [
                       Icon(Icons.star, size: 14, color: Colors.white),
                       SizedBox(width: 4),
@@ -215,7 +217,7 @@ class HomeTab extends StatelessWidget {
                 ),
             ],
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           _buildRecommendationCard(
             'Direito Administrativo',
             'Princípios da Administração Pública',
@@ -223,7 +225,7 @@ class HomeTab extends StatelessWidget {
             Colors.orange.shade100,
             Colors.orange,
           ),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           _buildRecommendationCard(
             'Português',
             'Concordância Verbal',
@@ -231,7 +233,7 @@ class HomeTab extends StatelessWidget {
             Colors.green.shade100,
             Colors.green,
           ),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           _buildRecommendationCard(
             'Raciocínio Lógico',
             'Proposições e Conectivos',
@@ -252,15 +254,15 @@ class HomeTab extends StatelessWidget {
           color: AppTheme.primaryColor,
           size: 32,
         ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         Text(
           value,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
         ),
-        SizedBox(height: 4),
+        const SizedBox(height: 4),
         Text(
           title,
           style: TextStyle(
@@ -290,14 +292,14 @@ class HomeTab extends StatelessWidget {
           color: Colors.white,
         ),
         child: ListTile(
-          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           leading: CircleAvatar(
             backgroundColor: bgColor,
             child: Icon(Icons.book, color: iconColor),
           ),
           title: Text(
             title,
-            style: TextStyle(
+            style: const TextStyle(
               color: Colors.black87,
               fontWeight: FontWeight.bold,
               fontSize: 15,
@@ -305,7 +307,7 @@ class HomeTab extends StatelessWidget {
           ),
           subtitle: Text(
             subtitle,
-            style: TextStyle(
+            style: const TextStyle(
               color: Colors.black54,
               fontSize: 13,
             ),

@@ -15,7 +15,7 @@ import '../../../8_mercado/presentation/tabs/mercado_tab.dart';
 class DashboardScreen extends StatefulWidget {
   final int initialTabIndex;
 
-  DashboardScreen({this.initialTabIndex = 0});
+  const DashboardScreen({super.key, this.initialTabIndex = 0});
 
   @override
   _DashboardScreenState createState() => _DashboardScreenState();
@@ -68,8 +68,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
         actions: [
           if (!isPremium)
             TextButton.icon(
-              icon: Icon(Icons.star, color: Colors.amber),
-              label: Text(
+              icon: const Icon(Icons.star, color: Colors.amber),
+              label: const Text(
                 'Premium',
                 style: TextStyle(color: Colors.white),
               ),
@@ -78,7 +78,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               },
             ),
           IconButton(
-            icon: Icon(Icons.notifications),
+            icon: const Icon(Icons.notifications),
             onPressed: () {
               // Implementar notificações
             },
@@ -122,12 +122,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
           BoxShadow(
             color: Colors.black.withOpacity(0.2),
             blurRadius: 10,
-            offset: Offset(0, -2),
+            offset: const Offset(0, -2),
           ),
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.only(
+        borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(20),
           topRight: Radius.circular(20),
         ),
@@ -144,40 +144,40 @@ class _DashboardScreenState extends State<DashboardScreen> {
           showUnselectedLabels: true,
           showSelectedLabels: true,
           elevation: 0,
-          selectedLabelStyle: TextStyle(color: AppTheme.primaryColor, fontWeight: FontWeight.bold),
+          selectedLabelStyle: const TextStyle(color: AppTheme.primaryColor, fontWeight: FontWeight.bold),
           unselectedLabelStyle: TextStyle(color: _getTextColor(), fontSize: 12),
           items: [
             // Abas principais
             BottomNavigationBarItem(
               icon: Icon(Icons.home, color: _getIconColor(0)),
-              activeIcon: Icon(Icons.home, color: AppTheme.primaryColor),
+              activeIcon: const Icon(Icons.home, color: AppTheme.primaryColor),
               label: 'Home',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.article, color: _getIconColor(1)),
-              activeIcon: Icon(Icons.article, color: AppTheme.primaryColor),
+              activeIcon: const Icon(Icons.article, color: AppTheme.primaryColor),
               label: 'Meu Edital',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.calendar_today, color: _getIconColor(2)),
-              activeIcon: Icon(Icons.calendar_today, color: AppTheme.primaryColor),
+              activeIcon: const Icon(Icons.calendar_today, color: AppTheme.primaryColor),
               label: 'Plano',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.insights, color: _getIconColor(3)),
-              activeIcon: Icon(Icons.insights, color: AppTheme.primaryColor),
+              activeIcon: const Icon(Icons.insights, color: AppTheme.primaryColor),
               label: 'Progresso',
             ),
             // Ferramentas de IA (agrupadas)
             BottomNavigationBarItem(
               icon: Icon(Icons.auto_awesome, color: _getIconColor(4)),
-              activeIcon: Icon(Icons.auto_awesome, color: AppTheme.primaryColor),
+              activeIcon: const Icon(Icons.auto_awesome, color: AppTheme.primaryColor),
               label: 'Ferramentas',
             ),
             // Mercado Aprovação
             BottomNavigationBarItem(
               icon: Icon(Icons.shopping_bag, color: _getIconColor(5)),
-              activeIcon: Icon(Icons.shopping_bag, color: AppTheme.primaryColor),
+              activeIcon: const Icon(Icons.shopping_bag, color: AppTheme.primaryColor),
               label: 'Mercado',
             ),
           ],
@@ -196,8 +196,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
             Navigator.pushNamed(context, '/edital/add');
           },
           backgroundColor: AppTheme.primaryColor,
-          child: Icon(Icons.add),
           tooltip: 'Adicionar Edital',
+          child: Icon(Icons.add),
         );
       case 2: // Plano de Estudo
         return FloatingActionButton(
@@ -205,8 +205,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
             Navigator.pushNamed(context, '/plano/add');
           },
           backgroundColor: AppTheme.primaryColor,
-          child: Icon(Icons.add),
           tooltip: 'Criar Plano',
+          child: Icon(Icons.add),
         );
       case 3: // Meu Progresso
         return null;
@@ -219,7 +219,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Row(
+        title: const Row(
           children: [
             Icon(Icons.star, color: Colors.amber),
             SizedBox(width: 8),
@@ -230,19 +230,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            const Text(
               'Desbloqueie todos os recursos:',
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             _buildPremiumFeature('Análises ilimitadas de editais'),
             _buildPremiumFeature('Plano de estudo avançado'),
             _buildPremiumFeature('Ferramentas de IA para resumos'),
             _buildPremiumFeature('Flashcards ilimitados'),
             _buildPremiumFeature('Integração com Google Agenda'),
             _buildPremiumFeature('Gamificação completa'),
-            SizedBox(height: 16),
-            Text(
+            const SizedBox(height: 16),
+            const Text(
               'Por apenas R\$ 19,90/mês',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
@@ -256,7 +256,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             onPressed: () {
               Navigator.pop(context);
             },
-            child: Text('Agora não'),
+            child: const Text('Agora não'),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -268,7 +268,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
               // Mostrar confirmação
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
+                const SnackBar(
                   content: Text('Parabéns! Você agora é um usuário Premium.'),
                   backgroundColor: Colors.green,
                 ),
@@ -277,7 +277,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.primaryColor,
             ),
-            child: Text('Fazer Upgrade'),
+            child: const Text('Fazer Upgrade'),
           ),
         ],
       ),
@@ -289,8 +289,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
       padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: Row(
         children: [
-          Icon(Icons.check_circle, color: Colors.green, size: 20),
-          SizedBox(width: 8),
+          const Icon(Icons.check_circle, color: Colors.green, size: 20),
+          const SizedBox(width: 8),
           Expanded(child: Text(feature)),
         ],
       ),

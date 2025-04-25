@@ -5,6 +5,8 @@ import '../../../../core/auth/auth_service.dart';
 import '../../../../core/data/services/ia_service.dart';
 
 class IAToolsScreen extends StatefulWidget {
+  const IAToolsScreen({super.key});
+
   @override
   _IAToolsScreenState createState() => _IAToolsScreenState();
 }
@@ -152,12 +154,12 @@ class _IAToolsScreenState extends State<IAToolsScreen> with SingleTickerProvider
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Ferramentas de IA'),
+        title: const Text('Ferramentas de IA'),
         backgroundColor: AppTheme.primaryColor,
         bottom: TabBar(
           controller: _tabController,
           indicatorColor: Colors.white,
-          tabs: [
+          tabs: const [
             Tab(text: 'Flashcards'),
             Tab(text: 'Resumos'),
             Tab(text: 'Esquemas'),
@@ -182,13 +184,13 @@ class _IAToolsScreenState extends State<IAToolsScreen> with SingleTickerProvider
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
+          const Icon(
             Icons.lock,
             size: 80,
             color: Colors.amber,
           ),
-          SizedBox(height: 24),
-          Text(
+          const SizedBox(height: 24),
+          const Text(
             'Funcionalidade Premium',
             style: TextStyle(
               fontSize: 24,
@@ -196,8 +198,8 @@ class _IAToolsScreenState extends State<IAToolsScreen> with SingleTickerProvider
               color: AppTheme.primaryColor,
             ),
           ),
-          SizedBox(height: 16),
-          Padding(
+          const SizedBox(height: 16),
+          const Padding(
             padding: EdgeInsets.symmetric(horizontal: 32),
             child: Text(
               'As ferramentas de IA estão disponíveis apenas para usuários Premium.',
@@ -205,24 +207,24 @@ class _IAToolsScreenState extends State<IAToolsScreen> with SingleTickerProvider
               style: TextStyle(fontSize: 16),
             ),
           ),
-          SizedBox(height: 32),
+          const SizedBox(height: 32),
           ElevatedButton.icon(
             onPressed: () async {
               final authService = Provider.of<AuthService>(context, listen: false);
               await authService.upgradeToPremium();
 
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
+                const SnackBar(
                   content: Text('Parabéns! Você agora é um usuário Premium.'),
                   backgroundColor: Colors.green,
                 ),
               );
             },
-            icon: Icon(Icons.star),
-            label: Text('Fazer Upgrade para Premium'),
+            icon: const Icon(Icons.star),
+            label: const Text('Fazer Upgrade para Premium'),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.amber,
-              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             ),
           ),
         ],
@@ -232,7 +234,7 @@ class _IAToolsScreenState extends State<IAToolsScreen> with SingleTickerProvider
 
   Widget _buildFlashcardsTab() {
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -240,38 +242,38 @@ class _IAToolsScreenState extends State<IAToolsScreen> with SingleTickerProvider
             'Gerador de Flashcards',
             'Crie flashcards automaticamente a partir de textos de estudo',
           ),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
 
           // Campo de matéria
-          Text(
+          const Text(
             'Matéria',
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           TextField(
             controller: _materiaController,
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               hintText: 'Ex: Direito Constitucional',
               border: OutlineInputBorder(),
             ),
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
 
           // Campo de texto
-          Text(
+          const Text(
             'Texto',
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           TextField(
             controller: _textController,
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               hintText: 'Cole aqui o texto para gerar flashcards...',
               border: OutlineInputBorder(),
             ),
             maxLines: 10,
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
 
           // Botão de processar
           _buildProcessButton('Gerar Flashcards', () => _processarTexto('flashcards')),
@@ -285,7 +287,7 @@ class _IAToolsScreenState extends State<IAToolsScreen> with SingleTickerProvider
             _buildResultado(),
 
           // Configuração da API Key
-          SizedBox(height: 32),
+          const SizedBox(height: 32),
           _buildApiKeyConfig(),
         ],
       ),
@@ -294,7 +296,7 @@ class _IAToolsScreenState extends State<IAToolsScreen> with SingleTickerProvider
 
   Widget _buildResumoTab() {
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -302,23 +304,23 @@ class _IAToolsScreenState extends State<IAToolsScreen> with SingleTickerProvider
             'Gerador de Resumos',
             'Crie resumos concisos a partir de textos longos',
           ),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
 
           // Campo de texto
-          Text(
+          const Text(
             'Texto',
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           TextField(
             controller: _textController,
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               hintText: 'Cole aqui o texto para resumir...',
               border: OutlineInputBorder(),
             ),
             maxLines: 10,
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
 
           // Botão de processar
           _buildProcessButton('Gerar Resumo', () => _processarTexto('resumo')),
@@ -332,7 +334,7 @@ class _IAToolsScreenState extends State<IAToolsScreen> with SingleTickerProvider
             _buildResultado(),
 
           // Configuração da API Key
-          SizedBox(height: 32),
+          const SizedBox(height: 32),
           _buildApiKeyConfig(),
         ],
       ),
@@ -341,7 +343,7 @@ class _IAToolsScreenState extends State<IAToolsScreen> with SingleTickerProvider
 
   Widget _buildEsquemaTab() {
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -349,23 +351,23 @@ class _IAToolsScreenState extends State<IAToolsScreen> with SingleTickerProvider
             'Gerador de Esquemas',
             'Crie esquemas e mapas mentais a partir de textos de estudo',
           ),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
 
           // Campo de texto
-          Text(
+          const Text(
             'Texto',
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           TextField(
             controller: _textController,
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               hintText: 'Cole aqui o texto para gerar um esquema...',
               border: OutlineInputBorder(),
             ),
             maxLines: 10,
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
 
           // Botão de processar
           _buildProcessButton('Gerar Esquema', () => _processarTexto('esquema')),
@@ -379,7 +381,7 @@ class _IAToolsScreenState extends State<IAToolsScreen> with SingleTickerProvider
             _buildResultado(),
 
           // Configuração da API Key
-          SizedBox(height: 32),
+          const SizedBox(height: 32),
           _buildApiKeyConfig(),
         ],
       ),
@@ -392,13 +394,13 @@ class _IAToolsScreenState extends State<IAToolsScreen> with SingleTickerProvider
       children: [
         Text(
           title,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
             color: AppTheme.primaryColor,
           ),
         ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         Text(
           subtitle,
           style: TextStyle(
@@ -417,7 +419,7 @@ class _IAToolsScreenState extends State<IAToolsScreen> with SingleTickerProvider
       child: ElevatedButton.icon(
         onPressed: _isLoading ? null : onPressed,
         icon: _isLoading
-            ? SizedBox(
+            ? const SizedBox(
                 width: 20,
                 height: 20,
                 child: CircularProgressIndicator(
@@ -425,7 +427,7 @@ class _IAToolsScreenState extends State<IAToolsScreen> with SingleTickerProvider
                   color: Colors.white,
                 ),
               )
-            : Icon(Icons.psychology),
+            : const Icon(Icons.psychology),
         label: Text(_isLoading ? 'Processando...' : label),
         style: ElevatedButton.styleFrom(
           backgroundColor: AppTheme.primaryColor,
@@ -436,8 +438,8 @@ class _IAToolsScreenState extends State<IAToolsScreen> with SingleTickerProvider
 
   Widget _buildErrorMessage() {
     return Container(
-      margin: EdgeInsets.only(top: 16),
-      padding: EdgeInsets.all(12),
+      margin: const EdgeInsets.only(top: 16),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.red.shade50,
         borderRadius: BorderRadius.circular(8),
@@ -445,8 +447,8 @@ class _IAToolsScreenState extends State<IAToolsScreen> with SingleTickerProvider
       ),
       child: Row(
         children: [
-          Icon(Icons.error_outline, color: Colors.red),
-          SizedBox(width: 12),
+          const Icon(Icons.error_outline, color: Colors.red),
+          const SizedBox(width: 12),
           Expanded(
             child: Text(
               _errorMessage!,
@@ -460,8 +462,8 @@ class _IAToolsScreenState extends State<IAToolsScreen> with SingleTickerProvider
 
   Widget _buildResultado() {
     return Container(
-      margin: EdgeInsets.only(top: 24),
-      padding: EdgeInsets.all(16),
+      margin: const EdgeInsets.only(top: 24),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.green.shade50,
         borderRadius: BorderRadius.circular(8),
@@ -472,8 +474,8 @@ class _IAToolsScreenState extends State<IAToolsScreen> with SingleTickerProvider
         children: [
           Row(
             children: [
-              Icon(Icons.check_circle, color: Colors.green),
-              SizedBox(width: 8),
+              const Icon(Icons.check_circle, color: Colors.green),
+              const SizedBox(width: 8),
               Text(
                 'Resultado',
                 style: TextStyle(
@@ -484,21 +486,21 @@ class _IAToolsScreenState extends State<IAToolsScreen> with SingleTickerProvider
               ),
             ],
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           Text(_resultado!.replaceAll('\\n', '\n')),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           OutlinedButton.icon(
             onPressed: () {
               // Implementar cópia para a área de transferência
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
+                const SnackBar(
                   content: Text('Texto copiado para a área de transferência!'),
                   backgroundColor: Colors.green,
                 ),
               );
             },
-            icon: Icon(Icons.copy),
-            label: Text('Copiar Resultado'),
+            icon: const Icon(Icons.copy),
+            label: const Text('Copiar Resultado'),
           ),
         ],
       ),
@@ -509,7 +511,7 @@ class _IAToolsScreenState extends State<IAToolsScreen> with SingleTickerProvider
     final iaService = Provider.of<IAService>(context);
 
     return ExpansionTile(
-      title: Text('Configuração da API Key'),
+      title: const Text('Configuração da API Key'),
       subtitle: Text(
         iaService.isConfigured
             ? 'API Key configurada'
@@ -521,30 +523,30 @@ class _IAToolsScreenState extends State<IAToolsScreen> with SingleTickerProvider
       ),
       children: [
         Padding(
-          padding: EdgeInsets.all(16),
+          padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
+              const Text(
                 'Para usar as ferramentas de IA, é necessário configurar uma API Key do Gemini ou OpenAI.',
                 style: TextStyle(fontSize: 14),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               TextField(
                 controller: _apiKeyController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'API Key (Gemini ou OpenAI)',
                   hintText: 'Cole sua API Key aqui (começa com AI... ou sk-...)',
                   border: OutlineInputBorder(),
                 ),
                 obscureText: true,
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () async {
                   if (_apiKeyController.text.isEmpty) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
+                      const SnackBar(
                         content: Text('Por favor, insira uma API Key válida.'),
                         backgroundColor: Colors.red,
                       ),
@@ -562,14 +564,14 @@ class _IAToolsScreenState extends State<IAToolsScreen> with SingleTickerProvider
 
                     if (isValid) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
+                        const SnackBar(
                           content: Text('API Key configurada com sucesso!'),
                           backgroundColor: Colors.green,
                         ),
                       );
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
+                        const SnackBar(
                           content: Text('API Key inválida ou serviço indisponível.'),
                           backgroundColor: Colors.red,
                         ),
@@ -588,7 +590,7 @@ class _IAToolsScreenState extends State<IAToolsScreen> with SingleTickerProvider
                     });
                   }
                 },
-                child: Text('Salvar API Key'),
+                child: const Text('Salvar API Key'),
               ),
             ],
           ),

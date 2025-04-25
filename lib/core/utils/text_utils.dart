@@ -207,7 +207,7 @@ class TextUtils {
           final sentenceTokens = estimateTokenCount(sentence);
 
           if (sentenceTokenCount + sentenceTokens <= maxTokensPerChunk) {
-            sentenceChunk += sentence + " ";
+            sentenceChunk += "$sentence ";
             sentenceTokenCount += sentenceTokens;
           } else {
             if (sentenceChunk.isNotEmpty) {
@@ -221,14 +221,14 @@ class TextUtils {
               int wordTokenCount = 0;
 
               for (final word in words) {
-                final wordTokens = estimateTokenCount(word + " ");
+                final wordTokens = estimateTokenCount("$word ");
 
                 if (wordTokenCount + wordTokens <= maxTokensPerChunk) {
-                  wordChunk += word + " ";
+                  wordChunk += "$word ";
                   wordTokenCount += wordTokens;
                 } else {
                   chunks.add(wordChunk.trim());
-                  wordChunk = word + " ";
+                  wordChunk = "$word ";
                   wordTokenCount = wordTokens;
                 }
               }
@@ -237,7 +237,7 @@ class TextUtils {
                 chunks.add(wordChunk.trim());
               }
             } else {
-              sentenceChunk = sentence + " ";
+              sentenceChunk = "$sentence ";
               sentenceTokenCount = sentenceTokens;
             }
           }
@@ -249,13 +249,13 @@ class TextUtils {
       }
       // Caso normal: adicionar parágrafo ao chunk atual se couber
       else if (currentTokenCount + paragraphTokens <= maxTokensPerChunk) {
-        currentChunk += paragraph + "\n\n";
+        currentChunk += "$paragraph\n\n";
         currentTokenCount += paragraphTokens;
       }
       // Se não couber, finalize o chunk atual e comece um novo
       else {
         chunks.add(currentChunk.trim());
-        currentChunk = paragraph + "\n\n";
+        currentChunk = "$paragraph\n\n";
         currentTokenCount = paragraphTokens;
       }
     }

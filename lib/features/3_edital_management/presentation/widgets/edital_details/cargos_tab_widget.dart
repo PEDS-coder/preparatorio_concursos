@@ -21,11 +21,11 @@ class CargosTabWidget extends StatelessWidget {
     final gruposCargos = CargoGroupingService.agruparCargos(edital, null);
 
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          const Text(
             'Cargos Disponíveis',
             style: TextStyle(
               fontSize: 20,
@@ -33,7 +33,7 @@ class CargosTabWidget extends StatelessWidget {
               color: AppTheme.primaryColor,
             ),
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           // Verificar se há cargos disponíveis
           if (gruposCargos.isEmpty)
             _buildNoCargosMessage()
@@ -52,7 +52,7 @@ class CargosTabWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
       ),
       child: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Column(
           children: [
             Icon(
@@ -60,15 +60,15 @@ class CargosTabWidget extends StatelessWidget {
               size: 48,
               color: Colors.blue.shade300,
             ),
-            SizedBox(height: 16),
-            Text(
+            const SizedBox(height: 16),
+            const Text(
               'Nenhum cargo encontrado',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
               'Não foram encontrados cargos neste edital. Isso pode ocorrer se o edital não contiver informações sobre cargos ou se a análise não conseguiu extrair essas informações.',
               textAlign: TextAlign.center,
@@ -84,7 +84,7 @@ class CargosTabWidget extends StatelessWidget {
 
   Widget _buildGrupoCard(BuildContext context, String grupo, List<Cargo> cargos) {
     return Card(
-      margin: EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.only(bottom: 16),
       elevation: 2,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
@@ -94,10 +94,10 @@ class CargosTabWidget extends StatelessWidget {
         children: [
           // Cabeçalho do grupo
           Container(
-            padding: EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: AppTheme.primaryColor.withOpacity(0.1),
-              borderRadius: BorderRadius.only(
+              borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(12),
                 topRight: Radius.circular(12),
               ),
@@ -108,11 +108,11 @@ class CargosTabWidget extends StatelessWidget {
                   CargoGroupingService.getIconForGrupo(grupo),
                   color: AppTheme.primaryColor,
                 ),
-                SizedBox(width: 12),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     grupo,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                       color: AppTheme.primaryColor,
@@ -131,9 +131,9 @@ class CargosTabWidget extends StatelessWidget {
           // Lista de cargos
           ListView.separated(
             shrinkWrap: true,
-            physics: NeverScrollableScrollPhysics(),
+            physics: const NeverScrollableScrollPhysics(),
             itemCount: cargos.length,
-            separatorBuilder: (context, index) => Divider(height: 1),
+            separatorBuilder: (context, index) => const Divider(height: 1),
             itemBuilder: (context, index) => _buildCargoItem(context, cargos[index]),
           ),
         ],
@@ -145,19 +145,19 @@ class CargosTabWidget extends StatelessWidget {
     return InkWell(
       onTap: () => onCargoSelected(cargo.nome),
       child: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               cargo.nome,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
                 color: Colors.black87,
               ),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Row(
               children: [
                 _buildCargoInfoChip(
@@ -166,7 +166,7 @@ class CargosTabWidget extends StatelessWidget {
                   Colors.blue.shade100,
                   Colors.blue.shade700,
                 ),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 _buildCargoInfoChip(
                   'R\$ ${_formatarSalario(cargo.salario)}',
                   Icons.attach_money,
@@ -175,7 +175,7 @@ class CargosTabWidget extends StatelessWidget {
                 ),
               ],
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             _buildCargoInfoChip(
               cargo.escolaridade,
               Icons.school,
@@ -184,7 +184,7 @@ class CargosTabWidget extends StatelessWidget {
             ),
             if (cargo.dataProva != null)
               Padding(
-                padding: EdgeInsets.only(top: 8),
+                padding: const EdgeInsets.only(top: 8),
                 child: _buildCargoInfoChip(
                   'Prova: ${DateFormat('dd/MM/yyyy').format(cargo.dataProva!)}',
                   Icons.calendar_today,
@@ -200,7 +200,7 @@ class CargosTabWidget extends StatelessWidget {
 
   Widget _buildCargoInfoChip(String label, IconData icon, Color bgColor, Color fgColor) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: BorderRadius.circular(16),
@@ -209,7 +209,7 @@ class CargosTabWidget extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 14, color: fgColor),
-          SizedBox(width: 4),
+          const SizedBox(width: 4),
           Text(
             label,
             style: TextStyle(
@@ -242,6 +242,6 @@ class CargosTabWidget extends StatelessWidget {
     }
 
     // Adicionar a parte decimal
-    return resultado + ',' + valorDecimal.toString().padLeft(2, '0');
+    return '$resultado,${valorDecimal.toString().padLeft(2, '0')}';
   }
 }

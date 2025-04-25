@@ -23,20 +23,20 @@ class EditalResumoTabWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Cabeçalho
           Text(
             edital.nomeConcurso,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
               color: AppTheme.primaryColor,
             ),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
             'Adicionado em ${EditalFormatterService.formatDate(edital.dataUpload)}',
             style: TextStyle(
@@ -44,7 +44,7 @@ class EditalResumoTabWidget extends StatelessWidget {
               color: Colors.grey.shade600,
             ),
           ),
-          Divider(height: 32),
+          const Divider(height: 32),
 
           // Informações principais
           InfoSectionWidget(
@@ -74,7 +74,7 @@ class EditalResumoTabWidget extends StatelessWidget {
           ),
 
           // Cronograma
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
           InfoSectionWidget(
             title: 'Cronograma',
             children: [
@@ -98,7 +98,7 @@ class EditalResumoTabWidget extends StatelessWidget {
           ),
 
           // Botões de ação
-          SizedBox(height: 32),
+          const SizedBox(height: 32),
           Row(
             children: [
               Expanded(
@@ -106,15 +106,15 @@ class EditalResumoTabWidget extends StatelessWidget {
                   onPressed: () {
                     tabController.animateTo(1); // Navegar para a aba de cargos
                   },
-                  icon: Icon(Icons.work),
-                  label: Text('Ver Cargos'),
+                  icon: const Icon(Icons.work),
+                  label: const Text('Ver Cargos'),
                   style: OutlinedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(vertical: 12),
-                    side: BorderSide(color: AppTheme.primaryColor),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    side: const BorderSide(color: AppTheme.primaryColor),
                   ),
                 ),
               ),
-              SizedBox(width: 16),
+              const SizedBox(width: 16),
               Expanded(
                 child: ElevatedButton.icon(
                   onPressed: () {
@@ -125,11 +125,11 @@ class EditalResumoTabWidget extends StatelessWidget {
                       ),
                     );
                   },
-                  icon: Icon(Icons.add_chart),
-                  label: Text('Criar Plano'),
+                  icon: const Icon(Icons.add_chart),
+                  label: const Text('Criar Plano'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.primaryColor,
-                    padding: EdgeInsets.symmetric(vertical: 12),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
                   ),
                 ),
               ),

@@ -47,7 +47,7 @@ class _SpaceTravelAnimationState extends State<SpaceTravelAnimation> with Single
     // Configurar animação de pulso
     _controller = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 1500),
+      duration: const Duration(milliseconds: 1500),
     )..repeat(reverse: true);
     
     _pulseAnimation = Tween<double>(begin: 0.8, end: 1.2).animate(
@@ -55,7 +55,7 @@ class _SpaceTravelAnimationState extends State<SpaceTravelAnimation> with Single
     );
 
     // Atualizar a animação a cada 16ms (aproximadamente 60fps)
-    timer = Timer.periodic(Duration(milliseconds: 16), (timer) {
+    timer = Timer.periodic(const Duration(milliseconds: 16), (timer) {
       if (mounted) {
         setState(() {
           updateStars();
@@ -66,7 +66,7 @@ class _SpaceTravelAnimationState extends State<SpaceTravelAnimation> with Single
     // Atualizar mensagens de status a cada 15 segundos
     if (widget.statusMessages.isNotEmpty) {
       currentStatusMessage = widget.statusMessages[0];
-      messageTimer = Timer.periodic(Duration(seconds: 15), (timer) {
+      messageTimer = Timer.periodic(const Duration(seconds: 15), (timer) {
         if (mounted) {
           setState(() {
             currentMessageIndex = (currentMessageIndex + 1) % widget.statusMessages.length;
@@ -159,10 +159,10 @@ class _SpaceTravelAnimationState extends State<SpaceTravelAnimation> with Single
                     );
                   },
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 if (widget.statusMessages.isNotEmpty)
                   AnimatedSwitcher(
-                    duration: Duration(milliseconds: 500),
+                    duration: const Duration(milliseconds: 500),
                     child: Text(
                       currentStatusMessage,
                       key: ValueKey<String>(currentStatusMessage),
@@ -173,8 +173,8 @@ class _SpaceTravelAnimationState extends State<SpaceTravelAnimation> with Single
                       ),
                     ),
                   ),
-                SizedBox(height: 16),
-                Text(
+                const SizedBox(height: 16),
+                const Text(
                   'Pode levar alguns minutos...',
                   style: TextStyle(
                     color: Colors.white70,

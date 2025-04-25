@@ -26,7 +26,7 @@ class CargoCardWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.only(bottom: 16),
       elevation: isSelecionado ? 4 : 2,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
@@ -40,7 +40,7 @@ class CargoCardWidget extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
         child: Padding(
-          padding: EdgeInsets.all(16),
+          padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -57,7 +57,7 @@ class CargoCardWidget extends StatelessWidget {
                     ),
                   ),
                   if (isSelecionado)
-                    Icon(
+                    const Icon(
                       Icons.check_circle,
                       color: AppTheme.primaryColor,
                     ),
@@ -67,23 +67,23 @@ class CargoCardWidget extends StatelessWidget {
               // Botões pop-up quando o cargo está selecionado
               if (isSelecionado && showPopupButtons)
                 Container(
-                  margin: EdgeInsets.only(top: 16),
+                  margin: const EdgeInsets.only(top: 16),
                   child: Center(
                     // Botão para continuar para o plano de estudo
                     child: ElevatedButton.icon(
                       onPressed: isLoading ? null : onCriarPlanoPressed,
-                      icon: Icon(Icons.arrow_forward, size: 16),
-                      label: Text('Criar Plano', style: TextStyle(fontSize: 14)),
+                      icon: const Icon(Icons.arrow_forward, size: 16),
+                      label: const Text('Criar Plano', style: TextStyle(fontSize: 14)),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.primaryColor,
                         foregroundColor: Colors.white,
-                        padding: EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+                        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
                         disabledBackgroundColor: Colors.grey.shade300,
                       ),
                     ),
                   ),
                 ),
-              SizedBox(height: 12),
+              const SizedBox(height: 12),
               
               // Informações do cargo
               CargoInfoItemWidget(
@@ -108,13 +108,13 @@ class CargoCardWidget extends StatelessWidget {
                   value: cargo.horarioProva!, 
                   icon: Icons.access_time
                 ),
-              if (cargo.requisitos != null && cargo.requisitos != 'Não informado')
+              if (cargo.requisitos != 'Não informado')
                 CargoInfoItemWidget(
                   label: 'Requisitos', 
                   value: cargo.requisitos, 
                   icon: Icons.assignment_ind
                 ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
             ],
           ),
         ),
@@ -141,6 +141,6 @@ class CargoCardWidget extends StatelessWidget {
     }
 
     // Adicionar a parte decimal
-    return resultado + ',' + valorDecimal.toString().padLeft(2, '0');
+    return '$resultado,${valorDecimal.toString().padLeft(2, '0')}';
   }
 }

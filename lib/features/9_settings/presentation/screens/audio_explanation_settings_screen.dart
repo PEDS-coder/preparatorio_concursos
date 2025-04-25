@@ -4,6 +4,8 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/services/audio_explanation_service.dart';
 
 class AudioExplanationSettingsScreen extends StatefulWidget {
+  const AudioExplanationSettingsScreen({super.key});
+
   @override
   _AudioExplanationSettingsScreenState createState() => _AudioExplanationSettingsScreenState();
 }
@@ -25,7 +27,7 @@ class _AudioExplanationSettingsScreenState extends State<AudioExplanationSetting
     
     return Scaffold(
       appBar: AppBar(
-        title: Text('Explicações em Áudio'),
+        title: const Text('Explicações em Áudio'),
         backgroundColor: AppTheme.primaryColor,
       ),
       body: Padding(
@@ -34,7 +36,7 @@ class _AudioExplanationSettingsScreenState extends State<AudioExplanationSetting
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Título da seção
-            Text(
+            const Text(
               'Explicações em Áudio',
               style: TextStyle(
                 fontSize: 20,
@@ -42,12 +44,12 @@ class _AudioExplanationSettingsScreenState extends State<AudioExplanationSetting
                 color: AppTheme.primaryColor,
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             
             // Ativar/desativar explicações
             SwitchListTile(
-              title: Text('Ativar Explicações'),
-              subtitle: Text('Ativa ou desativa as explicações em áudio das telas'),
+              title: const Text('Ativar Explicações'),
+              subtitle: const Text('Ativa ou desativa as explicações em áudio das telas'),
               value: audioExplanationService.isExplanationsEnabled,
               activeColor: AppTheme.primaryColor,
               onChanged: (value) {
@@ -57,8 +59,8 @@ class _AudioExplanationSettingsScreenState extends State<AudioExplanationSetting
             
             // Controle de volume
             if (audioExplanationService.isExplanationsEnabled) ...[
-              SizedBox(height: 16),
-              Text('Volume das Explicações', style: TextStyle(fontSize: 16)),
+              const SizedBox(height: 16),
+              const Text('Volume das Explicações', style: TextStyle(fontSize: 16)),
               Slider(
                 value: audioExplanationService.volume,
                 min: 0.0,
@@ -72,10 +74,10 @@ class _AudioExplanationSettingsScreenState extends State<AudioExplanationSetting
                 },
               ),
               
-              SizedBox(height: 32),
+              const SizedBox(height: 32),
               
               // Testar explicações
-              Text(
+              const Text(
                 'Testar Explicações',
                 style: TextStyle(
                   fontSize: 18,
@@ -83,7 +85,7 @@ class _AudioExplanationSettingsScreenState extends State<AudioExplanationSetting
                   color: AppTheme.primaryColor,
                 ),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               
               Wrap(
                 spacing: 8,
@@ -122,17 +124,17 @@ class _AudioExplanationSettingsScreenState extends State<AudioExplanationSetting
                 ],
               ),
               
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
               
               // Botão para parar todas as explicações
               Center(
                 child: ElevatedButton.icon(
-                  icon: Icon(Icons.stop_circle),
-                  label: Text('Parar Explicação'),
+                  icon: const Icon(Icons.stop_circle),
+                  label: const Text('Parar Explicação'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red,
                     foregroundColor: Colors.white,
-                    padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -159,7 +161,7 @@ class _AudioExplanationSettingsScreenState extends State<AudioExplanationSetting
       style: ElevatedButton.styleFrom(
         backgroundColor: AppTheme.primaryColor,
         foregroundColor: Colors.white,
-        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
         ),

@@ -80,7 +80,7 @@ class AppTheme {
   // Tema claro original (mantido para referência)
   static final ThemeData lightThemeOriginal = ThemeData(
     useMaterial3: true,
-    colorScheme: ColorScheme(
+    colorScheme: const ColorScheme(
       brightness: Brightness.light,
       primary: primaryColor,
       onPrimary: lightOnPrimary,
@@ -88,12 +88,10 @@ class AppTheme {
       onSecondary: lightOnSecondary,
       error: errorColor,
       onError: Colors.white,
-      background: lightBackground,
-      onBackground: lightOnBackground,
       surface: lightSurface,
       onSurface: lightOnSurface,
     ),
-    appBarTheme: AppBarTheme(
+    appBarTheme: const AppBarTheme(
       backgroundColor: primaryColor,
       foregroundColor: Colors.white,
       elevation: 0,
@@ -118,9 +116,9 @@ class AppTheme {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: primaryColor, width: 2),
+        borderSide: const BorderSide(color: primaryColor, width: 2),
       ),
-      floatingLabelStyle: TextStyle(color: primaryColor),
+      floatingLabelStyle: const TextStyle(color: primaryColor),
     ),
     cardTheme: CardTheme(
       shape: RoundedRectangleBorder(
@@ -131,15 +129,15 @@ class AppTheme {
       shadowColor: Colors.black.withOpacity(0.1),
     ),
     textTheme: TextTheme(
-      bodyLarge: TextStyle(color: lightOnSurface),
-      bodyMedium: TextStyle(color: lightOnSurface),
-      titleLarge: TextStyle(color: lightOnSurface, fontWeight: FontWeight.bold),
-      titleMedium: TextStyle(color: lightOnSurface, fontWeight: FontWeight.bold),
+      bodyLarge: const TextStyle(color: lightOnSurface),
+      bodyMedium: const TextStyle(color: lightOnSurface),
+      titleLarge: const TextStyle(color: lightOnSurface, fontWeight: FontWeight.bold),
+      titleMedium: const TextStyle(color: lightOnSurface, fontWeight: FontWeight.bold),
       titleSmall: TextStyle(color: lightOnSurface.withOpacity(0.8)),
-      labelLarge: TextStyle(color: lightOnSurface),
+      labelLarge: const TextStyle(color: lightOnSurface),
     ),
     scaffoldBackgroundColor: lightBackground,
-    bottomNavigationBarTheme: BottomNavigationBarThemeData(
+    bottomNavigationBarTheme: const BottomNavigationBarThemeData(
       backgroundColor: Colors.white,
       selectedItemColor: primaryColor,
       unselectedItemColor: Colors.black54, // Cor mais escura para garantir visibilidade, mas não tão escura
@@ -179,7 +177,7 @@ class AppTheme {
   // Tema escuro original (mantido para referência)
   static final ThemeData darkThemeOriginal = ThemeData(
     useMaterial3: true,
-    colorScheme: ColorScheme(
+    colorScheme: const ColorScheme(
       brightness: Brightness.dark,
       primary: primaryColor,
       onPrimary: darkOnPrimary,
@@ -187,8 +185,6 @@ class AppTheme {
       onSecondary: darkOnSecondary,
       error: errorColor,
       onError: Colors.white,
-      background: darkBackground,
-      onBackground: darkOnBackground,
       surface: darkSurface,
       onSurface: darkOnSurface,
     ),
@@ -197,7 +193,7 @@ class AppTheme {
       foregroundColor: Colors.white,
       elevation: 0,
       centerTitle: true,
-      titleTextStyle: TextStyle(
+      titleTextStyle: const TextStyle(
         fontSize: 18,
         fontWeight: FontWeight.bold,
         color: Colors.white,
@@ -211,17 +207,17 @@ class AppTheme {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
-        padding: EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
         elevation: 0,
         shadowColor: primaryColor.withOpacity(0.3),
       ).copyWith(
-        backgroundColor: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.pressed)) {
+        backgroundColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.pressed)) {
             return primaryColor.withOpacity(0.8);
           }
           return primaryColor;
         }),
-        overlayColor: MaterialStateProperty.all(Colors.white.withOpacity(0.1)),
+        overlayColor: WidgetStateProperty.all(Colors.white.withOpacity(0.1)),
       ),
     ),
     textButtonTheme: TextButtonThemeData(
@@ -231,7 +227,7 @@ class AppTheme {
           borderRadius: BorderRadius.circular(16),
         ),
       ).copyWith(
-        overlayColor: MaterialStateProperty.all(primaryColor.withOpacity(0.1)),
+        overlayColor: WidgetStateProperty.all(primaryColor.withOpacity(0.1)),
       ),
     ),
     inputDecorationTheme: InputDecorationTheme(
@@ -243,10 +239,10 @@ class AppTheme {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
-        borderSide: BorderSide(color: secondaryColor, width: 2),
+        borderSide: const BorderSide(color: secondaryColor, width: 2),
       ),
-      floatingLabelStyle: TextStyle(color: secondaryColor),
-      contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      floatingLabelStyle: const TextStyle(color: secondaryColor),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       hoverColor: secondaryColor.withOpacity(0.1),
     ),
     cardTheme: CardTheme(
@@ -255,16 +251,16 @@ class AppTheme {
       ),
       elevation: 0,
       color: darkCardColor,
-      margin: EdgeInsets.symmetric(vertical: 8, horizontal: 0),
+      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 0),
       shadowColor: primaryColor.withOpacity(0.2),
     ),
     textTheme: TextTheme(
-      bodyLarge: TextStyle(color: darkOnSurface),
-      bodyMedium: TextStyle(color: darkOnSurface),
-      titleLarge: TextStyle(color: darkOnSurface, fontWeight: FontWeight.bold),
-      titleMedium: TextStyle(color: darkOnSurface, fontWeight: FontWeight.bold),
+      bodyLarge: const TextStyle(color: darkOnSurface),
+      bodyMedium: const TextStyle(color: darkOnSurface),
+      titleLarge: const TextStyle(color: darkOnSurface, fontWeight: FontWeight.bold),
+      titleMedium: const TextStyle(color: darkOnSurface, fontWeight: FontWeight.bold),
       titleSmall: TextStyle(color: darkOnSurface.withOpacity(0.8)),
-      labelLarge: TextStyle(color: darkOnSurface),
+      labelLarge: const TextStyle(color: darkOnSurface),
     ),
     scaffoldBackgroundColor: darkBackground,
     dialogTheme: DialogTheme(
@@ -279,7 +275,7 @@ class AppTheme {
       unselectedItemColor: Colors.white.withOpacity(0.7), // Aumentado para melhor visibilidade
       type: BottomNavigationBarType.fixed,
       elevation: 0,
-      selectedIconTheme: IconThemeData(
+      selectedIconTheme: const IconThemeData(
         size: 28,
         color: primaryColor,
       ),
@@ -287,7 +283,7 @@ class AppTheme {
         size: 24,
         color: Colors.white.withOpacity(0.7), // Aumentado para melhor visibilidade
       ),
-      selectedLabelStyle: TextStyle(
+      selectedLabelStyle: const TextStyle(
         color: primaryColor,
         fontWeight: FontWeight.bold,
         fontSize: 12,
@@ -304,22 +300,22 @@ class AppTheme {
       thumbColor: primaryColor,
       overlayColor: primaryColor.withOpacity(0.2),
       valueIndicatorColor: primaryColor,
-      valueIndicatorTextStyle: TextStyle(color: Colors.white),
+      valueIndicatorTextStyle: const TextStyle(color: Colors.white),
     ),
     switchTheme: SwitchThemeData(
-      thumbColor: MaterialStateProperty.resolveWith((states) {
-        if (states.contains(MaterialState.selected)) return primaryColor;
+      thumbColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) return primaryColor;
         return Colors.grey;
       }),
-      trackColor: MaterialStateProperty.resolveWith((states) {
-        if (states.contains(MaterialState.selected)) return primaryColor.withOpacity(0.5);
+      trackColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) return primaryColor.withOpacity(0.5);
         return Colors.grey.withOpacity(0.5);
       }),
     ),
     tabBarTheme: TabBarTheme(
       labelColor: primaryColor,
       unselectedLabelColor: Colors.white.withOpacity(0.5),
-      indicator: UnderlineTabIndicator(
+      indicator: const UnderlineTabIndicator(
         borderSide: BorderSide(color: primaryColor, width: 2),
       ),
     ),
@@ -329,7 +325,7 @@ class AppTheme {
     ),
     snackBarTheme: SnackBarThemeData(
       backgroundColor: darkCardColor,
-      contentTextStyle: TextStyle(color: Colors.white),
+      contentTextStyle: const TextStyle(color: Colors.white),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       behavior: SnackBarBehavior.floating,
     ),

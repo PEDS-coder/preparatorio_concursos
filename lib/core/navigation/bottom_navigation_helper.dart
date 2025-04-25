@@ -19,7 +19,7 @@ class BottomNavigationHelper {
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
             blurRadius: 5,
-            offset: Offset(0, -1),
+            offset: const Offset(0, -1),
           ),
         ],
       ),
@@ -37,7 +37,7 @@ class BottomNavigationHelper {
         showUnselectedLabels: true,
         showSelectedLabels: true,
         elevation: 0,
-        selectedLabelStyle: TextStyle(
+        selectedLabelStyle: const TextStyle(
           color: AppTheme.primaryColor,
           fontWeight: FontWeight.bold,
         ),
@@ -45,7 +45,7 @@ class BottomNavigationHelper {
           color: unselectedColor,
           fontSize: 12,
         ),
-        items: [
+        items: const [
           // Abas principais
           BottomNavigationBarItem(
             icon: Icon(Icons.home),

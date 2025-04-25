@@ -236,7 +236,7 @@ class PlanoSessionGenerator {
         }
 
         // Avançar para o próximo dia
-        dataAtual = dataAtual.add(Duration(days: 1));
+        dataAtual = dataAtual.add(const Duration(days: 1));
       }
     } catch (e) {
       _logger.logArmazenamento(planoId, 'erro_distribuir_blocos', {'erro': e.toString()});
@@ -319,7 +319,7 @@ class PlanoSessionGenerator {
       }
 
       // Avançar para o próximo dia
-      dataAtual = dataAtual.add(Duration(days: 1));
+      dataAtual = dataAtual.add(const Duration(days: 1));
     }
 
     return sessoes;

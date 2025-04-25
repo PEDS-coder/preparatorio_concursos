@@ -16,13 +16,13 @@ class ResultDisplay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(top: 24),
+      margin: const EdgeInsets.only(top: 24),
       child: ModernCard(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
+            const Row(
               children: [
                 Icon(
                   Icons.check_circle,
@@ -40,7 +40,7 @@ class ResultDisplay extends StatelessWidget {
                 ),
               ],
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(
               resultado,
               style: TextStyle(
@@ -48,17 +48,17 @@ class ResultDisplay extends StatelessWidget {
                 fontSize: 14,
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 OutlinedButton.icon(
-                  icon: Icon(Icons.download),
-                  label: Text('BAIXAR'),
+                  icon: const Icon(Icons.download),
+                  label: const Text('BAIXAR'),
                   onPressed: onDownload ?? () {
                     // Implementação padrão se não for fornecida
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
+                      const SnackBar(
                         content: Text('Download iniciado'),
                         backgroundColor: AppTheme.successColor,
                       ),

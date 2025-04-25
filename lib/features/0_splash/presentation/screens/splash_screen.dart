@@ -8,6 +8,8 @@ import '../../../../core/data/services/edital_service.dart';
 import '../../../../core/theme/app_theme.dart';
 
 class SplashScreen extends StatefulWidget {
+  const SplashScreen({super.key});
+
   @override
   _SplashScreenState createState() => _SplashScreenState();
 }
@@ -21,7 +23,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Future<void> _checkAuthAndNavigate() async {
     // Aguardar 2 segundos para mostrar a splash screen
-    await Future.delayed(Duration(seconds: 2));
+    await Future.delayed(const Duration(seconds: 2));
 
     // Verificar se o usuário está autenticado
     final authService = Provider.of<AuthService>(context, listen: false);
@@ -55,7 +57,7 @@ class _SplashScreenState extends State<SplashScreen> {
         children: [
           // Fundo com gradiente sutil
           Container(
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: AppTheme.darkBackground,
             ),
           ),
@@ -87,7 +89,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 // Logo animado com brilho
                 TweenAnimationBuilder(
                   tween: Tween<double>(begin: 0, end: 1),
-                  duration: Duration(milliseconds: 1000),
+                  duration: const Duration(milliseconds: 1000),
                   builder: (context, double value, child) {
                     return Transform.scale(
                       scale: value,
@@ -109,11 +111,11 @@ class _SplashScreenState extends State<SplashScreen> {
                     );
                   },
                   child: Container(
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       shape: BoxShape.circle,
                       gradient: AppTheme.primaryGradient,
                     ),
-                    child: Center(
+                    child: const Center(
                       child: Icon(
                         Icons.school,
                         size: 60,
@@ -122,19 +124,19 @@ class _SplashScreenState extends State<SplashScreen> {
                     ),
                   ),
                 ),
-                SizedBox(height: 40),
+                const SizedBox(height: 40),
 
                 // Título com animação de fade
                 TweenAnimationBuilder(
                   tween: Tween<double>(begin: 0, end: 1),
-                  duration: Duration(milliseconds: 800),
+                  duration: const Duration(milliseconds: 800),
                   builder: (context, double value, child) {
                     return Opacity(
                       opacity: value,
                       child: child,
                     );
                   },
-                  child: Text(
+                  child: const Text(
                     'CONCURSEIRO PRO',
                     style: TextStyle(
                       fontSize: 28,
@@ -144,12 +146,12 @@ class _SplashScreenState extends State<SplashScreen> {
                     ),
                   ),
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
 
                 // Linha pulsante
                 TweenAnimationBuilder(
                   tween: Tween<double>(begin: 0, end: 1),
-                  duration: Duration(milliseconds: 1500),
+                  duration: const Duration(milliseconds: 1500),
                   curve: Curves.easeInOut,
                   builder: (context, double value, child) {
                     return Container(
@@ -162,19 +164,19 @@ class _SplashScreenState extends State<SplashScreen> {
                     );
                   },
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
 
                 // Subtítulo com animação de fade
                 TweenAnimationBuilder(
                   tween: Tween<double>(begin: 0, end: 1),
-                  duration: Duration(milliseconds: 800),
+                  duration: const Duration(milliseconds: 800),
                   builder: (context, double value, child) {
                     return Opacity(
                       opacity: value,
                       child: child,
                     );
                   },
-                  child: Text(
+                  child: const Text(
                     'Sua Aprovação Inteligente',
                     style: TextStyle(
                       fontSize: 16,
@@ -183,19 +185,19 @@ class _SplashScreenState extends State<SplashScreen> {
                     ),
                   ),
                 ),
-                SizedBox(height: 60),
+                const SizedBox(height: 60),
 
                 // Indicador de carregamento personalizado
                 TweenAnimationBuilder(
                   tween: Tween<double>(begin: 0, end: 1),
-                  duration: Duration(milliseconds: 800),
+                  duration: const Duration(milliseconds: 800),
                   builder: (context, double value, child) {
                     return Opacity(
                       opacity: value,
-                      child: Container(
+                      child: SizedBox(
                         width: 40,
                         height: 40,
-                        child: CircularProgressIndicator(
+                        child: const CircularProgressIndicator(
                           valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
                           strokeWidth: 3,
                         ),

@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 
 /// Classe base para eventos de calendário
 abstract class BaseCalendarEvent {

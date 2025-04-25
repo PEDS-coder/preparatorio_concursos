@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'edital_upload_screen.dart';
-import 'dart:io';
 
 class ApiConfigScreen extends StatefulWidget {
   final void Function(String apiKey)? onApiKeyValidated;

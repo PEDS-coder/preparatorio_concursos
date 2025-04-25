@@ -45,6 +45,7 @@ class AnalyticsService implements IAnalyticsService {
   }
 
   /// Registra um evento de login
+  @override
   Future<void> logLogin({required String method}) async {
     try {
       await _analytics.logLogin(loginMethod: method);
@@ -55,6 +56,7 @@ class AnalyticsService implements IAnalyticsService {
   }
 
   /// Registra um evento de logout
+  @override
   Future<void> logLogout() async {
     try {
       await _analytics.logEvent(name: 'logout');
@@ -65,6 +67,7 @@ class AnalyticsService implements IAnalyticsService {
   }
 
   /// Registra um evento de análise de edital
+  @override
   Future<void> logEditalAnalysis({required String editalId, required bool success}) async {
     try {
       await _analytics.logEvent(
@@ -81,6 +84,7 @@ class AnalyticsService implements IAnalyticsService {
   }
 
   /// Registra um evento de criação de plano de estudo
+  @override
   Future<void> logPlanoEstudoCreation({required String planoId, required String editalId}) async {
     try {
       await _analytics.logEvent(
@@ -97,6 +101,7 @@ class AnalyticsService implements IAnalyticsService {
   }
 
   /// Registra um evento de sessão de estudo
+  @override
   Future<void> logEstudoSession({
     required String planoId,
     required String materiaId,
@@ -122,6 +127,7 @@ class AnalyticsService implements IAnalyticsService {
   }
 
   /// Registra um evento de compra de recompensa
+  @override
   Future<void> logRecompensaPurchase({required String recompensaId, required int preco}) async {
     try {
       await _analytics.logEvent(
@@ -138,6 +144,7 @@ class AnalyticsService implements IAnalyticsService {
   }
 
   /// Registra um evento personalizado
+  @override
   Future<void> logEvent({required String name, Map<String, dynamic>? parameters}) async {
     try {
       await _analytics.logEvent(
@@ -151,6 +158,7 @@ class AnalyticsService implements IAnalyticsService {
   }
 
   /// Registra um erro no Crashlytics
+  @override
   Future<void> recordError(dynamic exception, StackTrace? stack, {String? reason}) async {
     try {
       await _crashlytics.recordError(
@@ -166,6 +174,7 @@ class AnalyticsService implements IAnalyticsService {
   }
 
   /// Define o usuário atual
+  @override
   Future<void> setUser({required String userId, String? email, String? name}) async {
     try {
       await _analytics.setUserId(id: userId);
@@ -195,7 +204,7 @@ class AnalyticsService implements IAnalyticsService {
       return trace;
     } catch (e) {
       _logger.error('Erro ao iniciar trace', tag: _tag, error: e);
-      throw e;
+      rethrow;
     }
   }
 
@@ -247,7 +256,7 @@ class AnalyticsService implements IAnalyticsService {
       return metric;
     } catch (e) {
       _logger.error('Erro ao iniciar métrica HTTP', tag: _tag, error: e);
-      throw e;
+      rethrow;
     }
   }
 

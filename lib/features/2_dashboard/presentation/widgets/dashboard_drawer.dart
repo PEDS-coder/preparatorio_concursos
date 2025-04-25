@@ -4,6 +4,8 @@ import '../../../../core/auth/auth_service.dart';
 import '../../../../core/theme/app_theme.dart';
 
 class DashboardDrawer extends StatelessWidget {
+  const DashboardDrawer({super.key});
+
   @override
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context);
@@ -17,7 +19,7 @@ class DashboardDrawer extends StatelessWidget {
           UserAccountsDrawerHeader(
             accountName: Text(usuario?.nome ?? 'Usuário'),
             accountEmail: Text(usuario?.email ?? 'Não autenticado'),
-            currentAccountPicture: CircleAvatar(
+            currentAccountPicture: const CircleAvatar(
               backgroundColor: Colors.white,
               child: Icon(
                 Icons.person,
@@ -25,12 +27,12 @@ class DashboardDrawer extends StatelessWidget {
                 color: AppTheme.primaryColor,
               ),
             ),
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: AppTheme.primaryColor,
             ),
             otherAccountsPictures: [
               if (isPremium)
-                Tooltip(
+                const Tooltip(
                   message: 'Usuário Premium',
                   child: CircleAvatar(
                     backgroundColor: Colors.amber,
@@ -44,75 +46,75 @@ class DashboardDrawer extends StatelessWidget {
             ],
           ),
           ListTile(
-            leading: Icon(Icons.dashboard),
-            title: Text('Dashboard'),
+            leading: const Icon(Icons.dashboard),
+            title: const Text('Dashboard'),
             onTap: () {
               Navigator.pop(context);
               Navigator.pushReplacementNamed(context, '/dashboard');
             },
           ),
           ListTile(
-            leading: Icon(Icons.description),
-            title: Text('Meus Editais'),
+            leading: const Icon(Icons.description),
+            title: const Text('Meus Editais'),
             onTap: () {
               Navigator.pop(context);
               Navigator.pushNamed(context, '/editais');
             },
           ),
           ListTile(
-            leading: Icon(Icons.calendar_today),
-            title: Text('Plano de Estudo'),
+            leading: const Icon(Icons.calendar_today),
+            title: const Text('Plano de Estudo'),
             onTap: () {
               Navigator.pop(context);
               Navigator.pushNamed(context, '/plano');
             },
           ),
           ListTile(
-            leading: Icon(Icons.play_circle_filled),
-            title: Text('Sessão de Estudo'),
+            leading: const Icon(Icons.play_circle_filled),
+            title: const Text('Sessão de Estudo'),
             onTap: () {
               Navigator.pop(context);
               Navigator.pushNamed(context, '/sessao');
             },
           ),
           ListTile(
-            leading: Icon(Icons.emoji_events),
-            title: Text('Gamificação'),
+            leading: const Icon(Icons.emoji_events),
+            title: const Text('Gamificação'),
             onTap: () {
               Navigator.pop(context);
               Navigator.pushNamed(context, '/gamificacao');
             },
           ),
           ListTile(
-            leading: Icon(Icons.auto_awesome),
-            title: Text('Ferramentas de IA'),
+            leading: const Icon(Icons.auto_awesome),
+            title: const Text('Ferramentas de IA'),
             onTap: () {
               Navigator.pop(context);
               Navigator.pushNamed(context, '/ferramentas');
             },
           ),
           ListTile(
-            leading: Icon(Icons.shopping_bag),
-            title: Text('Mercado Aprovação'),
+            leading: const Icon(Icons.shopping_bag),
+            title: const Text('Mercado Aprovação'),
             onTap: () {
               Navigator.pop(context);
               Navigator.pushReplacementNamed(context, '/dashboard', arguments: 5);
             },
           ),
-          Divider(),
+          const Divider(),
           ListTile(
-            leading: Icon(Icons.settings),
-            title: Text('Configurações'),
+            leading: const Icon(Icons.settings),
+            title: const Text('Configurações'),
             onTap: () {
               Navigator.pop(context);
               Navigator.pushNamed(context, '/settings');
             },
           ),
-          Divider(),
+          const Divider(),
           if (!isPremium)
             ListTile(
-              leading: Icon(Icons.star, color: Colors.amber),
-              title: Text(
+              leading: const Icon(Icons.star, color: Colors.amber),
+              title: const Text(
                 'Upgrade para Premium',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
@@ -125,8 +127,8 @@ class DashboardDrawer extends StatelessWidget {
               },
             ),
           ListTile(
-            leading: Icon(Icons.exit_to_app),
-            title: Text('Sair'),
+            leading: const Icon(Icons.exit_to_app),
+            title: const Text('Sair'),
             onTap: () {
               Provider.of<AuthService>(context, listen: false).logout();
               Navigator.pushReplacementNamed(context, '/welcome');
@@ -141,7 +143,7 @@ class DashboardDrawer extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Row(
+        title: const Row(
           children: [
             Icon(Icons.star, color: Colors.amber),
             SizedBox(width: 8),
@@ -152,19 +154,19 @@ class DashboardDrawer extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            const Text(
               'Desbloqueie todos os recursos:',
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             _buildPremiumFeature('Análises ilimitadas de editais'),
             _buildPremiumFeature('Plano de estudo avançado'),
             _buildPremiumFeature('Ferramentas de IA para resumos'),
             _buildPremiumFeature('Flashcards ilimitados'),
             _buildPremiumFeature('Integração com Google Agenda'),
             _buildPremiumFeature('Gamificação completa'),
-            SizedBox(height: 16),
-            Text(
+            const SizedBox(height: 16),
+            const Text(
               'Por apenas R\$ 19,90/mês',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
@@ -178,7 +180,7 @@ class DashboardDrawer extends StatelessWidget {
             onPressed: () {
               Navigator.pop(context);
             },
-            child: Text('Agora não'),
+            child: const Text('Agora não'),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -190,7 +192,7 @@ class DashboardDrawer extends StatelessWidget {
 
               // Mostrar confirmação
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
+                const SnackBar(
                   content: Text('Parabéns! Você agora é um usuário Premium.'),
                   backgroundColor: Colors.green,
                 ),
@@ -199,7 +201,7 @@ class DashboardDrawer extends StatelessWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.primaryColor,
             ),
-            child: Text('Fazer Upgrade'),
+            child: const Text('Fazer Upgrade'),
           ),
         ],
       ),
@@ -211,8 +213,8 @@ class DashboardDrawer extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: Row(
         children: [
-          Icon(Icons.check_circle, color: Colors.green, size: 20),
-          SizedBox(width: 8),
+          const Icon(Icons.check_circle, color: Colors.green, size: 20),
+          const SizedBox(width: 8),
           Expanded(child: Text(feature)),
         ],
       ),

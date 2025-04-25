@@ -26,7 +26,7 @@ class EditalUploadAreaWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(32),
+      padding: const EdgeInsets.all(32),
       decoration: BoxDecoration(
         color: Colors.grey.shade100,
         borderRadius: BorderRadius.circular(16),
@@ -35,16 +35,16 @@ class EditalUploadAreaWidget extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
+          const Icon(
             Icons.upload_file,
             size: 64,
             color: AppTheme.primaryColor,
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           _buildFilesList(),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
           _buildSelectFilesButton(),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
           _buildAnalyzeButton(),
           _buildProgressIndicator(),
         ],
@@ -54,7 +54,7 @@ class EditalUploadAreaWidget extends StatelessWidget {
 
   Widget _buildFilesList() {
     if (pdfFileNames.isEmpty) {
-      return Text(
+      return const Text(
         'Selecione os arquivos PDF do edital',
         style: TextStyle(
           fontSize: 16,
@@ -68,13 +68,13 @@ class EditalUploadAreaWidget extends StatelessWidget {
       children: [
         Text(
           '${pdfFileNames.length} arquivo(s) selecionado(s):',
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
           ),
           textAlign: TextAlign.center,
         ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         Container(
           height: pdfFileNames.length > 3 ? 100 : null,
           decoration: pdfFileNames.length > 3 ? BoxDecoration(
@@ -90,10 +90,10 @@ class EditalUploadAreaWidget extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
                     child: Row(
                       children: [
-                        Icon(Icons.picture_as_pdf, color: Colors.red, size: 16),
-                        SizedBox(width: 8),
+                        const Icon(Icons.picture_as_pdf, color: Colors.red, size: 16),
+                        const SizedBox(width: 8),
                         Expanded(
-                          child: Text(pdfFileNames[index], style: TextStyle(fontSize: 14)),
+                          child: Text(pdfFileNames[index], style: const TextStyle(fontSize: 14)),
                         ),
                       ],
                     ),
@@ -106,10 +106,10 @@ class EditalUploadAreaWidget extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.picture_as_pdf, color: Colors.red, size: 16),
-                      SizedBox(width: 8),
+                      const Icon(Icons.picture_as_pdf, color: Colors.red, size: 16),
+                      const SizedBox(width: 8),
                       Expanded(
-                        child: Text(fileName, style: TextStyle(fontSize: 14)),
+                        child: Text(fileName, style: const TextStyle(fontSize: 14)),
                       ),
                     ],
                   ),
@@ -122,11 +122,11 @@ class EditalUploadAreaWidget extends StatelessWidget {
 
   Widget _buildSelectFilesButton() {
     return ElevatedButton.icon(
-      icon: Icon(Icons.file_upload),
-      label: Text('Selecionar Arquivos'),
+      icon: const Icon(Icons.file_upload),
+      label: const Text('Selecionar Arquivos'),
       style: ElevatedButton.styleFrom(
         backgroundColor: AppTheme.primaryColor,
-        padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
       ),
       onPressed: isProcessingPdf || isAnalyzingEdital ? null : onSelectFiles,
     );
@@ -134,7 +134,7 @@ class EditalUploadAreaWidget extends StatelessWidget {
 
   Widget _buildAnalyzeButton() {
     if (pdfFileNames.isEmpty) {
-      return SizedBox.shrink();
+      return const SizedBox.shrink();
     }
 
     return Column(
@@ -142,12 +142,12 @@ class EditalUploadAreaWidget extends StatelessWidget {
         SizedBox(
           width: double.infinity,
           child: ElevatedButton.icon(
-            icon: Icon(Icons.psychology),
-            label: Text('Analisar com IA'),
+            icon: const Icon(Icons.psychology),
+            label: const Text('Analisar com IA'),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.green,
-              padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-              textStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+              textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             onPressed: isProcessingPdf || isAnalyzingEdital ? null : onAnalyzeWithAI,
           ),
@@ -158,14 +158,14 @@ class EditalUploadAreaWidget extends StatelessWidget {
 
   Widget _buildProgressIndicator() {
     if (!isProcessingPdf) {
-      return SizedBox.shrink();
+      return const SizedBox.shrink();
     }
 
     return Column(
       children: [
-        SizedBox(height: 24),
+        const SizedBox(height: 24),
         LinearProgressIndicator(value: pdfProcessingProgress),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         Text(
           '${(pdfProcessingProgress * 100).toStringAsFixed(0)}% - $progressMessage',
           style: TextStyle(

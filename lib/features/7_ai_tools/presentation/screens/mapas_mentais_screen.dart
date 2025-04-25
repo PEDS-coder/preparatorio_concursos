@@ -13,6 +13,8 @@ import '../../../../core/widgets/document_upload_widget.dart';
 import '../../../../core/services/document_classifier_service.dart';
 
 class MapasMentaisScreen extends StatefulWidget {
+  const MapasMentaisScreen({super.key});
+
   @override
   _MapasMentaisScreenState createState() => _MapasMentaisScreenState();
 }
@@ -99,7 +101,7 @@ class _MapasMentaisScreenState extends State<MapasMentaisScreen> {
       }
 
       final resultado = await iaService.callApiWithPrompt(
-        "Gere um esquema/mapa mental no formato markdown para o seguinte texto. Use o título: ${titulo}\n\n${texto}"
+        "Gere um esquema/mapa mental no formato markdown para o seguinte texto. Use o título: $titulo\n\n$texto"
       );
 
       setState(() {
@@ -124,18 +126,18 @@ class _MapasMentaisScreenState extends State<MapasMentaisScreen> {
     return Scaffold(
       backgroundColor: AppTheme.darkBackground,
       appBar: AppBar(
-        title: Text('Mapas Mentais'),
+        title: const Text('Mapas Mentais'),
         backgroundColor: AppTheme.darkBackground,
         elevation: 0,
       ),
       body: !isPremium
           ? _buildPremiumRequired()
           : SingleChildScrollView(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  const Text(
                     'Criar Mapas Mentais com IA',
                     style: TextStyle(
                       fontSize: 24,
@@ -143,7 +145,7 @@ class _MapasMentaisScreenState extends State<MapasMentaisScreen> {
                       color: Colors.white,
                     ),
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Text(
                     'Faça upload de um documento ou insira um texto para gerar um mapa mental estruturado',
                     style: TextStyle(
@@ -151,11 +153,11 @@ class _MapasMentaisScreenState extends State<MapasMentaisScreen> {
                       color: Colors.white.withOpacity(0.7),
                     ),
                   ),
-                  SizedBox(height: 24),
+                  const SizedBox(height: 24),
 
                   // Seleção de modo
                   _buildModeSelector(),
-                  SizedBox(height: 24),
+                  const SizedBox(height: 24),
 
                   // Conteúdo com base no modo selecionado
                   _modoEntrada == 'upload'
@@ -167,7 +169,7 @@ class _MapasMentaisScreenState extends State<MapasMentaisScreen> {
                     Padding(
                       padding: const EdgeInsets.only(top: 24.0),
                       child: _isLoading
-                          ? Center(
+                          ? const Center(
                               child: CircularProgressIndicator(
                                 valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
                               ),
@@ -176,12 +178,12 @@ class _MapasMentaisScreenState extends State<MapasMentaisScreen> {
                               onPressed: _gerarMapaMental,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: AppTheme.primaryColor,
-                                padding: EdgeInsets.symmetric(vertical: 16),
+                                padding: const EdgeInsets.symmetric(vertical: 16),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                               ),
-                              child: Row(
+                              child: const Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Icon(Icons.account_tree, color: Colors.white),
@@ -195,8 +197,8 @@ class _MapasMentaisScreenState extends State<MapasMentaisScreen> {
                   // Mensagem de erro
                   if (_errorMessage != null)
                     Container(
-                      margin: EdgeInsets.only(top: 24),
-                      padding: EdgeInsets.all(12),
+                      margin: const EdgeInsets.only(top: 24),
+                      padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
                         color: AppTheme.errorColor.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(12),
@@ -207,16 +209,16 @@ class _MapasMentaisScreenState extends State<MapasMentaisScreen> {
                       ),
                       child: Row(
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.error_outline,
                             color: AppTheme.errorColor,
                             size: 20,
                           ),
-                          SizedBox(width: 10),
+                          const SizedBox(width: 10),
                           Expanded(
                             child: Text(
                               _errorMessage!,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 color: AppTheme.errorColor,
                                 fontSize: 14,
                               ),
@@ -229,13 +231,13 @@ class _MapasMentaisScreenState extends State<MapasMentaisScreen> {
                   // Resultado
                   if (_resultado != null)
                     Container(
-                      margin: EdgeInsets.only(top: 24),
+                      margin: const EdgeInsets.only(top: 24),
                       child: ModernCard(
-                        padding: EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(16),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Row(
+                            const Row(
                               children: [
                                 Icon(
                                   Icons.check_circle,
@@ -253,7 +255,7 @@ class _MapasMentaisScreenState extends State<MapasMentaisScreen> {
                                 ),
                               ],
                             ),
-                            SizedBox(height: 16),
+                            const SizedBox(height: 16),
                             Text(
                               _resultado!,
                               style: TextStyle(
@@ -261,41 +263,41 @@ class _MapasMentaisScreenState extends State<MapasMentaisScreen> {
                                 fontSize: 14,
                               ),
                             ),
-                            SizedBox(height: 16),
+                            const SizedBox(height: 16),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
                                 OutlinedButton.icon(
-                                  icon: Icon(Icons.copy),
-                                  label: Text('COPIAR'),
+                                  icon: const Icon(Icons.copy),
+                                  label: const Text('COPIAR'),
                                   onPressed: () {
                                     // Copiar para a área de transferência
                                     Clipboard.setData(ClipboardData(text: _resultado!));
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
+                                      const SnackBar(
                                         content: Text('Mapa mental copiado para a área de transferência!'),
                                         backgroundColor: AppTheme.successColor,
                                       ),
                                     );
                                   },
                                 ),
-                                SizedBox(width: 12),
+                                const SizedBox(width: 12),
                                 OutlinedButton.icon(
-                                  icon: Icon(Icons.open_in_new),
-                                  label: Text('ABRIR NO MARKMAP'),
+                                  icon: const Icon(Icons.open_in_new),
+                                  label: const Text('ABRIR NO MARKMAP'),
                                   onPressed: () {
                                     // Abrir no markmap.js.org/repl
                                     _abrirNoMarkmap(_resultado!);
                                   },
                                 ),
-                                SizedBox(width: 12),
+                                const SizedBox(width: 12),
                                 OutlinedButton.icon(
-                                  icon: Icon(Icons.save),
-                                  label: Text('SALVAR'),
+                                  icon: const Icon(Icons.save),
+                                  label: const Text('SALVAR'),
                                   onPressed: () {
                                     // Implementar salvamento
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
+                                      const SnackBar(
                                         content: Text('Mapa mental salvo com sucesso!'),
                                         backgroundColor: AppTheme.successColor,
                                       ),
@@ -328,7 +330,7 @@ class _MapasMentaisScreenState extends State<MapasMentaisScreen> {
                 Icons.upload_file,
               ),
             ),
-            SizedBox(width: 16),
+            const SizedBox(width: 16),
             Expanded(
               child: _buildModeButton(
                 'texto',
@@ -354,7 +356,7 @@ class _MapasMentaisScreenState extends State<MapasMentaisScreen> {
       },
       borderRadius: BorderRadius.circular(12),
       child: Container(
-        padding: EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
         decoration: BoxDecoration(
           color: isSelected ? AppTheme.primaryColor.withOpacity(0.2) : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
@@ -371,7 +373,7 @@ class _MapasMentaisScreenState extends State<MapasMentaisScreen> {
               color: isSelected ? AppTheme.primaryColor : Colors.grey.shade400,
               size: 32,
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
               label,
               textAlign: TextAlign.center,
@@ -414,14 +416,14 @@ class _MapasMentaisScreenState extends State<MapasMentaisScreen> {
           decoration: InputDecoration(
             labelText: 'Título do Mapa Mental',
             hintText: 'Ex: Princípios Constitucionais',
-            prefixIcon: Icon(Icons.title, color: AppTheme.primaryColor),
+            prefixIcon: const Icon(Icons.title, color: AppTheme.primaryColor),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
             ),
           ),
           controller: _tituloController,
         ),
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
 
         // Campo de texto
         TextFormField(
@@ -453,40 +455,40 @@ class _MapasMentaisScreenState extends State<MapasMentaisScreen> {
       await showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: Text('Abrir Mapa Mental'),
+          title: const Text('Abrir Mapa Mental'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Copie o link abaixo e abra no seu navegador:'),
-              SizedBox(height: 12),
-              SelectableText(url, style: TextStyle(fontWeight: FontWeight.bold)),
-              SizedBox(height: 16),
+              const Text('Copie o link abaixo e abra no seu navegador:'),
+              const SizedBox(height: 12),
+              SelectableText(url, style: const TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () {
                   Clipboard.setData(ClipboardData(text: url));
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('URL copiada para a área de transferência'))
+                    const SnackBar(content: Text('URL copiada para a área de transferência'))
                   );
                 },
-                child: Text('Copiar URL'),
+                child: const Text('Copiar URL'),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               ElevatedButton(
                 onPressed: () {
                   Clipboard.setData(ClipboardData(text: conteudo));
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Conteúdo do mapa mental copiado para a área de transferência'))
+                    const SnackBar(content: Text('Conteúdo do mapa mental copiado para a área de transferência'))
                   );
                 },
-                child: Text('Copiar conteúdo do mapa mental'),
+                child: const Text('Copiar conteúdo do mapa mental'),
               ),
             ],
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text('Fechar'),
+              child: const Text('Fechar'),
             ),
           ],
         ),
@@ -506,13 +508,13 @@ class _MapasMentaisScreenState extends State<MapasMentaisScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
+          const Icon(
             Icons.lock,
             size: 80,
             color: Colors.amber,
           ),
-          SizedBox(height: 24),
-          Text(
+          const SizedBox(height: 24),
+          const Text(
             'Funcionalidade Premium',
             style: TextStyle(
               fontSize: 24,
@@ -520,9 +522,9 @@ class _MapasMentaisScreenState extends State<MapasMentaisScreen> {
               color: Colors.white,
             ),
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 32),
+            padding: const EdgeInsets.symmetric(horizontal: 32),
             child: Text(
               'Esta funcionalidade está disponível apenas para usuários premium.',
               textAlign: TextAlign.center,
@@ -532,7 +534,7 @@ class _MapasMentaisScreenState extends State<MapasMentaisScreen> {
               ),
             ),
           ),
-          SizedBox(height: 32),
+          const SizedBox(height: 32),
           ElevatedButton(
             onPressed: () async {
               // Simulação de upgrade
@@ -541,7 +543,7 @@ class _MapasMentaisScreenState extends State<MapasMentaisScreen> {
 
               // Mostrar confirmação
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
+                const SnackBar(
                   content: Text('Parabéns! Você agora é um usuário Premium.'),
                   backgroundColor: AppTheme.successColor,
                 ),
@@ -552,12 +554,12 @@ class _MapasMentaisScreenState extends State<MapasMentaisScreen> {
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.amber,
-              padding: EdgeInsets.symmetric(vertical: 16, horizontal: 32),
+              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            child: Text('FAZER UPGRADE'),
+            child: const Text('FAZER UPGRADE'),
           ),
         ],
       ),

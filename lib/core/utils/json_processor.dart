@@ -58,7 +58,7 @@ class JsonProcessor {
     }
 
     // Encontrar o início do JSON (primeiro '{' ou '[')
-    final int jsonStart = cleanJson.indexOf('{') != -1 ? cleanJson.indexOf('{') : cleanJson.indexOf('[');
+    final int jsonStart = cleanJson.contains('{') ? cleanJson.indexOf('{') : cleanJson.indexOf('[');
     if (jsonStart > 0) {
       cleanJson = cleanJson.substring(jsonStart);
     }

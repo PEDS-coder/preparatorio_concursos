@@ -24,6 +24,7 @@ class ShareService implements IShareService {
   ShareService(this._logger, this._analyticsService);
 
   /// Compartilha um plano de estudo
+  @override
   Future<bool> sharePlanoEstudo(PlanoEstudo plano) async {
     try {
       // Criar texto para compartilhamento
@@ -52,6 +53,7 @@ class ShareService implements IShareService {
   }
 
   /// Compartilha uma imagem
+  @override
   Future<bool> shareImage(Uint8List imageBytes, {String? text, String? subject}) async {
     try {
       // Salvar imagem temporariamente
@@ -83,6 +85,7 @@ class ShareService implements IShareService {
   }
 
   /// Compartilha um widget como imagem
+  @override
   Future<bool> shareWidgetAsImage(GlobalKey<State<StatefulWidget>> key, {String? text, String? subject}) async {
     try {
       // Capturar widget como imagem
@@ -101,6 +104,7 @@ class ShareService implements IShareService {
   }
 
   /// Compartilha um texto
+  @override
   Future<bool> shareText(String text, {String? subject}) async {
     try {
       // Compartilhar texto
@@ -126,6 +130,7 @@ class ShareService implements IShareService {
   }
 
   /// Compartilha um arquivo
+  @override
   Future<bool> shareFile(String filePath, {String? text, String? subject}) async {
     try {
       // Verificar se o arquivo existe

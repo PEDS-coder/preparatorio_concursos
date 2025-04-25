@@ -16,7 +16,7 @@ class MatrixRainAnimation extends StatefulWidget {
     this.width = 300,
     this.height = 200,
     this.primaryColor = const Color(0xFF00FF41),
-    this.secondaryColor = const Color(0xFF0F0),
+    this.secondaryColor = const Color(0x000ff0f0),
     this.message = 'Analisando edital...',
     this.statusMessages = const [],
   }) : super(key: key);
@@ -43,7 +43,7 @@ class _MatrixRainAnimationState extends State<MatrixRainAnimation> {
     initColumns();
 
     // Atualizar a animação a cada 100ms
-    timer = Timer.periodic(Duration(milliseconds: 100), (timer) {
+    timer = Timer.periodic(const Duration(milliseconds: 100), (timer) {
       if (mounted) {
         setState(() {
           updateColumns();
@@ -54,7 +54,7 @@ class _MatrixRainAnimationState extends State<MatrixRainAnimation> {
     // Atualizar mensagens de status a cada 15 segundos para que cada mensagem seja exibida por mais tempo
     if (widget.statusMessages.isNotEmpty) {
       currentStatusMessage = widget.statusMessages[0];
-      messageTimer = Timer.periodic(Duration(seconds: 15), (timer) {
+      messageTimer = Timer.periodic(const Duration(seconds: 15), (timer) {
         if (mounted) {
           setState(() {
             currentMessageIndex = (currentMessageIndex + 1) % widget.statusMessages.length;
@@ -128,10 +128,10 @@ class _MatrixRainAnimationState extends State<MatrixRainAnimation> {
                     ],
                   ),
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 if (widget.statusMessages.isNotEmpty)
                   AnimatedSwitcher(
-                    duration: Duration(milliseconds: 500),
+                    duration: const Duration(milliseconds: 500),
                     child: Text(
                       currentStatusMessage,
                       key: ValueKey<String>(currentStatusMessage),
@@ -142,8 +142,8 @@ class _MatrixRainAnimationState extends State<MatrixRainAnimation> {
                       ),
                     ),
                   ),
-                SizedBox(height: 16),
-                Text(
+                const SizedBox(height: 16),
+                const Text(
                   'Pode levar alguns minutos...',
                   style: TextStyle(
                     color: Colors.white70,

@@ -52,12 +52,10 @@ class _ProgressoEstudoWidgetState extends State<ProgressoEstudoWidget> {
         userId, widget.editalId, widget.materiaId);
     }
 
-    if (progresso != null) {
-      setState(() {
-        _estadoAtual = progresso!.estado;
-      });
+    setState(() {
+      _estadoAtual = progresso!.estado;
+    });
     }
-  }
 
   void _atualizarEstado(EstadoProgresso novoEstado) async {
     final authService = Provider.of<AuthService>(context, listen: false);
@@ -88,7 +86,7 @@ class _ProgressoEstudoWidgetState extends State<ProgressoEstudoWidget> {
 
     // Atualizar a UI após a operação ser concluída
     // Aumentar o delay para garantir que todas as atualizações sejam concluídas
-    Future.delayed(Duration(milliseconds: 200), () {
+    Future.delayed(const Duration(milliseconds: 200), () {
       widget.onEstadoChanged(novoEstado);
     });
   }
@@ -104,11 +102,11 @@ class _ProgressoEstudoWidgetState extends State<ProgressoEstudoWidget> {
       mainAxisSize: MainAxisSize.min,
       children: [
         _buildCheckbox(EstadoProgresso.estudado),
-        SizedBox(width: 4),
+        const SizedBox(width: 4),
         _buildCheckbox(EstadoProgresso.primeiraRevisao),
-        SizedBox(width: 4),
+        const SizedBox(width: 4),
         _buildCheckbox(EstadoProgresso.segundaRevisao),
-        SizedBox(width: 4),
+        const SizedBox(width: 4),
         _buildCheckbox(EstadoProgresso.terceiraRevisao),
       ],
     );
@@ -121,11 +119,11 @@ class _ProgressoEstudoWidgetState extends State<ProgressoEstudoWidget> {
       mainAxisSize: MainAxisSize.min,
       children: [
         _buildLegendaItem(EstadoProgresso.estudado),
-        SizedBox(width: 8),
+        const SizedBox(width: 8),
         _buildLegendaItem(EstadoProgresso.primeiraRevisao),
-        SizedBox(width: 8),
+        const SizedBox(width: 8),
         _buildLegendaItem(EstadoProgresso.segundaRevisao),
-        SizedBox(width: 8),
+        const SizedBox(width: 8),
         _buildLegendaItem(EstadoProgresso.terceiraRevisao),
       ],
     );
@@ -144,10 +142,10 @@ class _ProgressoEstudoWidgetState extends State<ProgressoEstudoWidget> {
             borderRadius: BorderRadius.circular(4),
           ),
         ),
-        SizedBox(width: 4),
+        const SizedBox(width: 4),
         Text(
           estado.nome,
-          style: TextStyle(fontSize: 12),
+          style: const TextStyle(fontSize: 12),
         ),
       ],
     );
@@ -180,13 +178,13 @@ class _ProgressoEstudoWidgetState extends State<ProgressoEstudoWidget> {
       case EstadoProgresso.naoEstudado:
         return Colors.white.withOpacity(0.3); // Branco semi-transparente
       case EstadoProgresso.estudado:
-        return Color(0xFF4CAF50).withOpacity(_estadoAtual.index >= estado.index ? 1.0 : 0.5); // Verde
+        return const Color(0xFF4CAF50).withOpacity(_estadoAtual.index >= estado.index ? 1.0 : 0.5); // Verde
       case EstadoProgresso.primeiraRevisao:
-        return Color(0xFFFFEB3B).withOpacity(_estadoAtual.index >= estado.index ? 1.0 : 0.5); // Amarelo
+        return const Color(0xFFFFEB3B).withOpacity(_estadoAtual.index >= estado.index ? 1.0 : 0.5); // Amarelo
       case EstadoProgresso.segundaRevisao:
-        return Color(0xFFFF9800).withOpacity(_estadoAtual.index >= estado.index ? 1.0 : 0.5); // Laranja
+        return const Color(0xFFFF9800).withOpacity(_estadoAtual.index >= estado.index ? 1.0 : 0.5); // Laranja
       case EstadoProgresso.terceiraRevisao:
-        return Color(0xFFF44336).withOpacity(_estadoAtual.index >= estado.index ? 1.0 : 0.5); // Vermelho
+        return const Color(0xFFF44336).withOpacity(_estadoAtual.index >= estado.index ? 1.0 : 0.5); // Vermelho
     }
   }
 

@@ -90,7 +90,7 @@ class CalendarioService {
     _logger.logApresentacao(plano.id, 'sincronizacao_google_calendar', 'Sincronizando com Google Calendar');
 
     // Simulação de sincronização bem-sucedida
-    await Future.delayed(Duration(seconds: 2));
+    await Future.delayed(const Duration(seconds: 2));
 
     _logger.logApresentacao(plano.id, 'sincronizacao_google_calendar_concluida', {
       'total_sessoes': plano.sessoesEstudo.length,
@@ -107,7 +107,7 @@ class CalendarioService {
     _logger.logApresentacao(plano.id, 'sincronizacao_apple_calendar', 'Sincronizando com Apple Calendar');
 
     // Simulação de sincronização bem-sucedida
-    await Future.delayed(Duration(seconds: 2));
+    await Future.delayed(const Duration(seconds: 2));
 
     _logger.logApresentacao(plano.id, 'sincronizacao_apple_calendar_concluida', {
       'total_sessoes': plano.sessoesEstudo.length,

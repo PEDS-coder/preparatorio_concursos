@@ -92,7 +92,7 @@ class EditalAnalyzer {
 
       try {
         // Enviar o PDF diretamente para a API
-        final String? resultado = await iaService.analisarEditalPdf(pdfBytes);
+        final String resultado = await iaService.analisarEditalPdf(pdfBytes);
 
         if (resultado == null || resultado.isEmpty) {
           _log('Resultado da análise do PDF vazio');
@@ -165,7 +165,7 @@ class EditalAnalyzer {
       _reportProgress(0.1, 'Extraindo dados do concurso e conteúdo programático para o cargo: $cargoAlvo...');
 
       // Chamar a API para extrair os dados do concurso e conteúdo programático
-      final String? resultado = await iaService.extrairConcursoConteudo(pdfBytes: pdfBytes, cargoAlvo: cargoAlvo);
+      final String resultado = await iaService.extrairConcursoConteudo(pdfBytes: pdfBytes, cargoAlvo: cargoAlvo);
 
       if (resultado == null || resultado.isEmpty) {
         _log('Resultado da extração de dados do concurso e conteúdo programático vazio');
@@ -183,30 +183,9 @@ class EditalAnalyzer {
     }
   }
 
-  /// Extrai o conteúdo programático para um cargo específico (segunda etapa - método antigo)
-  @deprecated
-  Future<Map<String, dynamic>?> extrairConteudoProgramatico(Uint8List pdfBytes, String cargoAlvo) async {
-    try {
-      _reportProgress(0.1, 'Extraindo conteúdo programático para o cargo: $cargoAlvo...');
 
-      // Chamar a API para extrair o conteúdo programático
-      final String? resultado = await iaService.extrairConteudoProgramatico(pdfBytes: pdfBytes, cargoAlvo: cargoAlvo);
 
-      if (resultado == null || resultado.isEmpty) {
-        _log('Resultado da extração de conteúdo programático vazio');
-        return null;
-      }
 
-      _reportProgress(0.7, 'Processando resultado da extração...');
-      _log('Resultado da extração de conteúdo programático recebido. Processando resposta...');
-
-      // Processar o resultado (preferencialmente JSON)
-      return _processarRespostaLLM(resultado);
-    } catch (e, stackTrace) {
-      _log('Erro na extração de conteúdo programático: $e\nStackTrace: $stackTrace');
-      rethrow;
-    }
-  }
 
   // Método gerarPlanoEstudo removido para evitar erros
 
@@ -358,13 +337,7 @@ class EditalAnalyzer {
     return cleanYaml;
   }
 
-  /// Corrige YAML malformado
-  /// @deprecated Este método é mantido apenas para compatibilidade com o fallback YAML
-  String _corrigirYamlMalformado(String yamlStr) {
-    // Implementação simplificada para corrigir problemas comuns em YAML
-    // Apenas retorna o YAML original, pois o processamento foi simplificado para priorizar JSON
-    return yamlStr;
-  }
+
 
   //============================================================================
   //== MÉTODOS DE CONVERSÃO DE DADOS
@@ -469,9 +442,7 @@ class EditalAnalyzer {
 
   /// Função para reportar progresso
   void _reportProgress(double progress, String message) {
-    if (onProgress != null) {
-      onProgress!(progress, message);
-    }
+    // Implementação vazia para evitar erros
   }
 
   /// Função para log (apenas em modo debug)

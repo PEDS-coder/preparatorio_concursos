@@ -8,7 +8,7 @@ Future<T> runWithErrorHandling<T>(
 }) async {
   try {
     return await operation();
-  } catch (e, stackTrace) {
+  } catch (e) {
     final appException = errorHandler.convertToAppException(e);
     throw appException;
   }

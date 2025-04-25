@@ -22,7 +22,7 @@ class CargoDataFormatterService {
     }
 
     // Adicionar a parte decimal
-    return resultado + ',' + valorDecimal.toString().padLeft(2, '0');
+    return '$resultado,${valorDecimal.toString().padLeft(2, '0')}';
   }
 
   /// Formata o número de vagas para exibição
@@ -151,8 +151,7 @@ class CargoDataFormatterService {
       }
 
       // Verificar se o edital menciona cadastro de reserva para todos os cargos
-      if (edital.textoCompleto != null &&
-          edital.textoCompleto!.toLowerCase().contains('cadastro de reserva')) {
+      if (edital.textoCompleto.toLowerCase().contains('cadastro de reserva')) {
         return 'Apenas cadastro de reserva';
       }
 

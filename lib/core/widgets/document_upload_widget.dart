@@ -51,13 +51,13 @@ class _DocumentUploadWidgetState extends State<DocumentUploadWidget> {
       children: [
         Text(
           widget.title,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
             color: Colors.white,
           ),
         ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         Text(
           widget.description,
           style: TextStyle(
@@ -65,7 +65,7 @@ class _DocumentUploadWidgetState extends State<DocumentUploadWidget> {
             color: Colors.grey.shade400,
           ),
         ),
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
 
         // Área de upload
         ModernCard(
@@ -92,14 +92,14 @@ class _DocumentUploadWidgetState extends State<DocumentUploadWidget> {
                                   size: 48,
                                   color: Colors.grey.shade400,
                                 ),
-                                SizedBox(height: 16),
+                                const SizedBox(height: 16),
                                 Text(
                                   'Clique para selecionar um arquivo',
                                   style: TextStyle(
                                     color: Colors.grey.shade400,
                                   ),
                                 ),
-                                SizedBox(height: 8),
+                                const SizedBox(height: 8),
                                 Text(
                                   'PDF, DOCX, TXT, HTML',
                                   style: TextStyle(
@@ -119,16 +119,16 @@ class _DocumentUploadWidgetState extends State<DocumentUploadWidget> {
                                   size: 48,
                                   color: AppTheme.primaryColor,
                                 ),
-                                SizedBox(height: 16),
+                                const SizedBox(height: 16),
                                 Text(
                                   _fileName ?? (_selectedFile?.path.split('/').last ?? 'Arquivo selecionado'),
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     color: Colors.white,
                                   ),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                 ),
-                                SizedBox(height: 8),
+                                const SizedBox(height: 8),
                                 Text(
                                   'Clique para alterar',
                                   style: TextStyle(
@@ -142,18 +142,18 @@ class _DocumentUploadWidgetState extends State<DocumentUploadWidget> {
                   ),
                 ),
 
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
 
                 // Botão de processar
                 ElevatedButton.icon(
-                  icon: Icon(Icons.play_arrow),
-                  label: Text('PROCESSAR DOCUMENTO'),
+                  icon: const Icon(Icons.play_arrow),
+                  label: const Text('PROCESSAR DOCUMENTO'),
                   onPressed: (_selectedFile == null && _fileBytes == null) || _isLoading
                       ? null
                       : _processDocument,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.primaryColor,
-                    padding: EdgeInsets.symmetric(vertical: 16),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -168,9 +168,9 @@ class _DocumentUploadWidgetState extends State<DocumentUploadWidget> {
                       children: [
                         LinearProgressIndicator(
                           backgroundColor: Colors.grey.shade800,
-                          valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
+                          valueColor: const AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
                         ),
-                        SizedBox(height: 8),
+                        const SizedBox(height: 8),
                         Text(
                           'Processando documento...',
                           style: TextStyle(
@@ -192,7 +192,7 @@ class _DocumentUploadWidgetState extends State<DocumentUploadWidget> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                const Text(
                   'Classificação Automática',
                   style: TextStyle(
                     fontSize: 18,
@@ -200,7 +200,7 @@ class _DocumentUploadWidgetState extends State<DocumentUploadWidget> {
                     color: Colors.white,
                   ),
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
 
                 ModernCard(
                   child: Padding(
@@ -210,15 +210,15 @@ class _DocumentUploadWidgetState extends State<DocumentUploadWidget> {
                         // Matéria identificada
                         Row(
                           children: [
-                            Icon(
+                            const Icon(
                               Icons.school,
                               color: AppTheme.secondaryColor,
                             ),
-                            SizedBox(width: 8),
+                            const SizedBox(width: 8),
                             Expanded(
                               child: Text(
                                 'Matéria: ${_classificacao!['materia']}',
-                                style: TextStyle(
+                                style: const TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -226,20 +226,20 @@ class _DocumentUploadWidgetState extends State<DocumentUploadWidget> {
                             ),
                           ],
                         ),
-                        SizedBox(height: 8),
+                        const SizedBox(height: 8),
 
                         // Assunto identificado
                         Row(
                           children: [
-                            Icon(
+                            const Icon(
                               Icons.book,
                               color: AppTheme.secondaryColor,
                             ),
-                            SizedBox(width: 8),
+                            const SizedBox(width: 8),
                             Expanded(
                               child: Text(
                                 'Assunto: ${_classificacao!['assunto']}',
-                                style: TextStyle(
+                                style: const TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -247,26 +247,26 @@ class _DocumentUploadWidgetState extends State<DocumentUploadWidget> {
                             ),
                           ],
                         ),
-                        SizedBox(height: 8),
+                        const SizedBox(height: 8),
 
                         // Nível de confiança
                         Row(
                           children: [
-                            Icon(
+                            const Icon(
                               Icons.verified,
                               color: AppTheme.secondaryColor,
                             ),
-                            SizedBox(width: 8),
+                            const SizedBox(width: 8),
                             Text(
                               'Confiança: ${(_classificacao!['confianca'] * 100).toStringAsFixed(0)}%',
-                              style: TextStyle(
+                              style: const TextStyle(
                                 color: Colors.white,
                               ),
                             ),
                           ],
                         ),
 
-                        SizedBox(height: 16),
+                        const SizedBox(height: 16),
 
                         // Seleção manual de matéria e assunto
                         _buildMateriaAssuntoSelector(),
@@ -283,12 +283,12 @@ class _DocumentUploadWidgetState extends State<DocumentUploadWidget> {
           Padding(
             padding: const EdgeInsets.only(top: 16.0),
             child: ElevatedButton.icon(
-              icon: Icon(Icons.check),
-              label: Text('CONFIRMAR E CONTINUAR'),
+              icon: const Icon(Icons.check),
+              label: const Text('CONFIRMAR E CONTINUAR'),
               onPressed: _confirmarProcessamento,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.primaryColor,
-                padding: EdgeInsets.symmetric(vertical: 16),
+                padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -314,7 +314,7 @@ class _DocumentUploadWidgetState extends State<DocumentUploadWidget> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            const Text(
               'Ajustar Classificação',
               style: TextStyle(
                 fontSize: 16,
@@ -322,7 +322,7 @@ class _DocumentUploadWidgetState extends State<DocumentUploadWidget> {
                 color: Colors.white,
               ),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
 
             // Seletor de matéria
             DropdownButtonFormField<String>(
@@ -341,7 +341,7 @@ class _DocumentUploadWidgetState extends State<DocumentUploadWidget> {
                   value: materia.id,
                   child: Text(
                     materia.nome,
-                    style: TextStyle(color: Colors.white),
+                    style: const TextStyle(color: Colors.white),
                   ),
                 );
               }).toList(),
@@ -352,7 +352,7 @@ class _DocumentUploadWidgetState extends State<DocumentUploadWidget> {
                 });
               },
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
 
             // Seletor de assunto
             DropdownButtonFormField<String>(
@@ -371,7 +371,7 @@ class _DocumentUploadWidgetState extends State<DocumentUploadWidget> {
                   value: assunto.id,
                   child: Text(
                     assunto.nome,
-                    style: TextStyle(color: Colors.white),
+                    style: const TextStyle(color: Colors.white),
                   ),
                 );
               }).toList(),

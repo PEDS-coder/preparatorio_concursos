@@ -16,14 +16,14 @@ class DocumentUploadMode extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
-      return Container(
+      return SizedBox(
         height: 300,
         child: Center(
           child: Card(
             elevation: 8,
             color: Colors.black,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            child: Padding(
+            child: const Padding(
               padding: EdgeInsets.all(4),
               child: AnalysisAnimationWidget(
                 width: 350,

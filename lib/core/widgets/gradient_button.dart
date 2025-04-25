@@ -51,13 +51,6 @@ class GradientButton extends StatelessWidget {
     return GradientButton(
       key: key,
       onPressed: onPressed,
-      child: Text(
-        text,
-        style: textStyle ?? TextStyle(
-          color: Colors.white, // Branco sobre gradiente colorido tem bom contraste
-          fontWeight: FontWeight.bold
-        )
-      ),
       gradient: gradient,
       borderRadius: borderRadius,
       padding: padding,
@@ -68,6 +61,13 @@ class GradientButton extends StatelessWidget {
       height: height,
       textStyle: textStyle,
       isEnabled: isEnabled,
+      child: Text(
+        text,
+        style: textStyle ?? TextStyle(
+          color: Colors.white, // Branco sobre gradiente colorido tem bom contraste
+          fontWeight: FontWeight.bold
+        )
+      ),
     );
   }
 
@@ -109,7 +109,7 @@ class GradientButton extends StatelessWidget {
                 children: [
                   if (icon != null) ...[
                     icon!,
-                    SizedBox(width: 12),
+                    const SizedBox(width: 12),
                   ],
                   Flexible(child: child),
                 ],
@@ -168,7 +168,6 @@ class OutlineGradientButton extends StatelessWidget {
     return OutlineGradientButton(
       key: key,
       onPressed: onPressed,
-      child: Text(text, style: textStyle ?? TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
       gradient: gradient,
       borderRadius: borderRadius,
       padding: padding,
@@ -178,6 +177,7 @@ class OutlineGradientButton extends StatelessWidget {
       width: width,
       height: height,
       textStyle: textStyle,
+      child: Text(text, style: textStyle ?? TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
     );
   }
 
@@ -185,7 +185,7 @@ class OutlineGradientButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final buttonGradient = gradient ?? AppTheme.primaryGradient;
     final buttonTextStyle = textStyle ??
-        TextStyle(
+        const TextStyle(
           color: Colors.white,
           fontWeight: FontWeight.bold,
           fontSize: 16,
@@ -221,7 +221,7 @@ class OutlineGradientButton extends StatelessWidget {
                   children: [
                     if (icon != null) ...[
                       icon!,
-                      SizedBox(width: 12),
+                      const SizedBox(width: 12),
                     ],
                     Flexible(child: child),
                   ],

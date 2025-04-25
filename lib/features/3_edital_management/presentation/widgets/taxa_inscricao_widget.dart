@@ -201,7 +201,7 @@ class TaxaInscricaoWidget extends StatelessWidget {
                   ),
                 );
               } else {
-                return SizedBox.shrink(); // Não exibir se o valor for zero
+                return const SizedBox.shrink(); // Não exibir se o valor for zero
               }
             }).toList(),
           ],
@@ -231,7 +231,7 @@ class TaxaInscricaoWidget extends StatelessWidget {
                 return Padding(
                   padding: const EdgeInsets.only(left: 12.0, top: 2.0),
                   child: Text(
-                    '${cargo}: R\$ ${valor.toStringAsFixed(2)}',
+                    '$cargo: R\$ ${valor.toStringAsFixed(2)}',
                     style: TextStyle(
                       fontSize: 13,
                       color: Theme.of(context).brightness == Brightness.dark ?
@@ -240,7 +240,7 @@ class TaxaInscricaoWidget extends StatelessWidget {
                   ),
                 );
               } else {
-                return SizedBox.shrink(); // Não exibir se o valor for zero
+                return const SizedBox.shrink(); // Não exibir se o valor for zero
               }
             }).toList(),
           ],

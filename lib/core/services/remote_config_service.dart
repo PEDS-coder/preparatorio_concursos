@@ -49,11 +49,11 @@ class RemoteConfigService implements IRemoteConfigService {
       _remoteConfig = FirebaseRemoteConfig.instance;
 
       // Configurar o Remote Config
-      await _remoteConfig.setConfigSettings(RemoteConfigSettings(
-        fetchTimeout: const Duration(minutes: 1),
+      await _remoteConfig.setConfigSettings(const RemoteConfigSettings(
+        fetchTimeout: Duration(minutes: 1),
         minimumFetchInterval: kDebugMode
-            ? const Duration(minutes: 5)
-            : const Duration(hours: 12),
+            ? Duration(minutes: 5)
+            : Duration(hours: 12),
       ));
 
       // Definir valores padrão
@@ -70,6 +70,7 @@ class RemoteConfigService implements IRemoteConfigService {
   }
 
   /// Busca e ativa as configurações remotas
+  @override
   Future<bool> fetchAndActivate() async {
     try {
       final trace = _analyticsService.startTrace('remote_config_fetch');
@@ -89,6 +90,7 @@ class RemoteConfigService implements IRemoteConfigService {
   }
 
   /// Obtém um valor booleano
+  @override
   bool getBool(String key) {
     try {
       return _remoteConfig.getBool(key);
@@ -99,6 +101,7 @@ class RemoteConfigService implements IRemoteConfigService {
   }
 
   /// Obtém um valor inteiro
+  @override
   int getInt(String key) {
     try {
       return _remoteConfig.getInt(key);
@@ -109,6 +112,7 @@ class RemoteConfigService implements IRemoteConfigService {
   }
 
   /// Obtém um valor double
+  @override
   double getDouble(String key) {
     try {
       return _remoteConfig.getDouble(key);
@@ -119,6 +123,7 @@ class RemoteConfigService implements IRemoteConfigService {
   }
 
   /// Obtém um valor string
+  @override
   String getString(String key) {
     try {
       return _remoteConfig.getString(key);
@@ -129,6 +134,7 @@ class RemoteConfigService implements IRemoteConfigService {
   }
 
   /// Obtém um valor JSON
+  @override
   Map<String, dynamic> getJson(String key) {
     try {
       final jsonString = _remoteConfig.getString(key);
@@ -145,16 +151,19 @@ class RemoteConfigService implements IRemoteConfigService {
   }
 
   /// Verifica se o aplicativo está em modo de manutenção
+  @override
   bool get isInMaintenanceMode => getBool('maintenance_mode');
 
   /// Obtém a mensagem de manutenção
+  @override
   String get maintenanceMessage => getString('maintenance_message');
 
   /// Verifica se o aplicativo precisa ser atualizado
+  @override
   bool get needsUpdate {
     try {
       final minVersion = getString('min_app_version');
-      final currentVersion = '1.0.0'; // TODO: Obter versão atual do aplicativo
+      const currentVersion = '1.0.0'; // TODO: Obter versão atual do aplicativo
 
       return _compareVersions(currentVersion, minVersion) < 0;
     } catch (e) {
@@ -164,12 +173,15 @@ class RemoteConfigService implements IRemoteConfigService {
   }
 
   /// Verifica se a atualização é forçada
+  @override
   bool get isForceUpdate => getBool('force_update');
 
   /// Obtém a mensagem de atualização
+  @override
   String get updateMessage => getString('update_message');
 
   /// Verifica se uma feature está habilitada
+  @override
   bool isFeatureEnabled(String featureName) {
     try {
       final features = getJson('features');

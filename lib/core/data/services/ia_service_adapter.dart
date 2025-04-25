@@ -104,10 +104,7 @@ class IAServiceAdapter implements IAServiceInterface {
     return _iaService.extrairConcursoConteudo(pdfBytes: pdfBytes, cargoAlvo: cargoAlvo, pdfName: pdfName);
   }
 
-  @override
-  Future<String> extrairConteudoProgramatico({required Uint8List pdfBytes, required String cargoAlvo, String? pdfName}) {
-    return _iaService.extrairConteudoProgramatico(pdfBytes: pdfBytes, cargoAlvo: cargoAlvo, pdfName: pdfName);
-  }
+
 
   @override
   Future<String> gerarResumo(String texto) {
@@ -139,10 +136,7 @@ class IAServiceAdapter implements IAServiceInterface {
     return _iaService.clearCache();
   }
 
-  @override
-  Future<String> extrairCargosDetalhados(Uint8List pdfBytes, {String? pdfName}) {
-    return _iaService.extrairCargosDetalhados(pdfBytes, pdfName: pdfName);
-  }
+
 
   @override
   Future<String> gerarPlanoEstudos({required String cargoAlvo, required Map<String, dynamic> dadosCargo}) {

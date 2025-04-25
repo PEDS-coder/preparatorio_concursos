@@ -5,6 +5,8 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/gradient_button.dart';
 
 class WelcomeScreen extends StatelessWidget {
+  const WelcomeScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -56,7 +58,7 @@ class WelcomeScreen extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 24.0),
                 child: Column(
                   children: [
-                    SizedBox(height: 60),
+                    const SizedBox(height: 60),
 
                     // Logo e título
                     Container(
@@ -73,7 +75,7 @@ class WelcomeScreen extends StatelessWidget {
                           ),
                         ],
                       ),
-                      child: Center(
+                      child: const Center(
                         child: Icon(
                           Icons.school,
                           size: 50,
@@ -81,10 +83,10 @@ class WelcomeScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-                    SizedBox(height: 40),
+                    const SizedBox(height: 40),
 
                     // Título principal
-                    Text(
+                    const Text(
                       'Sua Aprovação Inteligente',
                       style: TextStyle(
                         fontSize: 32,
@@ -94,10 +96,10 @@ class WelcomeScreen extends StatelessWidget {
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
 
                     // Subtítulo
-                    Text(
+                    const Text(
                       'Começa Aqui',
                       style: TextStyle(
                         fontSize: 24,
@@ -107,37 +109,37 @@ class WelcomeScreen extends StatelessWidget {
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    SizedBox(height: 60),
+                    const SizedBox(height: 60),
 
                     // Botões de ação
                     GradientButton(
-                      child: Text('ENTRAR'),
-                      icon: Icon(Icons.login, color: Colors.white),
+                      icon: const Icon(Icons.login, color: Colors.white),
                       gradient: AppTheme.secondaryGradient,
                       fullWidth: true,
                       onPressed: () => Navigator.pushNamed(context, '/login'),
+                      child: Text('ENTRAR'),
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
 
                     GradientButton(
-                      child: Text('CADASTRAR'),
-                      icon: Icon(Icons.person_add, color: Colors.white),
+                      icon: const Icon(Icons.person_add, color: Colors.white),
                       fullWidth: true,
                       onPressed: () => Navigator.pushNamed(context, '/register'),
+                      child: Text('CADASTRAR'),
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
 
                     OutlineGradientButton(
-                      child: Text('CONTINUAR SEM CONTA'),
-                      icon: Icon(Icons.public, color: Colors.white),
+                      icon: const Icon(Icons.public, color: Colors.white),
                       fullWidth: true,
                       onPressed: () => Navigator.pushReplacementNamed(context, '/dashboard'),
+                      child: Text('CONTINUAR SEM CONTA'),
                     ),
 
                     // Informações sobre o modelo freemium
-                    SizedBox(height: 60),
+                    const SizedBox(height: 60),
                     _buildFreemiumInfo(),
-                    SizedBox(height: 40),
+                    const SizedBox(height: 40),
                   ],
                 ),
               ),
@@ -150,7 +152,7 @@ class WelcomeScreen extends StatelessWidget {
 
   Widget _buildFreemiumInfo() {
     return Container(
-      padding: EdgeInsets.all(24),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: AppTheme.darkCardColor,
         borderRadius: BorderRadius.circular(20),
@@ -158,7 +160,7 @@ class WelcomeScreen extends StatelessWidget {
           BoxShadow(
             color: Colors.black.withOpacity(0.2),
             blurRadius: 10,
-            offset: Offset(0, 5),
+            offset: const Offset(0, 5),
           ),
         ],
         border: Border.all(
@@ -168,7 +170,7 @@ class WelcomeScreen extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Row(
+          const Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(
@@ -188,7 +190,7 @@ class WelcomeScreen extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           _buildFeatureRow('Análise de 1 edital', true),
           _buildFeatureRow('Plano de estudo básico', true),
           _buildFeatureRow('Gamificação limitada', true),
@@ -223,7 +225,7 @@ class WelcomeScreen extends StatelessWidget {
               ),
             ),
           ),
-          SizedBox(width: 12),
+          const SizedBox(width: 12),
           Expanded(
             child: Text(
               feature,
@@ -236,16 +238,16 @@ class WelcomeScreen extends StatelessWidget {
           ),
           if (!isAvailable)
             Container(
-              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                gradient: LinearGradient(
+                gradient: const LinearGradient(
                   colors: [Colors.amber, Colors.orange],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Text(
+              child: const Text(
                 'PREMIUM',
                 style: TextStyle(
                   color: Colors.white,

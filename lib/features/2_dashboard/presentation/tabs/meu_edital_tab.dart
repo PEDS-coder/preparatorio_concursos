@@ -8,6 +8,8 @@ import '../../../../core/widgets/modern_card.dart';
 import '../../../../core/widgets/gradient_button.dart';
 
 class MeuEditalTab extends StatelessWidget {
+  const MeuEditalTab({super.key});
+
   @override
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context);
@@ -36,7 +38,7 @@ class MeuEditalTab extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Cabeçalho
-          Text(
+          const Text(
             'Meu Edital',
             style: TextStyle(
               fontSize: 24,
@@ -44,7 +46,7 @@ class MeuEditalTab extends StatelessWidget {
               color: AppTheme.primaryColor,
             ),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
             'Detalhes do seu concurso',
             style: TextStyle(
@@ -52,7 +54,7 @@ class MeuEditalTab extends StatelessWidget {
               color: Colors.grey.shade400,
             ),
           ),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
 
           // Conteúdo principal
           Expanded(
@@ -75,7 +77,7 @@ class MeuEditalTab extends StatelessWidget {
             size: 80,
             color: Colors.grey.shade400,
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           Text(
             'Nenhum edital selecionado',
             style: TextStyle(
@@ -84,7 +86,7 @@ class MeuEditalTab extends StatelessWidget {
               color: Colors.grey.shade300,
             ),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
             'Adicione um edital para começar sua preparação',
             style: TextStyle(
@@ -93,16 +95,16 @@ class MeuEditalTab extends StatelessWidget {
             ),
             textAlign: TextAlign.center,
           ),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
           ElevatedButton.icon(
-            icon: Icon(Icons.add),
-            label: Text('ADICIONAR EDITAL'),
+            icon: const Icon(Icons.add),
+            label: const Text('ADICIONAR EDITAL'),
             onPressed: () {
               Navigator.pushNamed(context, '/edital/add');
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.primaryColor,
-              padding: EdgeInsets.symmetric(vertical: 16),
+              padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
@@ -141,7 +143,7 @@ class MeuEditalTab extends StatelessWidget {
         children: [
           // Card principal com informações do concurso
           ModernCard(
-            gradient: LinearGradient(
+            gradient: const LinearGradient(
               colors: [AppTheme.darkCardColor, Color(0xFF1E3A6E)],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
@@ -157,7 +159,7 @@ class MeuEditalTab extends StatelessWidget {
                       Expanded(
                         child: Text(
                           edital.nomeConcurso,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
@@ -165,9 +167,9 @@ class MeuEditalTab extends StatelessWidget {
                         ),
                       ),
                       Container(
-                        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                         decoration: BoxDecoration(
-                          gradient: LinearGradient(
+                          gradient: const LinearGradient(
                             colors: [AppTheme.primaryColor, Color(0xFF9C1AFF)],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
@@ -177,11 +179,11 @@ class MeuEditalTab extends StatelessWidget {
                             BoxShadow(
                               color: AppTheme.primaryColor.withOpacity(0.4),
                               blurRadius: 8,
-                              offset: Offset(0, 2),
+                              offset: const Offset(0, 2),
                             ),
                           ],
                         ),
-                        child: Text(
+                        child: const Text(
                           'Ativo',
                           style: TextStyle(
                             color: Colors.white,
@@ -192,25 +194,25 @@ class MeuEditalTab extends StatelessWidget {
                       ),
                     ],
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
 
                   // Informações do concurso
                   _buildInfoRow(Icons.business, 'Órgão', edital.dadosExtraidos.orgao),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   _buildInfoRow(Icons.school, 'Banca', edital.dadosExtraidos.banca),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   _buildInfoRow(
                     Icons.calendar_today,
                     'Inscrições',
                     '${_formatDate(edital.dadosExtraidos.inicioInscricao)} a ${_formatDate(edital.dadosExtraidos.fimInscricao)}'
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   _buildInfoRow(
                     Icons.attach_money,
                     'Taxa',
                     'R\$ ${edital.dadosExtraidos.valorTaxa.toStringAsFixed(2)}'
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   _buildInfoRow(
                     Icons.location_on,
                     'Local da Prova',
@@ -218,13 +220,13 @@ class MeuEditalTab extends StatelessWidget {
                   ),
 
                   // Botões de ação
-                  SizedBox(height: 24),
+                  const SizedBox(height: 24),
                   Row(
                     children: [
                       Expanded(
                         child: OutlinedButton.icon(
-                          icon: Icon(Icons.visibility),
-                          label: Text('Ver Detalhes'),
+                          icon: const Icon(Icons.visibility),
+                          label: const Text('Ver Detalhes'),
                           onPressed: () {
                             Navigator.pushNamed(
                               context,
@@ -235,7 +237,7 @@ class MeuEditalTab extends StatelessWidget {
                           style: OutlinedButton.styleFrom(
                             foregroundColor: Colors.white,
                             side: BorderSide(color: Colors.white.withOpacity(0.5)),
-                            padding: EdgeInsets.symmetric(vertical: 12),
+                            padding: const EdgeInsets.symmetric(vertical: 12),
                           ),
                         ),
                       ),
@@ -246,10 +248,10 @@ class MeuEditalTab extends StatelessWidget {
             ),
           ),
 
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
 
           // Seção de conteúdo programático
-          Text(
+          const Text(
             'Conteúdo Programático',
             style: TextStyle(
               fontSize: 18,
@@ -257,7 +259,7 @@ class MeuEditalTab extends StatelessWidget {
               color: Colors.white,
             ),
           ),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
 
           // Card do conteúdo programático
           ModernCard(
@@ -270,13 +272,13 @@ class MeuEditalTab extends StatelessWidget {
                   if (cargoSelecionado != null) ...[
                     Text(
                       cargoSelecionado.nome,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
                       ),
                     ),
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
 
                     // Separar matérias por tipo (básico e específico)
                     _buildConteudoProgramatico(cargoSelecionado),
@@ -289,7 +291,7 @@ class MeuEditalTab extends StatelessWidget {
                             size: 48,
                             color: Colors.grey.shade400,
                           ),
-                          SizedBox(height: 16),
+                          const SizedBox(height: 16),
                           Text(
                             'Nenhum cargo selecionado',
                             style: TextStyle(
@@ -297,10 +299,10 @@ class MeuEditalTab extends StatelessWidget {
                               color: Colors.grey.shade400,
                             ),
                           ),
-                          SizedBox(height: 16),
+                          const SizedBox(height: 16),
                           OutlinedButton.icon(
-                            icon: Icon(Icons.add),
-                            label: Text('Selecionar Cargo'),
+                            icon: const Icon(Icons.add),
+                            label: const Text('Selecionar Cargo'),
                             onPressed: () {
                               Navigator.pushNamed(
                                 context,
@@ -310,7 +312,7 @@ class MeuEditalTab extends StatelessWidget {
                             },
                             style: OutlinedButton.styleFrom(
                               foregroundColor: AppTheme.primaryColor,
-                              side: BorderSide(color: AppTheme.primaryColor),
+                              side: const BorderSide(color: AppTheme.primaryColor),
                             ),
                           ),
                         ],
@@ -321,10 +323,10 @@ class MeuEditalTab extends StatelessWidget {
             ),
           ),
 
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
 
           // Seção de plano de estudo
-          Text(
+          const Text(
             'Plano de Estudo',
             style: TextStyle(
               fontSize: 18,
@@ -332,13 +334,13 @@ class MeuEditalTab extends StatelessWidget {
               color: Colors.white,
             ),
           ),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
 
           // Card do plano de estudo
           ModernCard(
             gradient: planoAtivo != null
                 ? LinearGradient(
-                    colors: [Color(0xFF2E7BFF).withOpacity(0.8), Color(0xFF00CFFD).withOpacity(0.8)],
+                    colors: [const Color(0xFF2E7BFF).withOpacity(0.8), const Color(0xFF00CFFD).withOpacity(0.8)],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   )
@@ -349,7 +351,7 @@ class MeuEditalTab extends StatelessWidget {
                 ? Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
+                      const Row(
                         children: [
                           Icon(
                             Icons.calendar_today,
@@ -368,7 +370,7 @@ class MeuEditalTab extends StatelessWidget {
                           ),
                         ],
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
                       Text(
                         'Criado em ${_formatDate(planoAtivo.dataCriacao)}',
                         style: TextStyle(
@@ -376,7 +378,7 @@ class MeuEditalTab extends StatelessWidget {
                           color: Colors.white.withOpacity(0.8),
                         ),
                       ),
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       Text(
                         'Duração: ${planoAtivo.duracaoSemanas} semanas',
                         style: TextStyle(
@@ -384,16 +386,16 @@ class MeuEditalTab extends StatelessWidget {
                           color: Colors.white.withOpacity(0.8),
                         ),
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
                       ElevatedButton.icon(
-                        icon: Icon(Icons.visibility),
-                        label: Text('VER PLANO COMPLETO'),
+                        icon: const Icon(Icons.visibility),
+                        label: const Text('VER PLANO COMPLETO'),
                         onPressed: () {
                           Navigator.pushNamed(context, '/plano');
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.white.withOpacity(0.2),
-                          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
@@ -409,7 +411,7 @@ class MeuEditalTab extends StatelessWidget {
                           size: 48,
                           color: Colors.grey.shade400,
                         ),
-                        SizedBox(height: 16),
+                        const SizedBox(height: 16),
                         Text(
                           'Nenhum plano de estudo criado',
                           style: TextStyle(
@@ -417,10 +419,10 @@ class MeuEditalTab extends StatelessWidget {
                             color: Colors.grey.shade400,
                           ),
                         ),
-                        SizedBox(height: 16),
+                        const SizedBox(height: 16),
                         ElevatedButton.icon(
-                          icon: Icon(Icons.add),
-                          label: Text('CRIAR PLANO DE ESTUDO'),
+                          icon: const Icon(Icons.add),
+                          label: const Text('CRIAR PLANO DE ESTUDO'),
                           onPressed: () {
                             Navigator.pushNamed(
                               context,
@@ -430,7 +432,7 @@ class MeuEditalTab extends StatelessWidget {
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppTheme.primaryColor,
-                            padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
@@ -455,7 +457,7 @@ class MeuEditalTab extends StatelessWidget {
           size: 16,
           color: Colors.grey.shade400,
         ),
-        SizedBox(width: 8),
+        const SizedBox(width: 8),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -467,10 +469,10 @@ class MeuEditalTab extends StatelessWidget {
                   color: Colors.grey.shade400,
                 ),
               ),
-              SizedBox(height: 2),
+              const SizedBox(height: 2),
               Text(
                 value,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 14,
                   color: Colors.white,
                 ),
@@ -523,9 +525,9 @@ class MeuEditalTab extends StatelessWidget {
               color: Colors.blue.shade300,
             ),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           ...conhecimentosBasicos.map((conteudo) => _buildMateriaItem(conteudo)),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
         ],
         if (conhecimentosEspecificos.isNotEmpty) ...[
           Text(
@@ -536,7 +538,7 @@ class MeuEditalTab extends StatelessWidget {
               color: Colors.red.shade300,
             ),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           ...conhecimentosEspecificos.map((conteudo) => _buildMateriaItem(conteudo)),
         ],
         if (cargo.conteudoProgramatico.isEmpty)
@@ -550,28 +552,28 @@ class MeuEditalTab extends StatelessWidget {
 
   Widget _buildMateriaItem(dynamic conteudo) {
     return Card(
-      margin: EdgeInsets.only(bottom: 8),
+      margin: const EdgeInsets.only(bottom: 8),
       color: AppTheme.darkCardColor,
       child: ExpansionTile(
         title: Text(
           conteudo.nome,
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+          style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
         ),
         children: [
           Padding(
-            padding: EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: conteudo.topicos.asMap().entries.map<Widget>((entry) {
                 final index = entry.key + 1; // Começar do 1
                 final topico = entry.value;
                 return Padding(
-                  padding: EdgeInsets.only(bottom: 8),
+                  padding: const EdgeInsets.only(bottom: 8),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('$index. ', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
-                      Expanded(child: Text(topico, style: TextStyle(color: Colors.white))),
+                      Text('$index. ', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+                      Expanded(child: Text(topico, style: const TextStyle(color: Colors.white))),
                     ],
                   ),
                 );

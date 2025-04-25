@@ -9,29 +9,29 @@ class EditalProcessInfoWidget extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
+        const Text(
           'Como funciona:',
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
         ),
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
         _buildProcessStep(
           '1. Upload do Edital',
           'Envie os arquivos PDF do edital do concurso',
         ),
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
         _buildProcessStep(
           '2. Análise com IA',
           'A API LLM (Gemini ou OpenAI) analisa o edital e extrai as informações importantes',
         ),
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
         _buildProcessStep(
           '3. Seleção de Cargo',
           'Escolha o cargo para o qual deseja se preparar',
         ),
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
         _buildProcessStep(
           '4. Plano Personalizado',
           'Receba um plano de estudos personalizado para o cargo escolhido',
@@ -46,12 +46,12 @@ class EditalProcessInfoWidget extends StatelessWidget {
       children: [
         Text(
           title,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
           ),
         ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         Text(
           description,
           style: TextStyle(

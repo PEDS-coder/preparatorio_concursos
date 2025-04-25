@@ -39,7 +39,7 @@ class AuthService extends ChangeNotifier {
     // Simulação de autenticação - em produção, isso seria uma chamada de API
     if (email.isNotEmpty && password.isNotEmpty) {
       // Simular um atraso de rede
-      await Future.delayed(Duration(seconds: 1));
+      await Future.delayed(const Duration(seconds: 1));
 
       // Verificação básica - em produção, isso seria validado pelo backend
       if (email.contains('@') && password.length >= 6) {
@@ -72,7 +72,7 @@ class AuthService extends ChangeNotifier {
     // Simulação de cadastro - em produção, isso seria uma chamada de API
     if (nome.isNotEmpty && email.isNotEmpty && password.isNotEmpty) {
       // Simular um atraso de rede
-      await Future.delayed(Duration(seconds: 1));
+      await Future.delayed(const Duration(seconds: 1));
 
       // Verificação básica - em produção, isso seria validado pelo backend
       if (email.contains('@') && password.length >= 6) {
@@ -119,7 +119,7 @@ class AuthService extends ChangeNotifier {
     // Simulação de upgrade - em produção, isso seria uma chamada de API após pagamento
     if (_currentUser != null) {
       // Simular um atraso de rede
-      await Future.delayed(Duration(seconds: 1));
+      await Future.delayed(const Duration(seconds: 1));
 
       // Atualizar o usuário para premium
       _currentUser = _currentUser!.copyWith(nivelAssinatura: 'premium');

@@ -37,6 +37,7 @@ class CalendarService implements ICalendarService {
   }
 
   /// Verifica se o Google Calendar está disponível
+  @override
   Future<bool> isGoogleCalendarAvailable() async {
     try {
       if (kIsWeb) {
@@ -53,6 +54,7 @@ class CalendarService implements ICalendarService {
   }
 
   /// Verifica se o Apple Calendar está disponível
+  @override
   Future<bool> isAppleCalendarAvailable() async {
     try {
       if (Platform.isIOS) {
@@ -67,6 +69,7 @@ class CalendarService implements ICalendarService {
   }
 
   /// Verifica se o Device Calendar está disponível
+  @override
   Future<bool> isDeviceCalendarAvailable() async {
     try {
       if (kIsWeb) {
@@ -84,6 +87,7 @@ class CalendarService implements ICalendarService {
   }
 
   /// Solicita permissão para acessar o Device Calendar
+  @override
   Future<bool> requestDeviceCalendarPermission() async {
     try {
       if (kIsWeb) {
@@ -101,6 +105,7 @@ class CalendarService implements ICalendarService {
   }
 
   /// Autentica com o Google Calendar
+  @override
   Future<bool> authenticateWithGoogleCalendar() async {
     try {
       // Credenciais do cliente OAuth
@@ -110,7 +115,7 @@ class CalendarService implements ICalendarService {
       const scopes = [google_calendar.CalendarApi.calendarScope];
 
       // Função para abrir a URL de autenticação
-      void _openUrl(String url) {
+      void openUrl(String url) {
         launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
       }
 
@@ -118,7 +123,7 @@ class CalendarService implements ICalendarService {
       final client = await clientViaUserConsent(
         ClientId(clientId, null),
         scopes,
-        _openUrl,
+        openUrl,
       );
 
       // Criar o cliente do Google Calendar
@@ -141,6 +146,7 @@ class CalendarService implements ICalendarService {
   }
 
   /// Sincroniza um plano de estudo com o Google Calendar
+  @override
   Future<bool> syncWithGoogleCalendar(PlanoEstudo plano) async {
     try {
       // Verificar se o cliente do Google Calendar está disponível
@@ -209,6 +215,7 @@ class CalendarService implements ICalendarService {
   }
 
   /// Sincroniza um plano de estudo com o Apple Calendar
+  @override
   Future<bool> syncWithAppleCalendar(PlanoEstudo plano) async {
     try {
       if (!Platform.isIOS) {
@@ -267,6 +274,7 @@ class CalendarService implements ICalendarService {
   }
 
   /// Sincroniza um plano de estudo com o Device Calendar
+  @override
   Future<bool> syncWithDeviceCalendar(PlanoEstudo plano) async {
     try {
       if (kIsWeb) {
@@ -289,7 +297,7 @@ class CalendarService implements ICalendarService {
       }
 
       // Usar o primeiro calendário disponível
-      final calendarId = calendarsResult!.data!.first.id;
+      final calendarId = calendarsResult.data!.first.id;
 
       // Criar eventos para cada dia de estudo
       for (final materia in plano.materias) {

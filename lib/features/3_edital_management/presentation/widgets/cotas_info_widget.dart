@@ -34,7 +34,7 @@ class CotasInfoWidget extends StatelessWidget {
         if (edital.dadosOriginais!.containsKey(chave)) {
           var cotasData = edital.dadosOriginais![chave];
           if (cotasData is Map) {
-            cotasInfo = cotasData as Map<dynamic, dynamic>;
+            cotasInfo = cotasData;
             break;
           } else if (cotasData is String && cotasData.isNotEmpty) {
             // Se for uma string, usar como texto de cotas
@@ -220,7 +220,7 @@ class CotasInfoWidget extends StatelessWidget {
               color: Theme.of(context).brightness == Brightness.dark ?
                      Colors.grey.shade300 : Colors.grey.shade600,
             ),
-            SizedBox(width: 4),
+            const SizedBox(width: 4),
             Expanded(
               child: Text(
                 displayText,
@@ -237,6 +237,6 @@ class CotasInfoWidget extends StatelessWidget {
     }
 
     // Se não encontrou informações sobre cotas, não exibir nada
-    return SizedBox.shrink();
+    return const SizedBox.shrink();
   }
 }

@@ -15,7 +15,7 @@ import '../../domain/services/flashcards_service.dart';
 class FlashcardsScreen extends StatefulWidget {
   final bool showBottomNavigationBar;
 
-  FlashcardsScreen({this.showBottomNavigationBar = true});
+  const FlashcardsScreen({super.key, this.showBottomNavigationBar = true});
 
   @override
   _FlashcardsScreenState createState() => _FlashcardsScreenState();
@@ -178,7 +178,7 @@ class _FlashcardsScreenState extends State<FlashcardsScreen> with SingleTickerPr
 
     // Mostrar confirmação
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
+      const SnackBar(
         content: Text('Parabéns! Você agora é um usuário Premium.'),
         backgroundColor: AppTheme.successColor,
       ),
@@ -195,12 +195,12 @@ class _FlashcardsScreenState extends State<FlashcardsScreen> with SingleTickerPr
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Flashcards'),
+        title: const Text('Flashcards'),
         backgroundColor: AppTheme.primaryColor,
         bottom: TabBar(
           controller: _tabController,
           indicatorColor: Colors.white,
-          tabs: [
+          tabs: const [
             Tab(text: 'Criar'),
             Tab(text: 'Enviados'),
             Tab(text: 'Gerados'),

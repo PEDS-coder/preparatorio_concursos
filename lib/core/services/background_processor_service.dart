@@ -397,7 +397,7 @@ class BackgroundProcessorService {
         id: '${DateTime.now().millisecondsSinceEpoch}_${_pendingTasks.length}',
         name: name,
         input: input,
-        processor: (input) => processor(input as T),
+        processor: (input) => processor(input),
         completer: completer,
         createdAt: DateTime.now(),
         priority: priority,

@@ -112,7 +112,7 @@ class Cargo {
       } else if (map['conteudoProgramatico'] is List) {
         try {
           materias = (map['conteudoProgramatico'] as List)
-            .where((item) => item is Map<String, dynamic>)
+            .whereType<Map<String, dynamic>>()
             .map((item) => ConteudoProgramatico.fromMap(item as Map<String, dynamic>))
             .toList();
         } catch (e) {
@@ -332,40 +332,68 @@ class DadosExtraidos {
 }
 
 class DadosProva {
-  final int? totalQuestoes;
-  final List<String>? formato; // ["objetiva", "discursiva", ...]
-  final String? temaDiscursiva;
-  final String? criteriosAprovacao;
-  final List<String>? criteriosDesempate;
+  int? _totalQuestoes;
+  List<String>? _formato; // ["objetiva", "discursiva", ...]
+  String? _temaDiscursiva;
+  String? _criteriosAprovacao;
+  List<String>? _criteriosDesempate;
 
   // Propriedades adicionais
-  final String? criteriosReprovacao;
-  final String? duracao;
-  final DateTime? dataRealizacao;
+  String? _criteriosReprovacao;
+  String? _duracao;
+  DateTime? _dataRealizacao;
+
+  // Getters
+  int? get totalQuestoes => _totalQuestoes;
+  List<String>? get formato => _formato;
+  String? get temaDiscursiva => _temaDiscursiva;
+  String? get criteriosAprovacao => _criteriosAprovacao;
+  List<String>? get criteriosDesempate => _criteriosDesempate;
+  String? get criteriosReprovacao => _criteriosReprovacao;
+  String? get duracao => _duracao;
+  DateTime? get dataRealizacao => _dataRealizacao;
+
+  // Setters
+  set totalQuestoes(int? value) => _totalQuestoes = value;
+  set formato(List<String>? value) => _formato = value;
+  set temaDiscursiva(String? value) => _temaDiscursiva = value;
+  set criteriosAprovacao(String? value) => _criteriosAprovacao = value;
+  set criteriosDesempate(List<String>? value) => _criteriosDesempate = value;
+  set criteriosReprovacao(String? value) => _criteriosReprovacao = value;
+  set duracao(String? value) => _duracao = value;
+  set dataRealizacao(DateTime? value) => _dataRealizacao = value;
 
   DadosProva({
-    this.totalQuestoes,
-    this.formato,
-    this.temaDiscursiva,
-    this.criteriosAprovacao,
-    this.criteriosDesempate,
+    int? totalQuestoes,
+    List<String>? formato,
+    String? temaDiscursiva,
+    String? criteriosAprovacao,
+    List<String>? criteriosDesempate,
     // Propriedades adicionais
-    this.criteriosReprovacao,
-    this.duracao,
-    this.dataRealizacao,
-  });
+    String? criteriosReprovacao,
+    String? duracao,
+    DateTime? dataRealizacao,
+  }) :
+    _totalQuestoes = totalQuestoes,
+    _formato = formato,
+    _temaDiscursiva = temaDiscursiva,
+    _criteriosAprovacao = criteriosAprovacao,
+    _criteriosDesempate = criteriosDesempate,
+    _criteriosReprovacao = criteriosReprovacao,
+    _duracao = duracao,
+    _dataRealizacao = dataRealizacao;
 
   Map<String, dynamic> toMap() {
     return {
-      'total_questoes': totalQuestoes,
-      'formato': formato,
-      'tema_discursiva': temaDiscursiva,
-      'criterios_aprovacao': criteriosAprovacao,
-      'criterios_desempate': criteriosDesempate,
+      'total_questoes': _totalQuestoes,
+      'formato': _formato,
+      'tema_discursiva': _temaDiscursiva,
+      'criterios_aprovacao': _criteriosAprovacao,
+      'criterios_desempate': _criteriosDesempate,
       // Propriedades adicionais
-      'criterios_reprovacao': criteriosReprovacao,
-      'duracao': duracao,
-      'data_realizacao': dataRealizacao?.toIso8601String(),
+      'criterios_reprovacao': _criteriosReprovacao,
+      'duracao': _duracao,
+      'data_realizacao': _dataRealizacao?.toIso8601String(),
     };
   }
 

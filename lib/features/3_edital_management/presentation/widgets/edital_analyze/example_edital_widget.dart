@@ -18,11 +18,11 @@ class ExampleEditalWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
       ),
       child: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            const Text(
               'Não tem um edital?',
               style: TextStyle(
                 fontSize: 18,
@@ -30,7 +30,7 @@ class ExampleEditalWidget extends StatelessWidget {
                 color: AppTheme.primaryColor,
               ),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
               'Use nosso edital de exemplo para testar a funcionalidade',
               style: TextStyle(
@@ -38,15 +38,15 @@ class ExampleEditalWidget extends StatelessWidget {
                 color: Colors.grey.shade700,
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Center(
               child: ElevatedButton.icon(
                 onPressed: onUseExamplePressed,
-                icon: Icon(Icons.description),
-                label: Text('Usar Edital de Exemplo'),
+                icon: const Icon(Icons.description),
+                label: const Text('Usar Edital de Exemplo'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
-                  padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                 ),
               ),
             ),

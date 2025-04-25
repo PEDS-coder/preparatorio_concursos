@@ -23,6 +23,7 @@ class Usuario implements BaseModel {
   });
 
   // Método para criar uma cópia do objeto com algumas propriedades alteradas
+  @override
   Usuario copyWith({
     String? id,
     String? nome,
@@ -46,6 +47,7 @@ class Usuario implements BaseModel {
   }
 
   // Método para converter o objeto para um Map (útil para armazenamento)
+  @override
   Map<String, dynamic> toMap() {
     return {
       'id': id,

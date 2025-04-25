@@ -26,7 +26,7 @@ class CargoInfoWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (edital == null || cargo == null) {
-      return SizedBox.shrink();
+      return const SizedBox.shrink();
     }
 
     // Obter informações do cargo
@@ -36,7 +36,7 @@ class CargoInfoWidget extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
+        const Padding(
           padding: EdgeInsets.only(left: 16, bottom: 8),
           child: Text(
             'Cargo Selecionado',

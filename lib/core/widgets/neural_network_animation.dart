@@ -48,7 +48,7 @@ class _NeuralNetworkAnimationState extends State<NeuralNetworkAnimation> with Ti
     // Configurar animações
     _pulseController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 1500),
+      duration: const Duration(milliseconds: 1500),
     )..repeat(reverse: true);
     
     _pulseAnimation = Tween<double>(begin: 0.9, end: 1.1).animate(
@@ -57,7 +57,7 @@ class _NeuralNetworkAnimationState extends State<NeuralNetworkAnimation> with Ti
 
     _fadeController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 800),
+      duration: const Duration(milliseconds: 800),
     )..repeat(reverse: true);
     
     _fadeAnimation = Tween<double>(begin: 0.5, end: 1.0).animate(
@@ -68,7 +68,7 @@ class _NeuralNetworkAnimationState extends State<NeuralNetworkAnimation> with Ti
     initNeuralNetwork();
 
     // Atualizar a animação a cada 50ms
-    timer = Timer.periodic(Duration(milliseconds: 50), (timer) {
+    timer = Timer.periodic(const Duration(milliseconds: 50), (timer) {
       if (mounted) {
         setState(() {
           updateNeuralNetwork();
@@ -79,7 +79,7 @@ class _NeuralNetworkAnimationState extends State<NeuralNetworkAnimation> with Ti
     // Atualizar mensagens de status a cada 15 segundos
     if (widget.statusMessages.isNotEmpty) {
       currentStatusMessage = widget.statusMessages[0];
-      messageTimer = Timer.periodic(Duration(seconds: 15), (timer) {
+      messageTimer = Timer.periodic(const Duration(seconds: 15), (timer) {
         if (mounted) {
           setState(() {
             currentMessageIndex = (currentMessageIndex + 1) % widget.statusMessages.length;
@@ -103,7 +103,7 @@ class _NeuralNetworkAnimationState extends State<NeuralNetworkAnimation> with Ti
 
   void initNeuralNetwork() {
     // Criar camadas de neurônios
-    final int layerCount = 3;
+    const int layerCount = 3;
     final List<int> neuronsPerLayer = [6, 8, 6];
     
     // Posições iniciais para cada camada
@@ -248,10 +248,10 @@ class _NeuralNetworkAnimationState extends State<NeuralNetworkAnimation> with Ti
                     );
                   },
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 if (widget.statusMessages.isNotEmpty)
                   AnimatedSwitcher(
-                    duration: Duration(milliseconds: 500),
+                    duration: const Duration(milliseconds: 500),
                     child: Text(
                       currentStatusMessage,
                       key: ValueKey<String>(currentStatusMessage),
@@ -262,8 +262,8 @@ class _NeuralNetworkAnimationState extends State<NeuralNetworkAnimation> with Ti
                       ),
                     ),
                   ),
-                SizedBox(height: 16),
-                Text(
+                const SizedBox(height: 16),
+                const Text(
                   'Pode levar alguns minutos...',
                   style: TextStyle(
                     color: Colors.white70,
@@ -372,7 +372,7 @@ class NeuralNetworkPainter extends CustomPainter {
         final glowPaint = Paint()
           ..color = primaryColor.withOpacity(0.5)
           ..style = PaintingStyle.fill
-          ..maskFilter = MaskFilter.blur(BlurStyle.normal, 3.0);
+          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3.0);
         
         canvas.drawCircle(
           Offset(signalX, signalY),
@@ -405,7 +405,7 @@ class NeuralNetworkPainter extends CustomPainter {
         final glowPaint = Paint()
           ..color = neuron.color.withOpacity(0.5)
           ..style = PaintingStyle.fill
-          ..maskFilter = MaskFilter.blur(BlurStyle.normal, 5.0);
+          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 5.0);
         
         canvas.drawCircle(
           Offset(neuron.x, neuron.y),

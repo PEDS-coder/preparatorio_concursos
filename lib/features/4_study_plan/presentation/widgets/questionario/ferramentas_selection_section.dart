@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../../../core/theme/app_theme.dart';
 
 /// Widget para seleção de ferramentas de estudo
 class FerramentasSelectionSection extends StatelessWidget {

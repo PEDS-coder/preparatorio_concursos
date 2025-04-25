@@ -16,7 +16,7 @@ class CargoConverter {
         try {
           // Validar o formato do cargo
           if (!_validarCargoJson(cargoJson)) {
-            throw FormatException('Formato de cargo inválido');
+            throw const FormatException('Formato de cargo inválido');
           }
 
           // Extrair dados básicos do cargo

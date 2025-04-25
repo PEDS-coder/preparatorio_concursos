@@ -265,7 +265,7 @@ class HorariosSelectionSection extends StatelessWidget {
         } else {
           // Adicionar grupo anterior
           if (inicio == fim) {
-            grupos.add('${_formatarHora(inicio)}');
+            grupos.add(_formatarHora(inicio));
           } else {
             grupos.add('${_formatarHora(inicio)}-${_formatarHora(fim)}');
           }
@@ -276,7 +276,7 @@ class HorariosSelectionSection extends StatelessWidget {
 
       // Adicionar o último grupo
       if (inicio == fim) {
-        grupos.add('${_formatarHora(inicio)}');
+        grupos.add(_formatarHora(inicio));
       } else {
         grupos.add('${_formatarHora(inicio)}-${_formatarHora(fim)}');
       }

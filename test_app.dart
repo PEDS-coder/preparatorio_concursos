@@ -63,7 +63,7 @@ class _TestScreenState extends State<TestScreen> {
       }
 
       final Uint8List pdfBytes = await file.readAsBytes();
-      final String prompt = 'Extraia o conteúdo deste PDF';
+      const String prompt = 'Extraia o conteúdo deste PDF';
 
       final String result = await _geminiService.processarPdf(prompt, pdfBytes);
 

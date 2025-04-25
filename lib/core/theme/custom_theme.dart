@@ -13,12 +13,10 @@ class CustomTheme {
     final colorScheme = ColorScheme.dark(
       primary: primaryColor,
       secondary: secondaryColor,
-      background: backgroundColor,
       surface: surfaceColor,
       error: errorColor,
       onPrimary: Colors.white,
       onSecondary: Colors.white,
-      onBackground: Colors.white,
       onSurface: Colors.white,
       onError: Colors.white,
     );
@@ -37,12 +35,12 @@ class CustomTheme {
         backgroundColor: surfaceColor,
         elevation: 0,
         centerTitle: true,
-        titleTextStyle: TextStyle(
+        titleTextStyle: const TextStyle(
           color: Colors.white,
           fontSize: 20,
           fontWeight: FontWeight.bold,
         ),
-        iconTheme: IconThemeData(
+        iconTheme: const IconThemeData(
           color: Colors.white,
         ),
       ),
@@ -53,11 +51,11 @@ class CustomTheme {
           backgroundColor: primaryColor,
           foregroundColor: Colors.white,
           elevation: 2,
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
           ),
-          textStyle: TextStyle(
+          textStyle: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
           ),
@@ -68,11 +66,11 @@ class CustomTheme {
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: primaryColor,
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
           ),
-          textStyle: TextStyle(
+          textStyle: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
           ),
@@ -84,11 +82,11 @@ class CustomTheme {
         style: OutlinedButton.styleFrom(
           foregroundColor: primaryColor,
           side: BorderSide(color: primaryColor),
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
           ),
-          textStyle: TextStyle(
+          textStyle: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
           ),
@@ -101,11 +99,11 @@ class CustomTheme {
         fillColor: surfaceColor,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: Colors.white24),
+          borderSide: const BorderSide(color: Colors.white24),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: Colors.white24),
+          borderSide: const BorderSide(color: Colors.white24),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
@@ -115,9 +113,9 @@ class CustomTheme {
           borderRadius: BorderRadius.circular(8),
           borderSide: BorderSide(color: errorColor),
         ),
-        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        labelStyle: TextStyle(color: Colors.white70),
-        hintStyle: TextStyle(color: Colors.white38),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        labelStyle: const TextStyle(color: Colors.white70),
+        hintStyle: const TextStyle(color: Colors.white38),
       ),
 
       // Cards
@@ -127,7 +125,7 @@ class CustomTheme {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
         ),
-        margin: EdgeInsets.all(8),
+        margin: const EdgeInsets.all(8),
       ),
 
       // Diálogos
@@ -142,7 +140,7 @@ class CustomTheme {
       // Snackbars
       snackBarTheme: SnackBarThemeData(
         backgroundColor: surfaceColor,
-        contentTextStyle: TextStyle(color: Colors.white),
+        contentTextStyle: const TextStyle(color: Colors.white),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
         ),
@@ -159,13 +157,13 @@ class CustomTheme {
       ),
 
       // Ícones
-      iconTheme: IconThemeData(
+      iconTheme: const IconThemeData(
         color: Colors.white,
         size: 24,
       ),
 
       // Textos
-      textTheme: TextTheme(
+      textTheme: const TextTheme(
         displayLarge: TextStyle(
           color: Colors.white,
           fontSize: 32,
@@ -238,12 +236,10 @@ class CustomTheme {
     final colorScheme = ColorScheme.light(
       primary: primaryColor,
       secondary: secondaryColor,
-      background: backgroundColor,
       surface: surfaceColor,
       error: errorColor,
       onPrimary: Colors.white,
       onSecondary: Colors.white,
-      onBackground: Colors.black,
       onSurface: Colors.black,
       onError: Colors.white,
     );
@@ -262,12 +258,12 @@ class CustomTheme {
         backgroundColor: primaryColor,
         elevation: 0,
         centerTitle: true,
-        titleTextStyle: TextStyle(
+        titleTextStyle: const TextStyle(
           color: Colors.white,
           fontSize: 20,
           fontWeight: FontWeight.bold,
         ),
-        iconTheme: IconThemeData(
+        iconTheme: const IconThemeData(
           color: Colors.white,
         ),
       ),
@@ -278,11 +274,11 @@ class CustomTheme {
           backgroundColor: primaryColor,
           foregroundColor: Colors.white,
           elevation: 2,
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
           ),
-          textStyle: TextStyle(
+          textStyle: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
           ),
@@ -293,11 +289,11 @@ class CustomTheme {
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: primaryColor,
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
           ),
-          textStyle: TextStyle(
+          textStyle: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
           ),
@@ -309,11 +305,11 @@ class CustomTheme {
         style: OutlinedButton.styleFrom(
           foregroundColor: primaryColor,
           side: BorderSide(color: primaryColor),
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
           ),
-          textStyle: TextStyle(
+          textStyle: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
           ),
@@ -326,11 +322,11 @@ class CustomTheme {
         fillColor: surfaceColor,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: Colors.black12),
+          borderSide: const BorderSide(color: Colors.black12),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: Colors.black12),
+          borderSide: const BorderSide(color: Colors.black12),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
@@ -340,9 +336,9 @@ class CustomTheme {
           borderRadius: BorderRadius.circular(8),
           borderSide: BorderSide(color: errorColor),
         ),
-        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        labelStyle: TextStyle(color: Colors.black54),
-        hintStyle: TextStyle(color: Colors.black38),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        labelStyle: const TextStyle(color: Colors.black54),
+        hintStyle: const TextStyle(color: Colors.black38),
       ),
 
       // Cards
@@ -352,7 +348,7 @@ class CustomTheme {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
         ),
-        margin: EdgeInsets.all(8),
+        margin: const EdgeInsets.all(8),
       ),
 
       // Diálogos
@@ -367,7 +363,7 @@ class CustomTheme {
       // Snackbars
       snackBarTheme: SnackBarThemeData(
         backgroundColor: Colors.grey[800],
-        contentTextStyle: TextStyle(color: Colors.white),
+        contentTextStyle: const TextStyle(color: Colors.white),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
         ),
@@ -384,13 +380,13 @@ class CustomTheme {
       ),
 
       // Ícones
-      iconTheme: IconThemeData(
+      iconTheme: const IconThemeData(
         color: Colors.black87,
         size: 24,
       ),
 
       // Textos
-      textTheme: TextTheme(
+      textTheme: const TextTheme(
         displayLarge: TextStyle(
           color: Colors.black,
           fontSize: 32,

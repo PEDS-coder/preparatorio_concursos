@@ -146,7 +146,7 @@ mixin IAServiceImplementations {
         final Map<String, dynamic> resultado = jsonDecode(respostaLimpa);
 
         // Verificar se o resultado contém o conteúdo programático
-        if (!resultado.containsKey('conteudo_programatico') || !(resultado['conteudo_programatico'] is List)) {
+        if (!resultado.containsKey('conteudo_programatico') || resultado['conteudo_programatico'] is! List) {
           // Se não tiver o conteúdo programático no formato esperado, tentar extrair do campo 'cargo'
           if (resultado.containsKey('cargo') && resultado['cargo'] is Map) {
             // Verificar se o conteúdo programático está no formato 'cargo.conteudo_programatico.materias'

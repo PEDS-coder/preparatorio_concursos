@@ -34,11 +34,11 @@ class CreateFlashcardsTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          const Text(
             'Criar Flashcards com IA',
             style: TextStyle(
               fontSize: 24,
@@ -46,7 +46,7 @@ class CreateFlashcardsTab extends StatelessWidget {
               color: Colors.white,
             ),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
             'Faça upload de um documento ou insira um texto para gerar flashcards automaticamente',
             style: TextStyle(
@@ -54,20 +54,20 @@ class CreateFlashcardsTab extends StatelessWidget {
               color: Colors.white.withOpacity(0.7),
             ),
           ),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
 
           // Seleção de modo
           ModeSelector(
             currentMode: modoEntrada,
             onModeChanged: onModeChanged,
           ),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
 
           // Mensagem de erro, se houver
           if (errorMessage != null)
             Container(
-              margin: EdgeInsets.only(bottom: 16),
-              padding: EdgeInsets.all(12),
+              margin: const EdgeInsets.only(bottom: 16),
+              padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: Colors.red.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
@@ -75,8 +75,8 @@ class CreateFlashcardsTab extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  Icon(Icons.error_outline, color: Colors.red),
-                  SizedBox(width: 8),
+                  const Icon(Icons.error_outline, color: Colors.red),
+                  const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       errorMessage!,

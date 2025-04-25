@@ -15,20 +15,20 @@ class ProgressIndicatorWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(top: 24),
+      margin: const EdgeInsets.only(top: 24),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           LinearProgressIndicator(
             value: progressValue > 0 ? progressValue : null,
             backgroundColor: Colors.grey.shade200,
-            valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
+            valueColor: const AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
             minHeight: 6,
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
             progressMessage.isNotEmpty ? progressMessage : 'Processando...',
-            style: TextStyle(fontSize: 14),
+            style: const TextStyle(fontSize: 14),
             textAlign: TextAlign.center,
           ),
         ],

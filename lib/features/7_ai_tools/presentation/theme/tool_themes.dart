@@ -12,7 +12,7 @@ class ToolThemes {
   static final LinearGradient flashcardsGradient = LinearGradient(
     colors: [
       flashcardsColor.withOpacity(0.8),
-      Color(0xFF9C1AFF).withOpacity(0.6), // Roxo-elétrico
+      const Color(0xFF9C1AFF).withOpacity(0.6), // Roxo-elétrico
     ],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
@@ -21,7 +21,7 @@ class ToolThemes {
   static final LinearGradient resumosGradient = LinearGradient(
     colors: [
       resumosColor.withOpacity(0.8),
-      Color(0xFF2E7BFF).withOpacity(0.6), // Azul-elétrico
+      const Color(0xFF2E7BFF).withOpacity(0.6), // Azul-elétrico
     ],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
@@ -30,7 +30,7 @@ class ToolThemes {
   static final LinearGradient questoesGradient = LinearGradient(
     colors: [
       questoesColor.withOpacity(0.8),
-      Color(0xFF00CFFD).withOpacity(0.6), // Ciano
+      const Color(0xFF00CFFD).withOpacity(0.6), // Ciano
     ],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
@@ -39,7 +39,7 @@ class ToolThemes {
   static final LinearGradient mapasMentaisGradient = LinearGradient(
     colors: [
       mapasMentaisColor.withOpacity(0.8),
-      Color(0xFFFF6D00).withOpacity(0.6), // Laranja
+      const Color(0xFFFF6D00).withOpacity(0.6), // Laranja
     ],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,

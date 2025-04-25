@@ -22,22 +22,22 @@ class BottomNavigationWidget extends StatelessWidget {
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
             blurRadius: 10,
-            offset: Offset(0, -5),
+            offset: const Offset(0, -5),
           ),
         ],
       ),
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             OutlinedButton.icon(
               onPressed: onBack,
-              icon: Icon(Icons.arrow_back),
-              label: Text('Voltar'),
+              icon: const Icon(Icons.arrow_back),
+              label: const Text('Voltar'),
               style: OutlinedButton.styleFrom(
-                side: BorderSide(color: AppTheme.primaryColor),
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                side: const BorderSide(color: AppTheme.primaryColor),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               ),
             ),
             ElevatedButton.icon(
@@ -50,11 +50,11 @@ class BottomNavigationWidget extends StatelessWidget {
                   ),
                 );
               },
-              icon: Icon(Icons.check_circle),
-              label: Text('Selecionar Cargo'),
+              icon: const Icon(Icons.check_circle),
+              label: const Text('Selecionar Cargo'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.primaryColor,
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               ),
             ),
           ],

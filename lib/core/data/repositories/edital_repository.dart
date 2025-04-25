@@ -4,7 +4,6 @@ import 'dart:typed_data';
 import 'package:injectable/injectable.dart';
 import 'package:preparatorio_concursos/core/data/models/edital.dart';
 import 'package:preparatorio_concursos/core/data/repositories/base_repository.dart';
-import 'package:preparatorio_concursos/core/services/error_handler_service.dart';
 import 'package:preparatorio_concursos/core/utils/error_handling_extension.dart';
 import 'package:preparatorio_concursos/core/utils/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';

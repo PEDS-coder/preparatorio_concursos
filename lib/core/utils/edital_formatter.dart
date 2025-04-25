@@ -1,13 +1,34 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:concursos_ia/core/data/models/edital.dart';
+import 'package:concursos_ia/core/data/models/models.dart';
 import 'package:concursos_ia/core/utils/date_formatter.dart';
 import 'package:intl/intl.dart';
+import 'package:concursos_ia/features/4_study_plan/domain/services/concurso_service.dart';
+import 'package:concursos_ia/features/4_study_plan/domain/services/prova_service.dart';
+import 'package:concursos_ia/features/4_study_plan/domain/services/inscricao_service.dart';
+import 'package:concursos_ia/features/4_study_plan/domain/services/cotas_service.dart';
 
 /// Classe para formatar dados do edital para exibição na UI
 class EditalFormatter {
   /// Obtém o nome do concurso formatado
   static String obterNomeConcurso(Edital edital) {
+    // Criar um PlanoEstudo temporário para usar com o ConcursoService
+    final planoTemp = PlanoEstudo(
+      id: 'temp_${DateTime.now().millisecondsSinceEpoch}',
+      titulo: edital.nomeConcurso,
+      metadados: {},
+      dataInicio: DateTime.now(),
+      dataFim: DateTime.now().add(const Duration(days: 30)),
+      cargoIds: [],
+    );
+
+    String titulo = ConcursoService.obterTitulo(planoTemp, edital);
+    if (titulo != 'Não informado') {
+      return titulo;
+    }
+
+    // Fallback para o comportamento original
     if (edital.dadosExtraidos.titulo != null && edital.dadosExtraidos.titulo!.isNotEmpty) {
       return edital.dadosExtraidos.titulo!;
     }
@@ -16,6 +37,22 @@ class EditalFormatter {
 
   /// Obtém o nome do órgão formatado
   static String obterNomeOrgao(Edital edital) {
+    // Criar um PlanoEstudo temporário para usar com o ConcursoService
+    final planoTemp = PlanoEstudo(
+      id: 'temp_${DateTime.now().millisecondsSinceEpoch}',
+      titulo: edital.nomeConcurso,
+      metadados: {},
+      dataInicio: DateTime.now(),
+      dataFim: DateTime.now().add(const Duration(days: 30)),
+      cargoIds: [],
+    );
+
+    String orgao = ConcursoService.obterOrgao(planoTemp, edital);
+    if (orgao != 'Não informado') {
+      return orgao;
+    }
+
+    // Fallback para o comportamento original
     if (edital.dadosExtraidos.orgao != null && edital.dadosExtraidos.orgao!.isNotEmpty) {
       return edital.dadosExtraidos.orgao!;
     }
@@ -24,6 +61,22 @@ class EditalFormatter {
 
   /// Obtém o nome da banca formatado
   static String obterNomeBanca(Edital edital) {
+    // Criar um PlanoEstudo temporário para usar com o ConcursoService
+    final planoTemp = PlanoEstudo(
+      id: 'temp_${DateTime.now().millisecondsSinceEpoch}',
+      titulo: edital.nomeConcurso,
+      metadados: {},
+      dataInicio: DateTime.now(),
+      dataFim: DateTime.now().add(const Duration(days: 30)),
+      cargoIds: [],
+    );
+
+    String banca = ConcursoService.obterBanca(planoTemp, edital);
+    if (banca != 'Não informado') {
+      return banca;
+    }
+
+    // Fallback para o comportamento original
     if (edital.dadosExtraidos.banca != null && edital.dadosExtraidos.banca!.isNotEmpty) {
       return edital.dadosExtraidos.banca!;
     }
@@ -32,6 +85,22 @@ class EditalFormatter {
 
   /// Obtém a data da prova formatada
   static String obterDataProva(Edital edital) {
+    // Criar um PlanoEstudo temporário para usar com o ProvaService
+    final planoTemp = PlanoEstudo(
+      id: 'temp_${DateTime.now().millisecondsSinceEpoch}',
+      titulo: edital.nomeConcurso,
+      metadados: {},
+      dataInicio: DateTime.now(),
+      dataFim: DateTime.now().add(const Duration(days: 30)),
+      cargoIds: [],
+    );
+
+    String data = ProvaService.obterData(planoTemp, edital);
+    if (data != 'Não informado') {
+      return data;
+    }
+
+    // Fallback para o comportamento original
     if (edital.dadosExtraidos.dataProva != null) {
       return DateFormatter.formatDate(edital.dadosExtraidos.dataProva!);
     }
@@ -40,11 +109,32 @@ class EditalFormatter {
 
   /// Obtém o valor da taxa de inscrição formatado
   static String obterValorTaxa(Edital edital) {
+    // Criar um PlanoEstudo temporário para usar com o InscricaoService
+    final planoTemp = PlanoEstudo(
+      id: 'temp_${DateTime.now().millisecondsSinceEpoch}',
+      titulo: edital.nomeConcurso,
+      metadados: {},
+      dataInicio: DateTime.now(),
+      dataFim: DateTime.now().add(const Duration(days: 30)),
+      cargoIds: [],
+    );
+
+    String valor = InscricaoService.obterValor(planoTemp, edital);
+    if (valor != 'Não informado') {
+      // Tentar formatar o valor
+      double? valorDouble = tryParseValor(valor);
+      if (valorDouble != null && valorDouble > 0) {
+        return formatarValor(valorDouble);
+      }
+      return valor;
+    }
+
+    // Fallback para o comportamento original
     if (edital.dadosExtraidos.valorTaxa != null) {
       // Converter para double se for string
-      double? valor = tryParseValor(edital.dadosExtraidos.valorTaxa);
-      if (valor != null && valor > 0) {
-        return formatarValor(valor);
+      double? valorOriginal = tryParseValor(edital.dadosExtraidos.valorTaxa);
+      if (valorOriginal != null && valorOriginal > 0) {
+        return formatarValor(valorOriginal);
       }
     }
     return 'Valor não especificado';
@@ -52,6 +142,12 @@ class EditalFormatter {
 
   /// Obtém o período de inscrição formatado
   static String obterPeriodoInscricao(Edital edital) {
+    String periodo = InscricaoService.obterPeriodo(edital);
+    if (periodo != 'Não informado') {
+      return periodo;
+    }
+
+    // Fallback para o comportamento original
     final inicio = edital.dadosExtraidos.inicioInscricao;
     final fim = edital.dadosExtraidos.fimInscricao;
 
@@ -65,6 +161,12 @@ class EditalFormatter {
 
   /// Obtém informações sobre cotas do edital
   static String obterInformacoesCotas(Edital edital) {
+    String cotas = CotasService.obterInformacoes(edital);
+    if (cotas != 'Não informado') {
+      return cotas;
+    }
+
+    // Se o CotasService não encontrou informações, continuar com a implementação original
     print('DEBUG: Obtendo informações de cotas do edital');
     if (edital.dadosOriginais != null) {
       print('DEBUG: Chaves em dadosOriginais: ${edital.dadosOriginais!.keys.join(', ')}');
@@ -303,7 +405,7 @@ class EditalFormatter {
   /// Cria um widget de badge de informação para matérias
   static Widget buildInfoBadge(String text, IconData icon, Color color) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: color.withOpacity(0.15),
         borderRadius: BorderRadius.circular(12),
@@ -312,7 +414,7 @@ class EditalFormatter {
           BoxShadow(
             color: color.withOpacity(0.1),
             blurRadius: 2,
-            offset: Offset(0, 1),
+            offset: const Offset(0, 1),
           ),
         ],
       ),
@@ -320,7 +422,7 @@ class EditalFormatter {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 14, color: color),
-          SizedBox(width: 4),
+          const SizedBox(width: 4),
           Text(
             text,
             style: TextStyle(
@@ -592,7 +694,7 @@ class EditalFormatter {
     }
 
     return Container(
-      margin: EdgeInsets.only(bottom: 8),
+      margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
         color: boxColor,
         borderRadius: BorderRadius.circular(8),
@@ -600,12 +702,12 @@ class EditalFormatter {
           BoxShadow(
             color: shadowColor.withOpacity(0.5),
             blurRadius: 4,
-            offset: Offset(0, 2),
+            offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start, // Alinhar no topo para textos longos
           children: [
@@ -617,7 +719,7 @@ class EditalFormatter {
                 fontSize: 14,
               ),
             ),
-            SizedBox(width: 8),
+            const SizedBox(width: 8),
             Expanded(
               child: Text(
                 value,

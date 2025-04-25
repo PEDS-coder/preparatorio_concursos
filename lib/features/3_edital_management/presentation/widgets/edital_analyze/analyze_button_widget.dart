@@ -18,17 +18,17 @@ class AnalyzeButtonWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      margin: EdgeInsets.symmetric(vertical: 24),
+      margin: const EdgeInsets.symmetric(vertical: 24),
       child: ElevatedButton.icon(
         onPressed: hasSelectedFiles && !isLoading ? onAnalyzePressed : null,
-        icon: Icon(Icons.auto_awesome),
-        label: Text(
+        icon: const Icon(Icons.auto_awesome),
+        label: const Text(
           'Analisar com IA',
           style: TextStyle(fontSize: 16),
         ),
         style: ElevatedButton.styleFrom(
           backgroundColor: AppTheme.primaryColor,
-          padding: EdgeInsets.symmetric(vertical: 16),
+          padding: const EdgeInsets.symmetric(vertical: 16),
           disabledBackgroundColor: Colors.grey.shade300,
         ),
       ),

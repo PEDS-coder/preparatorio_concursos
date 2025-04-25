@@ -27,7 +27,7 @@ class ModeSelector extends StatelessWidget {
                 Icons.upload_file,
               ),
             ),
-            SizedBox(width: 16),
+            const SizedBox(width: 16),
             Expanded(
               child: _buildModeButton(
                 'texto',
@@ -48,7 +48,7 @@ class ModeSelector extends StatelessWidget {
       onTap: () => onModeChanged(mode),
       borderRadius: BorderRadius.circular(12),
       child: Container(
-        padding: EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
         decoration: BoxDecoration(
           color: isSelected ? AppTheme.primaryColor.withOpacity(0.2) : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
@@ -64,7 +64,7 @@ class ModeSelector extends StatelessWidget {
               color: isSelected ? AppTheme.primaryColor : Colors.white.withOpacity(0.7),
               size: 28,
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
               label,
               textAlign: TextAlign.center,

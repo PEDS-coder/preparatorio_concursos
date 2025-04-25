@@ -37,19 +37,19 @@ class StoredFilesWidget extends StatelessWidget {
 
     return ModernCard(
       child: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               title,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             if (showUploaded && uploadedDocs.isNotEmpty) ...[
               Text(
                 'Documentos Enviados',
@@ -59,10 +59,10 @@ class StoredFilesWidget extends StatelessWidget {
                   color: Colors.white.withOpacity(0.9),
                 ),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               ListView.builder(
                 shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
+                physics: const NeverScrollableScrollPhysics(),
                 itemCount: uploadedDocs.length,
                 itemBuilder: (context, index) {
                   final doc = uploadedDocs[index];
@@ -95,7 +95,7 @@ class StoredFilesWidget extends StatelessWidget {
                   );
                 },
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
             ],
             if (showGenerated && generatedFiles.isNotEmpty) ...[
               Text(
@@ -106,10 +106,10 @@ class StoredFilesWidget extends StatelessWidget {
                   color: Colors.white.withOpacity(0.9),
                 ),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               ListView.builder(
                 shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
+                physics: const NeverScrollableScrollPhysics(),
                 itemCount: generatedFiles.length,
                 itemBuilder: (context, index) {
                   final file = generatedFiles[index];
@@ -146,7 +146,7 @@ class StoredFilesWidget extends StatelessWidget {
                 (showGenerated && generatedFiles.isEmpty))
               Center(
                 child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 24),
+                  padding: const EdgeInsets.symmetric(vertical: 24),
                   child: Text(
                     'Nenhum arquivo encontrado',
                     style: TextStyle(
@@ -193,7 +193,7 @@ class StoredFilesWidget extends StatelessWidget {
     }
 
     return Card(
-      margin: EdgeInsets.only(bottom: 8),
+      margin: const EdgeInsets.only(bottom: 8),
       color: AppTheme.darkSurface.withOpacity(0.5),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
@@ -202,22 +202,22 @@ class StoredFilesWidget extends StatelessWidget {
         leading: Icon(typeIcon, color: Colors.white70),
         title: Text(
           name,
-          style: TextStyle(color: Colors.white),
+          style: const TextStyle(color: Colors.white),
         ),
         subtitle: Text(
           date,
-          style: TextStyle(color: Colors.white70),
+          style: const TextStyle(color: Colors.white70),
         ),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             IconButton(
-              icon: Icon(Icons.download, color: Colors.white70),
+              icon: const Icon(Icons.download, color: Colors.white70),
               tooltip: 'Download',
               onPressed: onDownload,
             ),
             IconButton(
-              icon: Icon(Icons.delete, color: Colors.white70),
+              icon: const Icon(Icons.delete, color: Colors.white70),
               tooltip: 'Excluir',
               onPressed: onDelete,
             ),
@@ -237,19 +237,19 @@ class StoredFilesWidget extends StatelessWidget {
     return await showDialog<bool>(
           context: context,
           builder: (context) => AlertDialog(
-            title: Text('Confirmar exclusão'),
+            title: const Text('Confirmar exclusão'),
             content: Text('Tem certeza que deseja excluir este $itemType?'),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(false),
-                child: Text('CANCELAR'),
+                child: const Text('CANCELAR'),
               ),
               TextButton(
                 onPressed: () => Navigator.of(context).pop(true),
-                child: Text('EXCLUIR'),
                 style: TextButton.styleFrom(
                   foregroundColor: Colors.red,
                 ),
+                child: Text('EXCLUIR'),
               ),
             ],
           ),

@@ -15,7 +15,7 @@ class ResumoTabWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -37,7 +37,7 @@ class ResumoTabWidget extends StatelessWidget {
                 ),
             ],
           ),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
           _buildSectionTitle('Informações da Prova'),
           _buildInfoCard(
             context,
@@ -64,7 +64,7 @@ class ResumoTabWidget extends StatelessWidget {
                 ),
             ],
           ),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
           _buildSectionTitle('Cargos Disponíveis'),
           _buildCargosCard(context),
         ],
@@ -74,10 +74,10 @@ class ResumoTabWidget extends StatelessWidget {
 
   Widget _buildSectionTitle(String title) {
     return Padding(
-      padding: EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.only(bottom: 12),
       child: Text(
         title,
-        style: TextStyle(
+        style: const TextStyle(
           fontSize: 20,
           fontWeight: FontWeight.bold,
           color: AppTheme.primaryColor,
@@ -93,7 +93,7 @@ class ResumoTabWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
       ),
       child: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: children,
@@ -104,14 +104,14 @@ class ResumoTabWidget extends StatelessWidget {
 
   Widget _buildInfoItem(String label, String value) {
     return Padding(
-      padding: EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.only(bottom: 12),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
             width: 120,
             child: Text(
-              label + ':',
+              '$label:',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 color: Colors.grey.shade700,
@@ -121,7 +121,7 @@ class ResumoTabWidget extends StatelessWidget {
           Expanded(
             child: Text(
               value,
-              style: TextStyle(
+              style: const TextStyle(
                 color: Colors.black87,
               ),
             ),
@@ -138,25 +138,25 @@ class ResumoTabWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
       ),
       child: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             for (var cargo in edital.dadosExtraidos.cargos)
               Padding(
-                padding: EdgeInsets.only(bottom: 16),
+                padding: const EdgeInsets.only(bottom: 16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       cargo.nome,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                         color: AppTheme.primaryColor,
                       ),
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     _buildCargoInfoItem('Salário', 'R\$ ${_formatarSalario(cargo.salario)}'),
                     _buildCargoInfoItem('Escolaridade', cargo.escolaridade),
                     if (cargo.dataProva != null)
@@ -166,9 +166,9 @@ class ResumoTabWidget extends StatelessWidget {
                       ),
                     if (cargo.horarioProva != null && cargo.horarioProva!.isNotEmpty)
                       _buildCargoInfoItem('Horário da Prova', cargo.horarioProva!),
-                    if (cargo.requisitos != null && cargo.requisitos != 'Não informado')
+                    if (cargo.requisitos != 'Não informado')
                       _buildCargoInfoItem('Requisitos', cargo.requisitos),
-                    Divider(height: 24),
+                    const Divider(height: 24),
                   ],
                 ),
               ),
@@ -180,14 +180,14 @@ class ResumoTabWidget extends StatelessWidget {
 
   Widget _buildCargoInfoItem(String label, String value) {
     return Padding(
-      padding: EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.only(bottom: 8),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
             width: 100,
             child: Text(
-              label + ':',
+              '$label:',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 color: Colors.grey.shade600,
@@ -198,7 +198,7 @@ class ResumoTabWidget extends StatelessWidget {
           Expanded(
             child: Text(
               value,
-              style: TextStyle(
+              style: const TextStyle(
                 color: Colors.black87,
                 fontSize: 14,
               ),
@@ -237,7 +237,7 @@ class ResumoTabWidget extends StatelessWidget {
     }
 
     // Adicionar a parte decimal
-    return resultado + ',' + valorDecimal.toString().padLeft(2, '0');
+    return '$resultado,${valorDecimal.toString().padLeft(2, '0')}';
   }
 
   String _formatarCotas(List<DadosCota> cotas) {

@@ -13,6 +13,7 @@ class Trofeu implements BaseModel {
     required this.icone,
   });
 
+  @override
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -61,6 +62,7 @@ class UsuarioTrofeu implements BaseModel {
     required this.dataConquista,
   });
 
+  @override
   Map<String, dynamic> toMap() {
     return {
       'userId': userId,

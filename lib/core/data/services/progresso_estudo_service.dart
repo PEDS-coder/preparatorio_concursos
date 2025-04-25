@@ -5,7 +5,7 @@ import '../models/progresso_estudo.dart';
 
 class ProgressoEstudoService {
   static const String _storageKey = 'progresso_estudo';
-  final Uuid _uuid = Uuid();
+  const Uuid _uuid = Uuid();
   List<ProgressoEstudo> _progressos = [];
   bool _initialized = false;
 
@@ -60,7 +60,7 @@ class ProgressoEstudoService {
 
   // Obter progresso de uma matéria específica
   ProgressoEstudo getProgressoMateria(String userId, String editalId, String materiaId) {
-    final key = '${userId}_${editalId}';
+    final key = '${userId}_$editalId';
     final progressosEdital = _progressosPorEdital[key] ?? [];
 
     return progressosEdital.firstWhere(
@@ -82,7 +82,7 @@ class ProgressoEstudoService {
 
   // Obter progresso de um tópico específico
   ProgressoEstudo getProgressoTopico(String userId, String editalId, String materiaId, String topicoId) {
-    final key = '${userId}_${editalId}';
+    final key = '${userId}_$editalId';
     final progressosEdital = _progressosPorEdital[key] ?? [];
 
     return progressosEdital.firstWhere(
@@ -273,13 +273,13 @@ class ProgressoEstudoService {
 
   // Obter todos os progressos de um usuário para um edital específico
   List<ProgressoEstudo> getProgressosByEdital(String userId, String editalId) {
-    final key = '${userId}_${editalId}';
+    final key = '${userId}_$editalId';
     return _progressosPorEdital[key] ?? [];
   }
 
   // Obter todos os tópicos de uma matéria
   List<ProgressoEstudo> getTopicosByMateria(String userId, String editalId, String materiaId) {
-    final key = '${userId}_${editalId}';
+    final key = '${userId}_$editalId';
     final progressosEdital = _progressosPorEdital[key] ?? [];
 
     return progressosEdital.where(

@@ -1,4 +1,3 @@
-import 'package:preparatorio_concursos/core/data/services/interfaces/http_method.dart';
 
 // Mock para Firebase
 class FirebaseAnalytics {

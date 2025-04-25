@@ -17,7 +17,7 @@ class MateriaExpandableWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.only(bottom: 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -30,16 +30,16 @@ class MateriaExpandableWidget extends StatelessWidget {
                 Chip(
                   label: Text(
                     materia.nome,
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Colors.black87,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
                   backgroundColor: Colors.blue.shade50,
                   side: BorderSide(color: Colors.blue.shade200),
-                  padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                 ),
-                SizedBox(width: 4),
+                const SizedBox(width: 4),
                 Icon(
                   isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
                   size: 16,
@@ -52,20 +52,20 @@ class MateriaExpandableWidget extends StatelessWidget {
           // Tópicos (exibidos apenas se expandido)
           if (isExpanded && materia.topicos.isNotEmpty && materia.topicos.first != 'Conteúdo básico')
             Padding(
-              padding: EdgeInsets.only(left: 16, top: 4),
+              padding: const EdgeInsets.only(left: 16, top: 4),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: materia.topicos.map((topico) {
                   return Padding(
-                    padding: EdgeInsets.only(bottom: 2),
+                    padding: const EdgeInsets.only(bottom: 2),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('• ', style: TextStyle(fontWeight: FontWeight.bold)),
+                        const Text('• ', style: TextStyle(fontWeight: FontWeight.bold)),
                         Expanded(
                           child: Text(
                             topico,
-                            style: TextStyle(fontSize: 12),
+                            style: const TextStyle(fontSize: 12),
                             overflow: TextOverflow.ellipsis,
                             maxLines: 2,
                           ),

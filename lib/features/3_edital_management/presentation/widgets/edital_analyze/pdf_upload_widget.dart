@@ -25,11 +25,11 @@ class PdfUploadWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
       ),
       child: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            const Text(
               'Upload do Edital',
               style: TextStyle(
                 fontSize: 18,
@@ -37,7 +37,7 @@ class PdfUploadWidget extends StatelessWidget {
                 color: AppTheme.primaryColor,
               ),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
               'Selecione o arquivo PDF do edital para análise',
               style: TextStyle(
@@ -45,9 +45,9 @@ class PdfUploadWidget extends StatelessWidget {
                 color: Colors.grey.shade700,
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             _buildUploadButton(context),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             if (selectedFiles.isNotEmpty) _buildSelectedFilesList(),
           ],
         ),
@@ -59,11 +59,11 @@ class PdfUploadWidget extends StatelessWidget {
     return Center(
       child: ElevatedButton.icon(
         onPressed: () => _pickPdfFile(context),
-        icon: Icon(Icons.upload_file),
-        label: Text('Selecionar Arquivo PDF'),
+        icon: const Icon(Icons.upload_file),
+        label: const Text('Selecionar Arquivo PDF'),
         style: ElevatedButton.styleFrom(
           backgroundColor: AppTheme.primaryColor,
-          padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
         ),
       ),
     );
@@ -76,7 +76,7 @@ class PdfUploadWidget extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
+            const Text(
               'Arquivos Selecionados',
               style: TextStyle(
                 fontSize: 16,
@@ -85,15 +85,15 @@ class PdfUploadWidget extends StatelessWidget {
             ),
             TextButton.icon(
               onPressed: onRemoveAllFiles,
-              icon: Icon(Icons.delete, size: 16, color: Colors.red),
-              label: Text(
+              icon: const Icon(Icons.delete, size: 16, color: Colors.red),
+              label: const Text(
                 'Remover Todos',
                 style: TextStyle(color: Colors.red),
               ),
             ),
           ],
         ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         ...selectedFiles.map((file) => _buildFileItem(file)).toList(),
       ],
     );
@@ -101,20 +101,20 @@ class PdfUploadWidget extends StatelessWidget {
 
   Widget _buildFileItem(PlatformFile file) {
     return Card(
-      margin: EdgeInsets.only(bottom: 8),
+      margin: const EdgeInsets.only(bottom: 8),
       color: Colors.grey.shade100,
       child: ListTile(
-        leading: Icon(Icons.picture_as_pdf, color: Colors.red),
+        leading: const Icon(Icons.picture_as_pdf, color: Colors.red),
         title: Text(
           file.name,
-          style: TextStyle(fontWeight: FontWeight.w500),
+          style: const TextStyle(fontWeight: FontWeight.w500),
         ),
         subtitle: Text(
           '${(file.size / 1024).toStringAsFixed(2)} KB',
-          style: TextStyle(fontSize: 12),
+          style: const TextStyle(fontSize: 12),
         ),
         trailing: IconButton(
-          icon: Icon(Icons.close, color: Colors.grey),
+          icon: const Icon(Icons.close, color: Colors.grey),
           onPressed: () => onRemoveFile(file),
         ),
       ),

@@ -49,7 +49,7 @@ class EditalAnalysisService {
       onProgress('Preparando arquivos para análise...', 0.1);
 
       // Gerar ID único para o edital
-      final String editalId = Uuid().v4();
+      final String editalId = const Uuid().v4();
 
       // Preparar arquivos para envio
       List<File> files = [];
@@ -59,9 +59,7 @@ class EditalAnalysisService {
           final fileObj = File(file.path!);
           files.add(fileObj);
           // Armazenar os bytes do primeiro PDF para uso posterior
-          if (pdfBytes == null) {
-            pdfBytes = await fileObj.readAsBytes();
-          }
+          pdfBytes ??= await fileObj.readAsBytes();
         }
       }
 

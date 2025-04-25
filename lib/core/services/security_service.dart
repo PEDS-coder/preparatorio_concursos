@@ -22,6 +22,7 @@ class SecurityService implements ISecurityService {
   SecurityService(this._secureStorage, this._logger);
 
   /// Gera um token CSRF (Cross-Site Request Forgery)
+  @override
   Future<String> generateCsrfToken() async {
     try {
       final random = Random.secure();
@@ -39,6 +40,7 @@ class SecurityService implements ISecurityService {
   }
 
   /// Valida um token CSRF
+  @override
   Future<bool> validateCsrfToken(String token) async {
     try {
       final storedToken = await _secureStorage.getSecure(_csrfTokenKey);
@@ -62,6 +64,7 @@ class SecurityService implements ISecurityService {
   }
 
   /// Verifica se um IP está bloqueado por excesso de tentativas
+  @override
   bool isIpBlocked(String ip) {
     try {
       if (!_requestCounts.containsKey(ip)) {
@@ -93,6 +96,7 @@ class SecurityService implements ISecurityService {
   }
 
   /// Registra uma requisição de um IP
+  @override
   void registerRequest(String ip) {
     try {
       final now = DateTime.now();
@@ -127,6 +131,7 @@ class SecurityService implements ISecurityService {
   }
 
   /// Verifica se uma requisição é permitida (rate limiting)
+  @override
   bool isRequestAllowed(String ip) {
     try {
       // Verificar se o IP está bloqueado
@@ -152,6 +157,7 @@ class SecurityService implements ISecurityService {
   }
 
   /// Gera um hash seguro para uma senha
+  @override
   String hashPassword(String password, String salt) {
     try {
       final bytes = utf8.encode(password + salt);
@@ -164,6 +170,7 @@ class SecurityService implements ISecurityService {
   }
 
   /// Gera um salt aleatório para uso em hashing
+  @override
   String generateSalt() {
     try {
       final random = Random.secure();
@@ -176,6 +183,7 @@ class SecurityService implements ISecurityService {
   }
 
   /// Verifica se uma senha corresponde ao hash armazenado
+  @override
   bool verifyPassword(String password, String salt, String storedHash) {
     try {
       final hash = hashPassword(password, salt);
@@ -187,6 +195,7 @@ class SecurityService implements ISecurityService {
   }
 
   /// Sanitiza uma string para evitar injeção de código
+  @override
   String sanitizeInput(String input) {
     try {
       if (input.isEmpty) {
@@ -213,6 +222,7 @@ class SecurityService implements ISecurityService {
   }
 
   /// Sanitiza uma string para uso em SQL
+  @override
   String sanitizeSql(String input) {
     try {
       if (input.isEmpty) {

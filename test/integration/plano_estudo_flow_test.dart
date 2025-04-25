@@ -42,7 +42,7 @@ void main() {
       titulo: 'Edital de Teste',
       orgao: 'Órgão de Teste',
       dataPublicacao: DateTime.now(),
-      dataProva: DateTime.now().add(Duration(days: 30)),
+      dataProva: DateTime.now().add(const Duration(days: 30)),
       linkEdital: 'https://example.com/edital',
       cargos: [],
     );
@@ -83,7 +83,7 @@ void main() {
       cargoIds: ['cargo1'],
       dataCriacao: DateTime.now(),
       dataInicio: DateTime.now(),
-      dataFim: DateTime.now().add(Duration(days: 90)),
+      dataFim: DateTime.now().add(const Duration(days: 90)),
       horasSemanais: {'segunda': 2, 'terca': 2, 'quarta': 2, 'quinta': 2, 'sexta': 2, 'sabado': 1, 'domingo': 1},
       horariosEspecificos: null,
       ferramentas: ['Resumos', 'Flashcards'],
@@ -117,7 +117,7 @@ void main() {
             );
           } else if (settings.name == '/plano_resumo') {
             return MaterialPageRoute(
-              builder: (context) => PlanoResumoScreen(
+              builder: (context) => const PlanoResumoScreen(
                 planoId: 'plano_id',
               ),
             );
@@ -142,7 +142,7 @@ void main() {
 
       // Iniciar o fluxo na tela de seleção de cargos
       await tester.pumpWidget(createTestApp(
-        CargoSelectScreen(editalId: 'edital_id'),
+        const CargoSelectScreen(editalId: 'edital_id'),
       ));
 
       // Verificar se a tela de seleção de cargos foi carregada

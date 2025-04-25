@@ -26,20 +26,20 @@ class ApiInfoScreen extends StatelessWidget {
         showDialog(
           context: context,
           builder: (context) => AlertDialog(
-            title: Text('Abrir URL'),
+            title: const Text('Abrir URL'),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Por favor, copie e abra o seguinte URL no seu navegador:'),
-                SizedBox(height: 12),
-                SelectableText(url, style: TextStyle(fontWeight: FontWeight.bold)),
+                const Text('Por favor, copie e abra o seguinte URL no seu navegador:'),
+                const SizedBox(height: 12),
+                SelectableText(url, style: const TextStyle(fontWeight: FontWeight.bold)),
               ],
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: Text('Fechar'),
+                child: const Text('Fechar'),
               ),
             ],
           ),
@@ -58,7 +58,7 @@ class ApiInfoScreen extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         flexibleSpace: Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             gradient: LinearGradient(
               colors: [
                 AppTheme.gradientStart,
@@ -71,7 +71,7 @@ class ApiInfoScreen extends StatelessWidget {
         ),
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(24),
+        padding: const EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -93,7 +93,7 @@ class ApiInfoScreen extends StatelessWidget {
     for (var line in lines) {
       if (line.trim().isEmpty) {
         // Linha em branco
-        widgets.add(SizedBox(height: 8));
+        widgets.add(const SizedBox(height: 8));
         continue;
       }
 
@@ -103,14 +103,14 @@ class ApiInfoScreen extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 4.0),
           child: Text(
             line,
-            style: TextStyle(fontSize: 16),
+            style: const TextStyle(fontSize: 16),
           ),
         ),
       );
     }
 
     // Adicionar espaço entre o texto e as imagens
-    widgets.add(SizedBox(height: 16));
+    widgets.add(const SizedBox(height: 16));
 
     // Depois, adicionar imagens se fornecidas
     if (imageAssets != null && imageAssets!.isNotEmpty) {
@@ -121,16 +121,16 @@ class ApiInfoScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (i > 0) SizedBox(height: 8),
+                if (i > 0) const SizedBox(height: 8),
                 Text(
                   'Passo ${i + 1}:',
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                     color: AppTheme.primaryColor,
                   ),
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(12),
                   child: Image.asset(

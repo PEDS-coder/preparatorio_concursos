@@ -62,6 +62,7 @@ class ThemeService extends ChangeNotifier implements IThemeService {
   /// Este método converte o [AppThemeMode] interno para o [ThemeMode] do Flutter,
   /// permitindo que o aplicativo use o enum interno para gerenciar o tema, mas
   /// ainda seja compatível com as APIs do Flutter que esperam um [ThemeMode].
+  @override
   ThemeMode get flutterThemeMode {
     switch (_themeMode) {
       case AppThemeMode.light:
@@ -74,18 +75,23 @@ class ThemeService extends ChangeNotifier implements IThemeService {
   }
 
   /// Obtém a cor primária atual
+  @override
   Color get primaryColor => _primaryColor;
 
   /// Obtém a cor secundária atual
+  @override
   Color get secondaryColor => _secondaryColor;
 
   /// Obtém o tema claro atual
+  @override
   ThemeData get lightTheme => _lightTheme;
 
   /// Obtém o tema escuro atual
+  @override
   ThemeData get darkTheme => _darkTheme;
 
   /// Obtém o tema atual com base no modo de tema
+  @override
   ThemeData get currentTheme {
     switch (_themeMode) {
       case AppThemeMode.light:
@@ -105,6 +111,7 @@ class ThemeService extends ChangeNotifier implements IThemeService {
   /// de tema e notifica os ouvintes sobre a mudança.
   ///
   /// @param mode O modo de tema do Flutter a ser definido
+  @override
   Future<void> setThemeMode(ThemeMode mode) async {
     // Converter o ThemeMode do Flutter para o AppThemeMode
     AppThemeMode appMode;
@@ -140,6 +147,7 @@ class ThemeService extends ChangeNotifier implements IThemeService {
   }
 
   /// Define a cor primária
+  @override
   Future<void> setPrimaryColor(Color color) async {
     if (_primaryColor == color) return;
 
@@ -164,6 +172,7 @@ class ThemeService extends ChangeNotifier implements IThemeService {
   }
 
   /// Define a cor secundária
+  @override
   Future<void> setSecondaryColor(Color color) async {
     if (_secondaryColor == color) return;
 
@@ -253,6 +262,7 @@ class ThemeService extends ChangeNotifier implements IThemeService {
   }
 
   /// Restaura as cores padrão
+  @override
   Future<void> resetColors() async {
     _primaryColor = AppTheme.primaryColor;
     _secondaryColor = AppTheme.secondaryColor;

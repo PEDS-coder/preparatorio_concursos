@@ -9,6 +9,8 @@ import '../screens/questoes_screen.dart';
 import '../screens/mapas_mentais_screen.dart';
 
 class IAToolsTab extends StatelessWidget {
+  const IAToolsTab({super.key});
+
   @override
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context);
@@ -17,11 +19,11 @@ class IAToolsTab extends StatelessWidget {
     return !isPremium
         ? _buildPremiumRequired(context)
         : SingleChildScrollView(
-            padding: EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                const Text(
                   'Ferramentas de IA',
                   style: TextStyle(
                     fontSize: 28,
@@ -29,7 +31,7 @@ class IAToolsTab extends StatelessWidget {
                     color: Colors.white,
                   ),
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 Text(
                   'Utilize a inteligência artificial para potencializar seus estudos',
                   style: TextStyle(
@@ -37,7 +39,7 @@ class IAToolsTab extends StatelessWidget {
                     color: Colors.white.withOpacity(0.7),
                   ),
                 ),
-                SizedBox(height: 24),
+                const SizedBox(height: 24),
                 _buildToolsGrid(context),
               ],
             ),
@@ -48,7 +50,7 @@ class IAToolsTab extends StatelessWidget {
     return GridView.count(
       crossAxisCount: 2,
       shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(),
+      physics: const NeverScrollableScrollPhysics(),
       mainAxisSpacing: 16,
       crossAxisSpacing: 16,
       children: [
@@ -111,7 +113,7 @@ class IAToolsTab extends StatelessWidget {
     return ModernCard(
       onTap: onTap,
       child: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -120,16 +122,16 @@ class IAToolsTab extends StatelessWidget {
               size: 40,
               color: color,
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(
               title,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
               ),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Expanded(
               child: Text(
                 description,
@@ -148,17 +150,17 @@ class IAToolsTab extends StatelessWidget {
   Widget _buildPremiumRequired(BuildContext context) {
     return Center(
       child: Padding(
-        padding: EdgeInsets.all(24),
+        padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
+            const Icon(
               Icons.lock,
               size: 64,
               color: Colors.amber,
             ),
-            SizedBox(height: 24),
-            Text(
+            const SizedBox(height: 24),
+            const Text(
               'Recursos Premium',
               style: TextStyle(
                 fontSize: 24,
@@ -166,7 +168,7 @@ class IAToolsTab extends StatelessWidget {
                 color: Colors.white,
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(
               'As ferramentas de IA estão disponíveis apenas para usuários premium.',
               textAlign: TextAlign.center,
@@ -175,7 +177,7 @@ class IAToolsTab extends StatelessWidget {
                 color: Colors.white.withOpacity(0.7),
               ),
             ),
-            SizedBox(height: 32),
+            const SizedBox(height: 32),
             ElevatedButton(
               onPressed: () async {
                 // Simulação de upgrade
@@ -184,7 +186,7 @@ class IAToolsTab extends StatelessWidget {
 
                 // Mostrar confirmação
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
+                  const SnackBar(
                     content: Text('Parabéns! Você agora é um usuário Premium.'),
                     backgroundColor: AppTheme.successColor,
                   ),
@@ -192,12 +194,12 @@ class IAToolsTab extends StatelessWidget {
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.amber,
-                padding: EdgeInsets.symmetric(vertical: 16, horizontal: 32),
+                padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: Text('FAZER UPGRADE'),
+              child: const Text('FAZER UPGRADE'),
             ),
           ],
         ),

@@ -14,11 +14,11 @@ class EditalConteudoTabWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          const Text(
             'Texto do Edital',
             style: TextStyle(
               fontSize: 20,
@@ -26,9 +26,9 @@ class EditalConteudoTabWidget extends StatelessWidget {
               color: AppTheme.primaryColor,
             ),
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           Container(
-            padding: EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: Colors.grey.shade50,
               borderRadius: BorderRadius.circular(8),
@@ -38,24 +38,24 @@ class EditalConteudoTabWidget extends StatelessWidget {
               edital.textoCompleto.length > 1000
                   ? '${edital.textoCompleto.substring(0, 1000)}...\n\n[Texto truncado]'
                   : edital.textoCompleto,
-              style: TextStyle(fontSize: 14),
+              style: const TextStyle(fontSize: 14),
             ),
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           OutlinedButton.icon(
             onPressed: () {
               // Implementar visualização completa do edital
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
+                const SnackBar(
                   content: Text('Funcionalidade disponível em breve!'),
                   backgroundColor: Colors.orange,
                 ),
               );
             },
-            icon: Icon(Icons.visibility),
-            label: Text('Ver Texto Completo'),
+            icon: const Icon(Icons.visibility),
+            label: const Text('Ver Texto Completo'),
             style: OutlinedButton.styleFrom(
-              side: BorderSide(color: AppTheme.primaryColor),
+              side: const BorderSide(color: AppTheme.primaryColor),
             ),
           ),
         ],

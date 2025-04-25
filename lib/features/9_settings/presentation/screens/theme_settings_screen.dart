@@ -177,7 +177,7 @@ class _ThemeSettingsScreenState extends State<ThemeSettingsScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Cor primária
-          Text(
+          const Text(
             'Cor Primária',
             style: TextStyle(
               fontSize: 16,
@@ -237,7 +237,7 @@ class _ThemeSettingsScreenState extends State<ThemeSettingsScreen> {
           const SizedBox(height: 16),
 
           // Cor secundária
-          Text(
+          const Text(
             'Cor Secundária',
             style: TextStyle(
               fontSize: 16,
@@ -305,7 +305,7 @@ class _ThemeSettingsScreenState extends State<ThemeSettingsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          const Text(
             'Visualização do Tema',
             style: TextStyle(
               fontSize: 16,
@@ -335,7 +335,7 @@ class _ThemeSettingsScreenState extends State<ThemeSettingsScreen> {
           const SizedBox(height: 16),
 
           // Campos de texto
-          TextField(
+          const TextField(
             decoration: InputDecoration(
               labelText: 'Campo de Texto',
               hintText: 'Digite algo...',
@@ -345,9 +345,9 @@ class _ThemeSettingsScreenState extends State<ThemeSettingsScreen> {
           const SizedBox(height: 16),
 
           // Cards
-          Card(
+          const Card(
             child: Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -358,7 +358,7 @@ class _ThemeSettingsScreenState extends State<ThemeSettingsScreen> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8),
                   Text(
                     'Este é um exemplo de card com o tema atual.',
                     style: TextStyle(
@@ -372,7 +372,7 @@ class _ThemeSettingsScreenState extends State<ThemeSettingsScreen> {
           const SizedBox(height: 16),
 
           // Ícones
-          Row(
+          const Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               Icon(Icons.home),

@@ -31,7 +31,7 @@ void main() {
     test('Fluxo completo de análise de edital deve funcionar corretamente', () async {
       // Arrange
       final pdfBytes = Uint8List.fromList(List.generate(1024, (i) => i % 256));
-      final extractedText = 'Conteúdo do edital para teste';
+      const extractedText = 'Conteúdo do edital para teste';
       
       // Mock do processamento de PDF
       when(mockPdfProcessor.extractTextFromPdf(pdfBytes))

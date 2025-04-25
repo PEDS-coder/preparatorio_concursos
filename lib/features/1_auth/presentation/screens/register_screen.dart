@@ -8,6 +8,8 @@ import '../../../../core/widgets/gradient_button.dart';
 import '../../../../core/widgets/styled_text_field.dart';
 
 class RegisterScreen extends StatefulWidget {
+  const RegisterScreen({super.key});
+
   @override
   _RegisterScreenState createState() => _RegisterScreenState();
 }
@@ -125,12 +127,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       Align(
                         alignment: Alignment.topLeft,
                         child: IconButton(
-                          icon: Icon(Icons.arrow_back, color: Colors.white),
+                          icon: const Icon(Icons.arrow_back, color: Colors.white),
                           onPressed: () => Navigator.pop(context),
                         ),
                       ),
 
-                      SizedBox(height: 20),
+                      const SizedBox(height: 20),
 
                       // Logo
                       Center(
@@ -148,7 +150,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               ),
                             ],
                           ),
-                          child: Center(
+                          child: const Center(
                             child: Icon(
                               Icons.person_add,
                               size: 40,
@@ -158,10 +160,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                       ),
 
-                      SizedBox(height: 30),
+                      const SizedBox(height: 30),
 
                       // Título
-                      Text(
+                      const Text(
                         'Criar Conta',
                         textAlign: TextAlign.center,
                         style: TextStyle(
@@ -172,7 +174,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                       ),
 
-                      SizedBox(height: 10),
+                      const SizedBox(height: 10),
 
                       // Subtítulo
                       Text(
@@ -184,14 +186,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                       ),
 
-                      SizedBox(height: 40),
+                      const SizedBox(height: 40),
 
                       // Campo de nome
                       TextFormField(
                         decoration: InputDecoration(
                           labelText: 'Nome Completo',
                           hintText: 'Seu nome e sobrenome',
-                          prefixIcon: Icon(Icons.person_outline, color: AppTheme.secondaryColor),
+                          prefixIcon: const Icon(Icons.person_outline, color: AppTheme.secondaryColor),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
@@ -208,14 +210,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         },
                       ),
 
-                      SizedBox(height: 20),
+                      const SizedBox(height: 20),
 
                       // Campo de email
                       TextFormField(
                         decoration: InputDecoration(
                           labelText: 'Email',
                           hintText: 'Seu endereço de email',
-                          prefixIcon: Icon(Icons.email_outlined, color: AppTheme.secondaryColor),
+                          prefixIcon: const Icon(Icons.email_outlined, color: AppTheme.secondaryColor),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
@@ -233,14 +235,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         },
                       ),
 
-                      SizedBox(height: 20),
+                      const SizedBox(height: 20),
 
                       // Campo de senha
                       TextFormField(
                         decoration: InputDecoration(
                           labelText: 'Senha',
                           hintText: 'Crie uma senha segura',
-                          prefixIcon: Icon(Icons.lock_outline, color: AppTheme.secondaryColor),
+                          prefixIcon: const Icon(Icons.lock_outline, color: AppTheme.secondaryColor),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
@@ -258,14 +260,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         },
                       ),
 
-                      SizedBox(height: 20),
+                      const SizedBox(height: 20),
 
                       // Campo de confirmação de senha
                       TextFormField(
                         decoration: InputDecoration(
                           labelText: 'Confirmar Senha',
                           hintText: 'Repita sua senha',
-                          prefixIcon: Icon(Icons.lock_outline, color: AppTheme.secondaryColor),
+                          prefixIcon: const Icon(Icons.lock_outline, color: AppTheme.secondaryColor),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
@@ -283,11 +285,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         },
                       ),
 
-                      SizedBox(height: 30),
+                      const SizedBox(height: 30),
 
                       // Opções de plano
                       Container(
-                        padding: EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
                           color: AppTheme.darkCardColor,
                           borderRadius: BorderRadius.circular(16),
@@ -299,7 +301,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
+                            const Text(
                               'ESCOLHA SEU PLANO',
                               style: TextStyle(
                                 fontSize: 14,
@@ -308,7 +310,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 letterSpacing: 1.0,
                               ),
                             ),
-                            SizedBox(height: 16),
+                            const SizedBox(height: 16),
                             _buildPlanOptions(),
                           ],
                         ),
@@ -317,8 +319,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       // Mensagem de erro
                       if (_errorMessage != null)
                         Container(
-                          margin: EdgeInsets.only(top: 24),
-                          padding: EdgeInsets.all(12),
+                          margin: const EdgeInsets.only(top: 24),
+                          padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
                             color: AppTheme.errorColor.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(12),
@@ -329,16 +331,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                           child: Row(
                             children: [
-                              Icon(
+                              const Icon(
                                 Icons.error_outline,
                                 color: AppTheme.errorColor,
                                 size: 20,
                               ),
-                              SizedBox(width: 10),
+                              const SizedBox(width: 10),
                               Expanded(
                                 child: Text(
                                   _errorMessage!,
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     color: AppTheme.errorColor,
                                     fontSize: 14,
                                   ),
@@ -349,9 +351,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
 
                       // Botão de cadastro
-                      SizedBox(height: 30),
+                      const SizedBox(height: 30),
                       _isLoading
-                          ? Center(
+                          ? const Center(
                               child: CircularProgressIndicator(
                                 valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
                               ),
@@ -360,17 +362,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               onPressed: _register,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: AppTheme.primaryColor,
-                                padding: EdgeInsets.symmetric(vertical: 16),
-                                minimumSize: Size(double.infinity, 48),
+                                padding: const EdgeInsets.symmetric(vertical: 16),
+                                minimumSize: const Size(double.infinity, 48),
                                 elevation: 4,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                               ),
-                              child: Text('CRIAR CONTA'),
+                              child: const Text('CRIAR CONTA'),
                             ),
 
-                      SizedBox(height: 30),
+                      const SizedBox(height: 30),
 
                       // Link para login
                       Row(
@@ -386,7 +388,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             onPressed: () {
                               Navigator.pushReplacementNamed(context, '/login');
                             },
-                            child: Text(
+                            child: const Text(
                               'Entrar',
                               style: TextStyle(
                                 color: AppTheme.primaryColor,
@@ -396,7 +398,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                         ],
                       ),
-                      SizedBox(height: 20),
+                      const SizedBox(height: 20),
                     ],
                   ),
                 ),
@@ -421,7 +423,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             });
           },
         ),
-        SizedBox(height: 12),
+        const SizedBox(height: 12),
         _buildPlanOption(
           title: 'Plano Premium',
           description: 'Acesso completo a todos os recursos',
@@ -447,7 +449,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
@@ -480,7 +482,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     : Colors.transparent,
               ),
               child: isSelected
-                  ? Center(
+                  ? const Center(
                       child: Icon(
                         Icons.check,
                         size: 16,
@@ -489,7 +491,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     )
                   : null,
             ),
-            SizedBox(width: 16),
+            const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -498,15 +500,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     children: [
                       Text(
                         title,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                         ),
                       ),
                       if (isPremium) ...[
-                        SizedBox(width: 8),
-                        Icon(
+                        const SizedBox(width: 8),
+                        const Icon(
                           Icons.star,
                           size: 16,
                           color: Colors.amber,
@@ -514,7 +516,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ],
                     ],
                   ),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   Text(
                     description,
                     style: TextStyle(

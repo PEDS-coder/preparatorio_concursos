@@ -15,6 +15,8 @@ import '../../../../core/widgets/document_upload_widget.dart';
 import '../../../../core/services/document_classifier_service.dart';
 
 class QuestoesScreen extends StatefulWidget {
+  const QuestoesScreen({super.key});
+
   @override
   _QuestoesScreenState createState() => _QuestoesScreenState();
 }
@@ -271,18 +273,18 @@ class _QuestoesScreenState extends State<QuestoesScreen> {
     return Scaffold(
       backgroundColor: AppTheme.darkBackground,
       appBar: AppBar(
-        title: Text('Questões'),
+        title: const Text('Questões'),
         backgroundColor: AppTheme.darkBackground,
         elevation: 0,
       ),
       body: !isPremium
           ? _buildPremiumRequired()
           : SingleChildScrollView(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  const Text(
                     'Gerar Questões com IA',
                     style: TextStyle(
                       fontSize: 24,
@@ -290,7 +292,7 @@ class _QuestoesScreenState extends State<QuestoesScreen> {
                       color: Colors.white,
                     ),
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Text(
                     'Crie questões de múltipla escolha para testar seus conhecimentos',
                     style: TextStyle(
@@ -298,7 +300,7 @@ class _QuestoesScreenState extends State<QuestoesScreen> {
                       color: Colors.white.withOpacity(0.7),
                     ),
                   ),
-                  SizedBox(height: 24),
+                  const SizedBox(height: 24),
 
                   // Área de upload de documento
                   GestureDetector(
@@ -320,14 +322,14 @@ class _QuestoesScreenState extends State<QuestoesScreen> {
                                   size: 48,
                                   color: Colors.grey.shade400,
                                 ),
-                                SizedBox(height: 16),
+                                const SizedBox(height: 16),
                                 Text(
                                   'Clique para selecionar um arquivo',
                                   style: TextStyle(
                                     color: Colors.grey.shade400,
                                   ),
                                 ),
-                                SizedBox(height: 8),
+                                const SizedBox(height: 8),
                                 Text(
                                   'PDF, DOCX, TXT, HTML',
                                   style: TextStyle(
@@ -341,28 +343,28 @@ class _QuestoesScreenState extends State<QuestoesScreen> {
                               ? Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    CircularProgressIndicator(
+                                    const CircularProgressIndicator(
                                       valueColor: AlwaysStoppedAnimation<Color>(AppTheme.accentColor),
                                     ),
-                                    SizedBox(height: 16),
+                                    const SizedBox(height: 16),
                                     Text(
                                       _processingMessage,
-                                      style: TextStyle(color: Colors.white),
+                                      style: const TextStyle(color: Colors.white),
                                     ),
                                   ],
                                 )
                               : Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Icon(
+                                    const Icon(
                                       Icons.description,
                                       size: 48,
                                       color: AppTheme.accentColor,
                                     ),
-                                    SizedBox(height: 16),
+                                    const SizedBox(height: 16),
                                     Text(
                                       _fileName ?? (_selectedFile?.path.split('/').last ?? 'Arquivo selecionado'),
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         color: Colors.white,
                                       ),
                                       maxLines: 1,
@@ -372,21 +374,21 @@ class _QuestoesScreenState extends State<QuestoesScreen> {
                                 ),
                     ),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
 
                   // Campo de matéria (preenchido automaticamente após upload)
                   TextFormField(
                     decoration: InputDecoration(
                       labelText: 'Matéria',
                       hintText: 'Ex: Direito Constitucional',
-                      prefixIcon: Icon(Icons.category, color: AppTheme.accentColor),
+                      prefixIcon: const Icon(Icons.category, color: AppTheme.accentColor),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
                     controller: _materiaController,
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
 
                   // Configurações
                   Row(
@@ -398,7 +400,7 @@ class _QuestoesScreenState extends State<QuestoesScreen> {
                           decoration: InputDecoration(
                             labelText: 'Quantidade',
                             hintText: '1-10',
-                            prefixIcon: Icon(Icons.numbers, color: AppTheme.accentColor),
+                            prefixIcon: const Icon(Icons.numbers, color: AppTheme.accentColor),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
@@ -407,7 +409,7 @@ class _QuestoesScreenState extends State<QuestoesScreen> {
                           keyboardType: TextInputType.number,
                         ),
                       ),
-                      SizedBox(width: 16),
+                      const SizedBox(width: 16),
 
                       // Dificuldade
                       Expanded(
@@ -415,7 +417,7 @@ class _QuestoesScreenState extends State<QuestoesScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
+                            const Text(
                               'DIFICULDADE',
                               style: TextStyle(
                                 fontSize: 12,
@@ -424,9 +426,9 @@ class _QuestoesScreenState extends State<QuestoesScreen> {
                                 letterSpacing: 1.0,
                               ),
                             ),
-                            SizedBox(height: 8),
+                            const SizedBox(height: 8),
                             Container(
-                              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                               decoration: BoxDecoration(
                                 color: AppTheme.darkCardColor,
                                 borderRadius: BorderRadius.circular(16),
@@ -439,10 +441,10 @@ class _QuestoesScreenState extends State<QuestoesScreen> {
                                 value: _dificuldade,
                                 isExpanded: true,
                                 dropdownColor: AppTheme.darkCardColor,
-                                style: TextStyle(color: Colors.white),
-                                underline: SizedBox(),
-                                icon: Icon(Icons.arrow_drop_down, color: AppTheme.accentColor),
-                                items: [
+                                style: const TextStyle(color: Colors.white),
+                                underline: const SizedBox(),
+                                icon: const Icon(Icons.arrow_drop_down, color: AppTheme.accentColor),
+                                items: const [
                                   DropdownMenuItem(value: 'fácil', child: Text('Fácil')),
                                   DropdownMenuItem(value: 'média', child: Text('Média')),
                                   DropdownMenuItem(value: 'difícil', child: Text('Difícil')),
@@ -461,15 +463,15 @@ class _QuestoesScreenState extends State<QuestoesScreen> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
 
                   // Campo de texto
                   // Campo de texto base removido - agora usamos upload de documento
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
 
                   // Botão de gerar
                   _isLoading
-                      ? Center(
+                      ? const Center(
                           child: CircularProgressIndicator(
                             valueColor: AlwaysStoppedAnimation<Color>(AppTheme.accentColor),
                           ),
@@ -480,8 +482,8 @@ class _QuestoesScreenState extends State<QuestoesScreen> {
                           onPressed: (_selectedFile == null && _fileBytes == null) ? _pickFile : _gerarQuestoes,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppTheme.accentColor,
-                            padding: EdgeInsets.symmetric(vertical: 16),
-                            minimumSize: Size(double.infinity, 48),
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            minimumSize: const Size(double.infinity, 48),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
@@ -491,8 +493,8 @@ class _QuestoesScreenState extends State<QuestoesScreen> {
                   // Mensagem de erro
                   if (_errorMessage != null)
                     Container(
-                      margin: EdgeInsets.only(top: 24),
-                      padding: EdgeInsets.all(12),
+                      margin: const EdgeInsets.only(top: 24),
+                      padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
                         color: AppTheme.errorColor.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(12),
@@ -503,16 +505,16 @@ class _QuestoesScreenState extends State<QuestoesScreen> {
                       ),
                       child: Row(
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.error_outline,
                             color: AppTheme.errorColor,
                             size: 20,
                           ),
-                          SizedBox(width: 10),
+                          const SizedBox(width: 10),
                           Expanded(
                             child: Text(
                               _errorMessage!,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 color: AppTheme.errorColor,
                                 fontSize: 14,
                               ),
@@ -525,13 +527,13 @@ class _QuestoesScreenState extends State<QuestoesScreen> {
                   // Resultado
                   if (_resultado != null)
                     Container(
-                      margin: EdgeInsets.only(top: 24),
+                      margin: const EdgeInsets.only(top: 24),
                       child: ModernCard(
-                        padding: EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(16),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Row(
+                            const Row(
                               children: [
                                 Icon(
                                   Icons.check_circle,
@@ -549,7 +551,7 @@ class _QuestoesScreenState extends State<QuestoesScreen> {
                                 ),
                               ],
                             ),
-                            SizedBox(height: 16),
+                            const SizedBox(height: 16),
                             Text(
                               _resultado!,
                               style: TextStyle(
@@ -557,17 +559,17 @@ class _QuestoesScreenState extends State<QuestoesScreen> {
                                 fontSize: 14,
                               ),
                             ),
-                            SizedBox(height: 16),
+                            const SizedBox(height: 16),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
                                 OutlinedButton.icon(
-                                  icon: Icon(Icons.play_arrow),
-                                  label: Text('INICIAR QUIZ'),
+                                  icon: const Icon(Icons.play_arrow),
+                                  label: const Text('INICIAR QUIZ'),
                                   onPressed: () {
                                     // Implementar início do quiz
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
+                                      const SnackBar(
                                         content: Text('Iniciando quiz...'),
                                         backgroundColor: AppTheme.accentColor,
                                       ),
@@ -575,8 +577,8 @@ class _QuestoesScreenState extends State<QuestoesScreen> {
                                   },
                                   style: OutlinedButton.styleFrom(
                                     foregroundColor: AppTheme.accentColor,
-                                    side: BorderSide(color: AppTheme.accentColor),
-                                    padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                                    side: const BorderSide(color: AppTheme.accentColor),
+                                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(12),
                                     ),
@@ -599,13 +601,13 @@ class _QuestoesScreenState extends State<QuestoesScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
+          const Icon(
             Icons.lock,
             size: 80,
             color: Colors.amber,
           ),
-          SizedBox(height: 24),
-          Text(
+          const SizedBox(height: 24),
+          const Text(
             'Funcionalidade Premium',
             style: TextStyle(
               fontSize: 24,
@@ -613,9 +615,9 @@ class _QuestoesScreenState extends State<QuestoesScreen> {
               color: Colors.white,
             ),
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 32),
+            padding: const EdgeInsets.symmetric(horizontal: 32),
             child: Text(
               'Esta funcionalidade está disponível apenas para usuários premium.',
               textAlign: TextAlign.center,
@@ -625,7 +627,7 @@ class _QuestoesScreenState extends State<QuestoesScreen> {
               ),
             ),
           ),
-          SizedBox(height: 32),
+          const SizedBox(height: 32),
           ElevatedButton(
             onPressed: () async {
               // Simulação de upgrade
@@ -634,7 +636,7 @@ class _QuestoesScreenState extends State<QuestoesScreen> {
 
               // Mostrar confirmação
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
+                const SnackBar(
                   content: Text('Parabéns! Você agora é um usuário Premium.'),
                   backgroundColor: AppTheme.successColor,
                 ),
@@ -645,12 +647,12 @@ class _QuestoesScreenState extends State<QuestoesScreen> {
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.amber,
-              padding: EdgeInsets.symmetric(vertical: 16, horizontal: 32),
+              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            child: Text('FAZER UPGRADE'),
+            child: const Text('FAZER UPGRADE'),
           ),
         ],
       ),

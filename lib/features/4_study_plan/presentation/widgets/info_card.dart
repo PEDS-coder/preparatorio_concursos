@@ -22,7 +22,7 @@ class InfoCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        margin: EdgeInsets.only(bottom: 8),
+        margin: const EdgeInsets.only(bottom: 8),
         decoration: BoxDecoration(
           color: cardColor,
           borderRadius: BorderRadius.circular(8),
@@ -30,17 +30,17 @@ class InfoCard extends StatelessWidget {
         child: ListTile(
           leading: Text(
             emoji,
-            style: TextStyle(fontSize: 24),
+            style: const TextStyle(fontSize: 24),
           ),
           title: Text(
             '$label: $value',
-            style: TextStyle(
+            style: const TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
             ),
           ),
           dense: true,
-          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         ),
       ),
     );

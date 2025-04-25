@@ -93,7 +93,7 @@ class ImageLoaderService {
       await _loadCacheFromDisk();
       
       // Agendar limpeza periódica do cache
-      Timer.periodic(Duration(hours: 12), (_) => _cleanExpiredImages());
+      Timer.periodic(const Duration(hours: 12), (_) => _cleanExpiredImages());
       
       _logger.debug('Cache de imagens inicializado com sucesso', tag: _tag);
     } catch (e) {
@@ -374,9 +374,9 @@ class ImageLoaderService {
       future: loadImage(url, expiration: expiration),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return placeholder ?? Center(child: CircularProgressIndicator());
+          return placeholder ?? const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError || snapshot.data == null) {
-          return errorWidget ?? Icon(Icons.error);
+          return errorWidget ?? const Icon(Icons.error);
         } else {
           return Image.memory(
             snapshot.data!,

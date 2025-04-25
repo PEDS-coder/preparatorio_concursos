@@ -20,7 +20,7 @@ class AnalysisProgressWidget extends StatelessWidget {
       color: Colors.black,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
-        padding: EdgeInsets.all(4),
+        padding: const EdgeInsets.all(4),
         child: MatrixRainAnimation(
           width: 350,
           height: 300,

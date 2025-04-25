@@ -26,11 +26,11 @@ class TimelineItemWidget extends StatelessWidget {
             Container(
               width: 20,
               height: 20,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 shape: BoxShape.circle,
                 color: AppTheme.primaryColor,
               ),
-              child: Icon(Icons.check, size: 12, color: Colors.white),
+              child: const Icon(Icons.check, size: 12, color: Colors.white),
             ),
             if (!isLast)
               Container(
@@ -40,19 +40,19 @@ class TimelineItemWidget extends StatelessWidget {
               ),
           ],
         ),
-        SizedBox(width: 12),
+        const SizedBox(width: 12),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 label,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              SizedBox(height: 4),
+              const SizedBox(height: 4),
               Text(
                 date,
                 style: TextStyle(

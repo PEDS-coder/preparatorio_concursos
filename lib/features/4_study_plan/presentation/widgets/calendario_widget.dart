@@ -42,11 +42,11 @@ class _CalendarioWidgetState extends State<CalendarioWidget> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: EdgeInsets.only(left: 16, bottom: 8),
+          padding: const EdgeInsets.only(left: 16, bottom: 8),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
+              const Text(
                 'Calendário de Estudos',
                 style: TextStyle(
                   fontSize: 18,
@@ -58,26 +58,26 @@ class _CalendarioWidgetState extends State<CalendarioWidget> {
               if (widget.plano.sessoesEstudo.isEmpty)
                 ElevatedButton.icon(
                   onPressed: widget.onGerarSessoes,
-                  icon: Icon(Icons.refresh, size: 16),
-                  label: Text('Gerar Sessões'),
+                  icon: const Icon(Icons.refresh, size: 16),
+                  label: const Text('Gerar Sessões'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.primaryColor,
                     foregroundColor: Colors.white,
-                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    textStyle: TextStyle(fontSize: 12),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    textStyle: const TextStyle(fontSize: 12),
                   ),
                 ),
             ],
           ),
         ),
         Card(
-          margin: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           elevation: 2,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
           ),
           child: Padding(
-            padding: EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
             child: Column(
               children: [
                 TableCalendar(
@@ -102,8 +102,8 @@ class _CalendarioWidgetState extends State<CalendarioWidget> {
                       color: AppTheme.primaryColor,
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    formatButtonTextStyle: TextStyle(color: Colors.white),
-                    titleTextStyle: TextStyle(
+                    formatButtonTextStyle: const TextStyle(color: Colors.white),
+                    titleTextStyle: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
@@ -113,11 +113,11 @@ class _CalendarioWidgetState extends State<CalendarioWidget> {
                       color: AppTheme.primaryColor.withOpacity(0.5),
                       shape: BoxShape.circle,
                     ),
-                    selectedDecoration: BoxDecoration(
+                    selectedDecoration: const BoxDecoration(
                       color: AppTheme.primaryColor,
                       shape: BoxShape.circle,
                     ),
-                    markerDecoration: BoxDecoration(
+                    markerDecoration: const BoxDecoration(
                       color: Colors.red,
                       shape: BoxShape.circle,
                     ),
@@ -136,7 +136,7 @@ class _CalendarioWidgetState extends State<CalendarioWidget> {
                           mainAxisSize: MainAxisSize.min,
                           children: markers.take(3).map((color) {
                             return Container(
-                              margin: EdgeInsets.symmetric(horizontal: 1),
+                              margin: const EdgeInsets.symmetric(horizontal: 1),
                               width: 6,
                               height: 6,
                               decoration: BoxDecoration(
@@ -150,27 +150,27 @@ class _CalendarioWidgetState extends State<CalendarioWidget> {
                     },
                   ),
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 _buildSessoesParaDia(widget.selectedDay ?? widget.focusedDay),
-                SizedBox(height: 24),
-                Text(
+                const SizedBox(height: 24),
+                const Text(
                   'Sincronizar com:',
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                SizedBox(height: 12),
+                const SizedBox(height: 12),
                 Row(
                   children: [
                     Expanded(
                       child: ElevatedButton.icon(
-                        icon: Icon(Icons.calendar_today, color: Colors.white),
-                        label: Text('Google Calendar'),
+                        icon: const Icon(Icons.calendar_today, color: Colors.white),
+                        label: const Text('Google Calendar'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.red,
                           foregroundColor: Colors.white,
-                          padding: EdgeInsets.symmetric(vertical: 12),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
@@ -178,15 +178,15 @@ class _CalendarioWidgetState extends State<CalendarioWidget> {
                         onPressed: widget.onSincronizarGoogleCalendar,
                       ),
                     ),
-                    SizedBox(width: 12),
+                    const SizedBox(width: 12),
                     Expanded(
                       child: ElevatedButton.icon(
-                        icon: Icon(Icons.calendar_today, color: Colors.white),
-                        label: Text('Apple Calendar'),
+                        icon: const Icon(Icons.calendar_today, color: Colors.white),
+                        label: const Text('Apple Calendar'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.grey.shade800,
                           foregroundColor: Colors.white,
-                          padding: EdgeInsets.symmetric(vertical: 12),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
@@ -210,7 +210,7 @@ class _CalendarioWidgetState extends State<CalendarioWidget> {
 
     if (sessoes.isEmpty) {
       return Padding(
-        padding: EdgeInsets.symmetric(vertical: 16),
+        padding: const EdgeInsets.symmetric(vertical: 16),
         child: Center(
           child: Text(
             'Nenhuma sessão de estudo para ${DateFormat('dd/MM/yyyy').format(dia)}',
@@ -230,10 +230,10 @@ class _CalendarioWidgetState extends State<CalendarioWidget> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: EdgeInsets.only(bottom: 8),
+          padding: const EdgeInsets.only(bottom: 8),
           child: Text(
             'Sessões para ${DateFormat('dd/MM/yyyy').format(dia)}:',
-            style: TextStyle(
+            style: const TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 16,
             ),
@@ -251,7 +251,7 @@ class _CalendarioWidgetState extends State<CalendarioWidget> {
     );
 
     return Card(
-      margin: EdgeInsets.only(bottom: 8),
+      margin: const EdgeInsets.only(bottom: 8),
       elevation: 1,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
@@ -265,7 +265,7 @@ class _CalendarioWidgetState extends State<CalendarioWidget> {
           backgroundColor: Colors.blue,
           child: Text(
             sessao.materia.substring(0, 1).toUpperCase(),
-            style: TextStyle(
+            style: const TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
             ),
@@ -273,19 +273,19 @@ class _CalendarioWidgetState extends State<CalendarioWidget> {
         ),
         title: Text(
           sessao.materia,
-          style: TextStyle(
+          style: const TextStyle(
             fontWeight: FontWeight.bold,
           ),
         ),
         subtitle: Text(
           '$horaInicio - $horaFim (${sessao.duracaoMinutos} min)',
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 12,
           ),
         ),
         trailing: sessao.concluida
-            ? Icon(Icons.check_circle, color: Colors.green)
-            : Icon(Icons.access_time, color: Colors.orange),
+            ? const Icon(Icons.check_circle, color: Colors.green)
+            : const Icon(Icons.access_time, color: Colors.orange),
       ),
     );
   }

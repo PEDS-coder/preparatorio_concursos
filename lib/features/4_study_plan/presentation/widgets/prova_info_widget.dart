@@ -3,6 +3,7 @@ import '../../../../core/data/models/models.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../domain/services/extrator_dados_service.dart';
 import '../../domain/services/formatador_service.dart';
+import '../../domain/services/prova_service.dart';
 import 'info_card.dart';
 import 'criterio_desempate_card.dart';
 
@@ -22,11 +23,11 @@ class ProvaInfoWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (edital == null) {
-      return SizedBox.shrink();
+      return const SizedBox.shrink();
     }
 
-    // Obter critérios de desempate usando o ExtratorDadosService
-    String criteriosDesempateStr = extratoService.obterCriteriosDesempate(plano, edital);
+    // Obter critérios de desempate usando o ProvaService
+    String criteriosDesempateStr = ProvaService.obterCriteriosDesempate(plano, edital);
     List<String>? criteriosDesempate;
 
     // Verificar se os critérios foram encontrados
@@ -59,7 +60,7 @@ class ProvaInfoWidget extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
+        const Padding(
           padding: EdgeInsets.only(left: 16, bottom: 8),
           child: Text(
             'Informações da Prova',
@@ -71,33 +72,61 @@ class ProvaInfoWidget extends StatelessWidget {
           ),
         ),
         InfoCard(
+          label: 'Data da Prova',
+          value: ProvaService.obterData(plano, edital),
+          cardColor: extratoService.getColorForInfoType('Data da Prova'),
+          emoji: extratoService.getEmojiForInfoType('Data da Prova'),
+        ),
+        InfoCard(
+          label: 'Local das Provas',
+          value: ProvaService.obterLocal(plano, edital),
+          cardColor: extratoService.getColorForInfoType('Local das Provas'),
+          emoji: extratoService.getEmojiForInfoType('Local das Provas'),
+        ),
+        InfoCard(
+          label: 'Formato',
+          value: ProvaService.obterFormato(plano, edital),
+          cardColor: extratoService.getColorForInfoType('Formato'),
+          emoji: extratoService.getEmojiForInfoType('Formato'),
+        ),
+        InfoCard(
+          label: 'Total de Questões',
+          value: ProvaService.obterTotalQuestoes(plano, edital),
+          cardColor: extratoService.getColorForInfoType('Total de Questões'),
+          emoji: extratoService.getEmojiForInfoType('Total de Questões'),
+        ),
+        InfoCard(
           label: 'Duração',
-          value: FormatadorService.formatarDuracaoProva(
-            extratoService.obterValorConcurso(plano, edital, 'duracaoProva', 'prova.duracao')
-          ),
+          value: ProvaService.obterDuracao(plano, edital),
           cardColor: extratoService.getColorForInfoType('Duração'),
           emoji: extratoService.getEmojiForInfoType('Duração'),
         ),
         InfoCard(
+          label: 'Tema da Prova Subjetiva',
+          value: ProvaService.obterTemaProvaSubjetiva(plano, edital),
+          cardColor: extratoService.getColorForInfoType('Tema da Prova Subjetiva'),
+          emoji: extratoService.getEmojiForInfoType('Tema da Prova Subjetiva'),
+        ),
+        InfoCard(
           label: 'Critérios de Aprovação',
-          value: extratoService.obterValorConcurso(plano, edital, 'criteriosAprovacao', 'prova.criterios_aprovacao'),
+          value: ProvaService.obterCriteriosAprovacao(plano, edital),
           cardColor: extratoService.getColorForInfoType('Critérios de Aprovação'),
           emoji: extratoService.getEmojiForInfoType('Critérios de Aprovação'),
         ),
         InfoCard(
           label: 'Critérios de Reprovação',
-          value: extratoService.obterValorConcurso(plano, edital, 'criteriosReprovacao', 'prova.criterios_reprovacao'),
+          value: ProvaService.obterCriteriosReprovacao(plano, edital),
           cardColor: extratoService.getColorForInfoType('Critérios de Reprovação'),
           emoji: extratoService.getEmojiForInfoType('Critérios de Reprovação'),
         ),
         InfoCard(
           label: 'Critérios de Desempate',
-          value: extratoService.obterCriteriosDesempate(plano, edital),
+          value: ProvaService.obterCriteriosDesempate(plano, edital),
           cardColor: extratoService.getColorForInfoType('Critérios de Desempate'),
           emoji: extratoService.getEmojiForInfoType('Critérios de Desempate'),
         ),
         if (criteriosDesempate != null && criteriosDesempate.isNotEmpty) ...[
-          Padding(
+          const Padding(
             padding: EdgeInsets.only(left: 16, top: 8, bottom: 8),
             child: Text(
               'Critérios de Desempate (Detalhados)',

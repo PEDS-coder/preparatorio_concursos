@@ -125,6 +125,12 @@ class PlanoQuestionarioService {
       // Processar o resultado da API
       Map<String, dynamic> resultadoJSON = llmProcessor.processarResposta(resultadoAPI, planoId);
 
+      // Registrar tamanho da resposta e campos presentes
+      logger.logProcessamentoLLM(planoId, 'tamanho_resposta', {
+        'tamanho_resposta': resultadoAPI.length,
+        'inicio_resposta': resultadoAPI.substring(0, resultadoAPI.length > 100 ? 100 : resultadoAPI.length)
+      });
+
       // Atualizar progresso
       onProgress(0.7, 'Construindo plano de estudos...');
 
@@ -168,12 +174,31 @@ class PlanoQuestionarioService {
 
       // Verificar se os metadados estão presentes
       Map<String, dynamic> metadados = {};
+
+      // Adicionar todos os dados extraídos aos metadados
+      resultadoJSON.forEach((key, value) {
+        if (key != 'ciclo_estudos' && key != 'materias_prioritarias' && key != 'recomendacoes_gerais') {
+          metadados[key] = value;
+        }
+      });
+
+      // Se houver metadados específicos, adicionar também
       if (resultadoJSON.containsKey('metadados')) {
-        metadados = resultadoJSON['metadados'] as Map<String, dynamic>;
-        logger.logProcessamentoLLM(planoId, 'metadados_detalhes', {
-          'campos_presentes': metadados.keys.toList(),
+        final metadadosEspecificos = resultadoJSON['metadados'] as Map<String, dynamic>;
+        metadadosEspecificos.forEach((key, value) {
+          metadados[key] = value;
         });
       }
+
+      // Adicionar dados do edital aos metadados
+      if (dadosEdital.containsKey('dadosOriginais') && dadosEdital['dadosOriginais'] != null) {
+        metadados['dadosOriginais'] = dadosEdital['dadosOriginais'];
+      }
+
+      logger.logProcessamentoLLM(planoId, 'metadados_detalhes', {
+        'campos_presentes': metadados.keys.toList(),
+        'total_campos': metadados.keys.length,
+      });
 
       // Atualizar progresso
       onProgress(0.9, 'Criando plano de estudos...');
@@ -184,7 +209,7 @@ class PlanoQuestionarioService {
         'editalId': dadosEdital['id'] ?? '',
         'cargo': dadosCargo['cargo'] ?? '',
         'dataInicio': (dataInicio ?? DateTime.now()).toIso8601String(),
-        'dataFim': (dataFim ?? DateTime.now().add(Duration(days: 90))).toIso8601String(),
+        'dataFim': (dataFim ?? DateTime.now().add(const Duration(days: 90))).toIso8601String(),
         'horasPorDia': horasPorDia,
         'ferramentas': ferramentas,
         'materiasProficiencia': materiasProficiencia.map((mp) => '${mp.nomeMateria}: ${mp.nivelProficiencia}').toList(),
@@ -196,7 +221,7 @@ class PlanoQuestionarioService {
         dadosEdital['id'] ?? '',
         [dadosCargo['cargo'] ?? ''],
         dataInicio ?? DateTime.now(),
-        dataFim ?? DateTime.now().add(Duration(days: 90)),
+        dataFim ?? DateTime.now().add(const Duration(days: 90)),
         horasPorDia,
         ferramentas,
         materiasProficiencia,
@@ -208,6 +233,9 @@ class PlanoQuestionarioService {
           'planoEstudos': planoEstudos,
         },
       );
+
+      // Atualizar metadados do plano com o JSON processado pela LLM
+      await planoService.atualizarMetadados(plano.id, resultadoJSON);
 
       logger.logArmazenamento(plano.id, 'plano_criado', {
         'id': plano.id,

@@ -107,11 +107,11 @@ class CargoCompatibilityService {
                 final nomeCargo = cargo['nome']?.toString() ?? '';
 
                 if (nomeCargo == cargoSelecionado.nome) {
-                  cargoSelecionadoOriginal = cargo as Map<dynamic, dynamic>;
+                  cargoSelecionadoOriginal = cargo;
                 }
 
                 if (nomeCargo == novoCargo.nome) {
-                  novoCargoOriginal = cargo as Map<dynamic, dynamic>;
+                  novoCargoOriginal = cargo;
                 }
               }
             }

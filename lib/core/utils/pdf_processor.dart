@@ -77,7 +77,7 @@ class PdfProcessor {
 
   /// Construtor
   PdfProcessor({this.onProgress, PdfProcessorConfig? config}) :
-    this.config = config ?? PdfProcessorConfig();
+    config = config ?? PdfProcessorConfig();
 
   /// Extrai texto de um PDF, incluindo tabelas e estruturas complexas
   Future<PdfProcessingResult> extractTextFromPdf(
@@ -261,8 +261,8 @@ class PdfProcessor {
         metadata['keywords'] = document.documentInformation.keywords ?? '';
         metadata['creator'] = document.documentInformation.creator ?? '';
         metadata['producer'] = document.documentInformation.producer ?? '';
-        metadata['creation_date'] = document.documentInformation.creationDate?.toString() ?? '';
-        metadata['modification_date'] = document.documentInformation.modificationDate?.toString() ?? '';
+        metadata['creation_date'] = document.documentInformation.creationDate.toString() ?? '';
+        metadata['modification_date'] = document.documentInformation.modificationDate.toString() ?? '';
         metadata['page_count'] = pageCount;
       } catch (e) {
         AppLogger.w(_tag, 'Erro ao extrair metadados do PDF', e);
@@ -320,7 +320,7 @@ class PdfProcessor {
 
           // Pausa para não bloquear a UI
           if (i % 5 == 0) {
-            await Future.delayed(Duration(milliseconds: 10));
+            await Future.delayed(const Duration(milliseconds: 10));
           }
         }
 
@@ -380,7 +380,7 @@ class PdfProcessor {
             inTable = true;
             currentTable = '';
           }
-          currentTable += line + '\n';
+          currentTable += '$line\n';
         } else if (inTable) {
           // Fim da tabela
           inTable = false;
@@ -487,7 +487,7 @@ class PdfProcessor {
 
         // Pausa para não bloquear a UI
         if (i % 2 == 0) {
-          await Future.delayed(Duration(milliseconds: 50));
+          await Future.delayed(const Duration(milliseconds: 50));
         }
       }
 
@@ -549,7 +549,7 @@ class PdfProcessor {
 
         // Pausa para não bloquear a UI
         if (i % 2 == 0) {
-          await Future.delayed(Duration(milliseconds: 20));
+          await Future.delayed(const Duration(milliseconds: 20));
         }
       }
 

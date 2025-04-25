@@ -6,6 +6,8 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/data/models/cronograma_item.dart';
 
 class PlanoEstudoTab extends StatelessWidget {
+  const PlanoEstudoTab({super.key});
+
   @override
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context);
@@ -32,7 +34,7 @@ class PlanoEstudoTab extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
+              const Text(
                 'Plano de Estudos',
                 style: TextStyle(
                   fontSize: 24,
@@ -42,12 +44,12 @@ class PlanoEstudoTab extends StatelessWidget {
               ),
               if (!isPremium)
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: Colors.amber,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Row(
+                  child: const Row(
                     children: [
                       Icon(Icons.star, size: 14, color: Colors.white),
                       SizedBox(width: 4),
@@ -64,7 +66,7 @@ class PlanoEstudoTab extends StatelessWidget {
                 ),
             ],
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
             'Organize seus estudos de forma eficiente',
             style: TextStyle(
@@ -72,17 +74,17 @@ class PlanoEstudoTab extends StatelessWidget {
               color: Colors.grey.shade600,
             ),
           ),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
 
           // Cronograma do dia
-          Text(
+          const Text(
             'Cronograma de Hoje',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
 
           // Lista de atividades do dia
           cronogramaHoje.isEmpty
@@ -93,12 +95,12 @@ class PlanoEstudoTab extends StatelessWidget {
                     itemBuilder: (context, index) {
                       final item = cronogramaHoje[index];
                       return Card(
-                        margin: EdgeInsets.only(bottom: 12),
+                        margin: const EdgeInsets.only(bottom: 12),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: ListTile(
-                          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                           leading: CircleAvatar(
                             backgroundColor: _getStatusColor(item.status).withOpacity(0.2),
                             child: Icon(
@@ -108,38 +110,38 @@ class PlanoEstudoTab extends StatelessWidget {
                           ),
                           title: Text(
                             item.nomeMateria,
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                           subtitle: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              SizedBox(height: 4),
+                              const SizedBox(height: 4),
                               Text(
                                 '${_formatHora(item.dataHoraInicio)} - ${_formatHora(item.dataHoraFim)}',
                               ),
-                              SizedBox(height: 2),
+                              const SizedBox(height: 2),
                               Text(
                                 'Atividade: ${item.atividadeSugerida} (${item.ferramentaSugerida})',
                               ),
                             ],
                           ),
                           trailing: PopupMenuButton(
-                            icon: Icon(Icons.more_vert),
+                            icon: const Icon(Icons.more_vert),
                             onSelected: (String value) {
                               _handleItemAction(context, value, item.id);
                             },
                             itemBuilder: (context) => [
-                              PopupMenuItem(
+                              const PopupMenuItem(
                                 value: 'iniciar',
                                 child: Text('Iniciar Sessão'),
                               ),
-                              PopupMenuItem(
+                              const PopupMenuItem(
                                 value: 'concluir',
                                 child: Text('Marcar como Concluído'),
                               ),
-                              PopupMenuItem(
+                              const PopupMenuItem(
                                 value: 'pular',
                                 child: Text('Pular'),
                               ),
@@ -167,11 +169,11 @@ class PlanoEstudoTab extends StatelessWidget {
                   onPressed: () {
                     Navigator.pushNamed(context, '/plano/add');
                   },
-                  icon: Icon(Icons.add),
-                  label: Text('Criar Plano de Estudos'),
+                  icon: const Icon(Icons.add),
+                  label: const Text('Criar Plano de Estudos'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.primaryColor,
-                    padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                   ),
                 ),
               ),
@@ -192,7 +194,7 @@ class PlanoEstudoTab extends StatelessWidget {
               size: 80,
               color: Colors.grey.shade400,
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(
               'Nenhuma atividade para hoje',
               style: TextStyle(
@@ -201,7 +203,7 @@ class PlanoEstudoTab extends StatelessWidget {
                 color: Colors.grey.shade700,
               ),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
               'Crie um plano de estudos ou adicione atividades manualmente',
               style: TextStyle(
@@ -230,7 +232,7 @@ class PlanoEstudoTab extends StatelessWidget {
       case 'concluir':
         await planoService.updateCronogramaItemStatus(itemId, StatusItem.concluido);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text('Atividade marcada como concluída!'),
             backgroundColor: Colors.green,
           ),
@@ -239,7 +241,7 @@ class PlanoEstudoTab extends StatelessWidget {
       case 'pular':
         await planoService.updateCronogramaItemStatus(itemId, StatusItem.pulado);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text('Atividade pulada.'),
             backgroundColor: Colors.orange,
           ),

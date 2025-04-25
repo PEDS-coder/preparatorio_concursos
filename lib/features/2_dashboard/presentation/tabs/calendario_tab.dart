@@ -87,7 +87,7 @@ class _CalendarioTabState extends State<CalendarioTab> {
     } catch (e) {
       print('Erro ao carregar dados do calendário: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro ao carregar calendário. Tente novamente.')),
+        const SnackBar(content: Text('Erro ao carregar calendário. Tente novamente.')),
       );
     } finally {
       if (mounted) {
@@ -121,9 +121,9 @@ class _CalendarioTabState extends State<CalendarioTab> {
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: _isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -136,7 +136,7 @@ class _CalendarioTabState extends State<CalendarioTab> {
                       color: isDarkMode ? Colors.white : Colors.black,
                     ),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
 
                   // Calendário
                   Card(
@@ -144,14 +144,14 @@ class _CalendarioTabState extends State<CalendarioTab> {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                     color: isDarkMode ? Colors.grey.shade900 : Colors.white,
                     child: Padding(
-                      padding: EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(16),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           // Calendário
                           TableCalendar<SessaoEstudo>(
-                            firstDay: DateTime.now().subtract(Duration(days: 365)),
-                            lastDay: DateTime.now().add(Duration(days: 365)),
+                            firstDay: DateTime.now().subtract(const Duration(days: 365)),
+                            lastDay: DateTime.now().add(const Duration(days: 365)),
                             focusedDay: _focusedDay,
                             selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
                             calendarFormat: _calendarFormat,
@@ -184,7 +184,7 @@ class _CalendarioTabState extends State<CalendarioTab> {
                             },
                             calendarStyle: CalendarStyle(
                               markersMaxCount: 3,
-                              markerDecoration: BoxDecoration(
+                              markerDecoration: const BoxDecoration(
                                 color: AppTheme.primaryColor,
                                 shape: BoxShape.circle,
                               ),
@@ -192,7 +192,7 @@ class _CalendarioTabState extends State<CalendarioTab> {
                                 color: AppTheme.primaryColor.withOpacity(0.5),
                                 shape: BoxShape.circle,
                               ),
-                              selectedDecoration: BoxDecoration(
+                              selectedDecoration: const BoxDecoration(
                                 color: AppTheme.primaryColor,
                                 shape: BoxShape.circle,
                               ),
@@ -229,7 +229,7 @@ class _CalendarioTabState extends State<CalendarioTab> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
 
                   // Sessões do dia selecionado
                   if (_selectedDay != null) ...[
@@ -238,7 +238,7 @@ class _CalendarioTabState extends State<CalendarioTab> {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                       color: isDarkMode ? Colors.grey.shade900 : Colors.white,
                       child: Padding(
-                        padding: EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(16),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -262,14 +262,14 @@ class _CalendarioTabState extends State<CalendarioTab> {
                                     },
                                     child: Text(
                                       _mostrarTodasSessoes ? 'Recolher' : 'Ver mais',
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         color: AppTheme.primaryColor,
                                       ),
                                     ),
                                   ),
                               ],
                             ),
-                            SizedBox(height: 16),
+                            const SizedBox(height: 16),
                             if (_sessoesDodiaSelecionado.isEmpty)
                               Center(
                                 child: Text(
@@ -301,8 +301,8 @@ class _CalendarioTabState extends State<CalendarioTab> {
   // Constrói um item de sessão
   Widget _buildSessaoItem(SessaoEstudo sessao, bool isDarkMode) {
     return Container(
-      margin: EdgeInsets.only(bottom: 12),
-      padding: EdgeInsets.all(12),
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: isDarkMode ? Colors.grey.shade800 : Colors.grey.shade100,
         borderRadius: BorderRadius.circular(12),
@@ -337,7 +337,7 @@ class _CalendarioTabState extends State<CalendarioTab> {
               ),
             ],
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
             sessao.observacoes ?? 'Sessão de estudo',
             style: TextStyle(
@@ -345,7 +345,7 @@ class _CalendarioTabState extends State<CalendarioTab> {
               color: isDarkMode ? Colors.grey.shade300 : Colors.grey.shade700,
             ),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
@@ -356,10 +356,10 @@ class _CalendarioTabState extends State<CalendarioTab> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.primaryColor,
                   foregroundColor: Colors.white,
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  textStyle: TextStyle(fontSize: 14),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  textStyle: const TextStyle(fontSize: 14),
                 ),
-                child: Text('Iniciar Sessão'),
+                child: const Text('Iniciar Sessão'),
               ),
             ],
           ),

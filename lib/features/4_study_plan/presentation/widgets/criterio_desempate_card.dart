@@ -17,7 +17,7 @@ class CriterioDesempateCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(bottom: 8),
+      margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
         color: color.withOpacity(0.8),
         borderRadius: BorderRadius.circular(8),
@@ -26,7 +26,7 @@ class CriterioDesempateCard extends StatelessWidget {
           BoxShadow(
             color: color.withOpacity(0.3),
             blurRadius: 4,
-            offset: Offset(0, 2),
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -41,7 +41,7 @@ class CriterioDesempateCard extends StatelessWidget {
           child: Center(
             child: Text(
               '$index',
-              style: TextStyle(
+              style: const TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
                 fontSize: 16,
@@ -51,12 +51,12 @@ class CriterioDesempateCard extends StatelessWidget {
         ),
         title: Row(
           children: [
-            Text(emoji, style: TextStyle(fontSize: 20)),
-            SizedBox(width: 8),
+            Text(emoji, style: const TextStyle(fontSize: 20)),
+            const SizedBox(width: 8),
             Expanded(
               child: Text(
                 criterio,
-                style: TextStyle(
+                style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.w500,
                 ),
@@ -64,7 +64,7 @@ class CriterioDesempateCard extends StatelessWidget {
             ),
           ],
         ),
-        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       ),
     );
   }
@@ -81,11 +81,11 @@ class CriteriosDesempateSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (criterios.isEmpty) {
-      return SizedBox.shrink();
+      return const SizedBox.shrink();
     }
 
     // Usar a cor rosa para o título (mesma cor do título "Informações da Prova")
-    final Color tituloColor = Color(0xFFE91E63); // Rosa
+    const Color tituloColor = Color(0xFFE91E63); // Rosa
 
     // Lista de cores para os cards
     final List<Color> colors = [
@@ -115,7 +115,7 @@ class CriteriosDesempateSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: EdgeInsets.only(left: 16, top: 16, bottom: 8),
+          padding: const EdgeInsets.only(left: 16, top: 16, bottom: 8),
           child: Text(
             'Critérios de Desempate',
             style: TextStyle(

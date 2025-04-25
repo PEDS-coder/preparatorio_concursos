@@ -58,24 +58,24 @@ class _CargoSelectScreenState extends State<CargoSelectScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Selecionar Cargo'),
+        title: const Text('Selecionar Cargo'),
         backgroundColor: AppTheme.primaryColor,
         actions: [
           if (_cargosSelecionados.isNotEmpty)
             IconButton(
-              icon: Icon(Icons.visibility),
+              icon: const Icon(Icons.visibility),
               onPressed: () => _navegarParaVisualizacaoEdital(edital),
               tooltip: 'Visualizar Edital',
             ),
         ],
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(24),
+        padding: const EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Cabeçalho
-            Text(
+            const Text(
               'Selecione seu Cargo',
               style: TextStyle(
                 fontSize: 28,
@@ -83,7 +83,7 @@ class _CargoSelectScreenState extends State<CargoSelectScreen> {
                 color: AppTheme.primaryColor,
               ),
             ),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             Text(
               'Escolha o cargo para o qual deseja se preparar',
               style: TextStyle(
@@ -91,25 +91,25 @@ class _CargoSelectScreenState extends State<CargoSelectScreen> {
                 color: Colors.grey.shade600,
               ),
             ),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
 
             // Instruções para seleção de cargo
             _buildInstructionsCard(),
-            SizedBox(height: 32),
+            const SizedBox(height: 32),
 
             // Lista de cargos
-            Text(
+            const Text(
               'Cargos Disponíveis',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
 
             // Verificar se há cargos disponíveis
             edital.dadosExtraidos.cargos.isEmpty
-                ? NoCargosMessageWidget()
+                ? const NoCargosMessageWidget()
                 : Column(
                     children: [
                       // Construir lista de cargos
@@ -136,7 +136,7 @@ class _CargoSelectScreenState extends State<CargoSelectScreen> {
   Widget _buildEditalNotFoundScreen() {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Selecionar Cargo'),
+        title: const Text('Selecionar Cargo'),
         backgroundColor: AppTheme.primaryColor,
       ),
       body: Center(
@@ -144,20 +144,20 @@ class _CargoSelectScreenState extends State<CargoSelectScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(Icons.error_outline, size: 80, color: Colors.red.shade300),
-            SizedBox(height: 16),
-            Text(
+            const SizedBox(height: 16),
+            const Text(
               'Edital não encontrado',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 8),
-            Text('O edital solicitado não foi encontrado ou foi removido.'),
-            SizedBox(height: 24),
+            const SizedBox(height: 8),
+            const Text('O edital solicitado não foi encontrado ou foi removido.'),
+            const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () => Navigator.pop(context),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.primaryColor,
               ),
-              child: Text('Voltar'),
+              child: const Text('Voltar'),
             ),
           ],
         ),
@@ -168,12 +168,12 @@ class _CargoSelectScreenState extends State<CargoSelectScreen> {
   Widget _buildLoadingScreen() {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Processando'),
+        title: const Text('Processando'),
         backgroundColor: AppTheme.primaryColor,
       ),
       body: Center(
         child: Container(
-          padding: EdgeInsets.all(24),
+          padding: const EdgeInsets.all(24),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -182,7 +182,7 @@ class _CargoSelectScreenState extends State<CargoSelectScreen> {
                 color: Colors.black,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 child: Padding(
-                  padding: EdgeInsets.all(4),
+                  padding: const EdgeInsets.all(4),
                   child: MatrixRainAnimation(
                     width: 350,
                     height: 300,
@@ -210,7 +210,7 @@ class _CargoSelectScreenState extends State<CargoSelectScreen> {
 
   Widget _buildInstructionsCard() {
     return Container(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.blue.shade50,
         borderRadius: BorderRadius.circular(8),
@@ -219,7 +219,7 @@ class _CargoSelectScreenState extends State<CargoSelectScreen> {
       child: Row(
         children: [
           Icon(Icons.info_outline, color: Colors.blue.shade700),
-          SizedBox(width: 12),
+          const SizedBox(width: 12),
           Expanded(
             child: Text(
               'Selecione um ou mais cargos para os quais deseja se preparar. Após a seleção, você poderá ver o conteúdo programático detalhado e criar seu plano de estudos personalizado.',

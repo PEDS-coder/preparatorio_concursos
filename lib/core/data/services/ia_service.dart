@@ -23,6 +23,7 @@ class IAService extends ChangeNotifier with IAServiceImplementations implements 
   bool get isConfigured => _isConfigured;
 
   // Inicializar o cache
+  @override
   Future<void> initCache() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -45,6 +46,7 @@ class IAService extends ChangeNotifier with IAServiceImplementations implements 
   }
 
   // Configurar API Key
+  @override
   Future<bool> configurarApiKey(String apiKey) async {
     try {
       if (apiKey.isEmpty) {
@@ -76,6 +78,7 @@ class IAService extends ChangeNotifier with IAServiceImplementations implements 
   }
 
   // Definir o tipo de API
+  @override
   Future<void> setApiType(String apiType) async {
     try {
       _apiType = apiType;
@@ -109,6 +112,7 @@ class IAService extends ChangeNotifier with IAServiceImplementations implements 
   }
 
   // Método para analisar texto (stub)
+  @override
   Future<String> analisarTexto(String texto, {String? prompt}) async {
     if (!_isConfigured) {
       _logger.warning('IAService: Serviço não configurado');
@@ -120,6 +124,7 @@ class IAService extends ChangeNotifier with IAServiceImplementations implements 
   }
 
   // Método para gerar texto (stub)
+  @override
   Future<String> gerarTexto(String prompt) async {
     if (!_isConfigured) {
       _logger.warning('IAService: Serviço não configurado');
@@ -288,6 +293,7 @@ class IAService extends ChangeNotifier with IAServiceImplementations implements 
   }
 
   // Método para gerar plano de estudos
+  @override
   Future<String> gerarPlanoEstudos({required String cargoAlvo, required Map<String, dynamic> dadosCargo}) async {
     if (!_isConfigured) {
       _logger.warning('IAService: Serviço não configurado');

@@ -11,6 +11,7 @@ class InputValidationService implements IInputValidationService {
   InputValidationService(this._logger);
 
   /// Valida um endereço de e-mail
+  @override
   bool isValidEmail(String email) {
     if (email.isEmpty) {
       _logger.debug('E-mail vazio', tag: _tag);
@@ -37,6 +38,7 @@ class InputValidationService implements IInputValidationService {
   /// - Uma letra minúscula
   /// - Um número
   /// - Um caractere especial
+  @override
   bool isValidPassword(String password) {
     if (password.isEmpty) {
       _logger.debug('Senha vazia', tag: _tag);
@@ -76,6 +78,7 @@ class InputValidationService implements IInputValidationService {
   }
 
   /// Valida um nome
+  @override
   bool isValidName(String name) {
     if (name.isEmpty) {
       _logger.debug('Nome vazio', tag: _tag);
@@ -99,6 +102,7 @@ class InputValidationService implements IInputValidationService {
   }
 
   /// Valida um número de telefone
+  @override
   bool isValidPhone(String phone) {
     if (phone.isEmpty) {
       _logger.debug('Telefone vazio', tag: _tag);
@@ -118,6 +122,7 @@ class InputValidationService implements IInputValidationService {
   }
 
   /// Valida um CPF
+  @override
   bool isValidCPF(String cpf) {
     if (cpf.isEmpty) {
       _logger.debug('CPF vazio', tag: _tag);
@@ -171,6 +176,7 @@ class InputValidationService implements IInputValidationService {
   }
 
   /// Valida uma URL
+  @override
   bool isValidUrl(String url) {
     if (url.isEmpty) {
       _logger.debug('URL vazia', tag: _tag);
@@ -191,6 +197,7 @@ class InputValidationService implements IInputValidationService {
   }
 
   /// Valida uma data no formato DD/MM/YYYY
+  @override
   bool isValidDate(String date) {
     if (date.isEmpty) {
       _logger.debug('Data vazia', tag: _tag);
@@ -229,6 +236,7 @@ class InputValidationService implements IInputValidationService {
   }
 
   /// Sanitiza uma string para evitar injeção de código
+  @override
   String sanitizeInput(String input) {
     if (input.isEmpty) {
       return input;
@@ -250,6 +258,7 @@ class InputValidationService implements IInputValidationService {
   }
 
   /// Sanitiza uma string para uso em SQL
+  @override
   String sanitizeSql(String input) {
     if (input.isEmpty) {
       return input;

@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import '../../../../../core/data/models/edital.dart';
 
 /// Serviço para formatação de dados do edital

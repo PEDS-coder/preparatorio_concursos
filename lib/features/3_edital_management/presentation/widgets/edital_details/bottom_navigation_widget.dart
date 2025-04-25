@@ -21,31 +21,31 @@ class BottomNavigationWidget extends StatelessWidget {
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
             blurRadius: 10,
-            offset: Offset(0, -5),
+            offset: const Offset(0, -5),
           ),
         ],
       ),
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             OutlinedButton.icon(
               onPressed: onBackPressed,
-              icon: Icon(Icons.arrow_back),
-              label: Text('Voltar'),
+              icon: const Icon(Icons.arrow_back),
+              label: const Text('Voltar'),
               style: OutlinedButton.styleFrom(
-                side: BorderSide(color: AppTheme.primaryColor),
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                side: const BorderSide(color: AppTheme.primaryColor),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               ),
             ),
             ElevatedButton.icon(
               onPressed: onCreatePlanPressed,
-              icon: Icon(Icons.auto_awesome),
-              label: Text('Criar Plano'),
+              icon: const Icon(Icons.auto_awesome),
+              label: const Text('Criar Plano'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.primaryColor,
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               ),
             ),
           ],

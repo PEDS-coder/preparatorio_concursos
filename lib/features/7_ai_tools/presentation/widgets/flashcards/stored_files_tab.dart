@@ -22,19 +22,19 @@ class StoredFilesTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             title,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
               color: Colors.white,
             ),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
             description,
             style: TextStyle(
@@ -42,7 +42,7 @@ class StoredFilesTab extends StatelessWidget {
               color: Colors.white.withOpacity(0.7),
             ),
           ),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
           StoredFilesWidget(
             toolType: DocumentStorageService.FLASHCARDS,
             title: showUploaded ? 'Seus Documentos' : 'Seus Flashcards',

@@ -52,7 +52,7 @@ class _CountdownTimerState extends State<CountdownTimer> {
   }
 
   void _startTimer() {
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (mounted) {
         setState(() {
           _calculateRemainingTime();
@@ -80,7 +80,7 @@ class _CountdownTimerState extends State<CountdownTimer> {
         side: BorderSide(color: accentColor, width: 1),
       ),
       child: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -101,9 +101,9 @@ class _CountdownTimerState extends State<CountdownTimer> {
                 ),
               ],
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             _isExpired
-                ? Center(
+                ? const Center(
                     child: Text(
                       'Expirado',
                       style: TextStyle(
@@ -125,7 +125,7 @@ class _CountdownTimerState extends State<CountdownTimer> {
                       _buildTimeUnit(seconds, 'Seg', textColor, accentColor),
                     ],
                   ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Center(
               child: Text(
                 'Data: ${_formatDate(widget.targetDate)}',
@@ -152,7 +152,7 @@ class _CountdownTimerState extends State<CountdownTimer> {
             color: accentColor,
           ),
         ),
-        SizedBox(height: 4),
+        const SizedBox(height: 4),
         Text(
           label,
           style: TextStyle(

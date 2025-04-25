@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:preparatorio_concursos/core/data/models/edital.dart';
 import 'package:preparatorio_concursos/core/utils/cargo_converter.dart';
 
 void main() {

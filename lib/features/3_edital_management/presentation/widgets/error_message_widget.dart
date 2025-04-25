@@ -16,8 +16,8 @@ class ErrorMessageWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(top: 24),
-      padding: EdgeInsets.all(16),
+      margin: const EdgeInsets.only(top: 24),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.red.shade50,
         borderRadius: BorderRadius.circular(8),
@@ -28,8 +28,8 @@ class ErrorMessageWidget extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(Icons.error_outline, color: Colors.red),
-              SizedBox(width: 12),
+              const Icon(Icons.error_outline, color: Colors.red),
+              const SizedBox(width: 12),
               Expanded(
                 child: Text(
                   'Erro ao analisar o edital',
@@ -42,31 +42,31 @@ class ErrorMessageWidget extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           Text(
             errorMessage,
             style: TextStyle(color: Colors.red.shade700),
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           Row(
             children: [
               Expanded(
                 child: OutlinedButton.icon(
                   onPressed: onTryAgain,
-                  icon: Icon(Icons.refresh, size: 18),
-                  label: Text('Tentar Novamente'),
+                  icon: const Icon(Icons.refresh, size: 18),
+                  label: const Text('Tentar Novamente'),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: Colors.red.shade700,
                     side: BorderSide(color: Colors.red.shade300),
                   ),
                 ),
               ),
-              SizedBox(width: 12),
+              const SizedBox(width: 12),
               Expanded(
                 child: ElevatedButton.icon(
                   onPressed: onConfigureAPI,
-                  icon: Icon(Icons.settings, size: 18),
-                  label: Text('Configurar API'),
+                  icon: const Icon(Icons.settings, size: 18),
+                  label: const Text('Configurar API'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue,
                     foregroundColor: Colors.white,

@@ -158,7 +158,7 @@ class YamlProcessor {
 
     // Garantir que a indentação seja múltipla de 2
     if (indentLevel % 2 != 0) {
-      return ' ' + line;
+      return ' $line';
     }
 
     return line;
@@ -190,10 +190,10 @@ class YamlProcessor {
         List<String> parts = [];
 
         // Adicionar a primeira linha com o marcador
-        parts.add('$beforeDash');
+        parts.add(beforeDash);
 
         // Adicionar o conteúdo com indentação adicional
-        String additionalIndent = indent + '  ';
+        String additionalIndent = '$indent  ';
         parts.add('$additionalIndent$afterDash');
 
         return parts;

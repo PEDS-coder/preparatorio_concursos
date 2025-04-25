@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../../../core/theme/app_theme.dart';
-import 'dart:math' as math;
 
 /// Widget para seleção de proficiência por matéria
 class ProficienciaSelectionSection extends StatelessWidget {

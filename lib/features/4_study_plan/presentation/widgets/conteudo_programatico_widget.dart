@@ -26,22 +26,46 @@ class ConteudoProgramaticoWidget extends StatefulWidget {
 }
 
 class _ConteudoProgramaticoWidgetState extends State<ConteudoProgramaticoWidget> {
-  Map<String, bool> _expandedMaterias = {};
+  final Map<String, bool> _expandedMaterias = {};
 
   @override
   Widget build(BuildContext context) {
-    if (widget.edital == null || widget.cargo == null) {
-      return SizedBox.shrink();
+    if (widget.cargo == null) {
+      return const SizedBox.shrink();
     }
 
+    // Selecionar lista de matérias: preferir dado da LLM se existir
+    List<ConteudoProgramatico> listaMaterias;
+    if (widget.plano.metadados.containsKey('conteudo_programatico') &&
+        widget.plano.metadados['conteudo_programatico'] is List) {
+      listaMaterias = (widget.plano.metadados['conteudo_programatico'] as List)
+          .map((item) => ConteudoProgramatico.fromMap(Map<String, dynamic>.from(item)))
+          .toList();
+    } else {
+      listaMaterias = widget.cargo!.conteudoProgramatico;
+    }
+    // Criar cargo temporário para agrupar usando as matérias corretas
+    final cargoTemp = Cargo(
+      nome: widget.cargo!.nome,
+      id: widget.cargo!.id,
+      vagas: widget.cargo!.vagas,
+      salario: widget.cargo!.salario,
+      taxaInscricao: widget.cargo!.taxaInscricao,
+      nivel: widget.cargo!.nivel,
+      escolaridade: widget.cargo!.escolaridade,
+      requisitos: widget.cargo!.requisitos,
+      conteudoProgramatico: listaMaterias,
+      dataProva: widget.cargo!.dataProva,
+      horarioProva: widget.cargo!.horarioProva,
+    );
     // Agrupar matérias por grupo/módulo
     Map<String, List<ConteudoProgramatico>> materiasPorGrupo =
-        widget.planoResumoService.agruparMateriasPorGrupo(widget.cargo!);
+        widget.planoResumoService.agruparMateriasPorGrupo(cargoTemp);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
+        const Padding(
           padding: EdgeInsets.only(left: 16, bottom: 8),
           child: Text(
             'Conteúdo Programático',
@@ -60,10 +84,10 @@ class _ConteudoProgramaticoWidgetState extends State<ConteudoProgramaticoWidget>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: EdgeInsets.only(left: 16, top: 8, bottom: 8),
+                padding: const EdgeInsets.only(left: 16, top: 8, bottom: 8),
                 child: Text(
                   grupo,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                     color: AppTheme.primaryColor,
@@ -89,7 +113,7 @@ class _ConteudoProgramaticoWidgetState extends State<ConteudoProgramaticoWidget>
     final String peso = materia.pesoMaior == true ? 'Maior' : 'Normal';
 
     return Card(
-      margin: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       elevation: 2,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
@@ -101,14 +125,14 @@ class _ConteudoProgramaticoWidgetState extends State<ConteudoProgramaticoWidget>
           ListTile(
             title: Text(
               materia.nome,
-              style: TextStyle(
+              style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 color: Colors.black87,
               ),
             ),
             subtitle: Text(
               'Peso: $peso | Questões: $questoes ${materia.questoesEstimadas == true ? "(estimadas)" : ""}',
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 12,
                 color: Colors.black54,
               ),
@@ -132,37 +156,37 @@ class _ConteudoProgramaticoWidgetState extends State<ConteudoProgramaticoWidget>
             tileColor: materiaColor.withOpacity(0.1),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.vertical(
-                top: Radius.circular(8),
-                bottom: isExpanded ? Radius.zero : Radius.circular(8),
+                top: const Radius.circular(8),
+                bottom: isExpanded ? Radius.zero : const Radius.circular(8),
               ),
             ),
           ),
           if (isExpanded && materia.topicos.isNotEmpty)
             Container(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  const Text(
                     'Tópicos:',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 14,
                     ),
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   ...materia.topicos.map((topico) {
                     return Padding(
-                      padding: EdgeInsets.only(bottom: 4),
+                      padding: const EdgeInsets.only(bottom: 4),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Icon(Icons.circle, size: 8, color: materiaColor),
-                          SizedBox(width: 8),
+                          const SizedBox(width: 8),
                           Expanded(
                             child: Text(
                               topico,
-                              style: TextStyle(fontSize: 14),
+                              style: const TextStyle(fontSize: 14),
                             ),
                           ),
                         ],

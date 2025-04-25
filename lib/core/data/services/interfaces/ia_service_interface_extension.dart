@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
 import 'ia_service_interface.dart';
 
 /// Extensão para a interface IAServiceInterface

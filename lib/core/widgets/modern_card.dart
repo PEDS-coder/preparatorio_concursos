@@ -34,7 +34,7 @@ class ModernCard extends StatelessWidget {
     // Aplicar DefaultTextStyle apenas se o card tiver fundo claro
     Widget content = isLightCard
         ? DefaultTextStyle(
-            style: TextStyle(color: Colors.black87),
+            style: const TextStyle(color: Colors.black87),
             child: child,
           )
         : child;
@@ -44,7 +44,7 @@ class ModernCard extends StatelessWidget {
       child: Container(
         width: width,
         height: height,
-        padding: padding ?? EdgeInsets.all(16),
+        padding: padding ?? const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: gradient != null ? null : cardColor,
           gradient: gradient,
@@ -53,7 +53,7 @@ class ModernCard extends StatelessWidget {
             BoxShadow(
               color: Colors.black.withOpacity(0.1),
               blurRadius: 10,
-              offset: Offset(0, 4),
+              offset: const Offset(0, 4),
             ),
           ] : null,
           border: Border.all(
@@ -94,7 +94,7 @@ class GradientCard extends StatelessWidget {
       child: Container(
         width: width,
         height: height,
-        padding: padding ?? EdgeInsets.all(16),
+        padding: padding ?? const EdgeInsets.all(16),
         decoration: BoxDecoration(
           gradient: gradient ?? AppTheme.primaryGradient,
           borderRadius: borderRadius ?? BorderRadius.circular(20),
@@ -102,7 +102,7 @@ class GradientCard extends StatelessWidget {
             BoxShadow(
               color: (gradient?.colors.first ?? AppTheme.primaryColor).withOpacity(0.3),
               blurRadius: 10,
-              offset: Offset(0, 4),
+              offset: const Offset(0, 4),
             ),
           ],
         ),

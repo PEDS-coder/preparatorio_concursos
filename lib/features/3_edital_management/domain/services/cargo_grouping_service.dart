@@ -76,7 +76,7 @@ class CargoGroupingService {
           } else {
             // Tentar extrair a área principal do cargo
             List<String> partes = nomeCargo.split(' ');
-            if (partes.length > 0) {
+            if (partes.isNotEmpty) {
               grupo = partes[0].substring(0, 1).toUpperCase() + partes[0].substring(1);
             }
           }

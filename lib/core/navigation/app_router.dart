@@ -50,7 +50,7 @@ class AppRouter {
       case '/oauth_config':
         return MaterialPageRoute(builder: (_) => OAuthConfigScreen());
       case '/mcp_config':
-        return MaterialPageRoute(builder: (_) => McpSettingsScreen());
+        return MaterialPageRoute(builder: (_) => const McpSettingsScreen());
       case '/dashboard':
         return MaterialPageRoute(builder: (_) => DashboardScreen());
 
@@ -60,7 +60,7 @@ class AppRouter {
       case '/edital/add':
         return MaterialPageRoute(builder: (_) => EditalAddScreen());
       case '/edital/analyze':
-        return MaterialPageRoute(builder: (_) => EditalAnalyzeScreen());
+        return MaterialPageRoute(builder: (_) => const EditalAnalyzeScreen());
       case '/edital/detalhes':
         return MaterialPageRoute(builder: (_) => EditalDetailsScreen(editalId: args as String));
       case '/edital/edit':
@@ -82,8 +82,8 @@ class AppRouter {
             editalId = args['editalId'] as String;
           } else {
             return Scaffold(
-              appBar: AppBar(title: Text('Erro')),
-              body: Center(child: Text('ID do edital não fornecido')),
+              appBar: AppBar(title: const Text('Erro')),
+              body: const Center(child: Text('ID do edital não fornecido')),
             );
           }
 
@@ -136,23 +136,23 @@ class AppRouter {
       default:
         return MaterialPageRoute(
           builder: (_) => Scaffold(
-            appBar: AppBar(title: Text('Erro de Navegação')),
+            appBar: AppBar(title: const Text('Erro de Navegação')),
             body: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.error_outline, size: 80, color: Colors.red),
-                  SizedBox(height: 16),
-                  Text(
+                  const Icon(Icons.error_outline, size: 80, color: Colors.red),
+                  const SizedBox(height: 16),
+                  const Text(
                     'Rota não encontrada',
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Text('A rota "${settings.name}" não está definida.'),
-                  SizedBox(height: 24),
+                  const SizedBox(height: 24),
                   ElevatedButton(
                     onPressed: () => Navigator.pushReplacementNamed(_, '/dashboard'),
-                    child: Text('Voltar para o Dashboard'),
+                    child: const Text('Voltar para o Dashboard'),
                   ),
                 ],
               ),

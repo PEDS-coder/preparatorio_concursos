@@ -48,7 +48,7 @@ class _QuizAnimationState extends State<QuizAnimation> with TickerProviderStateM
     // Configurar animação de pulso
     _pulseController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 1500),
+      duration: const Duration(milliseconds: 1500),
     )..repeat(reverse: true);
     
     _pulseAnimation = Tween<double>(begin: 0.9, end: 1.1).animate(
@@ -59,7 +59,7 @@ class _QuizAnimationState extends State<QuizAnimation> with TickerProviderStateM
     initQuizElements();
 
     // Atualizar a animação a cada 50ms
-    timer = Timer.periodic(Duration(milliseconds: 50), (timer) {
+    timer = Timer.periodic(const Duration(milliseconds: 50), (timer) {
       if (mounted) {
         setState(() {
           updateQuizElements();
@@ -70,7 +70,7 @@ class _QuizAnimationState extends State<QuizAnimation> with TickerProviderStateM
     // Atualizar mensagens de status a cada 15 segundos
     if (widget.statusMessages.isNotEmpty) {
       currentStatusMessage = widget.statusMessages[0];
-      messageTimer = Timer.periodic(Duration(seconds: 15), (timer) {
+      messageTimer = Timer.periodic(const Duration(seconds: 15), (timer) {
         if (mounted) {
           setState(() {
             currentMessageIndex = (currentMessageIndex + 1) % widget.statusMessages.length;
@@ -236,10 +236,10 @@ class _QuizAnimationState extends State<QuizAnimation> with TickerProviderStateM
                     );
                   },
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 if (widget.statusMessages.isNotEmpty)
                   AnimatedSwitcher(
-                    duration: Duration(milliseconds: 500),
+                    duration: const Duration(milliseconds: 500),
                     child: Text(
                       currentStatusMessage,
                       key: ValueKey<String>(currentStatusMessage),
@@ -250,8 +250,8 @@ class _QuizAnimationState extends State<QuizAnimation> with TickerProviderStateM
                       ),
                     ),
                   ),
-                SizedBox(height: 16),
-                Text(
+                const SizedBox(height: 16),
+                const Text(
                   'Pode levar alguns minutos...',
                   style: TextStyle(
                     color: Colors.white70,
@@ -335,7 +335,7 @@ class QuizPainter extends CustomPainter {
     // Desenhar círculo de fundo com brilho
     final bgPaint = Paint()
       ..color = element.color.withOpacity(0.2)
-      ..maskFilter = MaskFilter.blur(BlurStyle.normal, 5);
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 5);
     
     canvas.drawCircle(
       Offset.zero,

@@ -29,7 +29,7 @@ void main() {
       cargoIds: ['cargo_id'],
       dataCriacao: DateTime.now(),
       dataInicio: DateTime.now(),
-      dataFim: DateTime.now().add(Duration(days: 90)),
+      dataFim: DateTime.now().add(const Duration(days: 90)),
       horasSemanais: {'segunda': 2, 'terca': 2, 'quarta': 2, 'quinta': 2, 'sexta': 2, 'sabado': 1, 'domingo': 1},
       horariosEspecificos: null,
       ferramentas: ['Resumos', 'Flashcards'],
@@ -76,7 +76,7 @@ void main() {
           ChangeNotifierProvider<PlanoEstudoService>.value(value: mockPlanoEstudoService),
           ChangeNotifierProvider<EditalService>.value(value: mockEditalService),
         ],
-        child: PlanoResumoScreen(
+        child: const PlanoResumoScreen(
           planoId: 'plano_id',
         ),
       ),

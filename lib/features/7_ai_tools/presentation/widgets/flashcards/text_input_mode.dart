@@ -24,37 +24,37 @@ class TextInputMode extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Campo de matéria
-        Text(
+        const Text(
           'Matéria',
           style: TextStyle(
             fontWeight: FontWeight.bold,
             color: Colors.white,
           ),
         ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         StyledTextField(
           controller: materiaController,
           hintText: 'Ex: Direito Constitucional',
           prefixIcon: Icons.subject,
         ),
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
 
         // Campo de texto
-        Text(
+        const Text(
           'Texto',
           style: TextStyle(
             fontWeight: FontWeight.bold,
             color: Colors.white,
           ),
         ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         StyledTextField(
           controller: textController,
           hintText: 'Cole aqui o texto para gerar flashcards...',
           prefixIcon: Icons.text_fields,
           maxLines: 10,
         ),
-        SizedBox(height: 24),
+        const SizedBox(height: 24),
 
         // Botão de gerar
         _buildGenerateButton(),
@@ -64,14 +64,14 @@ class TextInputMode extends StatelessWidget {
 
   Widget _buildGenerateButton() {
     if (isLoading) {
-      return Container(
+      return SizedBox(
         height: 300,
         child: Center(
           child: Card(
             elevation: 8,
             color: Colors.black,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            child: Padding(
+            child: const Padding(
               padding: EdgeInsets.all(4),
               child: AnalysisAnimationWidget(
                 width: 350,
@@ -95,6 +95,7 @@ class TextInputMode extends StatelessWidget {
 
     return GradientButton(
       onPressed: onGeneratePressed,
+      fullWidth: true,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -103,7 +104,6 @@ class TextInputMode extends StatelessWidget {
           Text('GERAR FLASHCARDS'),
         ],
       ),
-      fullWidth: true,
     );
   }
 }

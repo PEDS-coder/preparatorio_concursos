@@ -289,6 +289,7 @@ class AudioExplanationService extends ChangeNotifier {
   }
 
   // Liberar recursos
+  @override
   Future<void> dispose() async {
     await stopAllExplanations();
     for (final player in _players.values) {

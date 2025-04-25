@@ -43,7 +43,7 @@ void main() {
 
     test('convertToAppException deve converter FormatException para DataProcessingException', () {
       // Arrange
-      final formatException = FormatException('Formato inválido');
+      const formatException = FormatException('Formato inválido');
       
       // Act
       final result = errorHandler.convertToAppException(formatException);

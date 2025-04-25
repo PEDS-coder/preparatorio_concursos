@@ -57,6 +57,7 @@ abstract class BaseIAService extends ChangeNotifier implements IAServiceInterfac
   }
 
   // Método para configurar o tipo de API
+  @override
   void setApiType(String apiType) {
     _apiType = apiType;
     notifyListeners();
@@ -265,9 +266,9 @@ abstract class BaseIAService extends ChangeNotifier implements IAServiceInterfac
       // Carregar o prompt para extração de cargos
       String promptTemplate;
       try {
-        // Usar o novo prompt para extração de cargos
+        // Usar o prompt para análise de PDF
         AppLogger.i('BaseIAService', 'Carregando prompt para extração de cargos...');
-        promptTemplate = await _promptService.loadCargosDetalhadosPrompt();
+        promptTemplate = await _promptService.loadPdfEditalAnalysisPrompt();
         AppLogger.i('BaseIAService', 'Prompt carregado com sucesso: ${promptTemplate.substring(0, Math.min(100, promptTemplate.length))}...');
       } catch (e) {
         AppLogger.e('BaseIAService', 'Erro ao carregar prompt de cargos', e);
@@ -301,14 +302,8 @@ abstract class BaseIAService extends ChangeNotifier implements IAServiceInterfac
         promptTemplate = await _promptService.loadJsonEditalAnalysisPrompt();
       } catch (e) {
         AppLogger.e('BaseIAService', 'Erro ao carregar prompt JSON', e);
-        // Tentar com o prompt básico como fallback
-        try {
-          promptTemplate = await _promptService.loadBasicInfoEditalPrompt();
-        } catch (e2) {
-          AppLogger.e('BaseIAService', 'Erro ao carregar prompt básico', e2);
-          // Usar prompt de fallback em caso de erro
-          promptTemplate = await _promptService.loadFallbackBasicInfoPrompt();
-        }
+        // Usar prompt de fallback em caso de erro
+        promptTemplate = await _promptService.loadFallbackBasicInfoPrompt();
       }
 
       // Implementação específica para cada provedor
@@ -340,14 +335,8 @@ abstract class BaseIAService extends ChangeNotifier implements IAServiceInterfac
         promptTemplate = await _promptService.loadConcursoConteudoPrompt();
       } catch (e) {
         AppLogger.e('BaseIAService', 'Erro ao carregar prompt de concurso e conteúdo', e);
-        // Usar prompt JSON como fallback
-        try {
-          promptTemplate = await _promptService.loadContentJsonPrompt();
-        } catch (e2) {
-          AppLogger.e('BaseIAService', 'Erro ao carregar prompt JSON de conteúdo', e2);
-          // Usar prompt de fallback em caso de erro
-          promptTemplate = await _promptService.loadFallbackCargoInfoPrompt();
-        }
+        // Usar prompt de fallback em caso de erro
+        promptTemplate = await _promptService.loadFallbackCargoInfoPrompt();
       }
 
       // Substituir o placeholder do cargo alvo
@@ -366,43 +355,7 @@ abstract class BaseIAService extends ChangeNotifier implements IAServiceInterfac
     }
   }
 
-  @override
-  Future<String> extrairConteudoProgramatico({
-    required Uint8List pdfBytes,
-    required String cargoAlvo,
-    String? pdfName,
-  }) async {
-    if (!isConfigured) {
-      throw Exception('API Key não configurada');
-    }
 
-    try {
-      // Carregar o prompt para extração de conteúdo programático
-      String promptTemplate;
-      try {
-        // Usar o prompt para conteúdo programático
-        promptTemplate = await _promptService.loadConcursoConteudoPrompt();
-      } catch (e) {
-        AppLogger.e('BaseIAService', 'Erro ao carregar prompt de conteúdo', e);
-        // Usar prompt de fallback em caso de erro
-        promptTemplate = await _promptService.loadFallbackCargoInfoPrompt();
-      }
-
-      // Substituir o placeholder do cargo alvo se existir
-      if (promptTemplate.contains('[CARGO_ALVO]')) {
-        promptTemplate = promptTemplate.replaceAll('[CARGO_ALVO]', cargoAlvo);
-      }
-
-      // Implementação específica para cada provedor
-      AppLogger.i('BaseIAService', 'Chamando processarPdf para processar o PDF...');
-      final resultado = await processarPdf(promptTemplate, pdfBytes, pdfName: pdfName);
-      AppLogger.i('BaseIAService', 'PDF processado com sucesso!');
-      return resultado;
-    } catch (e) {
-      AppLogger.e('BaseIAService', 'Erro ao extrair conteúdo programático do edital', e);
-      rethrow;
-    }
-  }
 
   @override
   Future<String> gerarResumo(String texto) async {
@@ -604,7 +557,7 @@ OBSERVAÇÃO IMPORTANTE: Você está criando um mapa mental para a parte ${i+1} 
 $prompt
 
 OBSERVAÇÃO IMPORTANTE: Você está analisando a parte ${i+1} de ${textChunks.length} de um documento maior.
-Crie apenas ${questoesPorParte} questões para esta parte específica do texto.
+Crie apenas $questoesPorParte questões para esta parte específica do texto.
 ''';
 
           final questoesParciais = await callApi(promptComInfo);
@@ -686,6 +639,7 @@ OBSERVAÇÃO IMPORTANTE: Você está analisando a parte ${i+1} de ${textChunks.l
   }
 
   // Método abstrato para processar PDF - deve ser implementado nas classes concretas
+  @override
   Future<String> processarPdf(String prompt, Uint8List pdfBytes, {String? pdfName});
 
   // Método para verificar se o texto está dentro do limite de tokens

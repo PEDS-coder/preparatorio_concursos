@@ -41,7 +41,7 @@ class ThemedToolCard extends StatelessWidget {
       useShadow: useShadow,
       width: width,
       height: height,
-      padding: padding ?? EdgeInsets.all(16),
+      padding: padding ?? const EdgeInsets.all(16),
       borderRadius: borderRadius ?? BorderRadius.circular(16),
       gradient: useGradient ? toolTheme.gradient : null,
       backgroundColor: !useGradient ? Colors.black.withOpacity(0.3) : null,
@@ -136,7 +136,7 @@ class ThemedToolButton extends StatelessWidget {
             size: isSmall ? 16 : 20,
             color: isOutlined ? toolTheme.color : Colors.white,
           ),
-          SizedBox(width: 8),
+          const SizedBox(width: 8),
           Text(
             label,
             style: TextStyle(

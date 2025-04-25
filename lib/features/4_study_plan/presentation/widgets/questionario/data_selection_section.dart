@@ -118,12 +118,11 @@ class DataSelectionSection extends StatelessWidget {
               surface: Color(0xFF1a2240),
               onSurface: Colors.white,
             ),
-            dialogBackgroundColor: const Color(0xFF13192b),
             textButtonTheme: TextButtonThemeData(
               style: TextButton.styleFrom(
                 foregroundColor: Colors.white,
               ),
-            ),
+            ), dialogTheme: DialogThemeData(backgroundColor: const Color(0xFF13192b)),
           ),
           child: child!,
         );

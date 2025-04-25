@@ -75,7 +75,7 @@ class _PlanoLogsScreenState extends State<PlanoLogsScreen> {
   Future<void> _copiarLogs() async {
     await Clipboard.setData(ClipboardData(text: _logs));
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Logs copiados para a área de transferência')),
+      const SnackBar(content: Text('Logs copiados para a área de transferência')),
     );
   }
 
@@ -83,7 +83,7 @@ class _PlanoLogsScreenState extends State<PlanoLogsScreen> {
     try {
       await _logger.clearLogs();
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Logs limpos com sucesso')),
+        const SnackBar(content: Text('Logs limpos com sucesso')),
       );
       _carregarLogs();
     } catch (e) {
@@ -97,57 +97,57 @@ class _PlanoLogsScreenState extends State<PlanoLogsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Logs do Plano'),
+        title: const Text('Logs do Plano'),
         backgroundColor: AppTheme.primaryColor,
         actions: [
           IconButton(
-            icon: Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh),
             onPressed: _carregarLogs,
             tooltip: 'Atualizar',
           ),
           IconButton(
-            icon: Icon(Icons.copy),
+            icon: const Icon(Icons.copy),
             onPressed: _copiarLogs,
             tooltip: 'Copiar',
           ),
           IconButton(
-            icon: Icon(Icons.share),
+            icon: const Icon(Icons.share),
             onPressed: _exportarLogs,
             tooltip: 'Exportar',
           ),
           IconButton(
-            icon: Icon(Icons.delete),
+            icon: const Icon(Icons.delete),
             onPressed: _limparLogs,
             tooltip: 'Limpar',
           ),
         ],
       ),
       body: _isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     'Logs do Plano ID: ${widget.planoId}',
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                       color: AppTheme.primaryColor,
                     ),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   Container(
                     width: double.infinity,
-                    padding: EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: Colors.black,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: SelectableText(
                       _logs.isEmpty ? 'Nenhum log encontrado' : _logs,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontFamily: 'monospace',
                         fontSize: 12,
                         color: Colors.green,

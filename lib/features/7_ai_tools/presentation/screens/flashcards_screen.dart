@@ -15,7 +15,7 @@ import '../../presentation/widgets/stored_files_widget.dart';
 class FlashcardsScreen extends StatefulWidget {
   final bool showBottomNavigationBar;
 
-  FlashcardsScreen({this.showBottomNavigationBar = true});
+  const FlashcardsScreen({super.key, this.showBottomNavigationBar = true});
 
   @override
   _FlashcardsScreenState createState() => _FlashcardsScreenState();
@@ -117,7 +117,7 @@ class _FlashcardsScreenState extends State<FlashcardsScreen> with SingleTickerPr
       if (_modoEntrada == 'texto') {
         await storageService.addUploadedDocument(
           usuario.id,
-          'Texto para flashcards - ${materia}',
+          'Texto para flashcards - $materia',
           'txt',
           DocumentStorageService.FLASHCARDS,
           texto.codeUnits,
@@ -142,7 +142,7 @@ class _FlashcardsScreenState extends State<FlashcardsScreen> with SingleTickerPr
       // Salvar o resultado gerado
       await storageService.addGeneratedFile(
         usuario.id,
-        'Flashcards - ${materia}',
+        'Flashcards - $materia',
         'txt',
         DocumentStorageService.FLASHCARDS,
         resultado,
@@ -169,12 +169,12 @@ class _FlashcardsScreenState extends State<FlashcardsScreen> with SingleTickerPr
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Flashcards'),
+        title: const Text('Flashcards'),
         backgroundColor: AppTheme.primaryColor,
         bottom: TabBar(
           controller: _tabController,
           indicatorColor: Colors.white,
-          tabs: [
+          tabs: const [
             Tab(text: 'Criar'),
             Tab(text: 'Enviados'),
             Tab(text: 'Gerados'),
@@ -197,11 +197,11 @@ class _FlashcardsScreenState extends State<FlashcardsScreen> with SingleTickerPr
 
   Widget _buildCreateTab() {
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          const Text(
             'Criar Flashcards com IA',
             style: TextStyle(
               fontSize: 24,
@@ -209,7 +209,7 @@ class _FlashcardsScreenState extends State<FlashcardsScreen> with SingleTickerPr
               color: Colors.white,
             ),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
             'Faça upload de um documento ou insira um texto para gerar flashcards automaticamente',
             style: TextStyle(
@@ -217,11 +217,11 @@ class _FlashcardsScreenState extends State<FlashcardsScreen> with SingleTickerPr
               color: Colors.white.withOpacity(0.7),
             ),
           ),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
 
           // Seleção de modo
           _buildModeSelector(),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
 
           // Conteúdo baseado no modo selecionado
           _modoEntrada == 'texto'
@@ -231,8 +231,8 @@ class _FlashcardsScreenState extends State<FlashcardsScreen> with SingleTickerPr
           // Mensagem de erro
           if (_errorMessage != null)
             Container(
-              margin: EdgeInsets.only(top: 16),
-              padding: EdgeInsets.all(12),
+              margin: const EdgeInsets.only(top: 16),
+              padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: Colors.red.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
@@ -240,12 +240,12 @@ class _FlashcardsScreenState extends State<FlashcardsScreen> with SingleTickerPr
               ),
               child: Row(
                 children: [
-                  Icon(Icons.error_outline, color: Colors.red),
-                  SizedBox(width: 12),
+                  const Icon(Icons.error_outline, color: Colors.red),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: Text(
                       _errorMessage!,
-                      style: TextStyle(color: Colors.red),
+                      style: const TextStyle(color: Colors.red),
                     ),
                   ),
                 ],
@@ -255,13 +255,13 @@ class _FlashcardsScreenState extends State<FlashcardsScreen> with SingleTickerPr
           // Resultado
           if (_resultado != null)
             Container(
-              margin: EdgeInsets.only(top: 24),
+              margin: const EdgeInsets.only(top: 24),
               child: ModernCard(
-                padding: EdgeInsets.all(16),
+                padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
+                    const Row(
                       children: [
                         Icon(
                           Icons.check_circle,
@@ -279,7 +279,7 @@ class _FlashcardsScreenState extends State<FlashcardsScreen> with SingleTickerPr
                         ),
                       ],
                     ),
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
                     Text(
                       _resultado!,
                       style: TextStyle(
@@ -287,17 +287,17 @@ class _FlashcardsScreenState extends State<FlashcardsScreen> with SingleTickerPr
                         fontSize: 14,
                       ),
                     ),
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         OutlinedButton.icon(
-                          icon: Icon(Icons.download),
-                          label: Text('BAIXAR'),
+                          icon: const Icon(Icons.download),
+                          label: const Text('BAIXAR'),
                           onPressed: () {
                             // Implementar download
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
+                              const SnackBar(
                                 content: Text('Download iniciado'),
                                 backgroundColor: AppTheme.successColor,
                               ),
@@ -321,11 +321,11 @@ class _FlashcardsScreenState extends State<FlashcardsScreen> with SingleTickerPr
 
   Widget _buildUploadedTab() {
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          const Text(
             'Documentos Enviados',
             style: TextStyle(
               fontSize: 24,
@@ -333,7 +333,7 @@ class _FlashcardsScreenState extends State<FlashcardsScreen> with SingleTickerPr
               color: Colors.white,
             ),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
             'Documentos que você enviou para gerar flashcards',
             style: TextStyle(
@@ -341,7 +341,7 @@ class _FlashcardsScreenState extends State<FlashcardsScreen> with SingleTickerPr
               color: Colors.white.withOpacity(0.7),
             ),
           ),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
           StoredFilesWidget(
             toolType: DocumentStorageService.FLASHCARDS,
             title: 'Seus Documentos',
@@ -362,11 +362,11 @@ class _FlashcardsScreenState extends State<FlashcardsScreen> with SingleTickerPr
 
   Widget _buildGeneratedTab() {
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          const Text(
             'Flashcards Gerados',
             style: TextStyle(
               fontSize: 24,
@@ -374,7 +374,7 @@ class _FlashcardsScreenState extends State<FlashcardsScreen> with SingleTickerPr
               color: Colors.white,
             ),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
             'Flashcards que você gerou com a IA',
             style: TextStyle(
@@ -382,7 +382,7 @@ class _FlashcardsScreenState extends State<FlashcardsScreen> with SingleTickerPr
               color: Colors.white.withOpacity(0.7),
             ),
           ),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
           StoredFilesWidget(
             toolType: DocumentStorageService.FLASHCARDS,
             title: 'Seus Flashcards',
@@ -406,47 +406,48 @@ class _FlashcardsScreenState extends State<FlashcardsScreen> with SingleTickerPr
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Campo de matéria
-        Text(
+        const Text(
           'Matéria',
           style: TextStyle(
             fontWeight: FontWeight.bold,
             color: Colors.white,
           ),
         ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         StyledTextField(
           controller: _materiaController,
           hintText: 'Ex: Direito Constitucional',
           prefixIcon: Icons.subject,
         ),
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
 
         // Campo de texto
-        Text(
+        const Text(
           'Texto',
           style: TextStyle(
             fontWeight: FontWeight.bold,
             color: Colors.white,
           ),
         ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         StyledTextField(
           controller: _textController,
           hintText: 'Cole aqui o texto para gerar flashcards...',
           prefixIcon: Icons.text_fields,
           maxLines: 10,
         ),
-        SizedBox(height: 24),
+        const SizedBox(height: 24),
 
         // Botão de gerar
         _isLoading
-            ? Center(
+            ? const Center(
                 child: CircularProgressIndicator(
                   valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
                 ),
               )
             : GradientButton(
                 onPressed: _gerarFlashcards,
+                fullWidth: true,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -455,7 +456,6 @@ class _FlashcardsScreenState extends State<FlashcardsScreen> with SingleTickerPr
                     Text('GERAR FLASHCARDS'),
                   ],
                 ),
-                fullWidth: true,
               ),
       ],
     );
@@ -493,7 +493,7 @@ class _FlashcardsScreenState extends State<FlashcardsScreen> with SingleTickerPr
                 Icons.upload_file,
               ),
             ),
-            SizedBox(width: 16),
+            const SizedBox(width: 16),
             Expanded(
               child: _buildModeButton(
                 'texto',
@@ -518,7 +518,7 @@ class _FlashcardsScreenState extends State<FlashcardsScreen> with SingleTickerPr
         });
       },
       child: Container(
-        padding: EdgeInsets.symmetric(vertical: 16),
+        padding: const EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
           color: isSelected ? AppTheme.primaryColor.withOpacity(0.2) : Colors.transparent,
           borderRadius: BorderRadius.circular(8),
@@ -535,7 +535,7 @@ class _FlashcardsScreenState extends State<FlashcardsScreen> with SingleTickerPr
               color: isSelected ? AppTheme.primaryColor : Colors.white.withOpacity(0.7),
               size: 32,
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
               label,
               textAlign: TextAlign.center,
@@ -557,12 +557,12 @@ class _FlashcardsScreenState extends State<FlashcardsScreen> with SingleTickerPr
           BoxShadow(
             color: Colors.black.withOpacity(0.2),
             blurRadius: 10,
-            offset: Offset(0, -2),
+            offset: const Offset(0, -2),
           ),
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.only(
+        borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(20),
           topRight: Radius.circular(20),
         ),
@@ -591,9 +591,9 @@ class _FlashcardsScreenState extends State<FlashcardsScreen> with SingleTickerPr
           unselectedItemColor: Colors.white.withOpacity(0.7),
           backgroundColor: AppTheme.darkSurface,
           elevation: 0,
-          selectedLabelStyle: TextStyle(color: AppTheme.primaryColor, fontWeight: FontWeight.bold),
+          selectedLabelStyle: const TextStyle(color: AppTheme.primaryColor, fontWeight: FontWeight.bold),
           unselectedLabelStyle: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 12),
-          items: [
+          items: const [
             // Abas principais
             BottomNavigationBarItem(
               icon: Icon(Icons.dashboard),
@@ -630,17 +630,17 @@ class _FlashcardsScreenState extends State<FlashcardsScreen> with SingleTickerPr
   Widget _buildPremiumRequired() {
     return Center(
       child: Padding(
-        padding: EdgeInsets.all(24),
+        padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
+            const Icon(
               Icons.lock,
               size: 64,
               color: Colors.amber,
             ),
-            SizedBox(height: 24),
-            Text(
+            const SizedBox(height: 24),
+            const Text(
               'Recurso Premium',
               style: TextStyle(
                 fontSize: 24,
@@ -648,7 +648,7 @@ class _FlashcardsScreenState extends State<FlashcardsScreen> with SingleTickerPr
                 color: Colors.white,
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(
               'Os flashcards com IA estão disponíveis apenas para usuários premium.',
               textAlign: TextAlign.center,
@@ -657,7 +657,7 @@ class _FlashcardsScreenState extends State<FlashcardsScreen> with SingleTickerPr
                 color: Colors.white.withOpacity(0.7),
               ),
             ),
-            SizedBox(height: 32),
+            const SizedBox(height: 32),
             ElevatedButton(
               onPressed: () async {
                 // Simulação de upgrade
@@ -666,7 +666,7 @@ class _FlashcardsScreenState extends State<FlashcardsScreen> with SingleTickerPr
 
                 // Mostrar confirmação
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
+                  const SnackBar(
                     content: Text('Parabéns! Você agora é um usuário Premium.'),
                     backgroundColor: AppTheme.successColor,
                   ),
@@ -677,12 +677,12 @@ class _FlashcardsScreenState extends State<FlashcardsScreen> with SingleTickerPr
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.amber,
-                padding: EdgeInsets.symmetric(vertical: 16, horizontal: 32),
+                padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: Text('FAZER UPGRADE'),
+              child: const Text('FAZER UPGRADE'),
             ),
           ],
         ),

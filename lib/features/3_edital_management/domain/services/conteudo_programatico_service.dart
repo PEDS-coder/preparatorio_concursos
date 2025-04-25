@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import '../../../../core/data/models/models.dart';
 
 /// Serviço responsável por gerenciar o conteúdo programático

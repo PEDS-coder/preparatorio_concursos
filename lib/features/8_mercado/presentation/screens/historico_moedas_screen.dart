@@ -7,6 +7,8 @@ import '../../../../core/data/services/mercado_service.dart';
 import '../../../../core/data/models/recompensa_mercado.dart';
 
 class HistoricoMoedasScreen extends StatelessWidget {
+  const HistoricoMoedasScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context);
@@ -17,10 +19,10 @@ class HistoricoMoedasScreen extends StatelessWidget {
     if (usuario == null) {
       return Scaffold(
         appBar: AppBar(
-          title: Text('Histórico de Moedas'),
+          title: const Text('Histórico de Moedas'),
           backgroundColor: AppTheme.primaryColor,
         ),
-        body: Center(
+        body: const Center(
           child: Text(
             'Você precisa estar autenticado para ver o histórico',
             style: TextStyle(color: Colors.white),
@@ -37,13 +39,13 @@ class HistoricoMoedasScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Histórico de Moedas'),
+        title: const Text('Histórico de Moedas'),
         backgroundColor: AppTheme.primaryColor,
       ),
       body: historico.isEmpty
           ? _buildEmptyState()
           : ListView.builder(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               itemCount: historico.length,
               itemBuilder: (context, index) {
                 final item = historico[index];
@@ -56,7 +58,7 @@ class HistoricoMoedasScreen extends StatelessWidget {
   Widget _buildEmptyState() {
     return Center(
       child: Padding(
-        padding: EdgeInsets.all(24),
+        padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -65,8 +67,8 @@ class HistoricoMoedasScreen extends StatelessWidget {
               size: 64,
               color: Colors.grey.withOpacity(0.5),
             ),
-            SizedBox(height: 16),
-            Text(
+            const SizedBox(height: 16),
+            const Text(
               'Nenhuma transação de moedas registrada',
               style: TextStyle(
                 color: Colors.grey,
@@ -130,17 +132,17 @@ class HistoricoMoedasScreen extends StatelessWidget {
     }
 
     return Card(
-      margin: EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 12),
       color: AppTheme.darkCardColor,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
       child: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Row(
           children: [
             Container(
-              padding: EdgeInsets.all(8),
+              padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: cor.withOpacity(0.2),
                 shape: BoxShape.circle,
@@ -151,7 +153,7 @@ class HistoricoMoedasScreen extends StatelessWidget {
                 size: 24,
               ),
             ),
-            SizedBox(width: 16),
+            const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -163,7 +165,7 @@ class HistoricoMoedasScreen extends StatelessWidget {
                         size: 16,
                         color: Colors.white.withOpacity(0.7),
                       ),
-                      SizedBox(width: 4),
+                      const SizedBox(width: 4),
                       Text(
                         origemTexto,
                         style: TextStyle(
@@ -173,10 +175,10 @@ class HistoricoMoedasScreen extends StatelessWidget {
                       ),
                     ],
                   ),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   Text(
                     item.descricao ?? 'Sem descrição',
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 16,
                       color: Colors.white,
                     ),
@@ -195,7 +197,7 @@ class HistoricoMoedasScreen extends StatelessWidget {
                     color: cor,
                   ),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                   DateFormat('dd/MM/yyyy HH:mm').format(item.data),
                   style: TextStyle(

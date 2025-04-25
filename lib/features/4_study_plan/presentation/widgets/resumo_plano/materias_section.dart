@@ -20,7 +20,7 @@ class MateriasSection extends StatefulWidget {
 }
 
 class _MateriasSectionState extends State<MateriasSection> {
-  Map<String, bool> _expandedMaterias = {};
+  final Map<String, bool> _expandedMaterias = {};
 
   @override
   void initState() {

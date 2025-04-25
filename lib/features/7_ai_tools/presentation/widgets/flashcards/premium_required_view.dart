@@ -14,17 +14,17 @@ class PremiumRequiredView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: EdgeInsets.all(24),
+        padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
+            const Icon(
               Icons.lock,
               size: 64,
               color: Colors.amber,
             ),
-            SizedBox(height: 24),
-            Text(
+            const SizedBox(height: 24),
+            const Text(
               'Recurso Premium',
               style: TextStyle(
                 fontSize: 24,
@@ -32,7 +32,7 @@ class PremiumRequiredView extends StatelessWidget {
                 color: Colors.white,
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(
               'Os flashcards com IA estão disponíveis apenas para usuários premium.',
               textAlign: TextAlign.center,
@@ -41,17 +41,17 @@ class PremiumRequiredView extends StatelessWidget {
                 color: Colors.white.withOpacity(0.7),
               ),
             ),
-            SizedBox(height: 32),
+            const SizedBox(height: 32),
             ElevatedButton(
               onPressed: onUpgradePressed,
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.amber,
-                padding: EdgeInsets.symmetric(vertical: 16, horizontal: 32),
+                padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: Text('FAZER UPGRADE'),
+              child: const Text('FAZER UPGRADE'),
             ),
           ],
         ),

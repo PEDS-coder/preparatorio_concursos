@@ -1,5 +1,4 @@
 import 'package:preparatorio_concursos/core/data/repositories/base_repository.dart';
-import 'package:preparatorio_concursos/core/utils/global_error_handling.dart' as global_error;
 
 /// Extensão para facilitar o uso do runWithErrorHandling
 extension ErrorHandlingExtension on BaseRepository {

@@ -68,7 +68,7 @@ class StyledTextField extends StatefulWidget {
   }) {
     IconData? iconData;
     if (prefixIcon is Icon) {
-      iconData = (prefixIcon as Icon).icon;
+      iconData = (prefixIcon).icon;
     }
 
     return StyledTextField(
@@ -163,7 +163,7 @@ class _StyledTextFieldState extends State<StyledTextField> {
           labelText: widget.labelText,
           hintText: widget.hintText,
           contentPadding: widget.contentPadding ??
-              EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
           prefixIcon: widget.prefixIcon != null ? Icon(widget.prefixIcon) : null,
           suffixIcon: widget.obscureText
               ? IconButton(
@@ -198,14 +198,14 @@ class _StyledTextFieldState extends State<StyledTextField> {
           ),
           errorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide(
+            borderSide: const BorderSide(
               color: AppTheme.errorColor,
               width: 1,
             ),
           ),
           focusedErrorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide(
+            borderSide: const BorderSide(
               color: AppTheme.errorColor,
               width: 2,
             ),
@@ -225,7 +225,7 @@ class _StyledTextFieldState extends State<StyledTextField> {
             color: Theme.of(context).brightness == Brightness.dark ?
                   Colors.white.withOpacity(0.3) : Colors.black87.withOpacity(0.5),
           ),
-          errorStyle: TextStyle(
+          errorStyle: const TextStyle(
             color: AppTheme.errorColor,
             fontSize: 12,
           ),

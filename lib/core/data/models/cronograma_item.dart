@@ -27,6 +27,7 @@ class CronogramaItem implements BaseModel {
     this.status = StatusItem.pendente,
   });
 
+  @override
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -60,6 +61,7 @@ class CronogramaItem implements BaseModel {
   }
 
   // Método para criar uma cópia do objeto com algumas propriedades alteradas
+  @override
   CronogramaItem copyWith({
     String? id,
     String? planoId,

@@ -10,6 +10,8 @@ import '../../../../core/widgets/modern_card.dart';
 import '../../../../core/widgets/gradient_button.dart';
 
 class MeuProgressoTab extends StatelessWidget {
+  const MeuProgressoTab({super.key});
+
   @override
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context);
@@ -57,8 +59,8 @@ class MeuProgressoTab extends StatelessWidget {
     final totalHorasMateria = dadosMateriasEstudadas.fold<double>(0.0, (sum, item) => sum + (item['horas'] as double));
 
     // Calcular progresso total do plano de estudos (simulado)
-    final progressoPlano = 0.65; // 65% concluído
-    final diasRestantes = 45; // 45 dias restantes
+    const progressoPlano = 0.65; // 65% concluído
+    const diasRestantes = 45; // 45 dias restantes
 
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -66,7 +68,7 @@ class MeuProgressoTab extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Cabeçalho
-          Text(
+          const Text(
             'Meu Progresso',
             style: TextStyle(
               fontSize: 24,
@@ -74,7 +76,7 @@ class MeuProgressoTab extends StatelessWidget {
               color: AppTheme.primaryColor,
             ),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
             'Acompanhe sua evolução nos estudos',
             style: TextStyle(
@@ -82,7 +84,7 @@ class MeuProgressoTab extends StatelessWidget {
               color: Colors.grey.shade400,
             ),
           ),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
 
           // Conteúdo principal
           Expanded(
@@ -92,7 +94,7 @@ class MeuProgressoTab extends StatelessWidget {
                 children: [
                   // Card de progresso geral
                   ModernCard(
-                    gradient: LinearGradient(
+                    gradient: const LinearGradient(
                       colors: [AppTheme.darkCardColor, Color(0xFF1E3A6E)],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
@@ -109,7 +111,7 @@ class MeuProgressoTab extends StatelessWidget {
                                 height: 60,
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  gradient: LinearGradient(
+                                  gradient: const LinearGradient(
                                     colors: [AppTheme.primaryColor, Color(0xFF9C1AFF)],
                                     begin: Alignment.topLeft,
                                     end: Alignment.bottomRight,
@@ -125,7 +127,7 @@ class MeuProgressoTab extends StatelessWidget {
                                 child: Center(
                                   child: Text(
                                     '${(progressoPlano * 100).toInt()}%',
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.bold,
                                       fontSize: 18,
@@ -133,12 +135,12 @@ class MeuProgressoTab extends StatelessWidget {
                                   ),
                                 ),
                               ),
-                              SizedBox(width: 16),
+                              const SizedBox(width: 16),
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
+                                    const Text(
                                       'Progresso do Plano',
                                       style: TextStyle(
                                         fontSize: 18,
@@ -146,7 +148,7 @@ class MeuProgressoTab extends StatelessWidget {
                                         color: Colors.white,
                                       ),
                                     ),
-                                    SizedBox(height: 8),
+                                    const SizedBox(height: 8),
                                     Text(
                                       'Faltam $diasRestantes dias para a prova',
                                       style: TextStyle(
@@ -154,11 +156,11 @@ class MeuProgressoTab extends StatelessWidget {
                                         color: Colors.grey.shade300,
                                       ),
                                     ),
-                                    SizedBox(height: 8),
+                                    const SizedBox(height: 8),
                                     LinearProgressIndicator(
                                       value: progressoPlano,
                                       backgroundColor: Colors.grey.shade800,
-                                      valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
+                                      valueColor: const AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
                                       minHeight: 8,
                                       borderRadius: BorderRadius.circular(4),
                                     ),
@@ -168,7 +170,7 @@ class MeuProgressoTab extends StatelessWidget {
                             ],
                           ),
 
-                          SizedBox(height: 24),
+                          const SizedBox(height: 24),
 
                           // Estatísticas rápidas
                           Row(
@@ -198,10 +200,10 @@ class MeuProgressoTab extends StatelessWidget {
                     ),
                   ),
 
-                  SizedBox(height: 24),
+                  const SizedBox(height: 24),
 
                   // Gráfico de horas estudadas por dia
-                  Text(
+                  const Text(
                     'Horas Estudadas na Semana',
                     style: TextStyle(
                       fontSize: 18,
@@ -209,7 +211,7 @@ class MeuProgressoTab extends StatelessWidget {
                       color: Colors.white,
                     ),
                   ),
-                  SizedBox(height: 12),
+                  const SizedBox(height: 12),
 
                   ModernCard(
                     child: Padding(
@@ -221,13 +223,13 @@ class MeuProgressoTab extends StatelessWidget {
                             height: 200,
                             child: _buildBarChart(dadosEstudoSemanal),
                           ),
-                          SizedBox(height: 16),
+                          const SizedBox(height: 16),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
                                 'Total: ${dadosEstudoSemanal.fold<double>(0.0, (sum, item) => sum + (item['horas'] as double)).toStringAsFixed(1)}h',
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white,
@@ -247,10 +249,10 @@ class MeuProgressoTab extends StatelessWidget {
                     ),
                   ),
 
-                  SizedBox(height: 24),
+                  const SizedBox(height: 24),
 
                   // Gráfico de distribuição por matéria
-                  Text(
+                  const Text(
                     'Distribuição por Matéria',
                     style: TextStyle(
                       fontSize: 18,
@@ -258,7 +260,7 @@ class MeuProgressoTab extends StatelessWidget {
                       color: Colors.white,
                     ),
                   ),
-                  SizedBox(height: 12),
+                  const SizedBox(height: 12),
 
                   ModernCard(
                     child: Padding(
@@ -285,13 +287,13 @@ class MeuProgressoTab extends StatelessWidget {
                     ),
                   ),
 
-                  SizedBox(height: 24),
+                  const SizedBox(height: 24),
 
                   // Conquistas recentes
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
+                      const Text(
                         'Conquistas Recentes',
                         style: TextStyle(
                           fontSize: 18,
@@ -304,7 +306,7 @@ class MeuProgressoTab extends StatelessWidget {
                           onPressed: () {
                             Navigator.pushNamed(context, '/trofeus');
                           },
-                          child: Text(
+                          child: const Text(
                             'Ver Todas',
                             style: TextStyle(
                               color: AppTheme.secondaryColor,
@@ -313,7 +315,7 @@ class MeuProgressoTab extends StatelessWidget {
                         ),
                     ],
                   ),
-                  SizedBox(height: 12),
+                  const SizedBox(height: 12),
 
                   // Lista de conquistas
                   trofeus.isEmpty
@@ -328,7 +330,7 @@ class MeuProgressoTab extends StatelessWidget {
                                     size: 48,
                                     color: Colors.grey.shade400,
                                   ),
-                                  SizedBox(height: 16),
+                                  const SizedBox(height: 16),
                                   Text(
                                     'Nenhuma conquista ainda',
                                     style: TextStyle(
@@ -337,7 +339,7 @@ class MeuProgressoTab extends StatelessWidget {
                                       color: Colors.grey.shade300,
                                     ),
                                   ),
-                                  SizedBox(height: 8),
+                                  const SizedBox(height: 8),
                                   Text(
                                     'Continue estudando para desbloquear conquistas',
                                     style: TextStyle(
@@ -360,7 +362,7 @@ class MeuProgressoTab extends StatelessWidget {
                               final trofeu = trofeus[index];
                               return Container(
                                 width: 200,
-                                margin: EdgeInsets.only(right: 12),
+                                margin: const EdgeInsets.only(right: 12),
                                 child: ModernCard(
                                   gradient: LinearGradient(
                                     colors: [Colors.amber.shade700.withOpacity(0.7), Colors.amber.shade300.withOpacity(0.7)],
@@ -372,21 +374,21 @@ class MeuProgressoTab extends StatelessWidget {
                                     child: Column(
                                       mainAxisAlignment: MainAxisAlignment.center,
                                       children: [
-                                        Icon(
+                                        const Icon(
                                           Icons.emoji_events,
                                           size: 32,
                                           color: Colors.white,
                                         ),
-                                        SizedBox(height: 8),
+                                        const SizedBox(height: 8),
                                         Text(
                                           trofeu.nomeTrofeu,
-                                          style: TextStyle(
+                                          style: const TextStyle(
                                             fontWeight: FontWeight.bold,
                                             color: Colors.white,
                                           ),
                                           textAlign: TextAlign.center,
                                         ),
-                                        SizedBox(height: 4),
+                                        const SizedBox(height: 4),
                                         Text(
                                           trofeu.descricaoTrofeu,
                                           style: TextStyle(
@@ -419,7 +421,7 @@ class MeuProgressoTab extends StatelessWidget {
       child: Column(
         children: [
           Container(
-            padding: EdgeInsets.all(10),
+            padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               color: color.withOpacity(0.2),
               borderRadius: BorderRadius.circular(12),
@@ -430,16 +432,16 @@ class MeuProgressoTab extends StatelessWidget {
               size: 24,
             ),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
             value,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
               color: Colors.white,
             ),
           ),
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
           Text(
             label,
             style: TextStyle(
@@ -495,8 +497,8 @@ class MeuProgressoTab extends StatelessWidget {
                 reservedSize: 30,
               ),
             ),
-            topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
           ),
           gridData: FlGridData(
             show: true,
@@ -515,7 +517,7 @@ class MeuProgressoTab extends StatelessWidget {
               barRods: [
                 BarChartRodData(
                   toY: dados[index]['horas'],
-                  gradient: LinearGradient(
+                  gradient: const LinearGradient(
                     colors: [
                       Color(0xFF00CCFF), // Neon azul
                       Color(0xFF2E7BFF),
@@ -524,7 +526,7 @@ class MeuProgressoTab extends StatelessWidget {
                     end: Alignment.bottomCenter,
                   ),
                   width: 20,
-                  borderRadius: BorderRadius.only(
+                  borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(6),
                     topRight: Radius.circular(6),
                   ),
@@ -548,11 +550,11 @@ class MeuProgressoTab extends StatelessWidget {
 
     // Cores neon para o gráfico
     final List<Color> neonColors = [
-      Color(0xFF00FFFF), // Neon ciano
-      Color(0xFFFF00FF), // Neon magenta
-      Color(0xFF00FF00), // Neon verde
-      Color(0xFFFFFF00), // Neon amarelo
-      Color(0xFFFF9900), // Neon laranja
+      const Color(0xFF00FFFF), // Neon ciano
+      const Color(0xFFFF00FF), // Neon magenta
+      const Color(0xFF00FF00), // Neon verde
+      const Color(0xFFFFFF00), // Neon amarelo
+      const Color(0xFFFF9900), // Neon laranja
     ];
 
     return Stack(
@@ -574,7 +576,7 @@ class MeuProgressoTab extends StatelessWidget {
                   value: item['horas'] as double,
                   title: '${(percentual * 100).toStringAsFixed(0)}%',
                   radius: 60,
-                  titleStyle: TextStyle(
+                  titleStyle: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
@@ -596,7 +598,7 @@ class MeuProgressoTab extends StatelessWidget {
           children: [
             Text(
               '${total.toStringAsFixed(1)}h',
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
@@ -639,11 +641,11 @@ class MeuProgressoTab extends StatelessWidget {
 
     // Cores neon para o gráfico
     final List<Color> neonColors = [
-      Color(0xFF00FFFF), // Neon ciano
-      Color(0xFFFF00FF), // Neon magenta
-      Color(0xFF00FF00), // Neon verde
-      Color(0xFFFFFF00), // Neon amarelo
-      Color(0xFFFF9900), // Neon laranja
+      const Color(0xFF00FFFF), // Neon ciano
+      const Color(0xFFFF00FF), // Neon magenta
+      const Color(0xFF00FF00), // Neon verde
+      const Color(0xFFFFFF00), // Neon amarelo
+      const Color(0xFFFF9900), // Neon laranja
     ];
 
     return Column(
@@ -660,7 +662,7 @@ class MeuProgressoTab extends StatelessWidget {
           child: Row(
             children: [
               _buildGlowingDot(color),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               Expanded(
                 child: Text(
                   item['materia'] as String,
@@ -674,9 +676,9 @@ class MeuProgressoTab extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              SizedBox(width: 4),
+              const SizedBox(width: 4),
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
                   color: color.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(10),
@@ -684,7 +686,7 @@ class MeuProgressoTab extends StatelessWidget {
                 ),
                 child: Text(
                   '${percentual.toStringAsFixed(1)}%',
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,

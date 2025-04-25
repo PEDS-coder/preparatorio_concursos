@@ -12,7 +12,7 @@ class NoCargosMessageWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
       ),
       child: Padding(
-        padding: EdgeInsets.all(24),
+        padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -21,15 +21,15 @@ class NoCargosMessageWidget extends StatelessWidget {
               size: 48,
               color: Colors.blue.shade300,
             ),
-            SizedBox(height: 16),
-            Text(
+            const SizedBox(height: 16),
+            const Text(
               'Nenhum cargo encontrado',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
               'Não foram encontrados cargos neste edital. Isso pode ocorrer se o edital não contiver informações sobre cargos ou se a análise não conseguiu extrair essas informações.',
               textAlign: TextAlign.center,
@@ -37,13 +37,13 @@ class NoCargosMessageWidget extends StatelessWidget {
                 color: Colors.grey.shade700,
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             ElevatedButton.icon(
               onPressed: () {
                 Navigator.pop(context);
               },
-              icon: Icon(Icons.arrow_back),
-              label: Text('Voltar'),
+              icon: const Icon(Icons.arrow_back),
+              label: const Text('Voltar'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue,
               ),

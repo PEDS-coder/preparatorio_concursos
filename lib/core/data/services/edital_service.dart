@@ -3,6 +3,8 @@ import 'dart:typed_data';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/foundation.dart';
 import '../models/edital.dart';
+import '../models/cota.dart';
+import '../models/dados_vaga.dart';
 
 class EditalService extends ChangeNotifier {
   List<Edital> _editais = [];
@@ -91,9 +93,14 @@ class EditalService extends ChangeNotifier {
 
   // Atualizar o conteúdo programático de um cargo
   Future<void> atualizarConteudoProgramaticoCargo(String editalId, String cargoNome, Map<String, dynamic> conteudoProgramatico) async {
+    // Log para depuração
+    print('[EditalService] Atualizando conteúdo programático para cargo: $cargoNome');
+    print('[EditalService] Chaves recebidas: ${conteudoProgramatico.keys.join(', ')}');
+
     // Encontrar o edital
     final editalIndex = _editais.indexWhere((edital) => edital.id == editalId);
     if (editalIndex == -1) {
+      print('[EditalService] Edital não encontrado: $editalId');
       throw Exception('Edital não encontrado');
     }
 
@@ -103,11 +110,218 @@ class EditalService extends ChangeNotifier {
     );
 
     if (cargoIndex == -1) {
+      print('[EditalService] Cargo não encontrado: $cargoNome');
       throw Exception('Cargo não encontrado');
+    }
+
+    // Criar uma cópia do edital para não modificar diretamente o objeto original
+    final Edital editalAtualizado = Edital(
+      id: _editais[editalIndex].id,
+      userId: _editais[editalIndex].userId,
+      nomeConcurso: _editais[editalIndex].nomeConcurso,
+      textoCompleto: _editais[editalIndex].textoCompleto,
+      dataUpload: _editais[editalIndex].dataUpload,
+      dadosOriginais: _editais[editalIndex].dadosOriginais ?? {},
+      dadosExtraidos: DadosExtraidos(
+        titulo: _editais[editalIndex].dadosExtraidos.titulo,
+        orgao: _editais[editalIndex].dadosExtraidos.orgao,
+        banca: _editais[editalIndex].dadosExtraidos.banca,
+        inicioInscricao: _editais[editalIndex].dadosExtraidos.inicioInscricao,
+        fimInscricao: _editais[editalIndex].dadosExtraidos.fimInscricao,
+        valorTaxa: _editais[editalIndex].dadosExtraidos.valorTaxa,
+        localProva: _editais[editalIndex].dadosExtraidos.localProva,
+        dataProva: _editais[editalIndex].dadosExtraidos.dataProva,
+        cargos: List.from(_editais[editalIndex].dadosExtraidos.cargos),
+      ),
+    );
+
+    // Armazenar a resposta completa nos dados originais
+    editalAtualizado.dadosOriginais!['resposta_completa'] = conteudoProgramatico;
+
+    // Processar dados da prova
+    if (conteudoProgramatico.containsKey('prova') && conteudoProgramatico['prova'] is Map<String, dynamic>) {
+      print('[EditalService] Processando dados da prova');
+      final provaMap = conteudoProgramatico['prova'] as Map<String, dynamic>;
+
+      // Armazenar dados da prova nos dados originais
+      editalAtualizado.dadosOriginais!['prova'] = provaMap;
+
+      // Atualizar dados extraídos com informações da prova
+      DadosProva dadosProva = DadosProva();
+
+      // Total de questões
+      if (provaMap.containsKey('total_questoes')) {
+        var totalQuestoes = provaMap['total_questoes'];
+        if (totalQuestoes is int) {
+          dadosProva.totalQuestoes = totalQuestoes;
+        } else if (totalQuestoes is String) {
+          dadosProva.totalQuestoes = int.tryParse(totalQuestoes);
+        } else if (totalQuestoes is double) {
+          dadosProva.totalQuestoes = totalQuestoes.toInt();
+        }
+        print('[EditalService] Total de questões: ${dadosProva.totalQuestoes}');
+      }
+
+      // Formato da prova
+      if (provaMap.containsKey('formato')) {
+        var formato = provaMap['formato'];
+        if (formato is List) {
+          dadosProva.formato = (formato).map((item) => item.toString()).toList();
+        } else if (formato is String) {
+          dadosProva.formato = [formato];
+        }
+        print('[EditalService] Formato da prova: ${dadosProva.formato?.join(', ')}');
+      }
+
+      // Tema da prova discursiva
+      if (provaMap.containsKey('tema_discursiva')) {
+        dadosProva.temaDiscursiva = provaMap['tema_discursiva']?.toString();
+        print('[EditalService] Tema da prova discursiva: ${dadosProva.temaDiscursiva}');
+      }
+
+      // Critérios de aprovação
+      if (provaMap.containsKey('criterios_aprovacao')) {
+        dadosProva.criteriosAprovacao = provaMap['criterios_aprovacao']?.toString();
+        print('[EditalService] Critérios de aprovação: ${dadosProva.criteriosAprovacao}');
+      }
+
+      // Critérios de reprovação
+      if (provaMap.containsKey('criterios_reprovacao')) {
+        dadosProva.criteriosReprovacao = provaMap['criterios_reprovacao']?.toString();
+        print('[EditalService] Critérios de reprovação: ${dadosProva.criteriosReprovacao}');
+      }
+
+      // Critérios de desempate
+      if (provaMap.containsKey('criterios_desempate')) {
+        var criterios = provaMap['criterios_desempate'];
+        if (criterios is List) {
+          dadosProva.criteriosDesempate = (criterios).map((item) => item.toString()).toList();
+        } else if (criterios is String) {
+          dadosProva.criteriosDesempate = [criterios];
+        }
+        print('[EditalService] Critérios de desempate: ${dadosProva.criteriosDesempate?.join(', ')}');
+      }
+
+      // Duração da prova
+      if (provaMap.containsKey('duracao')) {
+        dadosProva.duracao = provaMap['duracao']?.toString();
+        print('[EditalService] Duração da prova: ${dadosProva.duracao}');
+      }
+
+      // Data da prova
+      if (provaMap.containsKey('data')) {
+        String dataStr = provaMap['data']?.toString() ?? '';
+        if (dataStr.isNotEmpty) {
+          editalAtualizado.dadosExtraidos.dataProva = dataStr;
+          print('[EditalService] Data da prova atualizada: $dataStr');
+        }
+      }
+
+      // Local da prova
+      if (provaMap.containsKey('local')) {
+        String localStr = provaMap['local']?.toString() ?? '';
+        if (localStr.isNotEmpty) {
+          editalAtualizado.dadosExtraidos.localProva = localStr;
+          print('[EditalService] Local da prova atualizado: $localStr');
+        }
+      }
+
+      // Atualizar dados da prova
+      editalAtualizado.dadosExtraidos.dadosProva = dadosProva;
+    }
+
+    // Processar dados de cotas
+    if (conteudoProgramatico.containsKey('cotas') && conteudoProgramatico['cotas'] is List) {
+      print('[EditalService] Processando dados de cotas');
+      final cotasList = conteudoProgramatico['cotas'] as List;
+
+      // Armazenar dados de cotas nos dados originais
+      editalAtualizado.dadosOriginais!['cotas'] = cotasList;
+
+      // Converter para o formato esperado pelo modelo
+      List<Cota> cotas = [];
+      for (var cotaItem in cotasList) {
+        if (cotaItem is Map) {
+          String nome = cotaItem['nome']?.toString() ?? '';
+          double? percentual;
+
+          if (cotaItem.containsKey('percentual')) {
+            var percentualValue = cotaItem['percentual'];
+            if (percentualValue is int) {
+              percentual = percentualValue.toDouble();
+            } else if (percentualValue is double) {
+              percentual = percentualValue;
+            } else if (percentualValue is String) {
+              percentual = double.tryParse(percentualValue);
+            }
+          }
+
+          if (nome.isNotEmpty) {
+            cotas.add(Cota(nome: nome, percentual: percentual));
+            print('[EditalService] Cota adicionada: $nome (${percentual ?? 'sem percentual'})');
+          }
+        }
+      }
+
+      // Atualizar cotas
+      editalAtualizado.dadosExtraidos.cotas = cotas.map((cota) =>
+        DadosCota(
+          nome: cota.nome,
+          percentual: cota.percentual?.toInt(),
+          numeroVagas: cota.numeroVagas,
+          criterios: cota.criterios
+        )
+      ).toList();
+    }
+
+    // Processar dados de vagas
+    if (conteudoProgramatico.containsKey('vagas') && conteudoProgramatico['vagas'] is Map) {
+      print('[EditalService] Processando dados de vagas');
+      final vagasMap = conteudoProgramatico['vagas'] as Map<String, dynamic>;
+
+      // Armazenar dados de vagas nos dados originais
+      editalAtualizado.dadosOriginais!['vagas'] = vagasMap;
+
+      // Converter para o formato esperado pelo modelo
+      DadosVaga dadosVaga = DadosVaga();
+
+      // Vagas imediatas
+      if (vagasMap.containsKey('imediatas')) {
+        var imediatas = vagasMap['imediatas'];
+        if (imediatas is int) {
+          dadosVaga.imediatas = imediatas;
+        } else if (imediatas is String) {
+          dadosVaga.imediatas = int.tryParse(imediatas);
+        } else if (imediatas is double) {
+          dadosVaga.imediatas = imediatas.toInt();
+        }
+      }
+
+      // Cadastro reserva
+      if (vagasMap.containsKey('cadastro_reserva')) {
+        dadosVaga.cadastroReserva = vagasMap['cadastro_reserva'] == true;
+      }
+
+      // Total consolidado
+      if (vagasMap.containsKey('total_consolidado')) {
+        var total = vagasMap['total_consolidado'];
+        if (total is int) {
+          dadosVaga.totalConsolidado = total;
+        } else if (total is String) {
+          dadosVaga.totalConsolidado = int.tryParse(total);
+        } else if (total is double) {
+          dadosVaga.totalConsolidado = total.toInt();
+        }
+      }
+
+      // Atualizar dados de vaga
+      editalAtualizado.dadosExtraidos.dadosVaga = dadosVaga;
+      print('[EditalService] Dados de vaga atualizados: imediatas=${dadosVaga.imediatas}, CR=${dadosVaga.cadastroReserva}, total=${dadosVaga.totalConsolidado}');
     }
 
     // Verificar se o conteúdo programático contém a chave 'conteudo_programatico'
     if (conteudoProgramatico.containsKey('conteudo_programatico')) {
+      print('[EditalService] Processando conteúdo programático');
       // Atualizar o conteúdo programático do cargo
       final List<dynamic> novoConteudo = conteudoProgramatico['conteudo_programatico'] as List<dynamic>;
 
@@ -118,12 +332,12 @@ class EditalService extends ChangeNotifier {
         final Map<String, dynamic> itemMap = item as Map<String, dynamic>;
 
         // Depuração para verificar os dados recebidos
-        print('Processando matéria: ${itemMap['nome']}');
-        print('  Tipo: ${itemMap['tipo']}');
+        print('[EditalService] Processando matéria: ${itemMap['nome']}');
+        print('[EditalService]   Tipo: ${itemMap['tipo']}');
         if (itemMap.containsKey('numero_questoes')) {
-          print('  Número de questões (original): ${itemMap['numero_questoes']} (${itemMap['numero_questoes'].runtimeType})');
+          print('[EditalService]   Número de questões (original): ${itemMap['numero_questoes']} (${itemMap['numero_questoes'].runtimeType})');
         } else {
-          print('  Número de questões não encontrado no JSON');
+          print('[EditalService]   Número de questões não encontrado no JSON');
         }
 
         // Processar o número de questões
@@ -134,7 +348,7 @@ class EditalService extends ChangeNotifier {
         // Processar o grupo da matéria
         if (itemMap.containsKey('grupo_materia')) {
           grupoMateria = itemMap['grupo_materia'] as String?;
-          print('  Grupo da matéria: $grupoMateria');
+          print('[EditalService]   Grupo da matéria: $grupoMateria');
         }
 
         // Processar o número total de questões do grupo
@@ -142,17 +356,17 @@ class EditalService extends ChangeNotifier {
           var totalQuestoesValue = itemMap['total_questoes_grupo'];
           if (totalQuestoesValue is int) {
             totalQuestoesGrupo = totalQuestoesValue;
-            print('  Total de questões do grupo (processado como int): $totalQuestoesGrupo');
+            print('[EditalService]   Total de questões do grupo (processado como int): $totalQuestoesGrupo');
           } else if (totalQuestoesValue is String) {
             try {
               totalQuestoesGrupo = int.tryParse(totalQuestoesValue);
-              print('  Total de questões do grupo (convertido de string): $totalQuestoesGrupo');
+              print('[EditalService]   Total de questões do grupo (convertido de string): $totalQuestoesGrupo');
             } catch (e) {
-              print('  Erro ao converter total de questões do grupo de string: $e');
+              print('[EditalService]   Erro ao converter total de questões do grupo de string: $e');
             }
           } else if (totalQuestoesValue is double) {
             totalQuestoesGrupo = totalQuestoesValue.toInt();
-            print('  Total de questões do grupo (convertido de double): $totalQuestoesGrupo');
+            print('[EditalService]   Total de questões do grupo (convertido de double): $totalQuestoesGrupo');
           }
         }
 
@@ -161,19 +375,28 @@ class EditalService extends ChangeNotifier {
           var numQuestoesValue = itemMap['numero_questoes'];
           if (numQuestoesValue is int) {
             numeroQuestoes = numQuestoesValue;
-            print('  Número de questões (processado como int): $numeroQuestoes');
+            print('[EditalService]   Número de questões (processado como int): $numeroQuestoes');
           } else if (numQuestoesValue is String) {
             try {
               numeroQuestoes = int.tryParse(numQuestoesValue);
-              print('  Número de questões (convertido de string): $numeroQuestoes');
+              print('[EditalService]   Número de questões (convertido de string): $numeroQuestoes');
             } catch (e) {
-              print('  Erro ao converter número de questões de string: $e');
+              print('[EditalService]   Erro ao converter número de questões de string: $e');
             }
           } else if (numQuestoesValue is double) {
             numeroQuestoes = numQuestoesValue.toInt();
-            print('  Número de questões (convertido de double): $numeroQuestoes');
+            print('[EditalService]   Número de questões (convertido de double): $numeroQuestoes');
           } else {
-            print('  Tipo não suportado para número de questões: ${numQuestoesValue.runtimeType}');
+            print('[EditalService]   Tipo não suportado para número de questões: ${numQuestoesValue.runtimeType}');
+          }
+        }
+
+        // Garantir que tópicos seja uma lista de strings
+        List<String> topicos = [];
+        if (itemMap.containsKey('topicos')) {
+          var topicosValue = itemMap['topicos'];
+          if (topicosValue is List) {
+            topicos = topicosValue.map((t) => t.toString()).toList();
           }
         }
 
@@ -181,7 +404,7 @@ class EditalService extends ChangeNotifier {
           ConteudoProgramatico(
             nome: itemMap['nome'] as String,
             tipo: itemMap['tipo'] as String,
-            topicos: (itemMap['topicos'] as List<dynamic>).cast<String>(),
+            topicos: topicos,
             pesoMaior: itemMap['peso_maior'] as bool?,
             criterioDesempate: itemMap['criterio_desempate'] as bool?,
             numeroQuestoes: numeroQuestoes,
@@ -190,74 +413,7 @@ class EditalService extends ChangeNotifier {
           ),
         );
 
-        print('  Matéria adicionada com número de questões: $numeroQuestoes');
-      }
-
-      // Criar uma cópia do edital para não modificar diretamente o objeto original
-      final Edital editalAtualizado = Edital(
-        id: _editais[editalIndex].id,
-        userId: _editais[editalIndex].userId,
-        nomeConcurso: _editais[editalIndex].nomeConcurso,
-        textoCompleto: _editais[editalIndex].textoCompleto,
-        dataUpload: _editais[editalIndex].dataUpload,
-        dadosOriginais: _editais[editalIndex].dadosOriginais,
-        dadosExtraidos: DadosExtraidos(
-          titulo: _editais[editalIndex].dadosExtraidos.titulo,
-          orgao: _editais[editalIndex].dadosExtraidos.orgao,
-          banca: _editais[editalIndex].dadosExtraidos.banca,
-          inicioInscricao: _editais[editalIndex].dadosExtraidos.inicioInscricao,
-          fimInscricao: _editais[editalIndex].dadosExtraidos.fimInscricao,
-          valorTaxa: _editais[editalIndex].dadosExtraidos.valorTaxa,
-          localProva: _editais[editalIndex].dadosExtraidos.localProva,
-          dataProva: _editais[editalIndex].dadosExtraidos.dataProva,
-          cargos: List.from(_editais[editalIndex].dadosExtraidos.cargos),
-        ),
-      );
-
-      // Atualizar os dados originais com as informações do concurso, se disponíveis
-      if (conteudoProgramatico.containsKey('concurso') &&
-          conteudoProgramatico['concurso'] is Map<String, dynamic>) {
-
-        // Se não houver dados originais, criar um novo mapa
-        if (editalAtualizado.dadosOriginais == null) {
-          editalAtualizado.dadosOriginais = {};
-        }
-
-        // Adicionar todas as informações do concurso aos dados originais
-        final concursoMap = conteudoProgramatico['concurso'] as Map<String, dynamic>;
-        concursoMap.forEach((key, value) {
-          editalAtualizado.dadosOriginais![key] = value;
-        });
-
-        // Atualizar os dados extraídos do edital com as informações do concurso
-        // Criar uma nova instância de DadosExtraidos com os valores atualizados
-        editalAtualizado.dadosExtraidos = DadosExtraidos(
-          titulo: concursoMap.containsKey('titulo') ? concursoMap['titulo'] as String? : editalAtualizado.dadosExtraidos.titulo,
-          orgao: concursoMap.containsKey('orgao') ? concursoMap['orgao'] as String? : editalAtualizado.dadosExtraidos.orgao,
-          banca: concursoMap.containsKey('banca') ? concursoMap['banca'] as String? : editalAtualizado.dadosExtraidos.banca,
-          inicioInscricao: editalAtualizado.dadosExtraidos.inicioInscricao,
-          fimInscricao: editalAtualizado.dadosExtraidos.fimInscricao,
-          valorTaxa: concursoMap.containsKey('taxa_inscricao') ? concursoMap['taxa_inscricao'] : editalAtualizado.dadosExtraidos.valorTaxa,
-          localProva: concursoMap.containsKey('local_prova') ? concursoMap['local_prova'] as String? : editalAtualizado.dadosExtraidos.localProva,
-          dataProva: concursoMap.containsKey('datas_provas') && concursoMap['datas_provas'] is Map && (concursoMap['datas_provas'] as Map).containsKey('objetiva') ?
-                    (concursoMap['datas_provas'] as Map)['objetiva'] as String? : editalAtualizado.dadosExtraidos.dataProva,
-          cargos: editalAtualizado.dadosExtraidos.cargos,
-          textoCompleto: editalAtualizado.dadosExtraidos.textoCompleto,
-        );
-        // Dados já atualizados na criação da nova instância de DadosExtraidos
-      }
-
-      // Atualizar os dados originais com as informações da prova, se disponíveis
-      if (conteudoProgramatico.containsKey('prova') &&
-          conteudoProgramatico['prova'] is Map<String, dynamic>) {
-
-        // Se não houver dados originais, criar um novo mapa
-        if (editalAtualizado.dadosOriginais == null) {
-          editalAtualizado.dadosOriginais = {};
-        }
-
-        // Adicionar informações da prova aos dados originais
-        editalAtualizado.dadosOriginais!['prova'] = conteudoProgramatico['prova'];
+        print('[EditalService]   Matéria adicionada com número de questões: $numeroQuestoes');
       }
 
       // Atualizar o conteúdo programático do cargo
@@ -270,20 +426,22 @@ class EditalService extends ChangeNotifier {
         dataProva: editalAtualizado.dadosExtraidos.cargos[cargoIndex].dataProva,
         conteudoProgramatico: novoConteudoProgramatico,
       );
-
-      // Atualizar o edital na lista
-      _editais[editalIndex] = editalAtualizado;
-
-      // Salvar as alterações
-      await _saveEditais();
-      notifyListeners();
     }
+
+    // Atualizar o edital na lista
+    _editais[editalIndex] = editalAtualizado;
+
+    // Salvar as alterações
+    await _saveEditais();
+    notifyListeners();
+
+    print('[EditalService] Conteúdo programático atualizado com sucesso');
   }
 
   // Extrair dados de um edital (simulação)
   Future<DadosExtraidos> extrairDadosEdital(String textoEdital) async {
     // Simulação de processamento de extração
-    await Future.delayed(Duration(seconds: 2));
+    await Future.delayed(const Duration(seconds: 2));
 
     // Simulação de dados extraídos
     final cargo = Cargo(
@@ -299,12 +457,12 @@ class EditalService extends ChangeNotifier {
         ConteudoProgramatico(nome: 'Direito Constitucional', tipo: 'específico', topicos: ['Direitos fundamentais', 'Organização do Estado']),
         ConteudoProgramatico(nome: 'Administração Pública', tipo: 'específico', topicos: ['Gestão de pessoas', 'Orçamento público']),
       ],
-      dataProva: DateTime.now().add(Duration(days: 90)),
+      dataProva: DateTime.now().add(const Duration(days: 90)),
     );
 
     final dadosExtraidos = DadosExtraidos(
       inicioInscricao: DateTime.now(),
-      fimInscricao: DateTime.now().add(Duration(days: 30)),
+      fimInscricao: DateTime.now().add(const Duration(days: 30)),
       valorTaxa: 100.0,
       cargos: [cargo],
       localProva: 'Brasília - DF',

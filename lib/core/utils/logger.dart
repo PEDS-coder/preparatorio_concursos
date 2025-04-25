@@ -120,6 +120,7 @@ class AppLogger extends Logger {
   AppLogger._internal();
 
   // Nível atual de log (pode ser alterado em tempo de execução)
+  @override
   LogLevel _currentLevel = kDebugMode ? LogLevel.debug : LogLevel.info;
 
   // Arquivo para armazenar logs
@@ -166,6 +167,7 @@ class AppLogger extends Logger {
   // Sobrescrevemos os métodos de log para usar nossa implementação personalizada
 
   /// Método interno para registrar logs
+  @override
   void _log(
     LogLevel level,
     String message, {

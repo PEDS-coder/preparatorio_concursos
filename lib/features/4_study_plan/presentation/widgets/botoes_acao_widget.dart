@@ -17,7 +17,7 @@ class BotoesAcaoWidget extends StatelessWidget {
       text: 'Iniciar Jornada',
       onPressed: onIniciarJornada,
       gradient: AppTheme.primaryGradient,
-      icon: Icon(Icons.play_arrow, color: Colors.white),
+      icon: const Icon(Icons.play_arrow, color: Colors.white),
       fullWidth: true,
     );
   }

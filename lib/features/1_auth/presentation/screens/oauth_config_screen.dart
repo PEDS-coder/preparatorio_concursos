@@ -7,6 +7,8 @@ import '../../../../core/services/api_config_service.dart';
 import '../../../../core/theme/app_theme.dart';
 
 class OAuthConfigScreen extends StatefulWidget {
+  const OAuthConfigScreen({super.key});
+
   @override
   _OAuthConfigScreenState createState() => _OAuthConfigScreenState();
 }
@@ -88,7 +90,7 @@ class _OAuthConfigScreenState extends State<OAuthConfigScreen> {
           });
 
           // Navegar para a tela principal após um breve delay
-          Future.delayed(Duration(seconds: 2), () {
+          Future.delayed(const Duration(seconds: 2), () {
             Navigator.pushReplacementNamed(context, '/home');
           });
         } else {
@@ -116,11 +118,11 @@ class _OAuthConfigScreenState extends State<OAuthConfigScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Configuração OAuth'),
+        title: const Text('Configuração OAuth'),
         backgroundColor: AppTheme.primaryColor,
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -131,11 +133,11 @@ class _OAuthConfigScreenState extends State<OAuthConfigScreen> {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Padding(
-                padding: EdgeInsets.all(16),
+                padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    const Text(
                       'Autenticação com Google',
                       style: TextStyle(
                         fontSize: 20,
@@ -143,7 +145,7 @@ class _OAuthConfigScreenState extends State<OAuthConfigScreen> {
                         color: AppTheme.primaryColor,
                       ),
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     Text(
                       'Use sua conta Google para autenticar com a API Gemini. Isso permite que o aplicativo acesse a API sem precisar de uma chave API.',
                       style: TextStyle(
@@ -156,7 +158,7 @@ class _OAuthConfigScreenState extends State<OAuthConfigScreen> {
               ),
             ),
 
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
 
             // Status das credenciais
             Card(
@@ -165,25 +167,25 @@ class _OAuthConfigScreenState extends State<OAuthConfigScreen> {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Padding(
-                padding: EdgeInsets.all(16),
+                padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    const Text(
                       'Status das Credenciais',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     Row(
                       children: [
                         Icon(
                           _clientCredentials != null ? Icons.check_circle : Icons.error,
                           color: _clientCredentials != null ? Colors.green : Colors.red,
                         ),
-                        SizedBox(width: 8),
+                        const SizedBox(width: 8),
                         Text(
                           _clientCredentials != null
                               ? 'Credenciais carregadas com sucesso'
@@ -195,7 +197,7 @@ class _OAuthConfigScreenState extends State<OAuthConfigScreen> {
                       ],
                     ),
                     if (_clientCredentials != null) ...[
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       Text(
                         'Project ID: ${_clientCredentials!['project_id']}',
                         style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
@@ -206,34 +208,34 @@ class _OAuthConfigScreenState extends State<OAuthConfigScreen> {
               ),
             ),
 
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
 
             // Botão de autenticação
             ElevatedButton.icon(
               onPressed: _isLoading || _clientCredentials == null
                   ? null
                   : _authenticateWithGoogle,
-              icon: Icon(Icons.login),
-              label: Text('Autenticar com Google'),
+              icon: const Icon(Icons.login),
+              label: const Text('Autenticar com Google'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.primaryColor,
                 foregroundColor: Colors.white,
-                padding: EdgeInsets.symmetric(vertical: 16),
+                padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
             ),
 
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
 
             // Indicador de carregamento
             if (_isLoading)
               Center(
                 child: Column(
                   children: [
-                    CircularProgressIndicator(),
-                    SizedBox(height: 8),
+                    const CircularProgressIndicator(),
+                    const SizedBox(height: 8),
                     Text(
                       'Autenticando com Google...',
                       style: TextStyle(color: Colors.grey.shade700),
@@ -245,8 +247,8 @@ class _OAuthConfigScreenState extends State<OAuthConfigScreen> {
             // Mensagem de erro
             if (_errorMessage != null)
               Container(
-                margin: EdgeInsets.only(top: 16),
-                padding: EdgeInsets.all(12),
+                margin: const EdgeInsets.only(top: 16),
+                padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: Colors.red.shade50,
                   borderRadius: BorderRadius.circular(8),
@@ -261,8 +263,8 @@ class _OAuthConfigScreenState extends State<OAuthConfigScreen> {
             // Mensagem de sucesso
             if (_successMessage != null)
               Container(
-                margin: EdgeInsets.only(top: 16),
-                padding: EdgeInsets.all(12),
+                margin: const EdgeInsets.only(top: 16),
+                padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: Colors.green.shade50,
                   borderRadius: BorderRadius.circular(8),
@@ -274,7 +276,7 @@ class _OAuthConfigScreenState extends State<OAuthConfigScreen> {
                 ),
               ),
 
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
 
             // Instruções
             Card(
@@ -283,18 +285,18 @@ class _OAuthConfigScreenState extends State<OAuthConfigScreen> {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Padding(
-                padding: EdgeInsets.all(16),
+                padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    const Text(
                       'Instruções',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     Text(
                       '1. Clique no botão "Autenticar com Google"\n'
                       '2. Você será redirecionado para a página de login do Google\n'
@@ -311,15 +313,15 @@ class _OAuthConfigScreenState extends State<OAuthConfigScreen> {
               ),
             ),
 
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
 
             // Botão para voltar para a tela de configuração de API
             TextButton.icon(
               onPressed: () {
                 Navigator.pushReplacementNamed(context, '/api_config');
               },
-              icon: Icon(Icons.arrow_back),
-              label: Text('Voltar para configuração de API'),
+              icon: const Icon(Icons.arrow_back),
+              label: const Text('Voltar para configuração de API'),
               style: TextButton.styleFrom(
                 foregroundColor: AppTheme.primaryColor,
               ),

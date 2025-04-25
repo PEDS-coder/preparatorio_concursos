@@ -77,8 +77,8 @@ void main() {
       await tester.pumpWidget(createLoginScreen());
 
       // Preencher o formulário
-      await tester.enterText(find.byKey(ValueKey('email_field')), 'test@example.com');
-      await tester.enterText(find.byKey(ValueKey('password_field')), 'password123');
+      await tester.enterText(find.byKey(const ValueKey('email_field')), 'test@example.com');
+      await tester.enterText(find.byKey(const ValueKey('password_field')), 'password123');
 
       // Submeter o formulário
       await tester.tap(find.byType(ElevatedButton));

@@ -34,7 +34,7 @@ class DocumentClassifierService {
       }
 
       Texto para análise:
-      ${texto.length > 5000 ? texto.substring(0, 5000) + "..." : texto}
+      ${texto.length > 5000 ? "${texto.substring(0, 5000)}..." : texto}
       ''';
 
       // Chamar a API usando o método público
@@ -108,7 +108,7 @@ class DocumentClassifierService {
       Limite a resposta a no máximo 5 matérias/assuntos mais relevantes.
 
       Texto para análise:
-      ${texto.length > 5000 ? texto.substring(0, 5000) + "..." : texto}
+      ${texto.length > 5000 ? "${texto.substring(0, 5000)}..." : texto}
       ''';
 
       // Chamar a API usando o método público

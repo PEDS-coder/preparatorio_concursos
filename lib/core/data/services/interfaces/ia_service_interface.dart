@@ -58,9 +58,7 @@ abstract class IAServiceInterface {
   /// Extrai informações básicas de um edital
   Future<String> extrairInfoBasicasEdital(Uint8List pdfBytes, {String? pdfName});
 
-  /// Extrai cargos detalhados de um edital
-  @deprecated
-  Future<String> extrairCargosDetalhados(Uint8List pdfBytes, {String? pdfName});
+
 
   /// Extrai dados do concurso e conteúdo programático para um cargo específico
   Future<String> extrairConcursoConteudo({
@@ -69,13 +67,7 @@ abstract class IAServiceInterface {
     String? pdfName,
   });
 
-  /// Extrai conteúdo programático para um cargo específico
-  @deprecated
-  Future<String> extrairConteudoProgramatico({
-    required Uint8List pdfBytes,
-    required String cargoAlvo,
-    String? pdfName,
-  });
+
 
   /// Gera um resumo a partir de um texto
   Future<String> gerarResumo(String texto);

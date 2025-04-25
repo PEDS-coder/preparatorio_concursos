@@ -31,13 +31,13 @@ class EditalCargosTabWidget extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.work_off, size: 80, color: Colors.grey.shade400),
-          SizedBox(height: 16),
-          Text(
+          const SizedBox(height: 16),
+          const Text(
             'Nenhum cargo encontrado',
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
-          SizedBox(height: 8),
-          Text('Não foram encontrados cargos neste edital.'),
+          const SizedBox(height: 8),
+          const Text('Não foram encontrados cargos neste edital.'),
         ],
       ),
     );
@@ -45,30 +45,30 @@ class EditalCargosTabWidget extends StatelessWidget {
 
   Widget _buildCargosList(List<Cargo> cargos, BuildContext context) {
     return ListView.builder(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       itemCount: cargos.length,
       itemBuilder: (context, index) {
         final cargo = cargos[index];
         return Card(
-          margin: EdgeInsets.only(bottom: 16),
+          margin: const EdgeInsets.only(bottom: 16),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
           child: ExpansionTile(
             title: Text(
               cargo.nome,
-              style: TextStyle(fontWeight: FontWeight.bold),
+              style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             subtitle: Text(
               'Salário: R\$ ${cargo.salario.toStringAsFixed(2)}',
             ),
             leading: CircleAvatar(
               backgroundColor: AppTheme.primaryColor.withOpacity(0.1),
-              child: Icon(Icons.work, color: AppTheme.primaryColor),
+              child: const Icon(Icons.work, color: AppTheme.primaryColor),
             ),
             children: [
               Padding(
-                padding: EdgeInsets.all(16),
+                padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -76,30 +76,30 @@ class EditalCargosTabWidget extends StatelessWidget {
                       label: 'Escolaridade',
                       value: cargo.escolaridade,
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     CargoDetailItemWidget(
                       label: 'Data da Prova',
                       value: cargo.dataProva != null
                           ? EditalFormatterService.formatDate(cargo.dataProva)
                           : 'A definir',
                     ),
-                    SizedBox(height: 16),
-                    Text(
+                    const SizedBox(height: 16),
+                    const Text(
                       'Conteúdo Programático',
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     ...cargo.conteudoProgramatico.map((materia) => Padding(
-                          padding: EdgeInsets.only(bottom: 4),
+                          padding: const EdgeInsets.only(bottom: 4),
                           child: Row(
                             children: [
-                              Icon(Icons.circle, size: 8, color: Colors.grey),
-                              SizedBox(width: 8),
+                              const Icon(Icons.circle, size: 8, color: Colors.grey),
+                              const SizedBox(width: 8),
                               Expanded(child: Text(materia.nome)),
                             ],
                           ),
                         )),
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
                     OutlinedButton.icon(
                       onPressed: () {
                         Navigator.push(
@@ -109,10 +109,10 @@ class EditalCargosTabWidget extends StatelessWidget {
                           ),
                         );
                       },
-                      icon: Icon(Icons.add_chart),
-                      label: Text('Criar Plano para este Cargo'),
+                      icon: const Icon(Icons.add_chart),
+                      label: const Text('Criar Plano para este Cargo'),
                       style: OutlinedButton.styleFrom(
-                        side: BorderSide(color: AppTheme.primaryColor),
+                        side: const BorderSide(color: AppTheme.primaryColor),
                       ),
                     ),
                   ],

@@ -19,13 +19,13 @@ class InfoSectionWidget extends StatelessWidget {
       children: [
         Text(
           title,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
             color: AppTheme.primaryColor,
           ),
         ),
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
         ...children,
       ],
     );

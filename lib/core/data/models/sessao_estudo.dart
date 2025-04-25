@@ -34,6 +34,7 @@ class SessaoEstudo implements BaseModel {
     return fim.difference(inicio).inMinutes;
   }
 
+  @override
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -69,10 +70,12 @@ class SessaoEstudo implements BaseModel {
   }
 
   // Métodos para serialização JSON
+  @override
   Map<String, dynamic> toJson() => toMap();
 
   factory SessaoEstudo.fromJson(Map<String, dynamic> json) => SessaoEstudo.fromMap(json);
 
+  @override
   SessaoEstudo copyWith({
     String? id,
     String? planoId,

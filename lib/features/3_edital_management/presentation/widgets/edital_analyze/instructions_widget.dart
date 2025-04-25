@@ -7,7 +7,7 @@ class InstructionsWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.blue.shade50,
         borderRadius: BorderRadius.circular(8),
@@ -19,7 +19,7 @@ class InstructionsWidget extends StatelessWidget {
           Row(
             children: [
               Icon(Icons.info_outline, color: Colors.blue.shade700),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               Text(
                 'Instruções',
                 style: TextStyle(
@@ -30,22 +30,22 @@ class InstructionsWidget extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
             '1. Faça o upload do arquivo PDF do edital do concurso',
             style: TextStyle(color: Colors.blue.shade900),
           ),
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
           Text(
             '2. Clique em "Analisar com IA" para extrair informações do edital',
             style: TextStyle(color: Colors.blue.shade900),
           ),
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
           Text(
             '3. Aguarde a análise ser concluída para visualizar os resultados',
             style: TextStyle(color: Colors.blue.shade900),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
             'Dica: Você pode selecionar múltiplos arquivos PDF se o edital estiver dividido em vários documentos.',
             style: TextStyle(

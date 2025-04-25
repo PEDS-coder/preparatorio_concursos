@@ -156,8 +156,8 @@ class _CalendarSyncWidgetState extends State<CalendarSyncWidget> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
           child: Text(
             'Sincronizar com:',
             style: TextStyle(
@@ -246,7 +246,7 @@ class _CalendarSyncWidgetState extends State<CalendarSyncWidget> {
               textColor: Colors.black87,
               elevation: 2,
               borderRadius: BorderRadius.circular(12),
-              child: Column(
+              child: const Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(
@@ -254,8 +254,8 @@ class _CalendarSyncWidgetState extends State<CalendarSyncWidget> {
                     size: 32,
                     color: AppTheme.primaryColor,
                   ),
-                  const SizedBox(height: 4),
-                  const Text(
+                  SizedBox(height: 4),
+                  Text(
                     'Calendário do Dispositivo',
                     style: TextStyle(
                       fontSize: 12,

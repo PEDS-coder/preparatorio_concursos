@@ -40,10 +40,8 @@ class EditalAnalyzerService {
       'titulo': dadosExtraidos.titulo ?? 'Edital Analisado',
       'banca': dadosExtraidos.banca ?? 'Não especificado',
       // Tratar datas com segurança para evitar erros de formato
-      'inicioInscricao': dadosExtraidos.inicioInscricao != null ?
-          dadosExtraidos.inicioInscricao!.toIso8601String() : null,
-      'fimInscricao': dadosExtraidos.fimInscricao != null ?
-          dadosExtraidos.fimInscricao!.toIso8601String() : null,
+      'inicioInscricao': dadosExtraidos.inicioInscricao?.toIso8601String(),
+      'fimInscricao': dadosExtraidos.fimInscricao?.toIso8601String(),
       'valorTaxa': dadosExtraidos.valorTaxa,
       'localProva': dadosExtraidos.localProva,
       'cargos': dadosExtraidos.cargos.map((cargo) => {
@@ -51,8 +49,7 @@ class EditalAnalyzerService {
         'vagas': cargo.vagas,
         'salario': cargo.salario,
         'escolaridade': cargo.escolaridade,
-        'dataProva': cargo.dataProva != null ?
-            cargo.dataProva!.toIso8601String() : null,
+        'dataProva': cargo.dataProva?.toIso8601String(),
         // Não incluir conteúdo programático na primeira etapa
         'conteudoProgramatico': [],
       }).toList(),

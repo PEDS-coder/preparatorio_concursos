@@ -45,7 +45,7 @@ class _FlashcardAnimationState extends State<FlashcardAnimation> with TickerProv
     // Configurar animação de pulso
     _pulseController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 1500),
+      duration: const Duration(milliseconds: 1500),
     )..repeat(reverse: true);
     
     _pulseAnimation = Tween<double>(begin: 0.9, end: 1.1).animate(
@@ -56,7 +56,7 @@ class _FlashcardAnimationState extends State<FlashcardAnimation> with TickerProv
     initFlashcards();
 
     // Atualizar a animação a cada 50ms
-    timer = Timer.periodic(Duration(milliseconds: 50), (timer) {
+    timer = Timer.periodic(const Duration(milliseconds: 50), (timer) {
       if (mounted) {
         setState(() {
           updateFlashcards();
@@ -67,7 +67,7 @@ class _FlashcardAnimationState extends State<FlashcardAnimation> with TickerProv
     // Atualizar mensagens de status a cada 15 segundos
     if (widget.statusMessages.isNotEmpty) {
       currentStatusMessage = widget.statusMessages[0];
-      messageTimer = Timer.periodic(Duration(seconds: 15), (timer) {
+      messageTimer = Timer.periodic(const Duration(seconds: 15), (timer) {
         if (mounted) {
           setState(() {
             currentMessageIndex = (currentMessageIndex + 1) % widget.statusMessages.length;
@@ -145,8 +145,12 @@ class _FlashcardAnimationState extends State<FlashcardAnimation> with TickerProv
       
       // Calcular diferença de rotação
       double rotationDiff = card.targetRotation - card.rotation;
-      while (rotationDiff > pi) rotationDiff -= 2 * pi;
-      while (rotationDiff < -pi) rotationDiff += 2 * pi;
+      while (rotationDiff > pi) {
+        rotationDiff -= 2 * pi;
+      }
+      while (rotationDiff < -pi) {
+        rotationDiff += 2 * pi;
+      }
       
       if (distance < 5 && rotationDiff.abs() < 0.1) {
         // Quando chegar perto do alvo, desativar e criar novo flashcard
@@ -213,10 +217,10 @@ class _FlashcardAnimationState extends State<FlashcardAnimation> with TickerProv
                     );
                   },
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 if (widget.statusMessages.isNotEmpty)
                   AnimatedSwitcher(
-                    duration: Duration(milliseconds: 500),
+                    duration: const Duration(milliseconds: 500),
                     child: Text(
                       currentStatusMessage,
                       key: ValueKey<String>(currentStatusMessage),
@@ -227,8 +231,8 @@ class _FlashcardAnimationState extends State<FlashcardAnimation> with TickerProv
                       ),
                     ),
                   ),
-                SizedBox(height: 16),
-                Text(
+                const SizedBox(height: 16),
+                const Text(
                   'Pode levar alguns minutos...',
                   style: TextStyle(
                     color: Colors.white70,
@@ -311,12 +315,12 @@ class FlashcardPainter extends CustomPainter {
       // Sombra
       final shadowPaint = Paint()
         ..color = Colors.black.withOpacity(0.3)
-        ..maskFilter = MaskFilter.blur(BlurStyle.normal, 3);
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3);
       
       canvas.drawRRect(
         RRect.fromRectAndRadius(
           rect.translate(2, 2),
-          Radius.circular(8),
+          const Radius.circular(8),
         ),
         shadowPaint,
       );
@@ -328,7 +332,7 @@ class FlashcardPainter extends CustomPainter {
       canvas.drawRRect(
         RRect.fromRectAndRadius(
           rect,
-          Radius.circular(8),
+          const Radius.circular(8),
         ),
         cardPaint,
       );
@@ -342,7 +346,7 @@ class FlashcardPainter extends CustomPainter {
       canvas.drawRRect(
         RRect.fromRectAndRadius(
           rect,
-          Radius.circular(8),
+          const Radius.circular(8),
         ),
         borderPaint,
       );

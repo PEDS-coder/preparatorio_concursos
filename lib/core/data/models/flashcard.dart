@@ -19,6 +19,7 @@ class Flashcard implements BaseModel {
     required this.fonte,
   });
 
+  @override
   Map<String, dynamic> toMap() {
     return {
       'id': id,

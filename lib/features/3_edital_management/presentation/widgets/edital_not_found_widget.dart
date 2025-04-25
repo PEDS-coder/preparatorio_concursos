@@ -14,7 +14,7 @@ class EditalNotFoundWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Detalhes do Edital'),
+        title: const Text('Detalhes do Edital'),
         backgroundColor: AppTheme.primaryColor,
       ),
       body: Center(
@@ -22,20 +22,20 @@ class EditalNotFoundWidget extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(Icons.error_outline, size: 80, color: Colors.red.shade300),
-            SizedBox(height: 16),
-            Text(
+            const SizedBox(height: 16),
+            const Text(
               'Edital não encontrado',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 8),
-            Text('O edital solicitado não foi encontrado ou foi removido.'),
-            SizedBox(height: 24),
+            const SizedBox(height: 8),
+            const Text('O edital solicitado não foi encontrado ou foi removido.'),
+            const SizedBox(height: 24),
             ElevatedButton(
               onPressed: onBack,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.primaryColor,
               ),
-              child: Text('Voltar'),
+              child: const Text('Voltar'),
             ),
           ],
         ),

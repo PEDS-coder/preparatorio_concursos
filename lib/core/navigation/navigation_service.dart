@@ -12,12 +12,14 @@ class NavigationService implements INavigationService {
 
   final Logger _logger;
   final IAnalyticsService _analyticsService;
+  @override
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
   /// Construtor
   NavigationService(this._logger, this._analyticsService);
 
   /// Navega para uma nova tela
+  @override
   Future<T?> navigateTo<T>(
     String routeName, {
     Object? arguments,
@@ -64,6 +66,7 @@ class NavigationService implements INavigationService {
   }
 
   /// Navega para uma nova tela com uma rota personalizada
+  @override
   Future<T?> navigateToRoute<T>(
     Widget page, {
     String? routeName,
@@ -111,6 +114,7 @@ class NavigationService implements INavigationService {
   }
 
   /// Volta para a tela anterior
+  @override
   void goBack<T>({T? result}) {
     try {
       if (navigatorKey.currentState!.canPop()) {
@@ -126,6 +130,7 @@ class NavigationService implements INavigationService {
   }
 
   /// Volta para uma tela específica
+  @override
   void goBackToRoute(String routeName) {
     try {
       _logger.debug('Voltando para a tela: $routeName', tag: _tag);
@@ -137,6 +142,7 @@ class NavigationService implements INavigationService {
   }
 
   /// Volta para a tela inicial
+  @override
   void goBackToRoot() {
     try {
       _logger.debug('Voltando para a tela inicial', tag: _tag);

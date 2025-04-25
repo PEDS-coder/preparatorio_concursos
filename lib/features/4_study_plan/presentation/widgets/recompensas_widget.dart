@@ -14,7 +14,7 @@ class RecompensasWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (plano.recompensas.isEmpty) {
-      return SizedBox.shrink();
+      return const SizedBox.shrink();
     }
 
     final recompensasPorTipo = _agruparRecompensasPorTipo(plano.recompensas);
@@ -22,7 +22,7 @@ class RecompensasWidget extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
+        const Padding(
           padding: EdgeInsets.only(left: 16, bottom: 8),
           child: Text(
             'Recompensas',
@@ -34,136 +34,136 @@ class RecompensasWidget extends StatelessWidget {
           ),
         ),
         Card(
-          margin: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           elevation: 2,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
           ),
           child: Padding(
-            padding: EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Novos tipos de recompensas
                 if (recompensasPorTipo['bronze']!.isNotEmpty) ...[
-                  Text(
+                  const Text(
                     'Bronze (5-15 Moedas)',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
                     children: recompensasPorTipo['bronze']!.map((r) => _buildRecompensaChip(r)).toList(),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                 ],
 
                 if (recompensasPorTipo['prata']!.isNotEmpty) ...[
-                  Text(
+                  const Text(
                     'Prata (25-40 Moedas)',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
                     children: recompensasPorTipo['prata']!.map((r) => _buildRecompensaChip(r)).toList(),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                 ],
 
                 if (recompensasPorTipo['ouro']!.isNotEmpty) ...[
-                  Text(
+                  const Text(
                     'Ouro (60-100 Moedas)',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
                     children: recompensasPorTipo['ouro']!.map((r) => _buildRecompensaChip(r)).toList(),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                 ],
 
                 if (recompensasPorTipo['platina']!.isNotEmpty) ...[
-                  Text(
+                  const Text(
                     'Platina (120-200 Moedas)',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
                     children: recompensasPorTipo['platina']!.map((r) => _buildRecompensaChip(r)).toList(),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                 ],
 
                 if (recompensasPorTipo['diamante']!.isNotEmpty) ...[
-                  Text(
+                  const Text(
                     'Diamante (300-500 Moedas)',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
                     children: recompensasPorTipo['diamante']!.map((r) => _buildRecompensaChip(r)).toList(),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                 ],
 
                 if (recompensasPorTipo['lendario']!.isNotEmpty) ...[
-                  Text(
+                  const Text(
                     'Lendário (800+ Moedas)',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
                     children: recompensasPorTipo['lendario']!.map((r) => _buildRecompensaChip(r)).toList(),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                 ],
 
                 // Compatibilidade com tipos antigos
                 if (recompensasPorTipo['diaria']!.isNotEmpty) ...[
-                  Text(
+                  const Text(
                     'Diárias',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
                     children: recompensasPorTipo['diaria']!.map((r) => _buildRecompensaChip(r)).toList(),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                 ],
 
                 if (recompensasPorTipo['semanal']!.isNotEmpty) ...[
-                  Text(
+                  const Text(
                     'Semanais',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
                     children: recompensasPorTipo['semanal']!.map((r) => _buildRecompensaChip(r)).toList(),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                 ],
 
                 if (recompensasPorTipo['mensal']!.isNotEmpty) ...[
-                  Text(
+                  const Text(
                     'Mensais',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,

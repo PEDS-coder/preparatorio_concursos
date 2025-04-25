@@ -49,7 +49,7 @@ void main() {
         ChangeNotifierProvider<IAService>.value(value: mockIAService),
         ChangeNotifierProvider<ApiConfigService>.value(value: mockApiConfigService),
       ],
-      child: MaterialApp(
+      child: const MaterialApp(
         home: Scaffold(
           body: Center(
             child: Text('Test App'),

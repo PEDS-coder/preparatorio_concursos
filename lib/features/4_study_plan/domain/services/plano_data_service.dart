@@ -1,6 +1,9 @@
 import '../../../../core/data/models/models.dart';
 import '../../../../core/utils/plano_data_logger.dart';
 import '../../presentation/helpers/validators/value_validator.dart';
+import 'concurso_service.dart';
+import 'prova_service.dart';
+import 'inscricao_service.dart';
 
 /// Serviço responsável por buscar e processar dados do plano de estudo
 class PlanoDataService {
@@ -18,6 +21,16 @@ class PlanoDataService {
   String obterValorPlano(String chaveMetadados, {bool formatarComoLista = false, String separadorLista = ', '}) {
     final String campoLog = 'obterValorPlano($chaveMetadados)';
     logger.logRecuperacao(plano.id, 'inicio_busca', {'campo': campoLog});
+
+    // Verificar se podemos usar os serviços específicos
+    String resultado = _buscarComServicosEspecificos(chaveMetadados);
+    if (resultado != 'Não informado') {
+      logger.logRecuperacao(plano.id, 'valor_encontrado_servicos_especificos', {
+        'campo': campoLog,
+        'valor': resultado,
+      });
+      return resultado;
+    }
 
     dynamic valorEncontrado;
     String fonte = 'nenhuma';
@@ -378,6 +391,54 @@ class PlanoDataService {
     return resultadoFinal;
   }
 
+  /// Método para buscar valores usando os serviços específicos
+  String _buscarComServicosEspecificos(String chaveMetadados) {
+    switch (chaveMetadados) {
+      // ConcursoService
+      case 'titulo':
+        return ConcursoService.obterTitulo(plano, edital);
+      case 'orgao':
+        return ConcursoService.obterOrgao(plano, edital);
+      case 'banca':
+        return ConcursoService.obterBanca(plano, edital);
+      
+      // ProvaService
+      case 'formatoProva':
+        return ProvaService.obterFormato(plano, edital);
+      case 'dataProva':
+        return ProvaService.obterData(plano, edital);
+      case 'localProva':
+        return ProvaService.obterLocal(plano, edital);
+      case 'totalQuestoes':
+        return ProvaService.obterTotalQuestoes(plano, edital);
+      case 'duracaoProva':
+        return ProvaService.obterDuracao(plano, edital);
+      case 'criteriosAprovacao':
+        return ProvaService.obterCriteriosAprovacao(plano, edital);
+      case 'criteriosReprovacao':
+        return ProvaService.obterCriteriosReprovacao(plano, edital);
+      case 'criteriosDesempate':
+        return ProvaService.obterCriteriosDesempate(plano, edital);
+      case 'temaProvaSubjetiva':
+        return ProvaService.obterTemaProvaSubjetiva(plano, edital);
+      
+      // InscricaoService
+      case 'valorInscricao':
+        return InscricaoService.obterValor(plano, edital);
+      case 'periodoInscricao':
+        if (edital != null) {
+          return InscricaoService.obterPeriodo(edital);
+        }
+        break;
+      
+      // Outros casos
+      default:
+        break;
+    }
+    
+    return 'Não informado';
+  }
+
   /// Método auxiliar para buscar valores em metadados aninhados
   dynamic _verificarMetadadosAninhados(String path) {
     if (!ValueValidator.isValidValue(plano.metadados)) {
@@ -423,74 +484,7 @@ class PlanoDataService {
 
   /// Obtém a data da prova de várias fontes possíveis
   String obterDataProva() {
-    final String campoLog = '_obterDataProva';
-    logger.logRecuperacao(plano.id, 'inicio_busca', {'campo': campoLog});
-
-    dynamic valorEncontrado;
-    String fonte = 'nenhuma';
-    List<String> chaves = ['dataProva', 'data_prova', 'dataRealizacao', 'data_realizacao', 'prova.data', 'concurso.data_prova'];
-
-    // 1. Verificar Metadados (aninhados e diretos)
-    List<String> caminhosMetadados = [
-      'planoEstudos.dataProva', 'planoEstudos.data_prova', 'planoEstudos.dataRealizacao',
-      'concurso.dataProva', 'concurso.data_prova', 'concurso.dataRealizacao',
-      'prova.dataProva', 'prova.data_prova', 'prova.dataRealizacao', 'prova.data',
-      'dataProva', 'data_prova', 'dataRealizacao', // Diretos por último
-    ];
-    for (String path in caminhosMetadados) {
-      logger.logRecuperacao(plano.id, 'verificando_metadados', {'campo': campoLog, 'path': path});
-      valorEncontrado = _verificarMetadadosAninhados(path);
-      if (ValueValidator.isValidValue(valorEncontrado)) {
-        fonte = 'metadados ($path)';
-        logger.logRecuperacao(plano.id, 'valor_encontrado', {'campo': campoLog, 'fonte': fonte, 'valor_bruto': valorEncontrado});
-        break;
-      } else {
-        logger.logRecuperacao(plano.id, 'valor_invalido_ou_nulo', {'campo': campoLog, 'path': path, 'valor_bruto': valorEncontrado});
-      }
-    }
-
-    // 2. Verificar Edital - Dados Extraídos
-    if (!ValueValidator.isValidValue(valorEncontrado) && edital != null) {
-      logger.logRecuperacao(plano.id, 'verificando_edital_extraido', {'campo': campoLog});
-      // Prioridade: dadosProva.dataRealizacao, depois dadosExtraidos.dataProva, depois dataProva em cargos
-      if (edital!.dadosExtraidos.dadosProva != null && ValueValidator.isValidValue(edital!.dadosExtraidos.dadosProva!.dataRealizacao)) {
-        valorEncontrado = edital!.dadosExtraidos.dadosProva!.dataRealizacao;
-        fonte = 'dados_extraidos.dadosProva.dataRealizacao';
-      } else if (ValueValidator.isValidValue(edital!.dadosExtraidos.dataProva)) {
-        valorEncontrado = edital!.dadosExtraidos.dataProva;
-        fonte = 'dados_extraidos.dataProva';
-      } else if (edital!.dadosExtraidos.cargos.isNotEmpty) {
-        for (var cargo in edital!.dadosExtraidos.cargos) {
-          if (ValueValidator.isValidValue(cargo.dataProva)) {
-            valorEncontrado = cargo.dataProva; // Já é DateTime aqui
-            fonte = 'dados_extraidos.cargos.dataProva';
-            break;
-          }
-        }
-      }
-      if (ValueValidator.isValidValue(valorEncontrado)) {
-        logger.logRecuperacao(plano.id, 'valor_encontrado', {'campo': campoLog, 'fonte': fonte, 'valor_bruto': valorEncontrado});
-      } else {
-        logger.logRecuperacao(plano.id, 'valor_invalido_ou_nulo_extraidos', {'campo': campoLog});
-      }
-    }
-
-    // 3. Verificar Edital - Dados Originais
-    if (!ValueValidator.isValidValue(valorEncontrado) && edital != null && edital!.dadosOriginais != null) {
-      // Implementação omitida por brevidade, mas seguiria a mesma lógica do método obterValorPlano
-    }
-
-    // Log final e formatação
-    String resultadoFinal;
-    if (ValueValidator.isValidValue(valorEncontrado)) {
-      resultadoFinal = valorEncontrado.toString();
-      logger.logRecuperacao(plano.id, 'busca_concluida', {'campo': campoLog, 'resultado': resultadoFinal, 'fonte': fonte});
-    } else {
-      resultadoFinal = 'Não informado';
-      logger.logRecuperacao(plano.id, 'busca_concluida_sem_valor', {'campo': campoLog, 'fonte_final': fonte});
-    }
-
-    return resultadoFinal;
+    return ProvaService.obterData(plano, edital);
   }
 
   /// Obtém as matérias do plano

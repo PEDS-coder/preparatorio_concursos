@@ -21,20 +21,20 @@ class GrupoCargosWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (gruposCargos.isEmpty) {
-      return Center(
+      return const Center(
         child: Text('Nenhum cargo encontrado'),
       );
     }
 
     return ListView.builder(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       itemCount: gruposCargos.length,
       itemBuilder: (context, index) {
         final grupo = gruposCargos.keys.elementAt(index);
         final cargos = gruposCargos[grupo]!;
 
         return Card(
-          margin: EdgeInsets.only(bottom: 16),
+          margin: const EdgeInsets.only(bottom: 16),
           elevation: 2,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
@@ -52,14 +52,14 @@ class GrupoCargosWidget extends StatelessWidget {
               children: [
                 // Cabeçalho do grupo
                 Container(
-                  padding: EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: AppTheme.primaryColor.withOpacity(0.1),
                     borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(12),
-                      topRight: Radius.circular(12),
-                      bottomLeft: grupoExpandido == grupo ? Radius.zero : Radius.circular(12),
-                      bottomRight: grupoExpandido == grupo ? Radius.zero : Radius.circular(12),
+                      topLeft: const Radius.circular(12),
+                      topRight: const Radius.circular(12),
+                      bottomLeft: grupoExpandido == grupo ? Radius.zero : const Radius.circular(12),
+                      bottomRight: grupoExpandido == grupo ? Radius.zero : const Radius.circular(12),
                     ),
                   ),
                   child: Row(
@@ -68,11 +68,11 @@ class GrupoCargosWidget extends StatelessWidget {
                         CargoGroupingService.getIconForGrupo(grupo),
                         color: AppTheme.primaryColor,
                       ),
-                      SizedBox(width: 12),
+                      const SizedBox(width: 12),
                       Expanded(
                         child: Text(
                           grupo,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                             color: AppTheme.primaryColor,
@@ -87,7 +87,7 @@ class GrupoCargosWidget extends StatelessWidget {
                                  Colors.grey.shade300 : Colors.grey.shade700,
                         ),
                       ),
-                      SizedBox(width: 8),
+                      const SizedBox(width: 8),
                       Icon(
                         grupoExpandido == grupo
                             ? Icons.keyboard_arrow_up
@@ -102,15 +102,15 @@ class GrupoCargosWidget extends StatelessWidget {
                 if (grupoExpandido == grupo)
                   ListView.builder(
                     shrinkWrap: true,
-                    physics: NeverScrollableScrollPhysics(),
+                    physics: const NeverScrollableScrollPhysics(),
                     itemCount: cargos.length,
                     itemBuilder: (context, index) {
                       final cargo = cargos[index];
                       return Card(
-                        margin: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         elevation: 1,
                         child: ListTile(
-                          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                           title: Text(
                             cargo.nome,
                             style: TextStyle(
@@ -122,7 +122,7 @@ class GrupoCargosWidget extends StatelessWidget {
                           subtitle: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              SizedBox(height: 4),
+                              const SizedBox(height: 4),
                               Row(
                                 children: [
                                   Icon(
@@ -131,7 +131,7 @@ class GrupoCargosWidget extends StatelessWidget {
                                     color: Theme.of(context).brightness == Brightness.dark ?
                                            Colors.grey.shade300 : Colors.grey.shade600,
                                   ),
-                                  SizedBox(width: 4),
+                                  const SizedBox(width: 4),
                                   Text(
                                     'Vagas: ${cargo.vagas}',
                                     style: TextStyle(
@@ -141,7 +141,7 @@ class GrupoCargosWidget extends StatelessWidget {
                                   ),
                                 ],
                               ),
-                              SizedBox(height: 2),
+                              const SizedBox(height: 2),
                               Row(
                                 children: [
                                   Icon(
@@ -150,7 +150,7 @@ class GrupoCargosWidget extends StatelessWidget {
                                     color: Theme.of(context).brightness == Brightness.dark ?
                                            Colors.grey.shade300 : Colors.grey.shade600,
                                   ),
-                                  SizedBox(width: 4),
+                                  const SizedBox(width: 4),
                                   Text(
                                     'Salário: R\$ ${cargo.salario.toStringAsFixed(2)}',
                                     style: TextStyle(
@@ -160,7 +160,7 @@ class GrupoCargosWidget extends StatelessWidget {
                                   ),
                                 ],
                               ),
-                              SizedBox(height: 2),
+                              const SizedBox(height: 2),
                               Row(
                                 children: [
                                   Icon(
@@ -169,7 +169,7 @@ class GrupoCargosWidget extends StatelessWidget {
                                     color: Theme.of(context).brightness == Brightness.dark ?
                                            Colors.grey.shade300 : Colors.grey.shade600,
                                   ),
-                                  SizedBox(width: 4),
+                                  const SizedBox(width: 4),
                                   Expanded(
                                     child: Text(
                                       'Escolaridade: ${cargo.escolaridade}',
@@ -185,7 +185,7 @@ class GrupoCargosWidget extends StatelessWidget {
                           ),
                           leading: CircleAvatar(
                             backgroundColor: AppTheme.secondaryColor.withOpacity(0.1),
-                            child: Icon(Icons.work, color: AppTheme.secondaryColor),
+                            child: const Icon(Icons.work, color: AppTheme.secondaryColor),
                           ),
                           onTap: () => onCargoSelecionado(cargo.nome),
                           // Removido o ícone de seta para evitar confusão na navegação

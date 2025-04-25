@@ -26,7 +26,7 @@ void main() {
       titulo: 'Edital de Teste',
       orgao: 'Órgão de Teste',
       dataPublicacao: DateTime.now(),
-      dataProva: DateTime.now().add(Duration(days: 30)),
+      dataProva: DateTime.now().add(const Duration(days: 30)),
       linkEdital: 'https://example.com/edital',
       cargos: [],
     );
@@ -64,7 +64,7 @@ void main() {
     return MaterialApp(
       home: ChangeNotifierProvider<EditalService>.value(
         value: mockEditalService,
-        child: CargoSelectScreen(
+        child: const CargoSelectScreen(
           editalId: 'test_id',
         ),
       ),

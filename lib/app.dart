@@ -15,7 +15,7 @@ import 'core/di/service_locator.dart';
 
 class PreparatorioConcursosApp extends StatelessWidget {
   // Construtor
-  PreparatorioConcursosApp({Key? key}) : super(key: key);
+  const PreparatorioConcursosApp({Key? key}) : super(key: key);
 
   // Não precisamos mais de uma chave global aqui, vamos usar a do NavigationService
 

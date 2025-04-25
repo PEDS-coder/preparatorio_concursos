@@ -137,7 +137,7 @@ class AdvancedCacheService {
       await _loadCacheFromDisk();
 
       // Agendar limpeza periódica do cache
-      Timer.periodic(Duration(hours: 6), (_) => _cleanExpiredItems());
+      Timer.periodic(const Duration(hours: 6), (_) => _cleanExpiredItems());
 
       _logger.debug('Cache inicializado com sucesso', tag: _tag);
     } catch (e) {

@@ -1,0 +1,109 @@
+# Plano de Refatoração do ExtratorDadosService
+
+## Análise do Problema
+
+O arquivo `extrator_dados_service.dart` apresenta diversos problemas:
+
+1. **Código repetitivo**: Há um padrão de busca que se repete em vários métodos (metadados → dados extraídos → dados da prova → originais → default)
+2. **Métodos muito longos**: Vários métodos têm mais de 100 linhas
+3. **Responsabilidades misturadas**: O serviço lida com diferentes tipos de dados (concurso, prova, inscrição, etc.)
+4. **Falta de abstração**: Não há uma abstração clara para as chaves de busca e seus fallbacks
+
+## Plano de Refatoração
+
+### 1. Criar método de busca com fallback
+
+Extrair o padrão de busca em um método privado `_buscarComFallback` que implementa a lógica de fallback.
+
+### 2. Definir DSL/Config para chaves de busca
+
+Criar uma classe de configuração para as chaves de busca.
+
+### 3. Criar método genérico para busca de campos
+
+Implementar um método genérico `buscarCampo` que usa o método de fallback.
+
+### 4. Dividir em serviços menores por responsabilidade
+
+- ConcursoService (título, órgão, banca)
+- ProvaService (local, data, formato, total de questões, critérios)
+- InscricaoService (período, valor)
+- CotasService
+
+### 5. Refatorar ExtratorDadosService como Facade
+
+Manter apenas os métodos genéricos e de utilidade no ExtratorDadosService.
+
+## Implementação Realizada
+
+✅ Criada a pasta `extractors` para os extractors
+✅ Implementados os extractors:
+   - MetadadosExtractor
+   - DadosExtraidosExtractor
+   - DadosProvaExtractor
+   - DadosOriginaisExtractor
+✅ Atualizada a classe `ChaveBusca` para incluir o evento de log
+✅ Criada a classe `ChavesBusca` com as constantes para as chaves de busca
+✅ Implementados os serviços específicos:
+   - ConcursoService
+   - ProvaService
+   - InscricaoService
+   - CotasService
+✅ Refatorado o `ExtratorDadosService`:
+   - Implementado o método `_buscarComFallback`
+   - Implementado o método `buscarCampo`
+   - Mantidos apenas os métodos de utilidade
+   - Marcado o método `obterValorConcurso` como deprecated
+
+## Benefícios Obtidos
+
+1. **Código mais limpo e organizado**: Métodos menores e mais focados
+2. **Melhor separação de responsabilidades**: Cada serviço cuida de um aspecto específico
+3. **Maior facilidade de manutenção**: Alterações em um tipo de dado não afetam os outros
+4. **Redução de duplicação de código**: A lógica de busca é centralizada
+5. **Melhor testabilidade**: Componentes menores são mais fáceis de testar
+
+## Atualizações Realizadas
+
+1. ✅ Atualizadas as chamadas nos arquivos que usam o `ExtratorDadosService` para usar os novos serviços específicos:
+   - ✅ `lib\features\4_study_plan\presentation\widgets\concurso_info_widget.dart`
+   - ✅ `lib\features\4_study_plan\presentation\widgets\prova_info_widget.dart`
+
+2. ✅ Refatorados os arquivos adicionais identificados:
+   - ✅ `lib\core\utils\edital_formatter.dart`: Refatorado para usar os novos serviços específicos, mantendo fallbacks para compatibilidade.
+   - ✅ `lib\features\4_study_plan\domain\services\plano_data_service.dart`: Refatorado para usar os novos serviços específicos, mantendo a lógica de fallback existente.
+
+3. ✅ Verificado que não há outros arquivos que usam diretamente os métodos específicos do `ExtratorDadosService` que precisam ser atualizados.
+
+4. ✅ Adicionados testes unitários para os novos serviços:
+   - ✅ `test\unit\services\concurso_service_test.dart`
+   - ✅ `test\unit\services\prova_service_test.dart`
+   - ✅ `test\unit\services\inscricao_service_test.dart`
+   - ✅ `test\unit\services\cotas_service_test.dart`
+   - ✅ `test\unit\services\extractors\mock_data.dart` (dados de mock para os testes)
+
+5. ✅ Removido o método `obterValorConcurso` e outros métodos obsoletos do `ExtratorDadosService`.
+
+## Correções Adicionais
+
+6. ✅ Corrigido o arquivo `cotas_widget.dart` que ainda estava usando o método `obterInformacoesCotas` do `ExtratorDadosService`, que foi removido. Agora ele usa o `CotasService.obterInformacoes`.
+
+7. ✅ Atualizado o arquivo `plano_resumo_screen.dart` para remover o parâmetro `extratoService` da chamada ao `CotasWidget`, já que ele não é mais necessário.
+
+## Refatoração Concluída
+
+A refatoração do `ExtratorDadosService` foi concluída com sucesso. O serviço agora está mais modular, com responsabilidades bem definidas e separadas em serviços específicos. A lógica de busca foi centralizada em um único método, reduzindo a duplicação de código e facilitando a manutenção.
+
+Os novos serviços criados são:
+- `ConcursoService`: Para obtenção de dados do concurso (título, órgão, banca)
+- `ProvaService`: Para obtenção de dados da prova (local, data, formato, total de questões, critérios)
+- `InscricaoService`: Para obtenção de dados da inscrição (período, valor)
+- `CotasService`: Para obtenção de dados de cotas
+
+Além disso, foram criados extractors para cada fonte de dados:
+- `MetadadosExtractor`: Para extração de dados dos metadados do plano
+- `DadosExtraidosExtractor`: Para extração de dados dos dados extraídos do edital
+- `DadosProvaExtractor`: Para extração de dados da prova do edital
+- `DadosOriginaisExtractor`: Para extração de dados originais do edital
+
+Foram adicionados testes unitários para os novos serviços, garantindo que funcionem corretamente.

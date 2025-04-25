@@ -41,7 +41,7 @@ class ConteudoProgramaticoWidget extends StatelessWidget {
     }
 
     if (cargo == null) {
-      return Center(
+      return const Center(
         child: Text('Cargo não encontrado'),
       );
     }
@@ -63,7 +63,7 @@ class ConteudoProgramaticoWidget extends StatelessWidget {
 
   Widget _buildCategoriasList(Map<String, List<ConteudoProgramatico>> materiasPorCategoria) {
     return ListView.builder(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       itemCount: materiasPorCategoria.length + 1, // +1 para o botão de voltar
       itemBuilder: (context, index) {
         if (index == 0) {
@@ -75,7 +75,7 @@ class ConteudoProgramaticoWidget extends StatelessWidget {
         final materias = materiasPorCategoria[categoria]!;
 
         return Card(
-          margin: EdgeInsets.only(bottom: 16),
+          margin: const EdgeInsets.only(bottom: 16),
           elevation: 2,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
@@ -84,27 +84,27 @@ class ConteudoProgramaticoWidget extends StatelessWidget {
             onTap: () => onCategoriaSelecionadaChanged(categoria),
             borderRadius: BorderRadius.circular(12),
             child: Padding(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               child: Row(
                 children: [
                   Icon(
                     categoria == 'Conhecimentos Básicos' ? Icons.school : Icons.psychology,
                     color: AppTheme.primaryColor,
                   ),
-                  SizedBox(width: 12),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           categoria,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                             color: AppTheme.primaryColor,
                           ),
                         ),
-                        SizedBox(height: 4),
+                        const SizedBox(height: 4),
                         Text(
                           '${materias.length} matérias',
                           style: TextStyle(
@@ -116,7 +116,7 @@ class ConteudoProgramaticoWidget extends StatelessWidget {
                     ),
                   ),
                   // Manter a seta para categorias e matérias, pois são navegações válidas
-                  Icon(Icons.arrow_forward_ios, size: 16, color: AppTheme.primaryColor),
+                  const Icon(Icons.arrow_forward_ios, size: 16, color: AppTheme.primaryColor),
                 ],
               ),
             ),
@@ -130,7 +130,7 @@ class ConteudoProgramaticoWidget extends StatelessWidget {
     final materias = materiasPorCategoria[categoriaSelecionada] ?? [];
 
     return ListView.builder(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       itemCount: materias.length + 1, // +1 para o botão de voltar
       itemBuilder: (context, index) {
         if (index == 0) {
@@ -141,7 +141,7 @@ class ConteudoProgramaticoWidget extends StatelessWidget {
         final materia = materias[index - 1];
 
         return Card(
-          margin: EdgeInsets.only(bottom: 16),
+          margin: const EdgeInsets.only(bottom: 16),
           elevation: 2,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
@@ -150,27 +150,27 @@ class ConteudoProgramaticoWidget extends StatelessWidget {
             onTap: () => onMateriaSelecionadaChanged(materia.nome),
             borderRadius: BorderRadius.circular(12),
             child: Padding(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               child: Row(
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.book,
                     color: AppTheme.primaryColor,
                   ),
-                  SizedBox(width: 12),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           materia.nome,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                             color: AppTheme.primaryColor,
                           ),
                         ),
-                        SizedBox(height: 4),
+                        const SizedBox(height: 4),
                         Text(
                           '${materia.topicos.length} tópicos',
                           style: TextStyle(
@@ -182,7 +182,7 @@ class ConteudoProgramaticoWidget extends StatelessWidget {
                     ),
                   ),
                   // Manter a seta para matérias, pois são navegações válidas
-                  Icon(Icons.arrow_forward_ios, size: 16, color: AppTheme.primaryColor),
+                  const Icon(Icons.arrow_forward_ios, size: 16, color: AppTheme.primaryColor),
                 ],
               ),
             ),
@@ -203,13 +203,13 @@ class ConteudoProgramaticoWidget extends StatelessWidget {
     }
 
     if (materia == null) {
-      return Center(
+      return const Center(
         child: Text('Matéria não encontrada'),
       );
     }
 
     return ListView.builder(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       itemCount: materia.topicos.length + 1, // +1 para o botão de voltar
       itemBuilder: (context, index) {
         if (index == 0) {
@@ -220,26 +220,26 @@ class ConteudoProgramaticoWidget extends StatelessWidget {
         final topico = materia!.topicos[index - 1];
 
         return Card(
-          margin: EdgeInsets.only(bottom: 16),
+          margin: const EdgeInsets.only(bottom: 16),
           elevation: 2,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
           child: Padding(
-            padding: EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(
+                const Icon(
                   Icons.check_circle_outline,
                   color: AppTheme.primaryColor,
                   size: 20,
                 ),
-                SizedBox(width: 12),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     topico,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 14,
                       color: Colors.black87,
                     ),
@@ -255,7 +255,7 @@ class ConteudoProgramaticoWidget extends StatelessWidget {
 
   Widget _buildBackButton(String text, VoidCallback onPressed) {
     return Card(
-      margin: EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.only(bottom: 16),
       elevation: 2,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
@@ -264,14 +264,14 @@ class ConteudoProgramaticoWidget extends StatelessWidget {
         onTap: onPressed,
         borderRadius: BorderRadius.circular(12),
         child: Padding(
-          padding: EdgeInsets.all(16),
+          padding: const EdgeInsets.all(16),
           child: Row(
             children: [
-              Icon(Icons.arrow_back, color: AppTheme.primaryColor),
-              SizedBox(width: 12),
+              const Icon(Icons.arrow_back, color: AppTheme.primaryColor),
+              const SizedBox(width: 12),
               Text(
                 text,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 16,
                   color: AppTheme.primaryColor,
                 ),

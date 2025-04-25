@@ -16,14 +16,14 @@ class EditalHeaderWidget extends StatelessWidget {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: isDarkMode ? AppTheme.darkCardColor : Colors.white,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
             blurRadius: 10,
-            offset: Offset(0, 5),
+            offset: const Offset(0, 5),
           ),
         ],
       ),
@@ -32,13 +32,13 @@ class EditalHeaderWidget extends StatelessWidget {
         children: [
           Text(
             edital.nomeConcurso,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
               color: AppTheme.primaryColor,
             ),
           ),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           // Órgão responsável
           if (edital.dadosExtraidos.orgao != null && edital.dadosExtraidos.orgao!.isNotEmpty)
             _buildInfoRow(
@@ -83,7 +83,7 @@ class EditalHeaderWidget extends StatelessWidget {
                 ? Colors.grey.shade300
                 : Colors.grey.shade600,
           ),
-          SizedBox(width: 4),
+          const SizedBox(width: 4),
           Expanded(
             child: Text(
               text,

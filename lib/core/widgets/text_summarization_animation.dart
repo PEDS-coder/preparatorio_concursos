@@ -53,7 +53,7 @@ class _TextSummarizationAnimationState extends State<TextSummarizationAnimation>
     // Configurar animação de pulso
     _pulseController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 1500),
+      duration: const Duration(milliseconds: 1500),
     )..repeat(reverse: true);
     
     _pulseAnimation = Tween<double>(begin: 0.9, end: 1.1).animate(
@@ -64,7 +64,7 @@ class _TextSummarizationAnimationState extends State<TextSummarizationAnimation>
     initTextParticles();
 
     // Atualizar a animação a cada 50ms
-    timer = Timer.periodic(Duration(milliseconds: 50), (timer) {
+    timer = Timer.periodic(const Duration(milliseconds: 50), (timer) {
       if (mounted) {
         setState(() {
           updateTextParticles();
@@ -75,7 +75,7 @@ class _TextSummarizationAnimationState extends State<TextSummarizationAnimation>
     // Atualizar mensagens de status a cada 15 segundos
     if (widget.statusMessages.isNotEmpty) {
       currentStatusMessage = widget.statusMessages[0];
-      messageTimer = Timer.periodic(Duration(seconds: 15), (timer) {
+      messageTimer = Timer.periodic(const Duration(seconds: 15), (timer) {
         if (mounted) {
           setState(() {
             currentMessageIndex = (currentMessageIndex + 1) % widget.statusMessages.length;
@@ -238,10 +238,10 @@ class _TextSummarizationAnimationState extends State<TextSummarizationAnimation>
                     );
                   },
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 if (widget.statusMessages.isNotEmpty)
                   AnimatedSwitcher(
-                    duration: Duration(milliseconds: 500),
+                    duration: const Duration(milliseconds: 500),
                     child: Text(
                       currentStatusMessage,
                       key: ValueKey<String>(currentStatusMessage),
@@ -252,8 +252,8 @@ class _TextSummarizationAnimationState extends State<TextSummarizationAnimation>
                       ),
                     ),
                   ),
-                SizedBox(height: 16),
-                Text(
+                const SizedBox(height: 16),
+                const Text(
                   'Pode levar alguns minutos...',
                   style: TextStyle(
                     color: Colors.white70,

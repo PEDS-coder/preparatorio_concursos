@@ -82,7 +82,7 @@ class PdfOptimizer {
         }
         
         // Pausa para não bloquear a UI
-        await Future.delayed(Duration(milliseconds: 50));
+        await Future.delayed(const Duration(milliseconds: 50));
       }
       
       AppLogger.i(_tag, 'Processamento otimizado concluído com sucesso');
@@ -187,7 +187,7 @@ class PdfOptimizer {
             inTable = true;
             currentTable = '';
           }
-          currentTable += line + '\n';
+          currentTable += '$line\n';
         } else if (inTable) {
           // Fim da tabela
           inTable = false;
@@ -248,7 +248,7 @@ class PdfOptimizer {
         
         // Pausa para não bloquear a UI
         if ((i - startPage) % 5 == 0) {
-          await Future.delayed(Duration(milliseconds: 10));
+          await Future.delayed(const Duration(milliseconds: 10));
         }
       }
       
@@ -287,7 +287,7 @@ class PdfOptimizer {
             inTable = true;
             currentTable = '';
           }
-          currentTable += line + '\n';
+          currentTable += '$line\n';
         } else if (inTable) {
           // Fim da tabela
           inTable = false;

@@ -48,7 +48,7 @@ class _DataProcessingAnimationState extends State<DataProcessingAnimation> with 
     // Configurar animações
     _pulseController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 1500),
+      duration: const Duration(milliseconds: 1500),
     )..repeat(reverse: true);
     
     _pulseAnimation = Tween<double>(begin: 0.9, end: 1.1).animate(
@@ -57,7 +57,7 @@ class _DataProcessingAnimationState extends State<DataProcessingAnimation> with 
 
     _rotationController = AnimationController(
       vsync: this,
-      duration: Duration(seconds: 20),
+      duration: const Duration(seconds: 20),
     )..repeat();
     
     _rotationAnimation = Tween<double>(begin: 0, end: 2 * pi).animate(_rotationController);
@@ -66,7 +66,7 @@ class _DataProcessingAnimationState extends State<DataProcessingAnimation> with 
     initDataProcessingNetwork();
 
     // Atualizar a animação a cada 50ms
-    timer = Timer.periodic(Duration(milliseconds: 50), (timer) {
+    timer = Timer.periodic(const Duration(milliseconds: 50), (timer) {
       if (mounted) {
         setState(() {
           updateDataProcessingNetwork();
@@ -77,7 +77,7 @@ class _DataProcessingAnimationState extends State<DataProcessingAnimation> with 
     // Atualizar mensagens de status a cada 15 segundos
     if (widget.statusMessages.isNotEmpty) {
       currentStatusMessage = widget.statusMessages[0];
-      messageTimer = Timer.periodic(Duration(seconds: 15), (timer) {
+      messageTimer = Timer.periodic(const Duration(seconds: 15), (timer) {
         if (mounted) {
           setState(() {
             currentMessageIndex = (currentMessageIndex + 1) % widget.statusMessages.length;
@@ -101,7 +101,7 @@ class _DataProcessingAnimationState extends State<DataProcessingAnimation> with 
 
   void initDataProcessingNetwork() {
     // Criar nós de dados em um padrão circular
-    final int nodeCount = 12;
+    const int nodeCount = 12;
     final double centerX = widget.width / 2;
     final double centerY = widget.height / 2;
     final double radius = min(widget.width, widget.height) * 0.35;
@@ -251,10 +251,10 @@ class _DataProcessingAnimationState extends State<DataProcessingAnimation> with 
                     );
                   },
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 if (widget.statusMessages.isNotEmpty)
                   AnimatedSwitcher(
-                    duration: Duration(milliseconds: 500),
+                    duration: const Duration(milliseconds: 500),
                     child: Text(
                       currentStatusMessage,
                       key: ValueKey<String>(currentStatusMessage),
@@ -265,8 +265,8 @@ class _DataProcessingAnimationState extends State<DataProcessingAnimation> with 
                       ),
                     ),
                   ),
-                SizedBox(height: 16),
-                Text(
+                const SizedBox(height: 16),
+                const Text(
                   'Pode levar alguns minutos...',
                   style: TextStyle(
                     color: Colors.white70,
@@ -402,7 +402,7 @@ class DataProcessingPainter extends CustomPainter {
         final glowPaint = Paint()
           ..color = packet.color.withOpacity(0.5)
           ..style = PaintingStyle.fill
-          ..maskFilter = MaskFilter.blur(BlurStyle.normal, 3.0);
+          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3.0);
         
         canvas.drawCircle(
           Offset(packetX, packetY),
@@ -460,7 +460,7 @@ class DataProcessingPainter extends CustomPainter {
         final glowPaint = Paint()
           ..color = node.color.withOpacity(0.5)
           ..style = PaintingStyle.fill
-          ..maskFilter = MaskFilter.blur(BlurStyle.normal, 5.0);
+          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 5.0);
         
         canvas.drawCircle(
           Offset(node.x, node.y),

@@ -10,6 +10,8 @@ import '../../../../core/services/audio_explanation_service.dart';
 import 'api_info_screen.dart';
 
 class ApiKeyConfigScreen extends StatefulWidget {
+  const ApiKeyConfigScreen({super.key});
+
   @override
   _ApiKeyConfigScreenState createState() => _ApiKeyConfigScreenState();
 }
@@ -48,7 +50,7 @@ class _ApiKeyConfigScreenState extends State<ApiKeyConfigScreen> {
     if (apiKey != null && apiKey.isNotEmpty) {
       setState(() {
         _apiKeyController.text = apiKey;
-        if (apiType != null && apiType.isNotEmpty) {
+        if (apiType.isNotEmpty) {
           _selectedApiType = apiType;
         }
       });
@@ -65,7 +67,7 @@ class _ApiKeyConfigScreenState extends State<ApiKeyConfigScreen> {
       // Mostrar SnackBar de validação
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Row(
+          content: const Row(
             children: [
               SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)),
               SizedBox(width: 12),
@@ -73,7 +75,7 @@ class _ApiKeyConfigScreenState extends State<ApiKeyConfigScreen> {
             ],
           ),
           backgroundColor: Colors.blue.shade700,
-          duration: Duration(seconds: 60), // Longo tempo para garantir que seja fechado manualmente
+          duration: const Duration(seconds: 60), // Longo tempo para garantir que seja fechado manualmente
         ),
       );
 
@@ -98,13 +100,13 @@ class _ApiKeyConfigScreenState extends State<ApiKeyConfigScreen> {
             SnackBar(
               content: Row(
                 children: [
-                  Icon(Icons.error_outline, color: Colors.white),
-                  SizedBox(width: 12),
+                  const Icon(Icons.error_outline, color: Colors.white),
+                  const SizedBox(width: 12),
                   Expanded(child: Text('Erro na chave do LLM: ${llmResult['message']}')),
                 ],
               ),
               backgroundColor: Colors.red,
-              duration: Duration(seconds: 5),
+              duration: const Duration(seconds: 5),
             ),
           );
 
@@ -122,7 +124,7 @@ class _ApiKeyConfigScreenState extends State<ApiKeyConfigScreen> {
 
         // Mostrar mensagem de sucesso
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Row(
               children: [
                 Icon(Icons.check_circle, color: Colors.white),
@@ -140,7 +142,7 @@ class _ApiKeyConfigScreenState extends State<ApiKeyConfigScreen> {
         });
 
         // Navegar para a tela de análise de edital após um breve atraso para mostrar a mensagem
-        Future.delayed(Duration(seconds: 2), () {
+        Future.delayed(const Duration(seconds: 2), () {
           Navigator.pushReplacementNamed(context, '/edital/analyze');
         });
       } catch (e) {
@@ -152,13 +154,13 @@ class _ApiKeyConfigScreenState extends State<ApiKeyConfigScreen> {
           SnackBar(
             content: Row(
               children: [
-                Icon(Icons.error_outline, color: Colors.white),
-                SizedBox(width: 12),
+                const Icon(Icons.error_outline, color: Colors.white),
+                const SizedBox(width: 12),
                 Expanded(child: Text('Erro ao configurar API: $e')),
               ],
             ),
             backgroundColor: Colors.red,
-            duration: Duration(seconds: 5),
+            duration: const Duration(seconds: 5),
           ),
         );
 
@@ -177,11 +179,11 @@ class _ApiKeyConfigScreenState extends State<ApiKeyConfigScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Configuração de API'),
+        title: const Text('Configuração de API'),
         backgroundColor: Colors.transparent,
         elevation: 0,
         flexibleSpace: Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             gradient: LinearGradient(
               colors: [
                 AppTheme.gradientStart,
@@ -194,12 +196,12 @@ class _ApiKeyConfigScreenState extends State<ApiKeyConfigScreen> {
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.info_outline),
+            icon: const Icon(Icons.info_outline),
             onPressed: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => ApiInfoScreen(
+                  builder: (context) => const ApiInfoScreen(
                     title: 'Como Gerar Uma Chave API',
                     content: 'Para gerar uma chave API gratuitamente, abra o navegador no site aistudio.google.com.\nFaça o login com sua conta google e siga as instruções abaixo:',
                     imageAssets: [
@@ -241,7 +243,7 @@ class _ApiKeyConfigScreenState extends State<ApiKeyConfigScreen> {
                             color: isDarkMode ? Colors.white : Colors.black87,
                           ),
                         ),
-                        SizedBox(height: 8),
+                        const SizedBox(height: 8),
                         Text(
                           'Configure a API de IA para análise de editais e geração de conteúdo.',
                           style: TextStyle(
@@ -249,7 +251,7 @@ class _ApiKeyConfigScreenState extends State<ApiKeyConfigScreen> {
                             color: isDarkMode ? Colors.white70 : Colors.black54,
                           ),
                         ),
-                        SizedBox(height: 20),
+                        const SizedBox(height: 20),
                         Text(
                           'Tipo de API',
                           style: TextStyle(
@@ -258,12 +260,12 @@ class _ApiKeyConfigScreenState extends State<ApiKeyConfigScreen> {
                             color: isDarkMode ? Colors.white : Colors.black87,
                           ),
                         ),
-                        SizedBox(height: 8),
+                        const SizedBox(height: 8),
                         Column(
                           children: [
                             // Apenas Gemini é suportado
                             Container(
-                              padding: EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
                               decoration: BoxDecoration(
                                 color: AppTheme.primaryColor.withOpacity(0.1),
                                 borderRadius: BorderRadius.circular(8),
@@ -271,8 +273,8 @@ class _ApiKeyConfigScreenState extends State<ApiKeyConfigScreen> {
                               ),
                               child: Row(
                                 children: [
-                                  Icon(Icons.auto_awesome, color: AppTheme.primaryColor),
-                                  SizedBox(width: 12),
+                                  const Icon(Icons.auto_awesome, color: AppTheme.primaryColor),
+                                  const SizedBox(width: 12),
                                   Expanded(
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -284,7 +286,7 @@ class _ApiKeyConfigScreenState extends State<ApiKeyConfigScreen> {
                                             color: isDarkMode ? Colors.white : Colors.black87,
                                           ),
                                         ),
-                                        SizedBox(height: 4),
+                                        const SizedBox(height: 4),
                                         Text(
                                           'API oficial do Google com modelos avançados',
                                           style: TextStyle(
@@ -295,13 +297,13 @@ class _ApiKeyConfigScreenState extends State<ApiKeyConfigScreen> {
                                       ],
                                     ),
                                   ),
-                                  Icon(Icons.check_circle, color: AppTheme.primaryColor),
+                                  const Icon(Icons.check_circle, color: AppTheme.primaryColor),
                                 ],
                               ),
                             ),
                           ],
                         ),
-                        SizedBox(height: 16),
+                        const SizedBox(height: 16),
                         // Opções de autenticação
                         Text(
                           'Método de Autenticação',
@@ -311,14 +313,14 @@ class _ApiKeyConfigScreenState extends State<ApiKeyConfigScreen> {
                             color: isDarkMode ? Colors.white : Colors.black87,
                           ),
                         ),
-                        SizedBox(height: 8),
+                        const SizedBox(height: 8),
                         // Opção de autenticação OAuth
                         InkWell(
                           onTap: () {
                             Navigator.pushNamed(context, '/oauth_config');
                           },
                           child: Container(
-                            padding: EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
                             decoration: BoxDecoration(
                               color: Colors.blue.withOpacity(0.1),
                               borderRadius: BorderRadius.circular(8),
@@ -326,8 +328,8 @@ class _ApiKeyConfigScreenState extends State<ApiKeyConfigScreen> {
                             ),
                             child: Row(
                               children: [
-                                Icon(Icons.account_circle, color: Colors.blue),
-                                SizedBox(width: 12),
+                                const Icon(Icons.account_circle, color: Colors.blue),
+                                const SizedBox(width: 12),
                                 Expanded(
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -339,7 +341,7 @@ class _ApiKeyConfigScreenState extends State<ApiKeyConfigScreen> {
                                           color: isDarkMode ? Colors.white : Colors.black87,
                                         ),
                                       ),
-                                      SizedBox(height: 4),
+                                      const SizedBox(height: 4),
                                       Text(
                                         'Use sua conta Google para autenticar com a API Gemini',
                                         style: TextStyle(
@@ -350,12 +352,12 @@ class _ApiKeyConfigScreenState extends State<ApiKeyConfigScreen> {
                                     ],
                                   ),
                                 ),
-                                Icon(Icons.arrow_forward_ios, size: 16, color: Colors.blue),
+                                const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.blue),
                               ],
                             ),
                           ),
                         ),
-                        SizedBox(height: 16),
+                        const SizedBox(height: 16),
                         Text(
                           'OU',
                           style: TextStyle(
@@ -365,7 +367,7 @@ class _ApiKeyConfigScreenState extends State<ApiKeyConfigScreen> {
                           ),
                           textAlign: TextAlign.center,
                         ),
-                        SizedBox(height: 16),
+                        const SizedBox(height: 16),
                         Text(
                           'Chave API',
                           style: TextStyle(
@@ -374,13 +376,13 @@ class _ApiKeyConfigScreenState extends State<ApiKeyConfigScreen> {
                             color: isDarkMode ? Colors.white : Colors.black87,
                           ),
                         ),
-                        SizedBox(height: 8),
+                        const SizedBox(height: 8),
                         TextFormField(
                           controller: _apiKeyController,
                           decoration: InputDecoration(
                             labelText: 'Chave da API',
                             hintText: 'Insira sua chave da API Gemini (começa com AI...)',
-                            prefixIcon: Icon(Icons.vpn_key),
+                            prefixIcon: const Icon(Icons.vpn_key),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
@@ -397,9 +399,9 @@ class _ApiKeyConfigScreenState extends State<ApiKeyConfigScreen> {
                           },
                         ),
                         if (_errorMessage != null) ...[
-                          SizedBox(height: 16),
+                          const SizedBox(height: 16),
                           Container(
-                            padding: EdgeInsets.all(12),
+                            padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
                               color: Colors.red.withOpacity(0.1),
                               borderRadius: BorderRadius.circular(8),
@@ -407,30 +409,30 @@ class _ApiKeyConfigScreenState extends State<ApiKeyConfigScreen> {
                             ),
                             child: Row(
                               children: [
-                                Icon(Icons.error_outline, color: Colors.red),
-                                SizedBox(width: 12),
+                                const Icon(Icons.error_outline, color: Colors.red),
+                                const SizedBox(width: 12),
                                 Expanded(
                                   child: Text(
                                     _errorMessage!,
-                                    style: TextStyle(color: Colors.red),
+                                    style: const TextStyle(color: Colors.red),
                                   ),
                                 ),
                               ],
                             ),
                           ),
                         ],
-                        SizedBox(height: 24),
+                        const SizedBox(height: 24),
                         ElevatedButton(
                           onPressed: _isLoading ? null : _saveApiKey,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppTheme.primaryColor,
-                            padding: EdgeInsets.symmetric(vertical: 16),
+                            padding: const EdgeInsets.symmetric(vertical: 16),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
                           child: _isLoading
-                              ? SizedBox(
+                              ? const SizedBox(
                                   height: 20,
                                   width: 20,
                                   child: CircularProgressIndicator(
@@ -438,14 +440,14 @@ class _ApiKeyConfigScreenState extends State<ApiKeyConfigScreen> {
                                     valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                                   ),
                                 )
-                              : Text('Validar e Salvar'),
+                              : const Text('Validar e Salvar'),
                         ),
                       ],
                     ),
                   ),
                 ),
 
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 // Card com informações sobre limites de uso gratuito
                 Card(
                   elevation: 4,
@@ -465,7 +467,7 @@ class _ApiKeyConfigScreenState extends State<ApiKeyConfigScreen> {
                             color: isDarkMode ? Colors.white : Colors.black87,
                           ),
                         ),
-                        SizedBox(height: 12),
+                        const SizedBox(height: 12),
                         _buildLimitItem(
                           'gemini-2.5-pro-exp-03-25',
                           '10 requisições por minuto',
@@ -474,7 +476,7 @@ class _ApiKeyConfigScreenState extends State<ApiKeyConfigScreen> {
                           Colors.purple,
                           isDarkMode,
                         ),
-                        SizedBox(height: 16),
+                        const SizedBox(height: 16),
                         Text(
                           'Nota: O modelo acima é experimental e oferece maior capacidade de saída. Você pode obter uma chave API gratuita no Google AI Studio.',
                           style: TextStyle(
@@ -488,7 +490,7 @@ class _ApiKeyConfigScreenState extends State<ApiKeyConfigScreen> {
                   ),
                 ),
 
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
 
                 // Card com instruções para gerar chave API
                 Card(
@@ -509,7 +511,7 @@ class _ApiKeyConfigScreenState extends State<ApiKeyConfigScreen> {
                             color: isDarkMode ? Colors.white : Colors.black87,
                           ),
                         ),
-                        SizedBox(height: 8),
+                        const SizedBox(height: 8),
                         Text(
                           'Para gerar uma chave API gratuitamente, abra o navegador no site aistudio.google.com.',
                           style: TextStyle(
@@ -517,7 +519,7 @@ class _ApiKeyConfigScreenState extends State<ApiKeyConfigScreen> {
                             color: isDarkMode ? Colors.white70 : Colors.black54,
                           ),
                         ),
-                        SizedBox(height: 12),
+                        const SizedBox(height: 12),
                         Text(
                           'Faça o login com sua conta Google e siga as instruções no botão abaixo.',
                           style: TextStyle(
@@ -525,7 +527,7 @@ class _ApiKeyConfigScreenState extends State<ApiKeyConfigScreen> {
                             color: isDarkMode ? Colors.white70 : Colors.black54,
                           ),
                         ),
-                        SizedBox(height: 16),
+                        const SizedBox(height: 16),
                         // Botão para configurações avançadas do MCP
                         ElevatedButton(
                           onPressed: () {
@@ -533,12 +535,12 @@ class _ApiKeyConfigScreenState extends State<ApiKeyConfigScreen> {
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.blue,
-                            padding: EdgeInsets.symmetric(vertical: 16),
+                            padding: const EdgeInsets.symmetric(vertical: 16),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          child: Row(
+                          child: const Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Icon(Icons.settings_suggest, color: Colors.white),
@@ -550,14 +552,14 @@ class _ApiKeyConfigScreenState extends State<ApiKeyConfigScreen> {
                             ],
                           ),
                         ),
-                        SizedBox(height: 16),
+                        const SizedBox(height: 16),
                         // Botão de ajuda
                         ElevatedButton(
                           onPressed: () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => ApiInfoScreen(
+                                builder: (context) => const ApiInfoScreen(
                                   title: 'Como Gerar Uma Chave API',
                                   content: 'Para gerar uma chave API gratuitamente, abra o navegador no site aistudio.google.com.\nFaça o login com sua conta google e siga as instruções abaixo:',
                                   imageAssets: [
@@ -572,12 +574,12 @@ class _ApiKeyConfigScreenState extends State<ApiKeyConfigScreen> {
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppTheme.secondaryColor,
-                            padding: EdgeInsets.symmetric(vertical: 16),
+                            padding: const EdgeInsets.symmetric(vertical: 16),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          child: Text('Ver Instruções'),
+                          child: const Text('Ver Instruções'),
                         ),
                       ],
                     ),
@@ -594,7 +596,7 @@ class _ApiKeyConfigScreenState extends State<ApiKeyConfigScreen> {
   // Widget para exibir informações sobre limites de uso
   Widget _buildLimitItem(String modelName, String rpm, String tpm, String rpd, Color color, bool isDarkMode) {
     return Container(
-      padding: EdgeInsets.all(12),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(8),
@@ -611,11 +613,11 @@ class _ApiKeyConfigScreenState extends State<ApiKeyConfigScreen> {
               color: isDarkMode ? Colors.white : Colors.black87,
             ),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Row(
             children: [
               Icon(Icons.timer, size: 16, color: color),
-              SizedBox(width: 4),
+              const SizedBox(width: 4),
               Text(
                 rpm,
                 style: TextStyle(
@@ -625,11 +627,11 @@ class _ApiKeyConfigScreenState extends State<ApiKeyConfigScreen> {
               ),
             ],
           ),
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
           Row(
             children: [
               Icon(Icons.data_usage, size: 16, color: color),
-              SizedBox(width: 4),
+              const SizedBox(width: 4),
               Text(
                 tpm,
                 style: TextStyle(
@@ -639,11 +641,11 @@ class _ApiKeyConfigScreenState extends State<ApiKeyConfigScreen> {
               ),
             ],
           ),
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
           Row(
             children: [
               Icon(Icons.calendar_today, size: 16, color: color),
-              SizedBox(width: 4),
+              const SizedBox(width: 4),
               Text(
                 rpd,
                 style: TextStyle(

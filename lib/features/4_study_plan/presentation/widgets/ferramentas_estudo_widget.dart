@@ -14,13 +14,13 @@ class FerramentasEstudoWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (plano.ferramentas.isEmpty) {
-      return SizedBox.shrink();
+      return const SizedBox.shrink();
     }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
+        const Padding(
           padding: EdgeInsets.only(left: 16, bottom: 8),
           child: Text(
             'Ferramentas de Estudo',
@@ -32,13 +32,13 @@ class FerramentasEstudoWidget extends StatelessWidget {
           ),
         ),
         Card(
-          margin: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           elevation: 2,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
           ),
           child: Padding(
-            padding: EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
             child: Wrap(
               spacing: 8,
               runSpacing: 8,
@@ -46,7 +46,7 @@ class FerramentasEstudoWidget extends StatelessWidget {
                 return Chip(
                   label: Text(ferramenta),
                   backgroundColor: _getColorForFerramenta(ferramenta),
-                  labelStyle: TextStyle(
+                  labelStyle: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
                   ),
@@ -54,7 +54,7 @@ class FerramentasEstudoWidget extends StatelessWidget {
                     backgroundColor: Colors.white,
                     child: Text(
                       _getEmojiForFerramenta(ferramenta),
-                      style: TextStyle(fontSize: 12),
+                      style: const TextStyle(fontSize: 12),
                     ),
                   ),
                 );

@@ -125,7 +125,7 @@ class ApiConfigService extends ChangeNotifier {
       _isLlmConfigured = result['success'] as bool;
       if (!_isLlmConfigured) {
         _configErrorMessage = result['message'] as String;
-        _logger.warning('API LLM inválida: ${_configErrorMessage}', tag: _tag);
+        _logger.warning('API LLM inválida: $_configErrorMessage', tag: _tag);
       } else {
         _logger.debug('API LLM validada com sucesso', tag: _tag);
 

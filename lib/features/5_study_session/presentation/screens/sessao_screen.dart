@@ -19,7 +19,7 @@ import '../../../../core/widgets/modern_card.dart';
 class SessaoScreen extends StatefulWidget {
   final String? itemId;
 
-  const SessaoScreen({this.itemId});
+  const SessaoScreen({super.key, this.itemId});
 
   @override
   _SessaoScreenState createState() => _SessaoScreenState();
@@ -39,7 +39,7 @@ class _SessaoScreenState extends State<SessaoScreen> {
   // Campos adicionais para a sessão
   String? _materiaId;
   List<String> _assuntosSelecionados = [];
-  String _tipoTimer = 'progressivo';
+  final String _tipoTimer = 'progressivo';
 
   // Informações do item do cronograma (se houver)
   CronogramaItem? _itemCronograma;
@@ -241,7 +241,7 @@ class _SessaoScreenState extends State<SessaoScreen> {
     });
 
     // Iniciar timer para atualizar a duração
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_horaInicio != null) {
         setState(() {
           _duracaoDecorrida = DateTime.now().difference(_horaInicio!);
@@ -319,15 +319,15 @@ class _SessaoScreenState extends State<SessaoScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Sessão Muito Curta'),
-        content: Text('A sessão de estudo durou menos de 1 minuto. Deseja continuar estudando?'),
+        title: const Text('Sessão Muito Curta'),
+        content: const Text('A sessão de estudo durou menos de 1 minuto. Deseja continuar estudando?'),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.pop(context);
               _cancelarSessao();
             },
-            child: Text('Cancelar Sessão'),
+            child: const Text('Cancelar Sessão'),
           ),
           ElevatedButton(
             onPressed: () {
@@ -337,7 +337,7 @@ class _SessaoScreenState extends State<SessaoScreen> {
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.primaryColor,
             ),
-            child: Text('Continuar Estudando'),
+            child: const Text('Continuar Estudando'),
           ),
         ],
       ),
@@ -348,7 +348,7 @@ class _SessaoScreenState extends State<SessaoScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Row(
+        title: const Row(
           children: [
             Icon(Icons.check_circle, color: Colors.green),
             SizedBox(width: 8),
@@ -360,10 +360,10 @@ class _SessaoScreenState extends State<SessaoScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('Parabéns! Você estudou por $duracaoMinutos minutos.'),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(
-              'Você ganhou ${duracaoMinutos} pontos de experiência!',
-              style: TextStyle(fontWeight: FontWeight.bold),
+              'Você ganhou $duracaoMinutos pontos de experiência!',
+              style: const TextStyle(fontWeight: FontWeight.bold),
             ),
           ],
         ),
@@ -373,7 +373,7 @@ class _SessaoScreenState extends State<SessaoScreen> {
               Navigator.pop(context); // Fechar o diálogo
               Navigator.pop(context); // Voltar para a tela anterior
             },
-            child: Text('Voltar ao Dashboard'),
+            child: const Text('Voltar ao Dashboard'),
           ),
           ElevatedButton(
             onPressed: () {
@@ -389,7 +389,7 @@ class _SessaoScreenState extends State<SessaoScreen> {
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.primaryColor,
             ),
-            child: Text('Nova Sessão'),
+            child: const Text('Nova Sessão'),
           ),
         ],
       ),
@@ -400,12 +400,12 @@ class _SessaoScreenState extends State<SessaoScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Erro'),
+        title: const Text('Erro'),
         content: Text(mensagem),
         actions: [
           ElevatedButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('OK'),
+            child: const Text('OK'),
           ),
         ],
       ),
@@ -424,7 +424,7 @@ class _SessaoScreenState extends State<SessaoScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Sessão de Estudo'),
+        title: const Text('Sessão de Estudo'),
         backgroundColor: AppTheme.primaryColor,
       ),
       body: _sessaoIniciada ? _buildSessaoAtiva() : _buildIniciarSessao(),
@@ -433,12 +433,12 @@ class _SessaoScreenState extends State<SessaoScreen> {
 
   Widget _buildIniciarSessao() {
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Cabeçalho
-          Text(
+          const Text(
             'Iniciar Sessão de Estudo',
             style: TextStyle(
               fontSize: 24,
@@ -446,7 +446,7 @@ class _SessaoScreenState extends State<SessaoScreen> {
               color: AppTheme.primaryColor,
             ),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
             _itemCronograma != null
                 ? 'Sessão planejada: ${_itemCronograma!.nomeMateria}'
@@ -456,16 +456,16 @@ class _SessaoScreenState extends State<SessaoScreen> {
               color: Colors.grey.shade600,
             ),
           ),
-          Divider(height: 32),
+          const Divider(height: 32),
 
           // Informações da sessão
           if (_itemCronograma != null) ...[
             _buildInfoItem('Matéria', _itemCronograma!.nomeMateria),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             _buildInfoItem('Atividade', _itemCronograma!.atividadeSugerida),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             _buildInfoItem('Ferramenta', _itemCronograma!.ferramentaSugerida),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
           ],
 
           // Upload de documento para identificação automática
@@ -474,11 +474,11 @@ class _SessaoScreenState extends State<SessaoScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  const Text(
                     'Material de Estudo',
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
 
                   // Área de upload de documento
                   GestureDetector(
@@ -500,14 +500,14 @@ class _SessaoScreenState extends State<SessaoScreen> {
                                   size: 48,
                                   color: Colors.grey.shade400,
                                 ),
-                                SizedBox(height: 16),
+                                const SizedBox(height: 16),
                                 Text(
                                   'Clique para selecionar um arquivo',
                                   style: TextStyle(
                                     color: Colors.grey.shade400,
                                   ),
                                 ),
-                                SizedBox(height: 8),
+                                const SizedBox(height: 8),
                                 Text(
                                   'PDF, DOCX, TXT, HTML',
                                   style: TextStyle(
@@ -521,8 +521,8 @@ class _SessaoScreenState extends State<SessaoScreen> {
                               ? Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    CircularProgressIndicator(),
-                                    SizedBox(height: 16),
+                                    const CircularProgressIndicator(),
+                                    const SizedBox(height: 16),
                                     Text(_processingMessage),
                                   ],
                                 )
@@ -536,10 +536,10 @@ class _SessaoScreenState extends State<SessaoScreen> {
                                       size: 48,
                                       color: AppTheme.primaryColor,
                                     ),
-                                    SizedBox(height: 16),
+                                    const SizedBox(height: 16),
                                     Text(
                                       _fileName ?? (_selectedFile?.path.split('/').last ?? 'Arquivo selecionado'),
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         color: Colors.black87,
                                       ),
                                       maxLines: 1,
@@ -550,17 +550,17 @@ class _SessaoScreenState extends State<SessaoScreen> {
                     ),
                   ),
 
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
 
                   // Campo de matéria (preenchido automaticamente após upload)
-                  Text(
+                  const Text(
                     'Matéria',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   TextField(
                     controller: _materiaController,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       hintText: 'Ex: Direito Constitucional',
                       border: OutlineInputBorder(),
                     ),
@@ -568,24 +568,24 @@ class _SessaoScreenState extends State<SessaoScreen> {
                 ],
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
           ],
 
           // Observações (para ambos os tipos de sessão)
-          Text(
+          const Text(
             'Observações (opcional)',
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           TextField(
             controller: _observacoesController,
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               hintText: 'Ex: Estudar artigos 5º ao 17º da Constituição',
               border: OutlineInputBorder(),
             ),
             maxLines: 3,
           ),
-          SizedBox(height: 32),
+          const SizedBox(height: 32),
 
           // Botão de iniciar
           SizedBox(
@@ -595,7 +595,7 @@ class _SessaoScreenState extends State<SessaoScreen> {
               onPressed: () {
                 if (_itemCronograma == null && _materiaController.text.isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
+                    const SnackBar(
                       content: Text('Por favor, informe a matéria a ser estudada.'),
                       backgroundColor: Colors.red,
                     ),
@@ -604,8 +604,8 @@ class _SessaoScreenState extends State<SessaoScreen> {
                 }
                 _iniciarSessao();
               },
-              icon: Icon(Icons.play_arrow),
-              label: Text('Iniciar Sessão de Estudo'),
+              icon: const Icon(Icons.play_arrow),
+              label: const Text('Iniciar Sessão de Estudo'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.primaryColor,
               ),
@@ -613,9 +613,9 @@ class _SessaoScreenState extends State<SessaoScreen> {
           ),
 
           // Dicas
-          SizedBox(height: 32),
+          const SizedBox(height: 32),
           Container(
-            padding: EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: Colors.blue.shade50,
               borderRadius: BorderRadius.circular(8),
@@ -624,14 +624,14 @@ class _SessaoScreenState extends State<SessaoScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                const Text(
                   'Dicas para uma sessão produtiva:',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color: AppTheme.primaryColor,
                   ),
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 _buildDicaItem('Elimine distrações (silenciar notificações, afastar-se de ruídos)'),
                 _buildDicaItem('Faça pausas curtas a cada 25-30 minutos de estudo intenso'),
                 _buildDicaItem('Tenha água por perto para se manter hidratado'),
@@ -651,7 +651,7 @@ class _SessaoScreenState extends State<SessaoScreen> {
         Container(
           width: double.infinity,
           color: AppTheme.primaryColor,
-          padding: EdgeInsets.symmetric(vertical: 24),
+          padding: const EdgeInsets.symmetric(vertical: 24),
           child: Column(
             children: [
               Text(
@@ -661,16 +661,16 @@ class _SessaoScreenState extends State<SessaoScreen> {
                   color: Colors.white.withOpacity(0.9),
                 ),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Text(
                 _formatDuracao(_duracaoDecorrida),
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 48,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Text(
                 'Matéria: ${_materiaController.text}',
                 style: TextStyle(
@@ -685,7 +685,7 @@ class _SessaoScreenState extends State<SessaoScreen> {
         // Conteúdo principal
         Expanded(
           child: SingleChildScrollView(
-            padding: EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -696,25 +696,25 @@ class _SessaoScreenState extends State<SessaoScreen> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Padding(
-                    padding: EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(16),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
+                        const Text(
                           'Detalhes da Sessão',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        SizedBox(height: 16),
+                        const SizedBox(height: 16),
                         _buildInfoItem('Início', _formatHora(_horaInicio)),
-                        SizedBox(height: 8),
+                        const SizedBox(height: 8),
                         if (_itemCronograma != null) ...[
                           _buildInfoItem('Atividade', _itemCronograma!.atividadeSugerida),
-                          SizedBox(height: 8),
+                          const SizedBox(height: 8),
                           _buildInfoItem('Ferramenta', _itemCronograma!.ferramentaSugerida),
-                          SizedBox(height: 8),
+                          const SizedBox(height: 8),
                         ],
                         _buildInfoItem('Observações', _observacoesController.text.isEmpty ? 'Nenhuma' : _observacoesController.text),
                       ],
@@ -723,27 +723,27 @@ class _SessaoScreenState extends State<SessaoScreen> {
                 ),
 
                 // Dicas durante o estudo
-                SizedBox(height: 24),
-                Text(
+                const SizedBox(height: 24),
+                const Text(
                   'Mantenha o Foco',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 _buildFocusCard(
                   'Técnica Pomodoro',
                   'Estude por 25 minutos, faça uma pausa de 5 minutos e repita.',
                   Icons.timer,
                 ),
-                SizedBox(height: 12),
+                const SizedBox(height: 12),
                 _buildFocusCard(
                   'Anotações Ativas',
                   'Faça resumos ou mapas mentais enquanto estuda para melhor retenção.',
                   Icons.edit_note,
                 ),
-                SizedBox(height: 12),
+                const SizedBox(height: 12),
                 _buildFocusCard(
                   'Revise Periodicamente',
                   'A cada 20 minutos, revise rapidamente o que acabou de estudar.',
@@ -756,30 +756,30 @@ class _SessaoScreenState extends State<SessaoScreen> {
 
         // Botões de ação
         Padding(
-          padding: EdgeInsets.all(16),
+          padding: const EdgeInsets.all(16),
           child: Row(
             children: [
               Expanded(
                 child: OutlinedButton.icon(
                   onPressed: _cancelarSessao,
-                  icon: Icon(Icons.cancel),
-                  label: Text('Cancelar'),
+                  icon: const Icon(Icons.cancel),
+                  label: const Text('Cancelar'),
                   style: OutlinedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(vertical: 16),
-                    side: BorderSide(color: Colors.red),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    side: const BorderSide(color: Colors.red),
                     foregroundColor: Colors.red,
                   ),
                 ),
               ),
-              SizedBox(width: 16),
+              const SizedBox(width: 16),
               Expanded(
                 child: ElevatedButton.icon(
                   onPressed: _finalizarSessao,
-                  icon: Icon(Icons.check_circle),
-                  label: Text('Finalizar'),
+                  icon: const Icon(Icons.check_circle),
+                  label: const Text('Finalizar'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
-                    padding: EdgeInsets.symmetric(vertical: 16),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
                 ),
               ),
@@ -794,7 +794,7 @@ class _SessaoScreenState extends State<SessaoScreen> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(width: 100, child: Text('$label:', style: TextStyle(fontWeight: FontWeight.bold))),
+        SizedBox(width: 100, child: Text('$label:', style: const TextStyle(fontWeight: FontWeight.bold))),
         Expanded(child: Text(value)),
       ],
     );
@@ -802,12 +802,12 @@ class _SessaoScreenState extends State<SessaoScreen> {
 
   Widget _buildDicaItem(String dica) {
     return Padding(
-      padding: EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.only(bottom: 8),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.check_circle, size: 16, color: AppTheme.primaryColor),
-          SizedBox(width: 8),
+          const Icon(Icons.check_circle, size: 16, color: AppTheme.primaryColor),
+          const SizedBox(width: 8),
           Expanded(child: Text(dica)),
         ],
       ),
@@ -821,23 +821,23 @@ class _SessaoScreenState extends State<SessaoScreen> {
         borderRadius: BorderRadius.circular(12),
       ),
       child: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Row(
           children: [
             CircleAvatar(
               backgroundColor: AppTheme.primaryColor.withOpacity(0.1),
               child: Icon(icon, color: AppTheme.primaryColor),
             ),
-            SizedBox(width: 16),
+            const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     title,
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   Text(description),
                 ],
               ),

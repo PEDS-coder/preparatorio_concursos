@@ -47,7 +47,7 @@ class _PlanoQuestionarioScreenState extends State<PlanoQuestionarioScreen> {
   // Estado do questionário
   DateTime? _dataInicio;
   DateTime? _dataFim;
-  Map<String, int> _horasPorDia = {
+  final Map<String, int> _horasPorDia = {
     'Segunda': 0,
     'Terça': 0,
     'Quarta': 0,
@@ -56,7 +56,7 @@ class _PlanoQuestionarioScreenState extends State<PlanoQuestionarioScreen> {
     'Sábado': 0,
     'Domingo': 0,
   };
-  Map<String, List<int>> _horasSelecionadas = {
+  final Map<String, List<int>> _horasSelecionadas = {
     'Segunda': [],
     'Terça': [],
     'Quarta': [],
@@ -444,8 +444,8 @@ class _PlanoQuestionarioScreenState extends State<PlanoQuestionarioScreen> {
             gradient: const LinearGradient(
               colors: [Color(0xFFf43f7d), Color(0xFFe11d48)],
             ),
-            child: const Text('GERAR PLANO DE ESTUDOS'),
             fullWidth: true,
+            child: const Text('GERAR PLANO DE ESTUDOS'),
           ),
           const SizedBox(height: 32),
         ],

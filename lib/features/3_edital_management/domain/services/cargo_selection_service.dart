@@ -64,7 +64,7 @@ class CargoSelectionService {
     }
 
     // Adicionar a parte decimal
-    return resultado + ',' + valorDecimal.toString().padLeft(2, '0');
+    return '$resultado,${valorDecimal.toString().padLeft(2, '0')}';
   }
 
   /// Formata as vagas para exibição
@@ -166,8 +166,7 @@ class CargoSelectionService {
       }
 
       // Verificar se o edital menciona cadastro de reserva para todos os cargos
-      if (edital.textoCompleto != null &&
-          edital.textoCompleto!.toLowerCase().contains('cadastro de reserva')) {
+      if (edital.textoCompleto.toLowerCase().contains('cadastro de reserva')) {
         return 'Apenas cadastro de reserva';
       }
 
@@ -518,10 +517,8 @@ class CargoSelectionService {
       }
 
       // Formatar a data no padrão brasileiro
-      if (data != null) {
-        return DateFormat('dd/MM/yyyy').format(data);
-      }
-
+      return DateFormat('dd/MM/yyyy').format(data);
+    
       // Se não conseguir converter, retornar a string original
       return dataStr;
     } catch (e) {

@@ -32,6 +32,7 @@ class SecureStorageService implements ISecureStorageService {
         );
 
   /// Salva um valor de forma segura
+  @override
   Future<void> saveSecure(String key, String value) async {
     try {
       await _secureStorage.write(key: key, value: value);
@@ -43,6 +44,7 @@ class SecureStorageService implements ISecureStorageService {
   }
 
   /// Obtém um valor armazenado de forma segura
+  @override
   Future<String?> getSecure(String key) async {
     try {
       final value = await _secureStorage.read(key: key);
@@ -54,6 +56,7 @@ class SecureStorageService implements ISecureStorageService {
   }
 
   /// Remove um valor armazenado de forma segura
+  @override
   Future<void> deleteSecure(String key) async {
     try {
       await _secureStorage.delete(key: key);
@@ -65,6 +68,7 @@ class SecureStorageService implements ISecureStorageService {
   }
 
   /// Remove todos os valores armazenados de forma segura
+  @override
   Future<void> deleteAllSecure() async {
     try {
       await _secureStorage.deleteAll();
@@ -76,6 +80,7 @@ class SecureStorageService implements ISecureStorageService {
   }
 
   /// Verifica se uma chave existe no armazenamento seguro
+  @override
   Future<bool> containsKeySecure(String key) async {
     try {
       return await _secureStorage.containsKey(key: key);
@@ -86,6 +91,7 @@ class SecureStorageService implements ISecureStorageService {
   }
 
   /// Obtém todas as chaves e valores armazenados de forma segura
+  @override
   Future<Map<String, String>> getAllSecure() async {
     try {
       return await _secureStorage.readAll();
@@ -96,6 +102,7 @@ class SecureStorageService implements ISecureStorageService {
   }
 
   /// Gera um hash seguro para uma senha
+  @override
   String hashPassword(String password, String salt) {
     final bytes = utf8.encode(password + salt);
     final digest = sha256.convert(bytes);
@@ -103,6 +110,7 @@ class SecureStorageService implements ISecureStorageService {
   }
 
   /// Gera um salt aleatório para uso em hashing
+  @override
   String generateSalt() {
     final random = DateTime.now().millisecondsSinceEpoch.toString();
     final bytes = utf8.encode(random);
@@ -111,6 +119,7 @@ class SecureStorageService implements ISecureStorageService {
   }
 
   /// Verifica se uma senha corresponde ao hash armazenado
+  @override
   bool verifyPassword(String password, String salt, String storedHash) {
     final hash = hashPassword(password, salt);
     return hash == storedHash;

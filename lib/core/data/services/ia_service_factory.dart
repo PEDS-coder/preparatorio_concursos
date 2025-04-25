@@ -2,7 +2,6 @@ import 'interfaces/ia_service_interface.dart';
 import 'gemini_service.dart';
 import 'gemini_official_service.dart';
 import '../../utils/logger_adapter.dart';
-import '../../config/mcp_config.dart';
 
 /// Fábrica para criar instâncias de serviços de IA
 class IAServiceFactory {

@@ -24,6 +24,7 @@ class FeedbackService implements IFeedbackService {
   FeedbackService(this._logger, this._analyticsService, this._remoteConfigService);
 
   /// Inicializa o serviço de feedback
+  @override
   BetterFeedback initFeedback(Widget child) {
     return BetterFeedback(
       theme: FeedbackThemeData(
@@ -43,6 +44,7 @@ class FeedbackService implements IFeedbackService {
   }
 
   /// Mostra o formulário de feedback
+  @override
   void showFeedback(BuildContext context) {
     if (!_remoteConfigService.isFeatureEnabled('feedback')) {
       _logger.debug('Feedback desabilitado nas configurações remotas', tag: _tag);
@@ -94,7 +96,7 @@ class FeedbackService implements IFeedbackService {
         body: json.encode({
           'text': feedback.text,
           'screenshot': feedback.screenshot != null
-              ? base64Encode(feedback.screenshot!)
+              ? base64Encode(feedback.screenshot)
               : null,
           'extra': feedback.extra,
         }),

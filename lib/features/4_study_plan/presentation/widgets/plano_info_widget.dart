@@ -20,7 +20,7 @@ class PlanoInfoWidget extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
+        const Padding(
           padding: EdgeInsets.only(left: 16, bottom: 8),
           child: Text(
             'Plano de Estudos',
@@ -32,25 +32,25 @@ class PlanoInfoWidget extends StatelessWidget {
           ),
         ),
         Card(
-          margin: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           elevation: 2,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
           ),
           child: Padding(
-            padding: EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildInfoRow('Período', '${FormatadorService.formatarData(plano.dataInicio)} a ${FormatadorService.formatarData(plano.dataFim)}'),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 _buildInfoRow('Duração', '${_calcularDuracaoEmDias(plano.dataInicio, plano.dataFim)} dias'),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 _buildInfoRow('Sessões de Estudo', '${plano.sessoesEstudo.isEmpty ? "0 (Clique em 'Gerar Sessões' abaixo)" : plano.sessoesEstudo.length}'),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 _buildInfoRow('Horas Semanais', '${_calcularTotalHorasSemanais(plano.horasSemanais)} horas'),
-                SizedBox(height: 16),
-                Text(
+                const SizedBox(height: 16),
+                const Text(
                   'Disponibilidade Semanal',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
@@ -58,22 +58,22 @@ class PlanoInfoWidget extends StatelessWidget {
                     color: AppTheme.primaryColor,
                   ),
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 _buildHorasSemanais(plano.horasSemanais),
 
                 // Botão para gerar sessões de estudo
                 if (plano.sessoesEstudo.isEmpty)
                   Padding(
-                    padding: EdgeInsets.only(top: 16),
+                    padding: const EdgeInsets.only(top: 16),
                     child: Center(
                       child: ElevatedButton.icon(
                         onPressed: () => _gerarSessoesEstudo(context),
-                        icon: Icon(Icons.calendar_today),
-                        label: Text('Gerar Sessões de Estudo'),
+                        icon: const Icon(Icons.calendar_today),
+                        label: const Text('Gerar Sessões de Estudo'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppTheme.primaryColor,
                           foregroundColor: Colors.white,
-                          padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                         ),
                       ),
                     ),
@@ -146,7 +146,7 @@ class PlanoInfoWidget extends StatelessWidget {
                       (dia == 'Terça' ? horasSemanais['terca'] ?? 0 : 0);
 
         return Padding(
-          padding: EdgeInsets.only(bottom: 8),
+          padding: const EdgeInsets.only(bottom: 8),
           child: Row(
             children: [
               SizedBox(
@@ -157,10 +157,10 @@ class PlanoInfoWidget extends StatelessWidget {
                 child: LinearProgressIndicator(
                   value: horas / 8, // Considerando 8h como máximo
                   backgroundColor: Colors.grey.shade200,
-                  valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
+                  valueColor: const AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
                 ),
               ),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               Text('$horas h'),
             ],
           ),
@@ -217,7 +217,7 @@ class PlanoInfoWidget extends StatelessWidget {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => AlertDialog(
+      builder: (context) => const AlertDialog(
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -238,7 +238,7 @@ class PlanoInfoWidget extends StatelessWidget {
 
         // Mostrar mensagem de sucesso
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text('Sessões de estudo geradas com sucesso!'),
             backgroundColor: Colors.green,
           ),

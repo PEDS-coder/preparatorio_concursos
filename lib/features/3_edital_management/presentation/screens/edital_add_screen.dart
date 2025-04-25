@@ -12,6 +12,8 @@ import '../../../../core/data/models/edital.dart';
 import '../../../../core/utils/edital_analyzer.dart';
 
 class EditalAddScreen extends StatefulWidget {
+  const EditalAddScreen({super.key});
+
   @override
   _EditalAddScreenState createState() => _EditalAddScreenState();
 }
@@ -39,7 +41,7 @@ class _EditalAddScreenState extends State<EditalAddScreen> {
   // Método simplificado para carregar um PDF de exemplo
   Future<void> _pickPdfFile() async {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
+      const SnackBar(
         content: Text('Usando exemplo pré-carregado para evitar travamentos.'),
         backgroundColor: Colors.blue,
         duration: Duration(seconds: 3),
@@ -56,10 +58,10 @@ class _EditalAddScreenState extends State<EditalAddScreen> {
     });
 
     // Simular o carregamento
-    await Future.delayed(Duration(seconds: 1));
+    await Future.delayed(const Duration(seconds: 1));
 
     // Usar texto de exemplo
-    final String exampleText = 'EDITAL DE CONCURSO PÚBLICO\n\nCargo: Analista Administrativo\nVagas: 10\nSalário: R\$ 5.000,00\nEscolaridade: Nível Superior\n\nConteúdo Programático:\n- Língua Portuguesa\n- Raciocínio Lógico\n- Direito Administrativo\n- Administração Pública';
+    const String exampleText = 'EDITAL DE CONCURSO PÚBLICO\n\nCargo: Analista Administrativo\nVagas: 10\nSalário: R\$ 5.000,00\nEscolaridade: Nível Superior\n\nConteúdo Programático:\n- Língua Portuguesa\n- Raciocínio Lógico\n- Direito Administrativo\n- Administração Pública';
 
     // Finalizar o carregamento
     setState(() {
@@ -102,7 +104,7 @@ class _EditalAddScreenState extends State<EditalAddScreen> {
         // Verificar limite de editais para usuários gratuitos
         if (!authService.isPremium) {
           final editaisUsuario = editalService.getEditaisByUserId(usuario.id);
-          if (editaisUsuario.length >= 1) {
+          if (editaisUsuario.isNotEmpty) {
             setState(() {
               _errorMessage = 'Usuários gratuitos podem adicionar apenas 1 edital. Faça upgrade para Premium.';
               _isLoading = false;
@@ -210,7 +212,7 @@ class _EditalAddScreenState extends State<EditalAddScreen> {
 
         // Mostrar mensagem de sucesso
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text('Edital adicionado com sucesso!'),
             backgroundColor: Colors.green,
           ),
@@ -229,17 +231,17 @@ class _EditalAddScreenState extends State<EditalAddScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Adicionar Edital'),
+        title: const Text('Adicionar Edital'),
         backgroundColor: AppTheme.primaryColor,
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Form(
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
+              const Text(
                 'Adicione um novo edital',
                 style: TextStyle(
                   fontSize: 24,
@@ -247,10 +249,10 @@ class _EditalAddScreenState extends State<EditalAddScreen> {
                   color: AppTheme.primaryColor,
                 ),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               TextFormField(
                 controller: _nomeConcursoController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Nome do Concurso',
                   hintText: 'Ex: Concurso TRT 2023',
                   border: OutlineInputBorder(),
@@ -262,18 +264,18 @@ class _EditalAddScreenState extends State<EditalAddScreen> {
                   return null;
                 },
               ),
-              SizedBox(height: 16),
-              Text(
+              const SizedBox(height: 16),
+              const Text(
                 'Texto do Edital',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               TextFormField(
                 controller: _textoEditalController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   hintText: 'Cole o texto do edital aqui...',
                   border: OutlineInputBorder(),
                 ),
@@ -288,13 +290,13 @@ class _EditalAddScreenState extends State<EditalAddScreen> {
                   return null;
                 },
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   TextButton.icon(
-                    icon: Icon(Icons.upload_file),
-                    label: Text('Carregar arquivo PDF'),
+                    icon: const Icon(Icons.upload_file),
+                    label: const Text('Carregar arquivo PDF'),
                     onPressed: _isProcessingPdf ? null : _pickPdfFile,
                   ),
                 ],
@@ -302,13 +304,13 @@ class _EditalAddScreenState extends State<EditalAddScreen> {
               if (_isProcessingPdf)
                 Column(
                   children: [
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
                     LinearProgressIndicator(
                       value: _pdfProcessingProgress,
                       backgroundColor: Colors.grey.shade300,
-                      valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
+                      valueColor: const AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     Text(
                       _progressMessage,
                       style: TextStyle(
@@ -323,12 +325,12 @@ class _EditalAddScreenState extends State<EditalAddScreen> {
                   padding: const EdgeInsets.only(top: 8.0),
                   child: Row(
                     children: [
-                      Icon(Icons.check_circle, color: Colors.green, size: 16),
-                      SizedBox(width: 8),
+                      const Icon(Icons.check_circle, color: Colors.green, size: 16),
+                      const SizedBox(width: 8),
                       Expanded(
                         child: Text(
                           'PDF carregado: $_pdfFileName',
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 14,
                             color: Colors.green,
                           ),
@@ -341,7 +343,7 @@ class _EditalAddScreenState extends State<EditalAddScreen> {
                 Padding(
                   padding: const EdgeInsets.only(top: 16.0),
                   child: Container(
-                    padding: EdgeInsets.all(12),
+                    padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
                       color: Colors.red.shade50,
                       borderRadius: BorderRadius.circular(8),
@@ -349,8 +351,8 @@ class _EditalAddScreenState extends State<EditalAddScreen> {
                     ),
                     child: Row(
                       children: [
-                        Icon(Icons.error_outline, color: Colors.red),
-                        SizedBox(width: 12),
+                        const Icon(Icons.error_outline, color: Colors.red),
+                        const SizedBox(width: 12),
                         Expanded(
                           child: Text(
                             _errorMessage!,
@@ -361,12 +363,20 @@ class _EditalAddScreenState extends State<EditalAddScreen> {
                     ),
                   ),
                 ),
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
               SizedBox(
                 width: double.infinity,
                 height: 50,
                 child: ElevatedButton(
                   onPressed: _isLoading ? null : _processarEdital,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.primaryColor,
+                    foregroundColor: Colors.white,
+                    disabledBackgroundColor: Colors.grey.shade300,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
                   child: _isLoading
                       ? Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -384,14 +394,6 @@ class _EditalAddScreenState extends State<EditalAddScreen> {
                           ],
                         )
                       : Text('ADICIONAR EDITAL'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.primaryColor,
-                    foregroundColor: Colors.white,
-                    disabledBackgroundColor: Colors.grey.shade300,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
                 ),
               ),
             ],

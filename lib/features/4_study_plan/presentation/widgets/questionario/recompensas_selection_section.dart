@@ -255,9 +255,9 @@ class RecompensasSelectionSection extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: const Color(0xFF2a3050)),
         ),
-        child: Row(
+        child: const Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
+          children: [
             Text('⭐', style: TextStyle(fontSize: 24)),  // Emoji de estrela
             SizedBox(width: 12),
             Text(

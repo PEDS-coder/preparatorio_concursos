@@ -29,7 +29,7 @@ class EditalSaveService {
     if (dadosMap['cargos'] != null && dadosMap['cargos'] is List) {
       for (var cargoMap in dadosMap['cargos']) {
         cargos.add(Cargo(
-          id: DateTime.now().millisecondsSinceEpoch.toString() + '_' + (cargoMap['nome'] ?? ''),
+          id: '${DateTime.now().millisecondsSinceEpoch}_' + (cargoMap['nome'] ?? ''),
           nome: cargoMap['nome'] ?? 'Cargo sem nome',
           vagas: cargoMap['vagas'] ?? 0,
           salario: cargoMap['salario'] ?? 0.0,

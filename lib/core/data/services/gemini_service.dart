@@ -10,7 +10,7 @@ import 'ia_service_implementations.dart';
 /// Implementação do serviço de IA para o Gemini
 class GeminiService extends BaseIAService with IAServiceImplementations {
   final String _geminiBaseUrl = 'https://generativelanguage.googleapis.com/v1beta/models';
-  String _geminiModel = 'gemini-2.5-pro-exp-03-25';
+  final String _geminiModel = 'gemini-2.5-pro-exp-03-25';
   final List<String> _geminiModelsAlternatives = [
     'gemini-2.5-pro-exp-03-25',
   ];
@@ -100,16 +100,7 @@ class GeminiService extends BaseIAService with IAServiceImplementations {
     return await callApi(prompt);
   }
 
-  @override
-  @deprecated
-  Future<String> extrairCargosDetalhados(Uint8List pdfBytes, {String? pdfName}) async {
-    if (!isConfigured) {
-      throw Exception('API Key não configurada');
-    }
 
-    // Este método está obsoleto, usar extrairCargosEdital em vez disso
-    return await extrairCargosEdital(pdfBytes, pdfName: pdfName);
-  }
 
   @override
   Future<String> callApi(String prompt) async {
@@ -220,7 +211,7 @@ class GeminiService extends BaseIAService with IAServiceImplementations {
   @override
   Future<String> extrairCargosEdital(Uint8List pdfBytes, {String? pdfName}) async {
     if (!isConfigured) throw Exception('API Key não configurada');
-    final promptTemplate = await _promptService.loadCargosDetalhadosPrompt();
+    final promptTemplate = await _promptService.loadPdfEditalAnalysisPrompt();
     final prompt = _promptService.customizePrompt(promptTemplate, {'PDF_NAME': pdfName ?? ''});
     return await callGeminiApiWithPdf(prompt, pdfBytes, pdfName: pdfName);
   }
@@ -244,18 +235,7 @@ class GeminiService extends BaseIAService with IAServiceImplementations {
     return await callGeminiApiWithPdf(prompt, pdfBytes, pdfName: pdfName);
   }
 
-  @override
-  @deprecated
-  Future<String> extrairConteudoProgramatico({required Uint8List pdfBytes, required String cargoAlvo, String? pdfName}) async {
-    if (!isConfigured) throw Exception('API Key não configurada');
-    // Usar o prompt concurso_conteudo_prompt.txt em vez de content_edital_prompt.txt
-    final promptTemplate = await _promptService.loadConcursoConteudoPrompt();
-    final prompt = _promptService.customizePrompt(promptTemplate, {
-      'PDF_NAME': pdfName ?? '',
-      'CARGO_ALVO': cargoAlvo,
-    });
-    return await callGeminiApiWithPdf(prompt, pdfBytes, pdfName: pdfName);
-  }
+
 
   @override
   Future<String> gerarEsquema({required String texto, String? titulo}) async {
@@ -312,7 +292,7 @@ class GeminiService extends BaseIAService with IAServiceImplementations {
 
       // Preparar os dados para o prompt
       final DateTime dataInicio = DateTime.now();
-      final DateTime dataFim = dataInicio.add(Duration(days: 90)); // 3 meses por padrão
+      final DateTime dataFim = dataInicio.add(const Duration(days: 90)); // 3 meses por padrão
       final int totalDias = dataFim.difference(dataInicio).inDays;
 
       // Extrair apenas as matérias do cargo

@@ -11,7 +11,7 @@ import 'ia_service_implementations.dart';
 /// Implementação oficial do serviço de IA para o Gemini
 class GeminiOfficialService extends BaseIAService with IAServiceImplementations {
   final String _geminiBaseUrl = 'https://generativelanguage.googleapis.com/v1beta/models';
-  String _geminiModel = 'gemini-2.5-pro-exp-03-25';
+  final String _geminiModel = 'gemini-2.5-pro-exp-03-25';
   final List<String> _geminiModelsAlternatives = [
     'gemini-2.5-pro-exp-03-25',
   ];
@@ -204,7 +204,7 @@ class GeminiOfficialService extends BaseIAService with IAServiceImplementations 
   @override
   Future<String> extrairCargosEdital(Uint8List pdfBytes, {String? pdfName}) async {
     if (!isConfigured) throw Exception('API Key não configurada');
-    final promptTemplate = await _promptService.loadCargosDetalhadosPrompt();
+    final promptTemplate = await _promptService.loadPdfEditalAnalysisPrompt();
     final prompt = _promptService.customizePrompt(promptTemplate, {'PDF_NAME': pdfName ?? ''});
     return await callGeminiApiWithPdf(prompt, pdfBytes, pdfName: pdfName);
   }
@@ -217,37 +217,47 @@ class GeminiOfficialService extends BaseIAService with IAServiceImplementations 
     return await callGeminiApiWithPdf(prompt, pdfBytes, pdfName: pdfName);
   }
 
-  @override
-  @deprecated
-  Future<String> extrairCargosDetalhados(Uint8List pdfBytes, {String? pdfName}) async {
-    if (!isConfigured) throw Exception('API Key não configurada');
-    // Este método está obsoleto, usar extrairCargosEdital em vez disso
-    return await extrairCargosEdital(pdfBytes, pdfName: pdfName);
-  }
+
 
   @override
   Future<String> extrairConcursoConteudo({required Uint8List pdfBytes, required String cargoAlvo, String? pdfName}) async {
     if (!isConfigured) throw Exception('API Key não configurada');
+
+    // Log para depuração
+    print('[GeminiOfficialService] Extraindo conteúdo do concurso para cargo: $cargoAlvo');
+
     final promptTemplate = await _promptService.loadConcursoConteudoPrompt();
     final prompt = _promptService.customizePrompt(promptTemplate, {
       'PDF_NAME': pdfName ?? '',
       'CARGO_ALVO': cargoAlvo,
     });
-    return await callGeminiApiWithPdf(prompt, pdfBytes, pdfName: pdfName);
+
+    // Log para depuração
+    print('[GeminiOfficialService] Prompt personalizado com cargo alvo: $cargoAlvo');
+
+    try {
+      final resposta = await callGeminiApiWithPdf(prompt, pdfBytes, pdfName: pdfName);
+
+      // Log para depuração
+      print('[GeminiOfficialService] Resposta recebida com tamanho: ${resposta.length} caracteres');
+      print('[GeminiOfficialService] Início da resposta: ${resposta.substring(0, resposta.length > 100 ? 100 : resposta.length)}');
+
+      // Verificar se a resposta é um JSON válido
+      try {
+        final json = jsonDecode(resposta);
+        print('[GeminiOfficialService] Resposta é um JSON válido com ${json.keys.length} chaves: ${json.keys.join(', ')}');
+      } catch (e) {
+        print('[GeminiOfficialService] Resposta não é um JSON válido: $e');
+      }
+
+      return resposta;
+    } catch (e) {
+      print('[GeminiOfficialService] Erro ao extrair conteúdo do concurso: $e');
+      throw Exception('Erro ao extrair conteúdo do concurso: $e');
+    }
   }
 
-  @override
-  @deprecated
-  Future<String> extrairConteudoProgramatico({required Uint8List pdfBytes, required String cargoAlvo, String? pdfName}) async {
-    if (!isConfigured) throw Exception('API Key não configurada');
-    // Usar o prompt concurso_conteudo_prompt.txt em vez de content_edital_prompt.txt
-    final promptTemplate = await _promptService.loadConcursoConteudoPrompt();
-    final prompt = _promptService.customizePrompt(promptTemplate, {
-      'PDF_NAME': pdfName ?? '',
-      'CARGO_ALVO': cargoAlvo,
-    });
-    return await callGeminiApiWithPdf(prompt, pdfBytes, pdfName: pdfName);
-  }
+
 
   @override
   Future<String> gerarEsquema({required String texto, String? titulo}) async {
@@ -342,7 +352,7 @@ class GeminiOfficialService extends BaseIAService with IAServiceImplementations 
 
       // Extrair dados do questionário com tratamento seguro de datas
       final DateTime dataInicio = _parseDate(dadosCargo['dataInicio']);
-      final DateTime dataFim = _parseDate(dadosCargo['dataFim']) ?? dataInicio.add(Duration(days: 90));
+      final DateTime dataFim = _parseDate(dadosCargo['dataFim']) ?? dataInicio.add(const Duration(days: 90));
       final int totalDias = dataFim.difference(dataInicio).inDays;
 
       // Log para depuração
@@ -403,7 +413,7 @@ class GeminiOfficialService extends BaseIAService with IAServiceImplementations 
         if (horasSelecionadasRaw is Map) {
           horasSelecionadasRaw.forEach((dia, horas) {
             if (horas is List && horas.isNotEmpty) {
-              final List<String> horasFormatadas = horas.map((h) => '${h}:00').toList();
+              final List<String> horasFormatadas = horas.map((h) => '$h:00').toList();
               horariosEspecificos.add('$dia: ${horasFormatadas.join(', ')}');
             }
           });
@@ -624,7 +634,7 @@ class GeminiOfficialService extends BaseIAService with IAServiceImplementations 
       final String fileName = pdfName ?? 'edital.pdf';
 
       // Log para depuração
-      print('[GeminiOfficialService] Enviando PDF para análise: ${fileName} (${pdfBytes.length} bytes)');
+      print('[GeminiOfficialService] Enviando PDF para análise: $fileName (${pdfBytes.length} bytes)');
 
       final Map<String, dynamic> requestBody = {
         'contents': [
@@ -679,7 +689,7 @@ class GeminiOfficialService extends BaseIAService with IAServiceImplementations 
           return text;
         } else {
           // Resposta com estrutura inesperada, tentar extrair o máximo de informações possível
-          print('[GeminiOfficialService] Estrutura de resposta inesperada: ${jsonResponse}');
+          print('[GeminiOfficialService] Estrutura de resposta inesperada: $jsonResponse');
 
           // Tentar extrair qualquer texto disponível
           if (jsonResponse.containsKey('candidates') &&

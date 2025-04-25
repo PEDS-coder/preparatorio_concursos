@@ -38,7 +38,7 @@ void main() {
           }
           
           // Simular trabalho
-          await Future.delayed(Duration(milliseconds: 50));
+          await Future.delayed(const Duration(milliseconds: 50));
           
           concurrentCount--;
           return index;

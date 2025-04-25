@@ -12,8 +12,8 @@ class ErrorMessageWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(top: 24),
-      padding: EdgeInsets.all(16),
+      margin: const EdgeInsets.only(top: 24),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.red.shade50,
         borderRadius: BorderRadius.circular(8),
@@ -21,8 +21,8 @@ class ErrorMessageWidget extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(Icons.error_outline, color: Colors.red),
-          SizedBox(width: 12),
+          const Icon(Icons.error_outline, color: Colors.red),
+          const SizedBox(width: 12),
           Expanded(
             child: Text(
               errorMessage,

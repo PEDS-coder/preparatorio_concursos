@@ -3,7 +3,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 import '../models/recompensa_mercado.dart';
-import '../models/usuario.dart';
 import '../../auth/auth_service.dart';
 
 class MercadoService extends ChangeNotifier {

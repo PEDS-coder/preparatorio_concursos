@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/foundation.dart';
 import '../models/trofeu.dart';
-import '../models/usuario.dart';
 import '../../auth/auth_service.dart';
 
 class GamificacaoService extends ChangeNotifier {

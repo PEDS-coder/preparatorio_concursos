@@ -96,7 +96,7 @@ class PlanoEstudo {
     required this.recompensas,
     required this.sessoesEstudo,
     Map<String, dynamic>? metadados,
-  }) : this.metadados = metadados ?? {};
+  }) : metadados = metadados ?? {};
 
   Map<String, dynamic> toMap() {
     final map = {

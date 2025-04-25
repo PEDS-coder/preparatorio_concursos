@@ -10,7 +10,7 @@ class AnalysisOverlayWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return AnimatedOpacity(
       opacity: 1.0,
-      duration: Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 300),
       child: Container(
         color: Colors.black.withOpacity(0.9),
         child: Center(
@@ -18,7 +18,7 @@ class AnalysisOverlayWidget extends StatelessWidget {
             elevation: 8,
             color: Colors.black,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            child: Padding(
+            child: const Padding(
               padding: EdgeInsets.all(4),
               child: MatrixRainAnimation(
                 width: 350,

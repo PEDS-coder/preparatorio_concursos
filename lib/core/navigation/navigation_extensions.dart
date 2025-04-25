@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:preparatorio_concursos/core/di/service_locator.dart';
 import 'package:preparatorio_concursos/core/data/services/interfaces/navigation_service_interface.dart';
-import 'package:preparatorio_concursos/core/utils/logger.dart';
 
 /// Extensões para facilitar a navegação na aplicação
 extension NavigationExtensions on BuildContext {

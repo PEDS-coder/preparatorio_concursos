@@ -4,12 +4,15 @@ import 'package:flutter/foundation.dart';
 import '../models/models.dart';
 import '../models/materia.dart';
 import '../models/assunto.dart';
+import '../../../features/4_study_plan/domain/services/plano_dados_service.dart';
 
 class PlanoEstudoService extends ChangeNotifier {
   List<PlanoEstudo> _planos = [];
   List<CronogramaItem> _cronogramaItems = [];
   List<Materia> _materias = [];
   List<Assunto> _assuntos = [];
+
+  final PlanoDadosService _planoDadosService = PlanoDadosService();
 
   List<PlanoEstudo> get planos => _planos;
   List<CronogramaItem> get cronogramaItems => _cronogramaItems;
@@ -77,6 +80,12 @@ class PlanoEstudoService extends ChangeNotifier {
     {Map<String, List<int>>? horariosEspecificos,
      Map<String, dynamic>? dadosAdicionais}
   ) async {
+    // Log para depuração
+    debugPrint('[PlanoEstudoService] Criando plano de estudo para usuário: $userId');
+    if (dadosAdicionais != null) {
+      debugPrint('[PlanoEstudoService] Dados adicionais recebidos com ${dadosAdicionais.keys.length} chaves: ${dadosAdicionais.keys.join(', ')}');
+    }
+
     // Gerar sessões de estudo
     final List<SessaoEstudo> sessoesEstudo = _gerarSessoesEstudo(
       userId,
@@ -94,6 +103,21 @@ class PlanoEstudoService extends ChangeNotifier {
     // Adicionar dados adicionais se fornecidos
     if (dadosAdicionais != null) {
       metadados.addAll(dadosAdicionais);
+
+      // Verificar se há dados de prova
+      if (dadosAdicionais.containsKey('prova')) {
+        debugPrint('[PlanoEstudoService] Dados de prova encontrados nos dados adicionais');
+      }
+
+      // Verificar se há conteúdo programático
+      if (dadosAdicionais.containsKey('conteudo_programatico')) {
+        debugPrint('[PlanoEstudoService] Conteúdo programático encontrado nos dados adicionais');
+      }
+
+      // Verificar se há dados de concurso
+      if (dadosAdicionais.containsKey('concurso')) {
+        debugPrint('[PlanoEstudoService] Dados de concurso encontrados nos dados adicionais');
+      }
     }
 
     final plano = PlanoEstudo(
@@ -115,6 +139,10 @@ class PlanoEstudoService extends ChangeNotifier {
     _planos.add(plano);
     await _savePlanos();
     notifyListeners();
+
+    debugPrint('[PlanoEstudoService] Plano criado com ID: ${plano.id}');
+    debugPrint('[PlanoEstudoService] Metadados do plano contém ${plano.metadados.keys.length} chaves');
+
     return plano;
   }
 
@@ -505,8 +533,9 @@ class PlanoEstudoService extends ChangeNotifier {
       Map<String, int> horasSemanaisNormalizado = {};
       plano.horasSemanais.forEach((key, value) {
         String chaveNormalizada = key;
-        if (key == 'Segunda') chaveNormalizada = 'segunda';
-        else if (key == 'Terça') chaveNormalizada = 'terca';
+        if (key == 'Segunda') {
+          chaveNormalizada = 'segunda';
+        } else if (key == 'Terça') chaveNormalizada = 'terca';
         else if (key == 'Quarta') chaveNormalizada = 'quarta';
         else if (key == 'Quinta') chaveNormalizada = 'quinta';
         else if (key == 'Sexta') chaveNormalizada = 'sexta';
@@ -621,5 +650,61 @@ class PlanoEstudoService extends ChangeNotifier {
     }
 
     return horasPorMateria;
+  }
+
+  // Atualizar metadados de um plano
+  Future<bool> atualizarMetadados(String planoId, Map<String, dynamic> novosMetadados) async {
+    debugPrint('[PlanoEstudoService] Atualizando metadados do plano: $planoId');
+    debugPrint('[PlanoEstudoService] Novos metadados com ${novosMetadados.keys.length} chaves: ${novosMetadados.keys.join(', ')}');
+
+    final index = _planos.indexWhere((plano) => plano.id == planoId);
+
+    if (index != -1) {
+      // Criar uma cópia dos metadados atuais
+      Map<String, dynamic> metadadosAtualizados = Map.from(_planos[index].metadados);
+
+      // Adicionar ou atualizar com os novos metadados
+      novosMetadados.forEach((key, value) {
+        metadadosAtualizados[key] = value;
+      });
+
+      // Criar uma cópia do plano com os metadados atualizados
+      _planos[index] = _planos[index].copyWith(
+        metadados: metadadosAtualizados,
+      );
+
+      await _savePlanos();
+      notifyListeners();
+
+      debugPrint('[PlanoEstudoService] Metadados atualizados com sucesso. Total de chaves: ${metadadosAtualizados.keys.length}');
+      return true;
+    }
+
+    debugPrint('[PlanoEstudoService] Plano não encontrado: $planoId');
+    return false;
+  }
+
+  /// Atualiza os metadados do plano com os dados da resposta LLM
+  Future<bool> atualizarMetadadosComRespostaLLM(String planoId, String jsonResponse) async {
+    final plano = getPlanoById(planoId);
+    if (plano == null) {
+      debugPrint('[PlanoEstudoService] Plano não encontrado com ID: $planoId');
+      return false;
+    }
+
+    try {
+      // Extrair dados da resposta LLM
+      await _planoDadosService.extrairDadosLLMParaPlano(plano, jsonResponse);
+
+      // Salvar o plano atualizado
+      await _savePlanos();
+      notifyListeners();
+
+      debugPrint('[PlanoEstudoService] Metadados do plano atualizados com sucesso: $planoId');
+      return true;
+    } catch (e) {
+      debugPrint('[PlanoEstudoService] Erro ao atualizar metadados do plano: $e');
+      return false;
+    }
   }
 }

@@ -28,7 +28,7 @@ void main() {
           ChangeNotifierProvider<EditalService>.value(value: mockEditalService),
           ChangeNotifierProvider<IAService>.value(value: mockIAService),
         ],
-        child: EditalAnalyzeScreen(),
+        child: const EditalAnalyzeScreen(),
       ),
     );
   }

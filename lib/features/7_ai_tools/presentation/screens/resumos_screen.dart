@@ -11,6 +11,8 @@ import '../../../../core/widgets/document_upload_widget.dart';
 import '../../../../core/services/document_classifier_service.dart';
 
 class ResumosScreen extends StatefulWidget {
+  const ResumosScreen({super.key});
+
   @override
   _ResumosScreenState createState() => _ResumosScreenState();
 }
@@ -99,18 +101,18 @@ class _ResumosScreenState extends State<ResumosScreen> {
     return Scaffold(
       backgroundColor: AppTheme.darkBackground,
       appBar: AppBar(
-        title: Text('Resumos'),
+        title: const Text('Resumos'),
         backgroundColor: AppTheme.darkBackground,
         elevation: 0,
       ),
       body: !isPremium
           ? _buildPremiumRequired()
           : SingleChildScrollView(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  const Text(
                     'Criar Resumos com IA',
                     style: TextStyle(
                       fontSize: 24,
@@ -118,7 +120,7 @@ class _ResumosScreenState extends State<ResumosScreen> {
                       color: Colors.white,
                     ),
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Text(
                     'Faça upload de um documento ou insira um texto para gerar um resumo automaticamente',
                     style: TextStyle(
@@ -126,11 +128,11 @@ class _ResumosScreenState extends State<ResumosScreen> {
                       color: Colors.white.withOpacity(0.7),
                     ),
                   ),
-                  SizedBox(height: 24),
+                  const SizedBox(height: 24),
 
                   // Seleção de modo
                   _buildModeSelector(),
-                  SizedBox(height: 24),
+                  const SizedBox(height: 24),
 
                   // Conteúdo com base no modo selecionado
                   _modoEntrada == 'upload'
@@ -142,19 +144,19 @@ class _ResumosScreenState extends State<ResumosScreen> {
                     Padding(
                       padding: const EdgeInsets.only(top: 24.0),
                       child: _isLoading
-                          ? Center(
+                          ? const Center(
                               child: CircularProgressIndicator(
                                 valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
                               ),
                             )
                           : ElevatedButton.icon(
-                              icon: Icon(Icons.summarize),
-                              label: Text('GERAR RESUMO'),
+                              icon: const Icon(Icons.summarize),
+                              label: const Text('GERAR RESUMO'),
                               onPressed: _gerarResumo,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: AppTheme.secondaryColor,
-                                padding: EdgeInsets.symmetric(vertical: 16),
-                                minimumSize: Size(double.infinity, 48),
+                                padding: const EdgeInsets.symmetric(vertical: 16),
+                                minimumSize: const Size(double.infinity, 48),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
@@ -165,8 +167,8 @@ class _ResumosScreenState extends State<ResumosScreen> {
                   // Mensagem de erro
                   if (_errorMessage != null)
                     Container(
-                      margin: EdgeInsets.only(top: 24),
-                      padding: EdgeInsets.all(12),
+                      margin: const EdgeInsets.only(top: 24),
+                      padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
                         color: AppTheme.errorColor.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(12),
@@ -177,16 +179,16 @@ class _ResumosScreenState extends State<ResumosScreen> {
                       ),
                       child: Row(
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.error_outline,
                             color: AppTheme.errorColor,
                             size: 20,
                           ),
-                          SizedBox(width: 10),
+                          const SizedBox(width: 10),
                           Expanded(
                             child: Text(
                               _errorMessage!,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 color: AppTheme.errorColor,
                                 fontSize: 14,
                               ),
@@ -199,13 +201,13 @@ class _ResumosScreenState extends State<ResumosScreen> {
                   // Resultado
                   if (_resultado != null)
                     Container(
-                      margin: EdgeInsets.only(top: 24),
+                      margin: const EdgeInsets.only(top: 24),
                       child: ModernCard(
-                        padding: EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(16),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Row(
+                            const Row(
                               children: [
                                 Icon(
                                   Icons.check_circle,
@@ -223,7 +225,7 @@ class _ResumosScreenState extends State<ResumosScreen> {
                                 ),
                               ],
                             ),
-                            SizedBox(height: 16),
+                            const SizedBox(height: 16),
                             Text(
                               _resultado!,
                               style: TextStyle(
@@ -231,31 +233,31 @@ class _ResumosScreenState extends State<ResumosScreen> {
                                 fontSize: 14,
                               ),
                             ),
-                            SizedBox(height: 16),
+                            const SizedBox(height: 16),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
                                 OutlinedButton.icon(
-                                  icon: Icon(Icons.copy),
-                                  label: Text('COPIAR'),
+                                  icon: const Icon(Icons.copy),
+                                  label: const Text('COPIAR'),
                                   onPressed: () {
                                     // Implementar cópia para clipboard
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
+                                      const SnackBar(
                                         content: Text('Resumo copiado para a área de transferência!'),
                                         backgroundColor: AppTheme.successColor,
                                       ),
                                     );
                                   },
                                 ),
-                                SizedBox(width: 12),
+                                const SizedBox(width: 12),
                                 OutlinedButton.icon(
-                                  icon: Icon(Icons.save),
-                                  label: Text('SALVAR'),
+                                  icon: const Icon(Icons.save),
+                                  label: const Text('SALVAR'),
                                   onPressed: () {
                                     // Implementar salvamento
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
+                                      const SnackBar(
                                         content: Text('Resumo salvo com sucesso!'),
                                         backgroundColor: AppTheme.successColor,
                                       ),
@@ -288,7 +290,7 @@ class _ResumosScreenState extends State<ResumosScreen> {
                 Icons.upload_file,
               ),
             ),
-            SizedBox(width: 16),
+            const SizedBox(width: 16),
             Expanded(
               child: _buildModeButton(
                 'texto',
@@ -314,7 +316,7 @@ class _ResumosScreenState extends State<ResumosScreen> {
       },
       borderRadius: BorderRadius.circular(12),
       child: Container(
-        padding: EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
         decoration: BoxDecoration(
           color: isSelected ? AppTheme.secondaryColor.withOpacity(0.2) : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
@@ -331,7 +333,7 @@ class _ResumosScreenState extends State<ResumosScreen> {
               color: isSelected ? AppTheme.secondaryColor : Colors.grey.shade400,
               size: 32,
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
               label,
               textAlign: TextAlign.center,
@@ -391,13 +393,13 @@ class _ResumosScreenState extends State<ResumosScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
+          const Icon(
             Icons.lock,
             size: 80,
             color: Colors.amber,
           ),
-          SizedBox(height: 24),
-          Text(
+          const SizedBox(height: 24),
+          const Text(
             'Funcionalidade Premium',
             style: TextStyle(
               fontSize: 24,
@@ -405,9 +407,9 @@ class _ResumosScreenState extends State<ResumosScreen> {
               color: Colors.white,
             ),
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 32),
+            padding: const EdgeInsets.symmetric(horizontal: 32),
             child: Text(
               'Esta funcionalidade está disponível apenas para usuários premium.',
               textAlign: TextAlign.center,
@@ -417,7 +419,7 @@ class _ResumosScreenState extends State<ResumosScreen> {
               ),
             ),
           ),
-          SizedBox(height: 32),
+          const SizedBox(height: 32),
           ElevatedButton(
             onPressed: () async {
               // Simulação de upgrade
@@ -426,7 +428,7 @@ class _ResumosScreenState extends State<ResumosScreen> {
 
               // Mostrar confirmação
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
+                const SnackBar(
                   content: Text('Parabéns! Você agora é um usuário Premium.'),
                   backgroundColor: AppTheme.successColor,
                 ),
@@ -437,12 +439,12 @@ class _ResumosScreenState extends State<ResumosScreen> {
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.amber,
-              padding: EdgeInsets.symmetric(vertical: 16, horizontal: 32),
+              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            child: Text('FAZER UPGRADE'),
+            child: const Text('FAZER UPGRADE'),
           ),
         ],
       ),

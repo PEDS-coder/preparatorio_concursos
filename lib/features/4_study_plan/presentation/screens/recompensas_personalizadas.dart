@@ -5,7 +5,7 @@ class RecompensasPersonalizadasWidget extends StatefulWidget {
   final List<Map<String, dynamic>> recompensasPersonalizadas;
   final Function(List<Map<String, dynamic>>) onRecompensasChanged;
 
-  const RecompensasPersonalizadasWidget({
+  const RecompensasPersonalizadasWidget({super.key, 
     required this.recompensasPersonalizadas,
     required this.onRecompensasChanged,
   });
@@ -31,26 +31,26 @@ class _RecompensasPersonalizadasWidgetState extends State<RecompensasPersonaliza
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
+            const Text(
               'Recompensas Personalizadas:',
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             ElevatedButton.icon(
-              icon: Icon(Icons.add, size: 16),
-              label: Text('Adicionar'),
+              icon: const Icon(Icons.add, size: 16),
+              label: const Text('Adicionar'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.primaryColor,
-                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                textStyle: TextStyle(fontSize: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                textStyle: const TextStyle(fontSize: 12),
               ),
               onPressed: _mostrarDialogoAdicionarRecompensa,
             ),
           ],
         ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         if (_recompensas.isEmpty)
           Padding(
-            padding: EdgeInsets.symmetric(vertical: 8),
+            padding: const EdgeInsets.symmetric(vertical: 8),
             child: Text(
               'Nenhuma recompensa personalizada adicionada.',
               style: TextStyle(fontStyle: FontStyle.italic, color: Colors.grey.shade600),
@@ -60,28 +60,28 @@ class _RecompensasPersonalizadasWidgetState extends State<RecompensasPersonaliza
           Column(
             children: _recompensas.map((recompensa) {
               return Card(
-                margin: EdgeInsets.only(bottom: 8),
+                margin: const EdgeInsets.only(bottom: 8),
                 child: Padding(
-                  padding: EdgeInsets.all(8),
+                  padding: const EdgeInsets.all(8),
                   child: Row(
                     children: [
                       Icon(_getIconForRecompensaTipo(recompensa['tipo']), size: 16),
-                      SizedBox(width: 8),
+                      const SizedBox(width: 8),
                       Expanded(
                         child: Text(recompensa['nome']),
                       ),
                       IconButton(
-                        icon: Icon(Icons.edit, size: 16),
+                        icon: const Icon(Icons.edit, size: 16),
                         onPressed: () => _mostrarDialogoEditarRecompensa(recompensa),
-                        padding: EdgeInsets.all(4),
-                        constraints: BoxConstraints(),
+                        padding: const EdgeInsets.all(4),
+                        constraints: const BoxConstraints(),
                         splashRadius: 20,
                       ),
                       IconButton(
-                        icon: Icon(Icons.delete, size: 16, color: Colors.red),
+                        icon: const Icon(Icons.delete, size: 16, color: Colors.red),
                         onPressed: () => _removerRecompensaPersonalizada(recompensa),
-                        padding: EdgeInsets.all(4),
-                        constraints: BoxConstraints(),
+                        padding: const EdgeInsets.all(4),
+                        constraints: const BoxConstraints(),
                         splashRadius: 20,
                       ),
                     ],
@@ -118,29 +118,29 @@ class _RecompensasPersonalizadasWidgetState extends State<RecompensasPersonaliza
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setState) => AlertDialog(
-          title: Text('Adicionar Recompensa'),
+          title: const Text('Adicionar Recompensa'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               TextField(
                 controller: nomeController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Nome da Recompensa',
                   hintText: 'Ex: Pausa de 15 min para Redes Sociais (15 Moedas)',
                   border: OutlineInputBorder(),
                 ),
               ),
-              SizedBox(height: 16),
-              Text('Nível de Recompensa:'),
-              SizedBox(height: 8),
+              const SizedBox(height: 16),
+              const Text('Nível de Recompensa:'),
+              const SizedBox(height: 8),
               DropdownButtonFormField<String>(
                 value: tipoSelecionado,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                   contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 ),
-                items: [
+                items: const [
                   DropdownMenuItem(value: 'bronze', child: Text('Bronze (5-15 Moedas)')),
                   DropdownMenuItem(value: 'prata', child: Text('Prata (25-40 Moedas)')),
                   DropdownMenuItem(value: 'ouro', child: Text('Ouro (60-100 Moedas)')),
@@ -165,7 +165,7 @@ class _RecompensasPersonalizadasWidgetState extends State<RecompensasPersonaliza
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text('Cancelar'),
+              child: const Text('Cancelar'),
             ),
             ElevatedButton(
               onPressed: () {
@@ -187,7 +187,7 @@ class _RecompensasPersonalizadasWidgetState extends State<RecompensasPersonaliza
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.primaryColor,
               ),
-              child: Text('Adicionar'),
+              child: const Text('Adicionar'),
             ),
           ],
         ),
@@ -203,28 +203,28 @@ class _RecompensasPersonalizadasWidgetState extends State<RecompensasPersonaliza
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setState) => AlertDialog(
-          title: Text('Editar Recompensa'),
+          title: const Text('Editar Recompensa'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               TextField(
                 controller: nomeController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Nome da Recompensa',
                   border: OutlineInputBorder(),
                 ),
               ),
-              SizedBox(height: 16),
-              Text('Nível de Recompensa:'),
-              SizedBox(height: 8),
+              const SizedBox(height: 16),
+              const Text('Nível de Recompensa:'),
+              const SizedBox(height: 8),
               DropdownButtonFormField<String>(
                 value: tipoSelecionado,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                   contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 ),
-                items: [
+                items: const [
                   DropdownMenuItem(value: 'bronze', child: Text('Bronze (5-15 Moedas)')),
                   DropdownMenuItem(value: 'prata', child: Text('Prata (25-40 Moedas)')),
                   DropdownMenuItem(value: 'ouro', child: Text('Ouro (60-100 Moedas)')),
@@ -249,7 +249,7 @@ class _RecompensasPersonalizadasWidgetState extends State<RecompensasPersonaliza
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text('Cancelar'),
+              child: const Text('Cancelar'),
             ),
             ElevatedButton(
               onPressed: () {
@@ -272,7 +272,7 @@ class _RecompensasPersonalizadasWidgetState extends State<RecompensasPersonaliza
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.primaryColor,
               ),
-              child: Text('Salvar'),
+              child: const Text('Salvar'),
             ),
           ],
         ),

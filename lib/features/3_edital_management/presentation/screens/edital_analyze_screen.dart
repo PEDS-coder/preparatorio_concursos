@@ -51,16 +51,16 @@ class _EditalAnalyzeScreenState extends State<EditalAnalyzeScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Analisar Edital'),
+        title: const Text('Analisar Edital'),
         backgroundColor: AppTheme.primaryColor,
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(24),
+        padding: const EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Cabeçalho
-            Text(
+            const Text(
               'Análise de Edital com IA',
               style: TextStyle(
                 fontSize: 28,
@@ -68,7 +68,7 @@ class _EditalAnalyzeScreenState extends State<EditalAnalyzeScreen> {
                 color: AppTheme.primaryColor,
               ),
             ),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             Text(
               'Faça upload do edital em PDF para análise automática',
               style: TextStyle(
@@ -76,11 +76,11 @@ class _EditalAnalyzeScreenState extends State<EditalAnalyzeScreen> {
                 color: Colors.grey.shade600,
               ),
             ),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
 
             // Instruções
-            InstructionsWidget(),
-            SizedBox(height: 24),
+            const InstructionsWidget(),
+            const SizedBox(height: 24),
 
             // Widget de upload de PDF
             PdfUploadWidget(
@@ -89,7 +89,7 @@ class _EditalAnalyzeScreenState extends State<EditalAnalyzeScreen> {
               onRemoveAllFiles: _handleRemoveAllFiles,
               onRemoveFile: _handleRemoveFile,
             ),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
 
             // Botão de análise
             AnalyzeButtonWidget(
@@ -101,7 +101,7 @@ class _EditalAnalyzeScreenState extends State<EditalAnalyzeScreen> {
             // Mensagem de erro
             if (_errorMessage != null)
               Container(
-                padding: EdgeInsets.all(16),
+                padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: Colors.red.shade50,
                   borderRadius: BorderRadius.circular(8),
@@ -109,8 +109,8 @@ class _EditalAnalyzeScreenState extends State<EditalAnalyzeScreen> {
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.error_outline, color: Colors.red),
-                    SizedBox(width: 12),
+                    const Icon(Icons.error_outline, color: Colors.red),
+                    const SizedBox(width: 12),
                     Expanded(
                       child: Text(
                         _errorMessage!,
@@ -124,8 +124,8 @@ class _EditalAnalyzeScreenState extends State<EditalAnalyzeScreen> {
             // Aviso de configuração da API
             if (!isIAConfigured)
               Container(
-                margin: EdgeInsets.only(top: 24),
-                padding: EdgeInsets.all(16),
+                margin: const EdgeInsets.only(top: 24),
+                padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: Colors.orange.shade50,
                   borderRadius: BorderRadius.circular(8),
@@ -133,8 +133,8 @@ class _EditalAnalyzeScreenState extends State<EditalAnalyzeScreen> {
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.warning_amber, color: Colors.orange),
-                    SizedBox(width: 12),
+                    const Icon(Icons.warning_amber, color: Colors.orange),
+                    const SizedBox(width: 12),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -146,21 +146,21 @@ class _EditalAnalyzeScreenState extends State<EditalAnalyzeScreen> {
                               color: Colors.orange.shade800,
                             ),
                           ),
-                          SizedBox(height: 4),
+                          const SizedBox(height: 4),
                           Text(
                             'Configure a API nas configurações para usar a análise de editais.',
                             style: TextStyle(color: Colors.orange.shade800),
                           ),
-                          SizedBox(height: 8),
+                          const SizedBox(height: 8),
                           TextButton(
                             onPressed: () {
                               Navigator.pushNamed(context, '/settings');
                             },
-                            child: Text('Ir para Configurações'),
                             style: TextButton.styleFrom(
                               backgroundColor: Colors.orange.shade100,
                               foregroundColor: Colors.orange.shade800,
                             ),
+                            child: Text('Ir para Configurações'),
                           ),
                         ],
                       ),
@@ -177,12 +177,12 @@ class _EditalAnalyzeScreenState extends State<EditalAnalyzeScreen> {
   Widget _buildLoadingScreen() {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Analisando Edital'),
+        title: const Text('Analisando Edital'),
         backgroundColor: AppTheme.primaryColor,
       ),
       body: Center(
         child: Container(
-          padding: EdgeInsets.all(24),
+          padding: const EdgeInsets.all(24),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -190,23 +190,23 @@ class _EditalAnalyzeScreenState extends State<EditalAnalyzeScreen> {
                 progressMessage: _progressMessage,
                 statusMessages: _statusMessages,
               ),
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
               LinearProgressIndicator(
                 value: _progressValue > 0 ? _progressValue : null,
                 backgroundColor: Colors.grey.shade200,
-                valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
+                valueColor: const AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               Text(
                 _progressMessage.isNotEmpty ? _progressMessage : 'Processando...',
-                style: TextStyle(fontSize: 16),
+                style: const TextStyle(fontSize: 16),
                 textAlign: TextAlign.center,
               ),
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
               if (_progressValue > 0)
                 Text(
                   '${(_progressValue * 100).toInt()}%',
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                     color: AppTheme.primaryColor,

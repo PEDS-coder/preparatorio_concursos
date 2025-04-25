@@ -75,7 +75,6 @@ class GradientContainer extends StatelessWidget {
     double? height,
   }) {
     return GradientContainer(
-      child: child,
       gradient: AppTheme.primaryGradient,
       borderRadius: borderRadius,
       padding: padding,
@@ -84,6 +83,7 @@ class GradientContainer extends StatelessWidget {
       addShadow: addShadow,
       width: width,
       height: height,
+      child: child,
     );
   }
 
@@ -99,7 +99,6 @@ class GradientContainer extends StatelessWidget {
     double? height,
   }) {
     return GradientContainer(
-      child: child,
       gradient: AppTheme.secondaryGradient,
       borderRadius: borderRadius,
       padding: padding,
@@ -108,6 +107,7 @@ class GradientContainer extends StatelessWidget {
       addShadow: addShadow,
       width: width,
       height: height,
+      child: child,
     );
   }
 
@@ -123,7 +123,6 @@ class GradientContainer extends StatelessWidget {
     double? height,
   }) {
     return GradientContainer(
-      child: child,
       gradient: AppTheme.blueGradient,
       borderRadius: borderRadius,
       padding: padding,
@@ -132,6 +131,7 @@ class GradientContainer extends StatelessWidget {
       addShadow: addShadow,
       width: width,
       height: height,
+      child: child,
     );
   }
 
@@ -147,7 +147,6 @@ class GradientContainer extends StatelessWidget {
     double? height,
   }) {
     return GradientContainer(
-      child: child,
       gradient: AppTheme.redGradient,
       borderRadius: borderRadius,
       padding: padding,
@@ -156,6 +155,7 @@ class GradientContainer extends StatelessWidget {
       addShadow: addShadow,
       width: width,
       height: height,
+      child: child,
     );
   }
 
@@ -171,7 +171,6 @@ class GradientContainer extends StatelessWidget {
     double? height,
   }) {
     return GradientContainer(
-      child: child,
       gradient: AppTheme.greenGradient,
       borderRadius: borderRadius,
       padding: padding,
@@ -180,6 +179,7 @@ class GradientContainer extends StatelessWidget {
       addShadow: addShadow,
       width: width,
       height: height,
+      child: child,
     );
   }
 
@@ -195,7 +195,6 @@ class GradientContainer extends StatelessWidget {
     double? height,
   }) {
     return GradientContainer(
-      child: child,
       gradient: AppTheme.amberGradient,
       borderRadius: borderRadius,
       padding: padding,
@@ -204,6 +203,7 @@ class GradientContainer extends StatelessWidget {
       addShadow: addShadow,
       width: width,
       height: height,
+      child: child,
     );
   }
 
@@ -219,7 +219,6 @@ class GradientContainer extends StatelessWidget {
     double? height,
   }) {
     return GradientContainer(
-      child: child,
       gradient: AppTheme.purpleGradient,
       borderRadius: borderRadius,
       padding: padding,
@@ -228,6 +227,7 @@ class GradientContainer extends StatelessWidget {
       addShadow: addShadow,
       width: width,
       height: height,
+      child: child,
     );
   }
 }
