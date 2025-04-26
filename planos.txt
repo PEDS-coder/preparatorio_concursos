@@ -1,0 +1,31 @@
+# Plano de Correções para o Aplicativo Concurseiro Pro
+
+## Problemas Identificados e Soluções
+
+### 1. Tratamento do texto "Requisitos" na tela de seleção de cargos
+- **Problema**: O formato atual não está seguindo o padrão solicitado
+- **Solução**: Modificar o método `_numerarRequisitos` no arquivo `cargo_card_widget.dart` para formatar corretamente os requisitos
+
+### 2. Tratamento do texto "Requisitos" na página de Resumo do Plano
+- **Problema**: O formato atual não está seguindo o padrão solicitado
+- **Solução**: Verificar e ajustar o método `FormatadorService.numerarItens` para formatar corretamente os requisitos
+
+### 3. Tratamento do texto "Critérios de Desempate" na página de Resumo do Plano
+- **Problema**: O formato atual não está seguindo o padrão solicitado
+- **Solução**: Verificar e ajustar o método `FormatadorService.numerarItens` para formatar corretamente os critérios de desempate
+
+### 4. Problema "Horas não definidas" na tela de conteúdo programático
+- **Problema**: As horas de estudo por matéria não estão sendo calculadas ou exibidas corretamente
+- **Solução**: Investigar e corrigir o método `_carregarHorasPorMateria` no widget `ConteudoProgramaticoWidget`
+
+### 5. Formato de exibição do número de questões
+- **Problema**: O texto está sendo exibido como "≈ 30 Questões" em vez de "30 Questões"
+- **Solução**: Modificar o texto no widget `ConteudoProgramaticoWidget`
+
+## Progresso da Implementação
+
+- [x] Correção do tratamento de "Requisitos" na tela de seleção de cargos
+- [x] Correção do tratamento de "Requisitos" na página de Resumo do Plano
+- [x] Correção do tratamento de "Critérios de Desempate" na página de Resumo do Plano
+- [x] Correção do problema "Horas não definidas" na tela de conteúdo programático
+- [x] Correção do formato de exibição do número de questões

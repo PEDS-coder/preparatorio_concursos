@@ -156,19 +156,29 @@ class _PdfUploadWidgetState extends State<PdfUploadWidget> {
     // Verificar se o arquivo está dentro do limite de tamanho
     final bool isFileTooLarge = file.size > PdfUploadService.maxPdfSizeBytes;
 
-    return Card(
+    // Definir cores com base no tamanho do arquivo
+    final Color baseColor = isFileTooLarge ? Colors.red : AppTheme.primaryColor;
+    final Color bgColor = baseColor.withOpacity(0.15);
+    final Color borderColor = baseColor;
+    final Color textColor = isFileTooLarge ? Colors.red.shade700 : Colors.black87;
+
+    return Container(
       margin: const EdgeInsets.only(bottom: 8),
-      color: isFileTooLarge ? Colors.red.shade50 : Colors.grey.shade100,
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: borderColor, width: 1.5),
+      ),
       child: ListTile(
         leading: Icon(
           Icons.picture_as_pdf,
-          color: isFileTooLarge ? Colors.red.shade700 : Colors.red,
+          color: baseColor,
         ),
         title: Text(
           file.name,
           style: TextStyle(
             fontWeight: FontWeight.w500,
-            color: isFileTooLarge ? Colors.red.shade700 : null,
+            color: textColor,
           ),
         ),
         subtitle: Column(
@@ -176,7 +186,7 @@ class _PdfUploadWidgetState extends State<PdfUploadWidget> {
           children: [
             Text(
               _pdfUploadService.formatFileSize(file.size),
-              style: const TextStyle(fontSize: 12),
+              style: TextStyle(fontSize: 12, color: textColor.withOpacity(0.8)),
             ),
             if (isFileTooLarge)
               Text(
@@ -192,7 +202,7 @@ class _PdfUploadWidgetState extends State<PdfUploadWidget> {
         trailing: IconButton(
           icon: Icon(
             Icons.close,
-            color: _isUploading ? Colors.grey.shade400 : Colors.grey,
+            color: _isUploading ? Colors.grey.shade400 : baseColor,
           ),
           onPressed: _isUploading ? null : () => widget.onRemoveFile(file),
         ),

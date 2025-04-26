@@ -105,7 +105,7 @@ class CotasService {
 
   /// Formata o caso específico da imagem
   static String _formatarCasoEspecifico() {
-    return 'Cotas: 1. Pessoas com Deficiência (10%); 2. Candidatos Negros (pretos e pardos) (20%); 3. Minorias Étnico-Raciais (População Indígena, Quilombolas, Ciganos e Povos/Comunidades tradicionais) (10%)';
+    return '1. Pessoas com Deficiência (10%); 2. Candidatos Negros (pretos e pardos) (20%); 3. Minorias Étnico-Raciais (População Indígena, Quilombolas, Ciganos e Povos/Comunidades tradicionais) (10%)';
   }
 
   /// Formata as cotas específicas do edital
@@ -149,7 +149,7 @@ class CotasService {
 
       // Se temos o padrão específico da imagem, formatar conforme solicitado
       if (temPCD && temNegros && temMinoriasEtnicas) {
-        return 'Cotas: 1. Pessoas com Deficiência (${pcdPercentual ?? 10}%); 2. Candidatos Negros (pretos e pardos) (${negrosPercentual ?? 20}%); 3. Minorias Étnico-Raciais (População Indígena, Quilombolas, Ciganos e Povos/Comunidades tradicionais) (${minoriasPercentual ?? 10}%)';
+        return '1. Pessoas com Deficiência (${pcdPercentual ?? 10}%); 2. Candidatos Negros (pretos e pardos) (${negrosPercentual ?? 20}%); 3. Minorias Étnico-Raciais (População Indígena, Quilombolas, Ciganos e Povos/Comunidades tradicionais) (${minoriasPercentual ?? 10}%)';
       }
     }
 
@@ -174,7 +174,7 @@ class CotasService {
 
     // Juntar todas as cotas com ponto e vírgula
     if (cotasFormatadas.isNotEmpty) {
-      return 'Cotas: ${cotasFormatadas.join('; ')}';
+      return cotasFormatadas.join('; ');
     }
 
     return 'Não informado';
@@ -213,7 +213,7 @@ class CotasService {
         }
       }
 
-      return 'Cotas: 1. Pessoas com Deficiência ($pcdPercentual%); 2. Candidatos Negros (pretos e pardos) ($negrosPercentual%); 3. Minorias Étnico-Raciais (População Indígena, Quilombolas, Ciganos e Povos/Comunidades tradicionais) ($minoriasPercentual%)';
+      return '1. Pessoas com Deficiência ($pcdPercentual%); 2. Candidatos Negros (pretos e pardos) ($negrosPercentual%); 3. Minorias Étnico-Raciais (População Indígena, Quilombolas, Ciganos e Povos/Comunidades tradicionais) ($minoriasPercentual%)';
     }
 
     // Caso não seja o padrão específico, formatar normalmente
@@ -237,10 +237,10 @@ class CotasService {
         }
       }
 
-      return 'Cotas: ${itensNumerados.join('; ')}';
+      return itensNumerados.join('; ');
     }
 
     // Se não conseguiu separar em itens, retornar o texto original
-    return 'Cotas: $cotasInfo';
+    return cotasInfo;
   }
 }

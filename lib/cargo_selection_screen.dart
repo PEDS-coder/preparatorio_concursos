@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'core/data/models/cargo.dart';
+import 'core/data/models/edital.dart';
 
 class CargoSelectionScreen extends StatelessWidget {
   final List<Cargo> cargos;

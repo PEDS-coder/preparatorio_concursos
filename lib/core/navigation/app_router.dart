@@ -8,6 +8,7 @@ import '../../features/1_auth/presentation/screens/register_screen.dart';
 import '../../features/1_auth/presentation/screens/api_key_config_screen.dart';
 import '../../features/1_auth/presentation/screens/oauth_config_screen.dart';
 import '../../ui/screens/settings/mcp_settings_screen.dart';
+import '../../features/9_settings/presentation/screens/api_responses_screen.dart';
 import '../../features/2_dashboard/presentation/screens/dashboard_screen.dart';
 
 import '../../features/3_edital_management/presentation/screens/edital_add_screen.dart';
@@ -51,6 +52,8 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => OAuthConfigScreen());
       case '/mcp_config':
         return MaterialPageRoute(builder: (_) => const McpSettingsScreen());
+      case '/api_responses':
+        return MaterialPageRoute(builder: (_) => const ApiResponsesScreen());
       case '/dashboard':
         return MaterialPageRoute(builder: (_) => DashboardScreen());
 

@@ -56,6 +56,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           const Divider(),
           ListTile(
+            leading: const Icon(Icons.history, color: AppTheme.primaryColor),
+            title: const Text('Respostas da API'),
+            subtitle: const Text('Visualizar respostas salvas da API'),
+            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+            onTap: () {
+              Navigator.pushNamed(context, '/api_responses');
+            },
+          ),
+          const Divider(),
+          ListTile(
             leading: const Icon(Icons.color_lens, color: AppTheme.primaryColor),
             title: const Text('Aparência'),
             subtitle: const Text('Personalizar tema e cores'),

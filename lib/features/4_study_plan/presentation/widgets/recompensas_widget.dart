@@ -33,11 +33,12 @@ class RecompensasWidget extends StatelessWidget {
             ),
           ),
         ),
-        Card(
+        Container(
           margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          elevation: 2,
-          shape: RoundedRectangleBorder(
+          decoration: BoxDecoration(
+            color: Colors.purple.withOpacity(0.15),
             borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: Colors.purple, width: 1.5),
           ),
           child: Padding(
             padding: const EdgeInsets.all(16),
@@ -46,9 +47,12 @@ class RecompensasWidget extends StatelessWidget {
               children: [
                 // Novos tipos de recompensas
                 if (recompensasPorTipo['bronze']!.isNotEmpty) ...[
-                  const Text(
+                  Text(
                     'Bronze (5-15 Moedas)',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: _getColorForRecompensaTipo('bronze'),
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Wrap(
@@ -60,9 +64,12 @@ class RecompensasWidget extends StatelessWidget {
                 ],
 
                 if (recompensasPorTipo['prata']!.isNotEmpty) ...[
-                  const Text(
+                  Text(
                     'Prata (25-40 Moedas)',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: _getColorForRecompensaTipo('prata'),
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Wrap(
@@ -74,9 +81,12 @@ class RecompensasWidget extends StatelessWidget {
                 ],
 
                 if (recompensasPorTipo['ouro']!.isNotEmpty) ...[
-                  const Text(
+                  Text(
                     'Ouro (60-100 Moedas)',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: _getColorForRecompensaTipo('ouro'),
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Wrap(
@@ -88,9 +98,12 @@ class RecompensasWidget extends StatelessWidget {
                 ],
 
                 if (recompensasPorTipo['platina']!.isNotEmpty) ...[
-                  const Text(
+                  Text(
                     'Platina (120-200 Moedas)',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: _getColorForRecompensaTipo('platina'),
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Wrap(
@@ -102,9 +115,12 @@ class RecompensasWidget extends StatelessWidget {
                 ],
 
                 if (recompensasPorTipo['diamante']!.isNotEmpty) ...[
-                  const Text(
+                  Text(
                     'Diamante (300-500 Moedas)',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: _getColorForRecompensaTipo('diamante'),
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Wrap(
@@ -116,9 +132,12 @@ class RecompensasWidget extends StatelessWidget {
                 ],
 
                 if (recompensasPorTipo['lendario']!.isNotEmpty) ...[
-                  const Text(
+                  Text(
                     'Lendário (800+ Moedas)',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: _getColorForRecompensaTipo('lendario'),
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Wrap(
@@ -131,9 +150,12 @@ class RecompensasWidget extends StatelessWidget {
 
                 // Compatibilidade com tipos antigos
                 if (recompensasPorTipo['diaria']!.isNotEmpty) ...[
-                  const Text(
+                  Text(
                     'Diárias',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: _getColorForRecompensaTipo('diaria'),
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Wrap(
@@ -145,9 +167,12 @@ class RecompensasWidget extends StatelessWidget {
                 ],
 
                 if (recompensasPorTipo['semanal']!.isNotEmpty) ...[
-                  const Text(
+                  Text(
                     'Semanais',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: _getColorForRecompensaTipo('semanal'),
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Wrap(
@@ -159,9 +184,12 @@ class RecompensasWidget extends StatelessWidget {
                 ],
 
                 if (recompensasPorTipo['mensal']!.isNotEmpty) ...[
-                  const Text(
+                  Text(
                     'Mensais',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: _getColorForRecompensaTipo('mensal'),
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Wrap(
@@ -202,22 +230,24 @@ class RecompensasWidget extends StatelessWidget {
   }
 
   Widget _buildRecompensaChip(RecompensaConfig recompensa) {
+    final color = _getColorForRecompensaTipo(recompensa.tipoRecompensa);
     return Chip(
       label: Text(
         recompensa.descricaoRecompensa,
-        style: const TextStyle(
-          color: Colors.white, // Texto branco para melhor contraste
+        style: TextStyle(
+          color: color, // Cor sólida para o texto
           fontWeight: FontWeight.bold,
         ),
       ),
-      backgroundColor: _getColorForRecompensaTipo(recompensa.tipoRecompensa),
+      backgroundColor: color.withOpacity(0.2),
+      side: BorderSide(color: color, width: 1),
     );
   }
 
   Color _getColorForRecompensaTipo(String tipo) {
     switch (tipo) {
-      case 'bronze': return Colors.brown.shade600; // Cor mais vívida
-      case 'prata': return Colors.blueGrey.shade500; // Substituído por uma cor mais vívida
+      case 'bronze': return Colors.orange.shade700; // Substituído por laranja em vez de marrom
+      case 'prata': return Colors.indigo.shade500; // Substituído por índigo em vez de cinza
       case 'ouro': return Colors.amber.shade600; // Cor mais vívida
       case 'platina': return Colors.blue.shade500; // Cor mais vívida
       case 'diamante': return Colors.cyan.shade600; // Cor mais vívida

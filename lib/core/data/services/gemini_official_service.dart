@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 import '../../data/models/flashcard.dart';
 import '../../services/prompt_service.dart';
 import '../../services/connectivity_service.dart';
+import '../../utils/api_response_logger.dart';
 import 'base_ia_service.dart';
 import 'ia_service_implementations.dart';
 import 'interfaces/ia_service_interface.dart';
@@ -536,10 +537,18 @@ class GeminiOfficialService extends BaseIAService with IAServiceImplementations 
         // Decodificar a resposta limpa
         final jsonDecodificado = jsonDecode(respostaLimpa) as Map<String, dynamic>;
         print('[GeminiOfficialService] Resposta decodificada com ${jsonDecodificado.keys.length} chaves: ${jsonDecodificado.keys.join(', ')}');
+
+        // Salvar a resposta para referência futura
+        _salvarRespostaSegundaChamada(respostaBruta, respostaLimpa, jsonDecodificado, cargoAlvo, pdfName);
+
         return jsonDecodificado; // Retorna o mapa decodificado
       } catch (e) {
         print('[GeminiOfficialService] Erro ao decodificar JSON da resposta LIMPA: $e');
         print('[GeminiOfficialService] Resposta LIMPA que falhou no decode: $respostaLimpa');
+
+        // Salvar a resposta com erro para análise
+        _salvarRespostaComErro(respostaBruta, respostaLimpa, cargoAlvo, pdfName, e.toString());
+
         // Lança uma exceção mais específica para falha de decode
         throw Exception('Falha ao decodificar JSON da resposta da API: $e');
       }
@@ -924,6 +933,84 @@ class GeminiOfficialService extends BaseIAService with IAServiceImplementations 
 
   /// Limite para considerar um arquivo como grande (5MB)
   static const int _largeFileSizeThreshold = 5 * 1024 * 1024;
+
+  /// Salva a resposta da segunda chamada à API para referência futura
+  Future<void> _salvarRespostaSegundaChamada(
+    String respostaBruta,
+    String respostaLimpa,
+    Map<String, dynamic> jsonDecodificado,
+    String cargoAlvo,
+    String? pdfName,
+  ) async {
+    try {
+      final apiResponseLogger = ApiResponseLogger();
+
+      // Gerar um ID único para esta resposta
+      final String editalId = pdfName?.replaceAll('.pdf', '') ?? 'edital_sem_nome';
+      final String cargoId = cargoAlvo.replaceAll(' ', '_').toLowerCase();
+
+      // Salvar a resposta JSON decodificada
+      await apiResponseLogger.salvarRespostaSegundaChamada(
+        editalId: editalId,
+        cargoId: cargoId,
+        cargoNome: cargoAlvo,
+        resposta: jsonDecodificado,
+      );
+
+      // Salvar também a resposta bruta para referência
+      await apiResponseLogger.salvarRespostaBruta(
+        tipo: 'segunda_chamada_bruta',
+        resposta: respostaBruta,
+        metadados: {
+          'edital_id': editalId,
+          'cargo_id': cargoId,
+          'cargo_nome': cargoAlvo,
+          'tamanho_resposta': respostaBruta.length,
+        },
+      );
+
+      // Obter o caminho do diretório de respostas para exibir no log
+      final String? diretorioRespostas = await apiResponseLogger.obterCaminhoDiretorioRespostas();
+      if (diretorioRespostas != null) {
+        print('[GeminiOfficialService] Respostas salvas em: $diretorioRespostas');
+      }
+    } catch (e) {
+      print('[GeminiOfficialService] Erro ao salvar resposta da segunda chamada: $e');
+    }
+  }
+
+  /// Salva a resposta com erro para análise posterior
+  Future<void> _salvarRespostaComErro(
+    String respostaBruta,
+    String respostaLimpa,
+    String cargoAlvo,
+    String? pdfName,
+    String erro,
+  ) async {
+    try {
+      final apiResponseLogger = ApiResponseLogger();
+
+      // Gerar um ID único para esta resposta
+      final String editalId = pdfName?.replaceAll('.pdf', '') ?? 'edital_sem_nome';
+      final String cargoId = cargoAlvo.replaceAll(' ', '_').toLowerCase();
+
+      // Salvar a resposta com erro
+      await apiResponseLogger.salvarRespostaBruta(
+        tipo: 'segunda_chamada_erro',
+        resposta: respostaLimpa,
+        metadados: {
+          'edital_id': editalId,
+          'cargo_id': cargoId,
+          'cargo_nome': cargoAlvo,
+          'erro': erro,
+          'tamanho_resposta_bruta': respostaBruta.length,
+          'tamanho_resposta_limpa': respostaLimpa.length,
+        },
+      );
+    } catch (e) {
+      print('[GeminiOfficialService] Erro ao salvar resposta com erro: $e');
+    }
+  }
 
   // NOTA: A API Gemini requer que os arquivos sejam enviados como parte do corpo da requisição em formato base64.
   // Isso é uma exigência da API, não uma escolha da aplicação.

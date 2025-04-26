@@ -18,6 +18,7 @@ class CargoInfoItemWidget extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
             padding: const EdgeInsets.all(4),
@@ -28,37 +29,29 @@ class CargoInfoItemWidget extends StatelessWidget {
             child: Icon(icon, size: 16, color: Colors.blue.shade700),
           ),
           const SizedBox(width: 8),
-          Text(
-            '$label:',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: Colors.grey.shade800,
-            ),
-          ),
-          const SizedBox(width: 6),
           Expanded(
-            child: value.length > 50
-              ? Tooltip(
-                  message: value,
-                  child: Text(
-                    value,
+            child: RichText(
+              text: TextSpan(
+                children: [
+                  TextSpan(
+                    text: '$label: ',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey.shade800,
+                    ),
+                  ),
+                  TextSpan(
+                    text: value,
                     style: const TextStyle(
                       color: Colors.black87,
                       fontWeight: FontWeight.w500,
                     ),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 2,
                   ),
-                )
-              : Text(
-                  value,
-                  style: const TextStyle(
-                    color: Colors.black87,
-                    fontWeight: FontWeight.w500,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 2,
-                ),
+                ],
+              ),
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
         ],
       ),

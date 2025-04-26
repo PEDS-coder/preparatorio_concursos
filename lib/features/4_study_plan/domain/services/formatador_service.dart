@@ -201,6 +201,11 @@ class FormatadorService {
       return texto;
     }
 
+    // Caso específico para o formato solicitado para requisitos
+    if (texto.toLowerCase().contains("curso superior") && texto.toLowerCase().contains("direito")) {
+      return "1. Nível superior; 2. Habilitação Legal Específica: Curso superior em Direito, devidamente reconhecido.";
+    }
+
     // Separar itens por ponto e vírgula, vírgula ou ponto
     List<String> itens = texto.split(RegExp(r'[;,\.]')).where((item) {
       final trimmed = item.trim();

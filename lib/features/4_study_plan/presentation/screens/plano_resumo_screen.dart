@@ -21,6 +21,7 @@ import '../widgets/ferramentas_estudo_widget.dart';
 import '../widgets/plano_info_widget.dart';
 import '../widgets/prova_info_widget.dart';
 import '../widgets/recompensas_widget.dart';
+import '../widgets/section_title_widget.dart';
 import 'plano_logs_screen.dart';
 
 /// Tela de resumo do plano de estudos
@@ -260,6 +261,13 @@ class _PlanoResumoScreenState extends State<PlanoResumoScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Título da seção Dados do Concurso
+              const SectionTitleWidget(
+                title: 'Dados do Concurso',
+                icon: Icons.assignment,
+              ),
+              const SizedBox(height: 8),
+
               // Informações do concurso
               ConcursoInfoWidget(
                 plano: _plano!,
@@ -267,6 +275,13 @@ class _PlanoResumoScreenState extends State<PlanoResumoScreen> {
                 extratoService: _extratoService,
               ),
               const SizedBox(height: 24),
+
+              // Título da seção Cargo Selecionado
+              const SectionTitleWidget(
+                title: 'Cargo Selecionado',
+                icon: Icons.work,
+              ),
+              const SizedBox(height: 8),
 
               // Informações do cargo
               CargoInfoWidget(
@@ -278,6 +293,13 @@ class _PlanoResumoScreenState extends State<PlanoResumoScreen> {
               ),
               const SizedBox(height: 24),
 
+              // Título da seção Informações da Prova
+              const SectionTitleWidget(
+                title: 'Informações da Prova',
+                icon: Icons.quiz,
+              ),
+              const SizedBox(height: 8),
+
               // Informações da prova
               ProvaInfoWidget(
                 plano: _plano!,
@@ -285,6 +307,13 @@ class _PlanoResumoScreenState extends State<PlanoResumoScreen> {
                 extratoService: _extratoService,
               ),
               const SizedBox(height: 24),
+
+              // Título da seção Conteúdo Programático
+              SectionTitleWidget(
+                title: 'Conteúdo Programático - ${_cargoSelecionado?.nome ?? ""}',
+                icon: Icons.menu_book,
+              ),
+              const SizedBox(height: 8),
 
               // Conteúdo programático
               ConteudoProgramaticoWidget(
@@ -297,11 +326,25 @@ class _PlanoResumoScreenState extends State<PlanoResumoScreen> {
               ),
               const SizedBox(height: 24),
 
+              // Título da seção Plano de Estudos
+              const SectionTitleWidget(
+                title: 'Plano de Estudos',
+                icon: Icons.calendar_today,
+              ),
+              const SizedBox(height: 8),
+
               // Informações do plano
               PlanoInfoWidget(
                 plano: _plano!,
               ),
               const SizedBox(height: 24),
+
+              // Título da seção Ferramentas de Estudo
+              const SectionTitleWidget(
+                title: 'Ferramentas de Estudo',
+                icon: Icons.build,
+              ),
+              const SizedBox(height: 8),
 
               // Ferramentas de estudo
               FerramentasEstudoWidget(
@@ -309,11 +352,25 @@ class _PlanoResumoScreenState extends State<PlanoResumoScreen> {
               ),
               const SizedBox(height: 24),
 
+              // Título da seção Recompensas
+              const SectionTitleWidget(
+                title: 'Recompensas',
+                icon: Icons.emoji_events,
+              ),
+              const SizedBox(height: 8),
+
               // Recompensas
               RecompensasWidget(
                 plano: _plano!,
               ),
               const SizedBox(height: 24),
+
+              // Título da seção Calendário de Estudos
+              const SectionTitleWidget(
+                title: 'Calendário de Estudos',
+                icon: Icons.date_range,
+              ),
+              const SizedBox(height: 8),
 
               // Calendário
               CalendarioWidget(

@@ -29,7 +29,8 @@ class AnalyzeButtonWidget extends StatelessWidget {
         style: ElevatedButton.styleFrom(
           backgroundColor: AppTheme.primaryColor,
           padding: const EdgeInsets.symmetric(vertical: 16),
-          disabledBackgroundColor: Colors.grey.shade300,
+          disabledBackgroundColor: Colors.grey.shade700,
+          disabledForegroundColor: Colors.white70,
         ),
       ),
     );

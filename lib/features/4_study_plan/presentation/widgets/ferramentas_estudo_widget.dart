@@ -31,11 +31,12 @@ class FerramentasEstudoWidget extends StatelessWidget {
             ),
           ),
         ),
-        Card(
+        Container(
           margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          elevation: 2,
-          shape: RoundedRectangleBorder(
+          decoration: BoxDecoration(
+            color: Colors.blue.withOpacity(0.15),
             borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: Colors.blue, width: 1.5),
           ),
           child: Padding(
             padding: const EdgeInsets.all(16),
@@ -43,15 +44,17 @@ class FerramentasEstudoWidget extends StatelessWidget {
               spacing: 8,
               runSpacing: 8,
               children: plano.ferramentas.map((ferramenta) {
+                final color = _getColorForFerramenta(ferramenta);
                 return Chip(
                   label: Text(ferramenta),
-                  backgroundColor: _getColorForFerramenta(ferramenta),
-                  labelStyle: const TextStyle(
-                    color: Colors.white,
+                  backgroundColor: color.withOpacity(0.2),
+                  side: BorderSide(color: color, width: 1),
+                  labelStyle: TextStyle(
+                    color: color,
                     fontWeight: FontWeight.bold,
                   ),
                   avatar: CircleAvatar(
-                    backgroundColor: Colors.white,
+                    backgroundColor: color.withOpacity(0.1),
                     child: Text(
                       _getEmojiForFerramenta(ferramenta),
                       style: const TextStyle(fontSize: 12),

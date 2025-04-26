@@ -9,6 +9,7 @@ import 'interfaces/ia_service_interface.dart';
 import 'package:get_it/get_it.dart';
 import '../services/edital_service.dart';
 import '../../services/prompt_service.dart';
+import '../../utils/api_response_logger.dart';
 
 /// Implementações padrão para os novos métodos da interface IAServiceInterface
 mixin IAServiceImplementations {
@@ -67,6 +68,23 @@ mixin IAServiceImplementations {
         // Tentar converter para JSON
         final Map<String, dynamic> resultado = jsonDecode(respostaLimpa);
 
+        // Salvar a resposta para referência futura
+        try {
+          final apiResponseLogger = ApiResponseLogger();
+          await apiResponseLogger.salvarRespostaPrimeiraChamada(
+            editalId: fileName.replaceAll('.pdf', ''),
+            resposta: resultado,
+          );
+
+          // Obter o caminho do diretório de respostas para exibir no log
+          final String? diretorioRespostas = await apiResponseLogger.obterCaminhoDiretorioRespostas();
+          if (diretorioRespostas != null) {
+            print('[IAServiceImplementations] Resposta da primeira chamada salva em: $diretorioRespostas');
+          }
+        } catch (e) {
+          print('[IAServiceImplementations] Erro ao salvar resposta da primeira chamada: $e');
+        }
+
         return resultado;
       } catch (e) {
         print('Erro ao converter resposta para JSON: $e');
@@ -115,6 +133,25 @@ mixin IAServiceImplementations {
         cargoAlvo: cargoNome,
         pdfName: edital.nomeArquivo,
       );
+
+      // Salvar a resposta para referência futura
+      try {
+        final apiResponseLogger = ApiResponseLogger();
+        await apiResponseLogger.salvarRespostaSegundaChamada(
+          editalId: editalId,
+          cargoId: cargoId,
+          cargoNome: cargoNome,
+          resposta: resultado,
+        );
+
+        // Obter o caminho do diretório de respostas para exibir no log
+        final String? diretorioRespostas = await apiResponseLogger.obterCaminhoDiretorioRespostas();
+        if (diretorioRespostas != null) {
+          print('[IAServiceImplementations] Resposta da segunda chamada salva em: $diretorioRespostas');
+        }
+      } catch (e) {
+        print('[IAServiceImplementations] Erro ao salvar resposta da segunda chamada: $e');
+      }
 
       // Informar progresso
       onProgress('Processando resultados da análise...', 0.7);
