@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/data/models/models.dart';
+import '../../../../core/data/services/sessao_estudo_service.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../domain/services/extrator_dados_service.dart';
 import '../../domain/services/plano_resumo_service.dart';
@@ -11,6 +12,7 @@ class ConteudoProgramaticoWidget extends StatefulWidget {
   final Cargo? cargo;
   final PlanoResumoService planoResumoService;
   final ExtratorDadosService extratoService;
+  final SessaoEstudoService? sessaoEstudoService;
 
   const ConteudoProgramaticoWidget({
     Key? key,
@@ -19,6 +21,7 @@ class ConteudoProgramaticoWidget extends StatefulWidget {
     required this.cargo,
     required this.planoResumoService,
     required this.extratoService,
+    this.sessaoEstudoService,
   }) : super(key: key);
 
   @override
@@ -27,6 +30,31 @@ class ConteudoProgramaticoWidget extends StatefulWidget {
 
 class _ConteudoProgramaticoWidgetState extends State<ConteudoProgramaticoWidget> {
   final Map<String, bool> _expandedMaterias = {};
+  Map<String, int> _horasPorMateria = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _carregarHorasPorMateria();
+  }
+
+  /// Carrega as horas de estudo por matéria
+  void _carregarHorasPorMateria() {
+    if (widget.sessaoEstudoService != null) {
+      _horasPorMateria = widget.sessaoEstudoService!.calcularTempoEstudoPorMateria(widget.plano.id);
+    } else {
+      // Tentar obter horas dos metadados do plano
+      if (widget.plano.metadados.containsKey('horasPorMateria') &&
+          widget.plano.metadados['horasPorMateria'] is Map) {
+        final Map<dynamic, dynamic> horasMap = widget.plano.metadados['horasPorMateria'];
+        horasMap.forEach((key, value) {
+          if (key is String && (value is int || value is double)) {
+            _horasPorMateria[key] = (value is int) ? value : value.toInt();
+          }
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,39 +90,88 @@ class _ConteudoProgramaticoWidgetState extends State<ConteudoProgramaticoWidget>
     Map<String, List<ConteudoProgramatico>> materiasPorGrupo =
         widget.planoResumoService.agruparMateriasPorGrupo(cargoTemp);
 
+    // Obter o nome do cargo para o título
+    final String nomeCargo = widget.cargo?.nome ?? 'Não informado';
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.only(left: 16, bottom: 8),
+        // Título do conteúdo programático com o nome do cargo
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+          decoration: BoxDecoration(
+            color: Colors.pink[700],
+            borderRadius: BorderRadius.circular(8),
+          ),
           child: Text(
-            'Conteúdo Programático',
-            style: TextStyle(
+            'Conteúdo Programático - $nomeCargo',
+            style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: AppTheme.primaryColor,
+              color: Colors.white,
             ),
           ),
         ),
+        const SizedBox(height: 16),
+        // Grupos de matérias
         ...materiasPorGrupo.entries.map((entry) {
           final grupo = entry.key;
           final materias = entry.value;
 
+          // Calcular o total de questões do grupo
+          int totalQuestoesGrupo = 0;
+          for (var materia in materias) {
+            if (materia.numeroQuestoes != null) {
+              totalQuestoesGrupo += materia.numeroQuestoes!;
+            }
+          }
+
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Padding(
-                padding: const EdgeInsets.only(left: 16, top: 8, bottom: 8),
-                child: Text(
-                  grupo,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.primaryColor,
-                  ),
+              // Cabeçalho do grupo
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+                margin: const EdgeInsets.only(bottom: 8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1A237E), // Azul escuro
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      grupo.toUpperCase(),
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    if (totalQuestoesGrupo > 0)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.amber[700],
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          '≈ $totalQuestoesGrupo Questões',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
               ),
+              // Lista de matérias do grupo
               ...materias.map((materia) => _buildMateriaCard(materia)).toList(),
+              const SizedBox(height: 16),
             ],
           );
         }).toList(),
@@ -108,59 +185,132 @@ class _ConteudoProgramaticoWidgetState extends State<ConteudoProgramaticoWidget>
     final isExpanded = _expandedMaterias[materiaId] ?? false;
     final materiaColor = widget.extratoService.getColorForMateria(materia.nome);
 
-    // Obter número de questões e peso
-    final String questoes = materia.numeroQuestoes != null ? materia.numeroQuestoes.toString() : 'Não informado';
-    final String peso = materia.pesoMaior == true ? 'Maior' : 'Normal';
+    // Obter número de questões
+    final bool temQuestoes = materia.numeroQuestoes != null;
+    final String questoesTexto = temQuestoes
+        ? '${materia.numeroQuestoes} Questões${materia.questoesEstimadas == true ? " (estimadas)" : ""}'
+        : 'Questões não informadas';
 
-    return Card(
+    // Obter horas de estudo para esta matéria
+    final int horasEstudo = _horasPorMateria[materia.nome] ?? 0;
+    final String horasTexto = horasEstudo > 0
+        ? '${horasEstudo ~/ 60} Horas'
+        : 'Horas não definidas';
+
+    // Verificar se é critério de desempate
+    final bool isDesempate = materia.criterioDesempate == true;
+
+    return Container(
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      elevation: 2,
-      shape: RoundedRectangleBorder(
+      decoration: BoxDecoration(
+        border: Border(
+          left: BorderSide(
+            color: materiaColor,
+            width: 4,
+          ),
+        ),
+        color: Colors.grey[900],
         borderRadius: BorderRadius.circular(8),
-        side: BorderSide(color: materiaColor.withOpacity(0.5), width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ListTile(
-            title: Text(
-              materia.nome,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
+          // Cabeçalho da matéria
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.grey[850],
+              borderRadius: BorderRadius.only(
+                topRight: const Radius.circular(8),
+                bottomRight: Radius.circular(isExpanded ? 0 : 8),
               ),
             ),
-            subtitle: Text(
-              'Peso: $peso | Questões: $questoes ${materia.questoesEstimadas == true ? "(estimadas)" : ""}',
-              style: const TextStyle(
-                fontSize: 12,
-                color: Colors.black54,
+            child: ListTile(
+              title: Text(
+                materia.nome.toUpperCase(),
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
               ),
-            ),
-            trailing: IconButton(
-              icon: Icon(
-                isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-                color: materiaColor,
+              // Badges para questões, desempate e horas
+              subtitle: Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Row(
+                  children: [
+                    // Badge de questões
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.amber[700],
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        questoesTexto,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    // Badge de horas de estudo
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.blue[700],
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        horasTexto,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                    // Badge de desempate (se aplicável)
+                    if (isDesempate) ...[
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.red[700],
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Text(
+                          'Desempate',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
               ),
-              onPressed: () {
+              trailing: IconButton(
+                icon: Icon(
+                  isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                  color: Colors.white,
+                ),
+                onPressed: () {
+                  setState(() {
+                    _expandedMaterias[materiaId] = !isExpanded;
+                  });
+                },
+              ),
+              onTap: () {
                 setState(() {
                   _expandedMaterias[materiaId] = !isExpanded;
                 });
               },
             ),
-            onTap: () {
-              setState(() {
-                _expandedMaterias[materiaId] = !isExpanded;
-              });
-            },
-            tileColor: materiaColor.withOpacity(0.1),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.vertical(
-                top: const Radius.circular(8),
-                bottom: isExpanded ? Radius.zero : const Radius.circular(8),
-              ),
-            ),
           ),
+          // Conteúdo expandido (tópicos)
           if (isExpanded && materia.topicos.isNotEmpty)
             Container(
               padding: const EdgeInsets.all(16),
@@ -172,6 +322,7 @@ class _ConteudoProgramaticoWidgetState extends State<ConteudoProgramaticoWidget>
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 14,
+                      color: Colors.white,
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -186,7 +337,10 @@ class _ConteudoProgramaticoWidgetState extends State<ConteudoProgramaticoWidget>
                           Expanded(
                             child: Text(
                               topico,
-                              style: const TextStyle(fontSize: 14),
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
                         ],

@@ -138,12 +138,12 @@ Esteja ciente de que a estrutura desses documentos varia enormemente. As informa
 {
   "concurso": {
     "inscricoes": {
-      "inicio": "DD/MM/AAAA ou AAAA-MM-DD",
-      "fim": "DD/MM/AAAA ou AAAA-MM-DD",
+      "inicio": "DD/MM/AAAA",
+      "fim": "DD/MM/AAAA",
       "taxa": 150.00
     },
     "prova": {
-      "data": "DD/MM/AAAA ou AAAA-MM-DD",
+      "data": "DD/MM/AAAA",
       "local": "Cidade(s) ou 'A definir'",
       "duracao": "X horas",
       "total_questoes": 100,

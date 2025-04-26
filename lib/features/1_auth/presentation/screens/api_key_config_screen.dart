@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -656,8 +657,9 @@ class _ApiKeyConfigScreenState extends State<ApiKeyConfigScreen> {
                         const SizedBox(height: 24),
                         Consumer<ApiConfigService>(
                           builder: (context, apiConfigService, child) {
+                            // No ambiente web, não mostrar o botão de forçar validação
                             // No Windows, mostrar botão adicional para forçar validação
-                            if (Platform.isWindows) {
+                            if (!kIsWeb && Platform.isWindows) {
                               return Column(
                                 children: [
                                   ElevatedButton(

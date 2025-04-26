@@ -31,7 +31,7 @@ mixin IAServiceImplementations {
       // Ler o primeiro arquivo
       final file = files.first;
       final bytes = await file.readAsBytes();
-      final fileName = file.path.split(Platform.isWindows ? '\\' : '/').last;
+      final fileName = file.path.split(!kIsWeb && Platform.isWindows ? '\\' : '/').last;
 
       // Informar progresso
       onProgress('Enviando PDF para análise com IA...', 0.3);

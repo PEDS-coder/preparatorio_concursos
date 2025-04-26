@@ -302,6 +302,19 @@ class PlanoResumoService {
     String escolaridade = 'Não informado';
     String nivel = 'Não informado';
 
+    // Verificar se temos informações no próprio cargo
+    if (cargo.escolaridade != 'Não informado') {
+      escolaridade = cargo.escolaridade;
+    }
+
+    if (cargo.nivel != 'Não informado') {
+      nivel = cargo.nivel;
+    }
+
+    if (cargo.salario > 0) {
+      salario = cargo.salario.toString();
+    }
+
     // Verificar se temos informações nos dados originais
     if (edital.dadosOriginais != null && edital.dadosOriginais!.containsKey('cargos')) {
       final cargosOriginais = edital.dadosOriginais!['cargos'];
@@ -320,11 +333,26 @@ class PlanoResumoService {
               if (cargoOriginal.containsKey('nivel') && cargoOriginal['nivel'] != null) {
                 nivel = cargoOriginal['nivel'].toString();
               }
+              if (cargoOriginal.containsKey('requisitos') && cargoOriginal['requisitos'] != null) {
+                // Se temos requisitos específicos, usar no lugar da escolaridade
+                escolaridade = cargoOriginal['requisitos'].toString();
+              }
               break;
             }
           }
         }
       }
+    }
+
+    // Verificar se a escolaridade está no formato esperado
+    // Se contiver "curso superior completo" e "em nível de graduação" separados por vírgula ou ponto e vírgula,
+    // vamos reformatar para evitar a duplicação que aparece na imagem
+    if (escolaridade.toLowerCase().contains('curso superior completo') &&
+        escolaridade.toLowerCase().contains('em nível de graduação')) {
+
+      // Substituir por uma versão mais concisa
+      escolaridade = escolaridade.replaceAll(RegExp(r'curso superior completo,?\s*em nível de graduação', caseSensitive: false),
+                                           'Curso superior completo, em nível de graduação');
     }
 
     return {

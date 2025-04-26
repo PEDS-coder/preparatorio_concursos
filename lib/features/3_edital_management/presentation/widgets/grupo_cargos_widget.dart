@@ -172,7 +172,7 @@ class GrupoCargosWidget extends StatelessWidget {
                                   const SizedBox(width: 4),
                                   Expanded(
                                     child: Text(
-                                      'Escolaridade: ${cargo.escolaridade}',
+                                      'Requisitos: ${cargo.escolaridade}',
                                       style: TextStyle(
                                         color: Theme.of(context).brightness == Brightness.dark ?
                                                Colors.grey.shade300 : Colors.grey.shade700,

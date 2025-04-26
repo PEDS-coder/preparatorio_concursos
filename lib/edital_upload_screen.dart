@@ -186,7 +186,7 @@ class _EditalUploadScreenState extends State<EditalUploadScreen> {
                           subtitle: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Escolaridade: ${cargo['escolaridade']}', style: const TextStyle(color: Colors.white70)),
+                              Text('Requisitos: ${cargo['escolaridade']}', style: const TextStyle(color: Colors.white70)),
                               Text('Vagas: ${cargo['vagas']}', style: const TextStyle(color: Colors.white70)),
                               Text('Salário: ${cargo['salario']}', style: const TextStyle(color: Colors.white70)),
                               Text('Matérias: ${cargo['materias']}', style: const TextStyle(color: Colors.white70)),

@@ -73,7 +73,7 @@ class EditalCargosTabWidget extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     CargoDetailItemWidget(
-                      label: 'Escolaridade',
+                      label: 'Requisitos',
                       value: cargo.escolaridade,
                     ),
                     const SizedBox(height: 8),

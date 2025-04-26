@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:preparatorio_concursos/core/data/services/interfaces/secure_storage_service_interface.dart';
 import 'package:preparatorio_concursos/core/services/advanced_cache_service.dart';
@@ -54,7 +55,8 @@ abstract class ServiceModule {
   @singleton
   ISecureStorageService provideSecureStorageService(Logger logger) {
     // Usar implementação temporária no Windows para evitar problemas com o flutter_secure_storage
-    if (Platform.isWindows) {
+    // No ambiente web, usar a implementação padrão
+    if (!kIsWeb && Platform.isWindows) {
       return TempSecureStorageService(logger);
     } else {
       return SecureStorageService(logger);

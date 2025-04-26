@@ -107,6 +107,33 @@ class FormatadorService {
     return double.tryParse(valorPonto) ?? 0.0;
   }
 
+  /// Padroniza o estilo de escrita das informações
+  static String padronizarEstiloEscrita(String texto) {
+    if (texto.isEmpty || texto.toLowerCase() == 'null' || texto == 'não informado') {
+      return 'Não informado';
+    }
+
+    // Remover espaços extras
+    texto = texto.trim().replaceAll(RegExp(r'\s+'), ' ');
+
+    // Dividir por pontos, vírgulas ou outros separadores de frases
+    List<String> frases = texto.split(RegExp(r'([.!?])\s*'));
+
+    // Capitalizar cada frase
+    List<String> frasesCapitalizadas = [];
+    for (int i = 0; i < frases.length; i++) {
+      String frase = frases[i].trim();
+      if (frase.isNotEmpty) {
+        // Capitalizar a primeira letra da frase
+        frase = frase[0].toUpperCase() + frase.substring(1);
+        frasesCapitalizadas.add(frase);
+      }
+    }
+
+    // Juntar as frases novamente
+    return frasesCapitalizadas.join('. ').replaceAll('. .', '.');
+  }
+
   /// Formata a duração da prova
   static String formatarDuracaoProva(String duracao) {
     if (duracao.isEmpty || duracao.toLowerCase() == 'null' || duracao == 'não informado') {
@@ -161,5 +188,43 @@ class FormatadorService {
 
     // Se não conseguir extrair, retornar o valor original
     return duracao;
+  }
+
+  /// Numera itens em um texto, separando por ponto e vírgula, vírgula ou ponto
+  static String numerarItens(String texto) {
+    if (texto.isEmpty || texto.toLowerCase() == 'null' || texto == 'não informado') {
+      return 'Não informado';
+    }
+
+    // Verificar se o texto já está numerado
+    if (RegExp(r'^\s*\d+\s*[\.\)]\s*').hasMatch(texto)) {
+      return texto;
+    }
+
+    // Separar itens por ponto e vírgula, vírgula ou ponto
+    List<String> itens = texto.split(RegExp(r'[;,\.]')).where((item) {
+      final trimmed = item.trim();
+      return trimmed.isNotEmpty && trimmed.toLowerCase() != 'e' && !trimmed.startsWith('e ');
+    }).toList();
+
+    // Se houver apenas um item, retornar o texto original
+    if (itens.length <= 1) {
+      return texto;
+    }
+
+    // Numerar os itens
+    List<String> itensNumerados = [];
+    for (int i = 0; i < itens.length; i++) {
+      String item = itens[i].trim();
+      if (item.isNotEmpty) {
+        // Capitalizar a primeira letra do item
+        if (item.length > 1) {
+          item = item[0].toUpperCase() + item.substring(1);
+        }
+        itensNumerados.add('${i + 1}. $item');
+      }
+    }
+
+    return itensNumerados.join('; ');
   }
 }

@@ -55,10 +55,10 @@ class CargoInfoWidget extends StatelessWidget {
           emoji: extratoService.getEmojiForInfoType('Cargo'),
         ),
 
-        // Informações em laranja (escolaridade)
+        // Informações em laranja (requisitos)
         InfoCard(
-          label: 'Escolaridade',
-          value: infoDetalhadas['escolaridade'] ?? 'Não informado',
+          label: 'Requisitos',
+          value: FormatadorService.numerarItens(infoDetalhadas['escolaridade'] ?? 'Não informado'),
           cardColor: extratoService.getColorForInfoType('Escolaridade'),
           emoji: extratoService.getEmojiForInfoType('Escolaridade'),
         ),

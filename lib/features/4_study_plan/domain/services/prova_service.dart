@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import '../../../../core/data/models/models.dart';
 import 'chaves_busca.dart';
 import 'extrator_dados_service.dart';
+import 'formatador_service.dart';
 
 /// Serviço para obtenção de dados da prova
 class ProvaService {
@@ -9,7 +10,47 @@ class ProvaService {
 
   /// Obtém o formato da prova
   static String obterFormato(PlanoEstudo plano, Edital? edital) {
-    return _extrator.buscarCampo(plano, edital, ChavesBusca.FORMATO_PROVA);
+    String formato = _extrator.buscarCampo(plano, edital, ChavesBusca.FORMATO_PROVA);
+    return _formatarFormatoProva(formato);
+  }
+
+  /// Formata o formato da prova para exibição padronizada
+  static String _formatarFormatoProva(String formato) {
+    if (formato == 'Não informado') return formato;
+
+    // Converter para minúsculo para padronização
+    String formatoLower = formato.toLowerCase();
+
+    // Dividir por vírgulas ou outros separadores comuns
+    List<String> formatos = formatoLower.split(RegExp(r'[,;/]'));
+
+    // Limpar e capitalizar cada formato
+    formatos = formatos.map((f) => f.trim()).where((f) => f.isNotEmpty).toList();
+    formatos = formatos.map((f) => f[0].toUpperCase() + f.substring(1)).toList();
+
+    // Juntar com "e" para o último item e vírgulas para os demais
+    if (formatos.length == 1) {
+      return formatos[0];
+    } else if (formatos.length == 2) {
+      return '${formatos[0]} e ${formatos[1]}';
+    } else {
+      String resultado = '';
+      for (int i = 0; i < formatos.length; i++) {
+        if (i == formatos.length - 1) {
+          resultado += ' e ${formatos[i]}';
+        } else if (i == formatos.length - 2) {
+          resultado += formatos[i];
+        } else {
+          resultado += '${formatos[i]}, ';
+        }
+      }
+      return resultado;
+    }
+  }
+
+  /// Padroniza o estilo de escrita das informações
+  static String _padronizarEstilo(String texto) {
+    return FormatadorService.padronizarEstiloEscrita(texto);
   }
 
   /// Obtém a data da prova
@@ -27,23 +68,24 @@ class ProvaService {
 
         final prova = edital.dadosOriginais!['concurso']['prova'];
         if (prova is Map && prova.containsKey('data')) {
-          return prova['data'].toString();
+          resultado = prova['data'].toString();
         }
       }
 
       // Verificar se há dados da prova diretamente nos dados originais
-      if (edital.dadosOriginais != null &&
+      if (resultado == 'Não informado' &&
+          edital.dadosOriginais != null &&
           edital.dadosOriginais!.containsKey('prova') &&
           edital.dadosOriginais!['prova'] is Map) {
 
         final prova = edital.dadosOriginais!['prova'] as Map;
         if (prova.containsKey('data')) {
-          return prova['data'].toString();
+          resultado = prova['data'].toString();
         }
       }
     }
 
-    return resultado;
+    return _padronizarEstilo(resultado);
   }
 
   /// Obtém o local da prova
@@ -61,38 +103,42 @@ class ProvaService {
 
         final prova = edital.dadosOriginais!['concurso']['prova'];
         if (prova is Map && prova.containsKey('local')) {
-          return prova['local'].toString();
+          resultado = prova['local'].toString();
         }
       }
 
       // Verificar se há dados da prova diretamente nos dados originais
-      if (edital.dadosOriginais != null &&
+      if (resultado == 'Não informado' &&
+          edital.dadosOriginais != null &&
           edital.dadosOriginais!.containsKey('prova') &&
           edital.dadosOriginais!['prova'] is Map) {
 
         final prova = edital.dadosOriginais!['prova'] as Map;
         if (prova.containsKey('local')) {
-          return prova['local'].toString();
+          resultado = prova['local'].toString();
         }
       }
     }
 
-    return resultado;
+    return _padronizarEstilo(resultado);
   }
 
   /// Obtém o total de questões da prova
   static String obterTotalQuestoes(PlanoEstudo plano, Edital? edital) {
-    return _extrator.buscarCampo(plano, edital, ChavesBusca.TOTAL_QUESTOES);
+    String resultado = _extrator.buscarCampo(plano, edital, ChavesBusca.TOTAL_QUESTOES);
+    return _padronizarEstilo(resultado);
   }
 
   /// Obtém a duração da prova
   static String obterDuracao(PlanoEstudo plano, Edital? edital) {
-    return _extrator.buscarCampo(plano, edital, ChavesBusca.DURACAO_PROVA);
+    String resultado = _extrator.buscarCampo(plano, edital, ChavesBusca.DURACAO_PROVA);
+    return _padronizarEstilo(resultado);
   }
 
   /// Obtém os critérios de aprovação da prova
   static String obterCriteriosAprovacao(PlanoEstudo plano, Edital? edital) {
-    return _extrator.buscarCampo(plano, edital, ChavesBusca.CRITERIOS_APROVACAO);
+    String resultado = _extrator.buscarCampo(plano, edital, ChavesBusca.CRITERIOS_APROVACAO);
+    return _padronizarEstilo(resultado);
   }
 
   /// Obtém os critérios de reprovação da prova
@@ -171,7 +217,7 @@ class ProvaService {
           // Armazenar nos metadados do plano para uso futuro
           plano.metadados['criteriosReprovacao'] = resultado;
 
-          return resultado;
+          return _padronizarEstilo(resultado);
         }
       }
     }
@@ -181,11 +227,13 @@ class ProvaService {
 
   /// Obtém os critérios de desempate da prova
   static String obterCriteriosDesempate(PlanoEstudo plano, Edital? edital) {
-    return _extrator.buscarCampo(plano, edital, ChavesBusca.CRITERIOS_DESEMPATE);
+    String resultado = _extrator.buscarCampo(plano, edital, ChavesBusca.CRITERIOS_DESEMPATE);
+    return _padronizarEstilo(resultado);
   }
 
   /// Obtém o tema da prova subjetiva
   static String obterTemaProvaSubjetiva(PlanoEstudo plano, Edital? edital) {
-    return _extrator.buscarCampo(plano, edital, ChavesBusca.TEMA_PROVA_SUBJETIVA);
+    String resultado = _extrator.buscarCampo(plano, edital, ChavesBusca.TEMA_PROVA_SUBJETIVA);
+    return _padronizarEstilo(resultado);
   }
 }

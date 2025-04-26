@@ -54,7 +54,7 @@ class GeminiOfficialService extends BaseIAService with IAServiceImplementations 
     print('[GeminiOfficialService] Tipo de API: $apiType');
     print('[GeminiOfficialService] Modelos a serem testados: ${_geminiModelsAlternatives.join(", ")}');
     print('[GeminiOfficialService] Chave API: ${apiKey.length} caracteres');
-    print('[GeminiOfficialService] Plataforma: ${Platform.operatingSystem}');
+    print('[GeminiOfficialService] Plataforma: ${kIsWeb ? 'Web' : Platform.operatingSystem}');
 
     if (apiKey.isEmpty) {
       print('[GeminiOfficialService] ERRO: Chave API vazia');
@@ -74,9 +74,12 @@ class GeminiOfficialService extends BaseIAService with IAServiceImplementations 
       // Verificar se o serviço da API está acessível
       print('[GeminiOfficialService] Verificando disponibilidade do serviço Gemini...');
 
-      // No Windows, usar uma abordagem mais robusta para verificar a conectividade
+      // No ambiente web ou Windows, usar abordagens específicas para verificar a conectividade
       bool serviceReachable;
-      if (Platform.isWindows) {
+      if (kIsWeb) {
+        print('[GeminiOfficialService] Usando abordagem específica para Web');
+        serviceReachable = true; // No ambiente web, assumimos que há conexão
+      } else if (Platform.isWindows) {
         print('[GeminiOfficialService] Usando abordagem específica para Windows');
         serviceReachable = await _verificarDisponibilidadeServicoWindows();
       } else {

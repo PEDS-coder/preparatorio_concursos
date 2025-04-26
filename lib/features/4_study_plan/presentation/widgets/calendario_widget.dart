@@ -107,6 +107,11 @@ class _CalendarioWidgetState extends State<CalendarioWidget> {
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
+                    titleTextFormatter: (date, locale) {
+                      // Formatar o mês com a primeira letra maiúscula
+                      String month = DateFormat.MMMM(locale).format(date);
+                      return '${month[0].toUpperCase()}${month.substring(1)} de ${date.year}';
+                    },
                   ),
                   calendarStyle: CalendarStyle(
                     todayDecoration: BoxDecoration(
@@ -124,17 +129,26 @@ class _CalendarioWidgetState extends State<CalendarioWidget> {
                   ),
                   calendarBuilders: CalendarBuilders(
                     markerBuilder: (context, date, events) {
-                      final markers = widget.calendarioService.getMarkerColors(date, widget.sessoesPorDia);
-                      
-                      if (markers.isEmpty) {
+                      // Obter sessões para o dia
+                      final normalizedDay = DateTime(date.year, date.month, date.day);
+                      final sessoes = widget.sessoesPorDia[normalizedDay] ?? [];
+
+                      if (sessoes.isEmpty) {
                         return null;
                       }
-                      
+
+                      // Obter cores baseadas nas matérias
+                      final List<Color> colors = [];
+                      for (var sessao in sessoes) {
+                        colors.add(_getColorForMateria(sessao.materia));
+                        if (colors.length >= 3) break; // Limitar a 3 marcadores
+                      }
+
                       return Positioned(
                         bottom: 1,
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
-                          children: markers.take(3).map((color) {
+                          children: colors.map((color) {
                             return Container(
                               margin: const EdgeInsets.symmetric(horizontal: 1),
                               width: 6,
@@ -236,6 +250,7 @@ class _CalendarioWidgetState extends State<CalendarioWidget> {
             style: const TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 16,
+              color: AppTheme.primaryColor, // Cor primária para destaque
             ),
           ),
         ),
@@ -250,19 +265,22 @@ class _CalendarioWidgetState extends State<CalendarioWidget> {
       sessao.dataHoraInicio.add(Duration(minutes: sessao.duracaoMinutos)),
     );
 
+    // Obter cor baseada na matéria
+    final materiaColor = _getColorForMateria(sessao.materia);
+
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       elevation: 1,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
         side: BorderSide(
-          color: Colors.grey.shade300,
+          color: materiaColor.withOpacity(0.3),
           width: 1,
         ),
       ),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: Colors.blue,
+          backgroundColor: materiaColor,
           child: Text(
             sessao.materia.substring(0, 1).toUpperCase(),
             style: const TextStyle(
@@ -272,9 +290,10 @@ class _CalendarioWidgetState extends State<CalendarioWidget> {
           ),
         ),
         title: Text(
-          sessao.materia,
-          style: const TextStyle(
+          sessao.materia.toUpperCase(), // Matéria em caixa alta
+          style: TextStyle(
             fontWeight: FontWeight.bold,
+            color: materiaColor.shade800, // Cor mais escura para o texto
           ),
         ),
         subtitle: Text(
@@ -288,5 +307,50 @@ class _CalendarioWidgetState extends State<CalendarioWidget> {
             : const Icon(Icons.access_time, color: Colors.orange),
       ),
     );
+  }
+
+  // Método para obter cor baseada na matéria
+  MaterialColor _getColorForMateria(String materia) {
+    // Normalizar a matéria para comparação
+    final materiaNormalizada = materia.toLowerCase();
+
+    // Lista de cores disponíveis
+    final List<MaterialColor> cores = [
+      Colors.red,
+      Colors.blue,
+      Colors.green,
+      Colors.purple,
+      Colors.orange,
+      Colors.teal,
+      Colors.indigo,
+      Colors.pink,
+      Colors.amber,
+      Colors.cyan,
+      Colors.deepOrange,
+      Colors.deepPurple,
+      Colors.lightBlue,
+      Colors.lightGreen,
+    ];
+
+    // Mapear matérias comuns para cores específicas
+    if (materiaNormalizada.contains('direito') && materiaNormalizada.contains('constitucional')) {
+      return Colors.blue;
+    } else if (materiaNormalizada.contains('direito') && materiaNormalizada.contains('administrativo')) {
+      return Colors.red;
+    } else if (materiaNormalizada.contains('direito') && materiaNormalizada.contains('penal')) {
+      return Colors.deepPurple;
+    } else if (materiaNormalizada.contains('direito') && materiaNormalizada.contains('civil')) {
+      return Colors.orange;
+    } else if (materiaNormalizada.contains('português') || materiaNormalizada.contains('lingua portuguesa')) {
+      return Colors.green;
+    } else if (materiaNormalizada.contains('raciocínio') || materiaNormalizada.contains('lógico')) {
+      return Colors.teal;
+    } else if (materiaNormalizada.contains('informática')) {
+      return Colors.cyan;
+    }
+
+    // Para outras matérias, usar um hash baseado no nome para escolher uma cor
+    final int hashCode = materia.hashCode.abs();
+    return cores[hashCode % cores.length];
   }
 }

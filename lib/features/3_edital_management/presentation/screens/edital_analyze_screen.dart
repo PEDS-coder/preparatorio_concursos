@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/theme/app_theme.dart';
@@ -251,6 +252,16 @@ class _EditalAnalyzeScreenState extends State<EditalAnalyzeScreen> {
     // Verificar tamanho do arquivo de acordo com os limites da LLM
     final file = _selectedFiles.first;
     final int fileSizeInMB = file.size ~/ (1024 * 1024);
+
+    // Log para depuração
+    Logger.debug('Arquivo selecionado: ${file.name} (${fileSizeInMB}MB)');
+    Logger.debug('Plataforma web: ${kIsWeb}');
+    Logger.debug('Arquivo tem bytes: ${file.bytes != null}');
+    Logger.debug('Arquivo tem caminho: ${file.path != null}');
+
+    if (kIsWeb && file.bytes != null) {
+      Logger.debug('Tamanho dos bytes no web: ${file.bytes!.length} bytes');
+    }
 
     // Verificar se o arquivo está dentro dos limites da LLM (50MB)
     if (fileSizeInMB > 50) {

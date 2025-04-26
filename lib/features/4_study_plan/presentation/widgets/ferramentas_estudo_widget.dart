@@ -68,7 +68,7 @@ class FerramentasEstudoWidget extends StatelessWidget {
 
   Color _getColorForFerramenta(String ferramenta) {
     final ferramentaNormalizada = ferramenta.toLowerCase();
-    
+
     if (ferramentaNormalizada.contains('flashcard')) {
       return Colors.blue;
     } else if (ferramentaNormalizada.contains('resumo')) {
@@ -76,7 +76,7 @@ class FerramentasEstudoWidget extends StatelessWidget {
     } else if (ferramentaNormalizada.contains('mapa mental')) {
       return Colors.purple;
     } else if (ferramentaNormalizada.contains('questão') || ferramentaNormalizada.contains('questoes')) {
-      return Colors.orange;
+      return Colors.deepOrange; // Alterado de Colors.orange para uma cor mais vívida
     } else if (ferramentaNormalizada.contains('lei seca')) {
       return Colors.red;
     } else if (ferramentaNormalizada.contains('video')) {
@@ -84,13 +84,13 @@ class FerramentasEstudoWidget extends StatelessWidget {
     } else if (ferramentaNormalizada.contains('audio')) {
       return Colors.indigo;
     } else {
-      return Colors.grey;
+      return Colors.deepPurple; // Alterado de Colors.grey para uma cor mais vívida
     }
   }
 
   String _getEmojiForFerramenta(String ferramenta) {
     final ferramentaNormalizada = ferramenta.toLowerCase();
-    
+
     if (ferramentaNormalizada.contains('flashcard')) {
       return '📇';
     } else if (ferramentaNormalizada.contains('resumo')) {

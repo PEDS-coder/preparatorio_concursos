@@ -57,7 +57,9 @@ class CalendarService implements ICalendarService {
   @override
   Future<bool> isAppleCalendarAvailable() async {
     try {
-      if (Platform.isIOS) {
+      if (kIsWeb) {
+        return false;
+      } else if (Platform.isIOS) {
         return true;
       }
       return false;
@@ -218,7 +220,7 @@ class CalendarService implements ICalendarService {
   @override
   Future<bool> syncWithAppleCalendar(PlanoEstudo plano) async {
     try {
-      if (!Platform.isIOS) {
+      if (kIsWeb || !Platform.isIOS) {
         return false;
       }
 

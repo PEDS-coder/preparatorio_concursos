@@ -203,24 +203,30 @@ class RecompensasWidget extends StatelessWidget {
 
   Widget _buildRecompensaChip(RecompensaConfig recompensa) {
     return Chip(
-      label: Text(recompensa.descricaoRecompensa),
+      label: Text(
+        recompensa.descricaoRecompensa,
+        style: const TextStyle(
+          color: Colors.white, // Texto branco para melhor contraste
+          fontWeight: FontWeight.bold,
+        ),
+      ),
       backgroundColor: _getColorForRecompensaTipo(recompensa.tipoRecompensa),
     );
   }
 
   Color _getColorForRecompensaTipo(String tipo) {
     switch (tipo) {
-      case 'bronze': return Colors.brown.shade100;
-      case 'prata': return Colors.grey.shade300;
-      case 'ouro': return Colors.amber.shade100;
-      case 'platina': return Colors.blue.shade100;
-      case 'diamante': return Colors.cyan.shade100;
-      case 'lendario': return Colors.purple.shade100;
+      case 'bronze': return Colors.brown.shade600; // Cor mais vívida
+      case 'prata': return Colors.blueGrey.shade500; // Substituído por uma cor mais vívida
+      case 'ouro': return Colors.amber.shade600; // Cor mais vívida
+      case 'platina': return Colors.blue.shade500; // Cor mais vívida
+      case 'diamante': return Colors.cyan.shade600; // Cor mais vívida
+      case 'lendario': return Colors.purple.shade500; // Cor mais vívida
       // Compatibilidade com tipos antigos
-      case 'diaria': return Colors.green.shade100;
-      case 'semanal': return Colors.orange.shade100;
-      case 'mensal': return Colors.purple.shade100;
-      default: return Colors.grey.shade100;
+      case 'diaria': return Colors.green.shade600; // Cor mais vívida
+      case 'semanal': return Colors.orange.shade600; // Cor mais vívida
+      case 'mensal': return Colors.deepPurple.shade500; // Cor mais vívida
+      default: return Colors.teal.shade500; // Substituído por uma cor mais vívida
     }
   }
 }

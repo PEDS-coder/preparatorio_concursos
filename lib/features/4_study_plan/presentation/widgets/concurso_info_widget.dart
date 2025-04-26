@@ -46,12 +46,7 @@ class ConcursoInfoWidget extends StatelessWidget {
             cardColor: extratoService.getColorForInfoType('Período de Inscrições'),
             emoji: extratoService.getEmojiForInfoType('Período de Inscrições'),
           ),
-          InfoCard(
-            label: 'Data da Prova',
-            value: ProvaService.obterData(plano, edital),
-            cardColor: extratoService.getColorForInfoType('Data da Prova'),
-            emoji: extratoService.getEmojiForInfoType('Data da Prova'),
-          ),
+
 
           // Informações em azul (identificação)
           InfoCard(
@@ -72,12 +67,7 @@ class ConcursoInfoWidget extends StatelessWidget {
             cardColor: extratoService.getColorForInfoType('Banca'),
             emoji: extratoService.getEmojiForInfoType('Banca'),
           ),
-          InfoCard(
-            label: 'Total de Questões',
-            value: ProvaService.obterTotalQuestoes(plano, edital),
-            cardColor: extratoService.getColorForInfoType('Total de Questões'),
-            emoji: extratoService.getEmojiForInfoType('Total de Questões'),
-          ),
+
 
           // Informações em verde (valores)
           InfoCard(
@@ -87,13 +77,7 @@ class ConcursoInfoWidget extends StatelessWidget {
             emoji: extratoService.getEmojiForInfoType('Taxa de Inscrição'),
           ),
 
-          // Informações em laranja (locais)
-          InfoCard(
-            label: 'Local das Provas',
-            value: ProvaService.obterLocal(plano, edital),
-            cardColor: extratoService.getColorForInfoType('Local das Provas'),
-            emoji: extratoService.getEmojiForInfoType('Local das Provas'),
-          ),
+
 
           // Informações em roxo (cotas e formato)
           InfoCard(
@@ -102,20 +86,7 @@ class ConcursoInfoWidget extends StatelessWidget {
             cardColor: extratoService.getColorForInfoType('Cotas'),
             emoji: extratoService.getEmojiForInfoType('Cotas'),
           ),
-          InfoCard(
-            label: 'Formato',
-            value: ProvaService.obterFormato(plano, edital),
-            cardColor: extratoService.getColorForInfoType('Formato'),
-            emoji: extratoService.getEmojiForInfoType('Formato'),
-          ),
 
-          // Informações adicionais
-          InfoCard(
-            label: 'Tema da Prova Subjetiva',
-            value: ProvaService.obterTemaProvaSubjetiva(plano, edital),
-            cardColor: extratoService.getColorForInfoType('Tema da Prova Subjetiva'),
-            emoji: extratoService.getEmojiForInfoType('Tema da Prova Subjetiva'),
-          ),
         ] else ...[
           const InfoCard(
             label: 'Plano',

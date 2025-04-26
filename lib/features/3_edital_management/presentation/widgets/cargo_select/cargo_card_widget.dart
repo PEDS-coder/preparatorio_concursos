@@ -92,10 +92,10 @@ class CargoCardWidget extends StatelessWidget {
                 icon: Icons.attach_money
               ),
               CargoInfoItemWidget(
-                label: 'Escolaridade',
+                label: 'Requisitos',
                 value: cargo.escolaridade != 'Não informado' && cargo.escolaridade != 'Não especificado'
-                  ? cargo.escolaridade
-                  : (cargo.nivel != 'Não informado' ? cargo.nivel : 'Não informado'),
+                  ? _numerarRequisitos(cargo.escolaridade)
+                  : (cargo.nivel != 'Não informado' ? _numerarRequisitos(cargo.nivel) : 'Não informado'),
                 icon: Icons.school
               ),
               if (cargo.dataProva != null)
@@ -144,5 +144,43 @@ class CargoCardWidget extends StatelessWidget {
 
     // Adicionar a parte decimal
     return '$resultado,${valorDecimal.toString().padLeft(2, '0')}';
+  }
+
+  /// Numera os requisitos separados por ponto e vírgula, vírgula ou ponto
+  String _numerarRequisitos(String texto) {
+    if (texto.isEmpty || texto.toLowerCase() == 'null' || texto == 'não informado') {
+      return 'Não informado';
+    }
+
+    // Verificar se o texto já está numerado
+    if (RegExp(r'^\s*\d+\s*[\.\)]\s*').hasMatch(texto)) {
+      return texto;
+    }
+
+    // Separar itens por ponto e vírgula, vírgula ou ponto
+    List<String> itens = texto.split(RegExp(r'[;,\.]')).where((item) {
+      final trimmed = item.trim();
+      return trimmed.isNotEmpty && trimmed.toLowerCase() != 'e' && !trimmed.startsWith('e ');
+    }).toList();
+
+    // Se houver apenas um item, retornar o texto original
+    if (itens.length <= 1) {
+      return texto;
+    }
+
+    // Numerar os itens
+    List<String> itensNumerados = [];
+    for (int i = 0; i < itens.length; i++) {
+      String item = itens[i].trim();
+      if (item.isNotEmpty) {
+        // Capitalizar a primeira letra do item
+        if (item.length > 1) {
+          item = item[0].toUpperCase() + item.substring(1);
+        }
+        itensNumerados.add('${i + 1}. $item');
+      }
+    }
+
+    return itensNumerados.join('; ');
   }
 }

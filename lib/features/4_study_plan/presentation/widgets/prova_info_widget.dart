@@ -109,45 +109,17 @@ class ProvaInfoWidget extends StatelessWidget {
         ),
         InfoCard(
           label: 'Critérios de Aprovação',
-          value: ProvaService.obterCriteriosAprovacao(plano, edital),
+          value: FormatadorService.numerarItens(ProvaService.obterCriteriosAprovacao(plano, edital)),
           cardColor: extratoService.getColorForInfoType('Critérios de Aprovação'),
           emoji: extratoService.getEmojiForInfoType('Critérios de Aprovação'),
         ),
-        InfoCard(
-          label: 'Critérios de Reprovação',
-          value: ProvaService.obterCriteriosReprovacao(plano, edital),
-          cardColor: extratoService.getColorForInfoType('Critérios de Reprovação'),
-          emoji: extratoService.getEmojiForInfoType('Critérios de Reprovação'),
-        ),
+
         InfoCard(
           label: 'Critérios de Desempate',
-          value: ProvaService.obterCriteriosDesempate(plano, edital),
+          value: FormatadorService.numerarItens(ProvaService.obterCriteriosDesempate(plano, edital)),
           cardColor: extratoService.getColorForInfoType('Critérios de Desempate'),
           emoji: extratoService.getEmojiForInfoType('Critérios de Desempate'),
         ),
-        if (criteriosDesempate != null && criteriosDesempate.isNotEmpty) ...[
-          const Padding(
-            padding: EdgeInsets.only(left: 16, top: 8, bottom: 8),
-            child: Text(
-              'Critérios de Desempate (Detalhados)',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: AppTheme.primaryColor,
-              ),
-            ),
-          ),
-          ...criteriosDesempate.asMap().entries.map((entry) {
-            final index = entry.key;
-            final criterio = entry.value;
-            return CriterioDesempateCard(
-              index: index + 1,
-              criterio: criterio,
-              color: Colors.purple,
-              emoji: '📝',
-            );
-          }).toList(),
-        ],
       ],
     );
   }

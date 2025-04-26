@@ -5,6 +5,7 @@ import 'package:table_calendar/table_calendar.dart';
 import '../../../../core/data/models/models.dart';
 import '../../../../core/data/services/edital_service.dart';
 import '../../../../core/data/services/plano_estudo_service.dart';
+import '../../../../core/data/services/sessao_estudo_service.dart';
 import '../../../../core/services/audio_explanation_service.dart';
 import '../../../../core/utils/plano_data_logger.dart';
 import '../../domain/services/calendario_service.dart';
@@ -16,10 +17,8 @@ import '../widgets/calendario_widget.dart';
 import '../widgets/cargo_info_widget.dart';
 import '../widgets/concurso_info_widget.dart';
 import '../widgets/conteudo_programatico_widget.dart';
-import '../widgets/cotas_widget.dart';
 import '../widgets/ferramentas_estudo_widget.dart';
 import '../widgets/plano_info_widget.dart';
-import '../widgets/plano_estudos_summary_widget.dart';
 import '../widgets/prova_info_widget.dart';
 import '../widgets/recompensas_widget.dart';
 import 'plano_logs_screen.dart';
@@ -40,6 +39,7 @@ class _PlanoResumoScreenState extends State<PlanoResumoScreen> {
   late final CalendarioService _calendarioService;
   late final ExtratorDadosService _extratoService;
   late final PlanoDadosService _planoDadosService;
+  late final SessaoEstudoService _sessaoEstudoService;
 
   // Dados
   PlanoEstudo? _plano;
@@ -62,6 +62,7 @@ class _PlanoResumoScreenState extends State<PlanoResumoScreen> {
     // Inicializar serviços
     final planoService = Provider.of<PlanoEstudoService>(context, listen: false);
     final editalService = Provider.of<EditalService>(context, listen: false);
+    _sessaoEstudoService = Provider.of<SessaoEstudoService>(context, listen: false);
 
     _extratoService = ExtratorDadosService();
     _planoDadosService = PlanoDadosService();
@@ -285,12 +286,6 @@ class _PlanoResumoScreenState extends State<PlanoResumoScreen> {
               ),
               const SizedBox(height: 24),
 
-              // Cotas e Reserva de Vagas
-              CotasWidget(
-                edital: _edital,
-              ),
-              const SizedBox(height: 24),
-
               // Conteúdo programático
               ConteudoProgramaticoWidget(
                 plano: _plano!,
@@ -298,12 +293,7 @@ class _PlanoResumoScreenState extends State<PlanoResumoScreen> {
                 cargo: _cargoSelecionado,
                 planoResumoService: _planoResumoService,
                 extratoService: _extratoService,
-              ),
-              const SizedBox(height: 24),
-
-              // Dados do Plano de Estudos gerados pela LLM
-              PlanoEstudosSummaryWidget(
-                plano: _plano!,
+                sessaoEstudoService: _sessaoEstudoService,
               ),
               const SizedBox(height: 24),
 

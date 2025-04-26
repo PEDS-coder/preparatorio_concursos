@@ -231,6 +231,8 @@ class ExtratorDadosService {
         return Colors.red;
       case 'critérios de desempate':
         return Colors.purple;
+      case 'tema da prova subjetiva':
+        return Colors.teal;
       default:
         return Colors.grey;
     }

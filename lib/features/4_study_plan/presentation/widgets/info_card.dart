@@ -27,20 +27,45 @@ class InfoCard extends StatelessWidget {
           color: cardColor,
           borderRadius: BorderRadius.circular(8),
         ),
-        child: ListTile(
-          leading: Text(
-            emoji,
-            style: const TextStyle(fontSize: 24),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Emoji
+              Text(
+                emoji,
+                style: const TextStyle(fontSize: 24),
+              ),
+              const SizedBox(width: 16),
+              // Conteúdo
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Título
+                    Text(
+                      label,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    // Valor
+                    Text(
+                      value,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-          title: Text(
-            '$label: $value',
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          dense: true,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         ),
       ),
     );
