@@ -31,7 +31,9 @@ class EditalAnalysisService {
   // Método removido: processarDadosExemplo
 
   /// Analisa o edital a partir dos arquivos PDF selecionados
-  static Future<void> analisarEdital({
+  ///
+  /// Retorna o ID do edital criado
+  static Future<String> analisarEdital({
     required BuildContext context,
     required List<PlatformFile> selectedFiles,
     required Function(String, double) onProgress,
@@ -152,22 +154,8 @@ class EditalAnalysisService {
       onProgress('Concluindo análise...', 0.95);
 
       // Navegar para a tela de seleção de cargos
-      try {
-        final navigationService = getIt<INavigationService>();
-        // Usar a rota nomeada definida no AppRouter
-        navigationService.navigateTo(
-          '/cargo/select',
-          arguments: {'editalId': editalId},
-        );
-      } catch (e) {
-        print('Erro ao usar NavigationService: $e');
-        // Fallback para navegação direta
-        Navigator.pushNamed(
-          context,
-          '/cargo/select',
-          arguments: {'editalId': editalId},
-        );
-      }
+      // Retornar o ID do edital para que a tela de análise possa navegar para a próxima tela
+      return editalId;
     } catch (e) {
       Logger.error('Erro ao analisar edital: $e');
       rethrow;

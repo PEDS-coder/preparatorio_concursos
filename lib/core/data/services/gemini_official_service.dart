@@ -46,8 +46,7 @@ class GeminiOfficialService extends BaseIAService with IAServiceImplementations 
     return true;
   }
 
-  /// Timeout para teste de conexão (10 segundos)
-  static const Duration _testConnectionTimeout = Duration(seconds: 10);
+
 
   @override
   Future<bool> testApiKey(String apiKey, String apiType) async {
@@ -150,12 +149,6 @@ class GeminiOfficialService extends BaseIAService with IAServiceImplementations 
       final response = await http.get(
         Uri.parse('https://generativelanguage.googleapis.com'),
         headers: {'Content-Type': 'application/json'},
-      ).timeout(
-        const Duration(seconds: 10),
-        onTimeout: () {
-          print('[GeminiOfficialService] Timeout ao verificar disponibilidade do serviço Gemini no Windows');
-          throw Exception('Timeout');
-        },
       );
 
       print('[GeminiOfficialService] Resposta do serviço Gemini: ${response.statusCode}');
@@ -214,12 +207,6 @@ class GeminiOfficialService extends BaseIAService with IAServiceImplementations 
           Uri.parse(url),
           headers: {'Content-Type': 'application/json'},
           body: testBody,
-        ).timeout(
-          _testConnectionTimeout,
-          onTimeout: () {
-            print('[GeminiOfficialService] Timeout ao testar modelo $modelo');
-            throw Exception('Timeout ao testar conexão com a API');
-          },
         );
 
         print('[GeminiOfficialService] Resposta do modelo $modelo: ${response.statusCode}');
@@ -375,12 +362,6 @@ class GeminiOfficialService extends BaseIAService with IAServiceImplementations 
         Uri.parse(url),
         headers: {'Content-Type': 'application/json'},
         body: body,
-      ).timeout(
-        const Duration(seconds: 60),
-        onTimeout: () {
-          print('[GeminiOfficialService] Timeout na chamada da API');
-          throw Exception('A requisição excedeu o tempo limite de 60 segundos.');
-        },
       );
 
       print('[GeminiOfficialService] Resposta recebida: ${response.statusCode}');
@@ -936,9 +917,7 @@ class GeminiOfficialService extends BaseIAService with IAServiceImplementations 
   /// Tamanho máximo permitido pela API Gemini (50MB)
   static const int _maxAllowedPdfSize = 50 * 1024 * 1024;
 
-  /// Timeout para requisições HTTP (2 minutos para arquivos pequenos, 10 minutos para grandes)
-  static const Duration _defaultHttpTimeout = Duration(minutes: 2);
-  static const Duration _largeFileHttpTimeout = Duration(minutes: 10);
+
 
   /// Limite para considerar um arquivo como grande (5MB)
   static const int _largeFileSizeThreshold = 5 * 1024 * 1024;
@@ -985,10 +964,7 @@ class GeminiOfficialService extends BaseIAService with IAServiceImplementations 
       // Verificar conectividade com a internet antes de fazer a chamada
       final url = '$_geminiBaseUrl/$modeloAtivo:generateContent?key=$apiKey_';
 
-      // Determinar o timeout com base no tamanho do arquivo
-      final httpTimeout = pdfBytes.length > _largeFileSizeThreshold
-          ? _largeFileHttpTimeout
-          : _defaultHttpTimeout;
+
 
       // NOTA: A API Gemini requer que os arquivos sejam enviados como parte do corpo da requisição em formato base64.
       // Isso é uma exigência da API, não uma escolha da aplicação.
@@ -1058,8 +1034,8 @@ class GeminiOfficialService extends BaseIAService with IAServiceImplementations 
       // Log para depuração
       print('[GeminiOfficialService] Enviando requisição para: $url');
 
-      // Enviar a requisição com timeout
-      print('[GeminiOfficialService] Enviando requisição HTTP (timeout: ${httpTimeout.inMinutes} minutos)...');
+      // Enviar a requisição
+      print('[GeminiOfficialService] Enviando requisição HTTP...');
 
       // Implementar retry em caso de falha de rede
       int retryCount = 0;
@@ -1072,12 +1048,6 @@ class GeminiOfficialService extends BaseIAService with IAServiceImplementations 
             Uri.parse(url),
             headers: {'Content-Type': 'application/json'},
             body: body,
-          ).timeout(
-            httpTimeout,
-            onTimeout: () {
-              print('[GeminiOfficialService] Timeout na requisição HTTP após ${httpTimeout.inMinutes} minutos');
-              throw Exception('A requisição excedeu o tempo limite de ${httpTimeout.inMinutes} minutos. O arquivo pode ser muito grande ou a conexão está lenta.');
-            },
           );
 
           // Se chegou aqui, a requisição foi bem-sucedida

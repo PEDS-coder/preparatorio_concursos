@@ -268,7 +268,8 @@ class _EditalAnalyzeScreenState extends State<EditalAnalyzeScreen> {
     });
 
     try {
-      await EditalAnalysisService.analisarEdital(
+      // Analisar o edital e obter o ID do edital criado
+      final String editalId = await EditalAnalysisService.analisarEdital(
         context: context,
         selectedFiles: _selectedFiles,
         onProgress: (message, progress) {
@@ -280,8 +281,12 @@ class _EditalAnalyzeScreenState extends State<EditalAnalyzeScreen> {
       );
 
       // Se chegou aqui, a análise foi concluída com sucesso
-      // Navegar para a próxima tela ou mostrar mensagem de sucesso
-      Navigator.pushReplacementNamed(context, '/cargo_select');
+      // Navegar para a próxima tela passando o ID do edital como argumento
+      Navigator.pushReplacementNamed(
+        context,
+        '/cargo/select',
+        arguments: editalId,
+      );
 
     } catch (e) {
       Logger.error('Erro ao analisar edital: $e');

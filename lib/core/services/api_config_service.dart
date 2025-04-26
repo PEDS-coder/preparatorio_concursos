@@ -19,8 +19,7 @@ class ApiConfigService extends ChangeNotifier {
   int _validationAttempts = 0;
   static const int _maxValidationAttempts = 3;
 
-  // Controle de timeout
-  static const Duration _validationTimeout = Duration(seconds: 30);
+
 
   // Status detalhado da validação
   String _validationStatus = '';
@@ -222,12 +221,8 @@ class ApiConfigService extends ChangeNotifier {
           _validationStatus = 'Tentativa $_validationAttempts de $_maxValidationAttempts...';
           notifyListeners();
 
-          // Usar timeout para evitar bloqueio indefinido
-          result = await _executeWithTimeout(
-            () => _iaService!.setApiKey(apiKey, apiType),
-            _validationTimeout,
-            'Timeout ao validar chave API'
-          );
+          // Chamar a API diretamente
+          result = await _iaService!.setApiKey(apiKey, apiType);
 
           // Se for bem-sucedido, sair do loop
           if (result['success'] as bool) {
@@ -309,12 +304,8 @@ class ApiConfigService extends ChangeNotifier {
         _logger.debug('Prefixo real: ${apiKey.substring(0, apiKey.length > 2 ? 2 : apiKey.length)}', tag: _tag);
       }
 
-      // Usar timeout para evitar bloqueio indefinido
-      final bool isValid = await _executeWithTimeout(
-        () => _iaService!.testApiKey(apiKey, apiType),
-        _validationTimeout,
-        'Timeout ao testar conexão com a API'
-      );
+      // Chamar a API diretamente
+      final bool isValid = await _iaService!.testApiKey(apiKey, apiType);
 
       _logger.debug('Teste de conexão com a API: ${isValid ? 'Sucesso' : 'Falha'}', tag: _tag);
       return isValid;
@@ -324,15 +315,5 @@ class ApiConfigService extends ChangeNotifier {
     }
   }
 
-  /// Executa uma função com timeout
-  Future<T> _executeWithTimeout<T>(Future<T> Function() function, Duration timeout, String timeoutMessage) async {
-    try {
-      return await function().timeout(timeout, onTimeout: () {
-        throw Exception(timeoutMessage);
-      });
-    } catch (e) {
-      _logger.error('Erro ao executar função com timeout: $e', tag: _tag);
-      rethrow;
-    }
-  }
+
 }

@@ -7,7 +7,6 @@ import 'package:http/http.dart' as http;
 class ConnectivityService {
   static const String _googleDnsUrl = 'https://8.8.8.8';
   static const String _googleUrl = 'https://www.google.com';
-  static const Duration _timeout = Duration(seconds: 5);
 
   /// Verifica se o dispositivo está conectado à internet
   static Future<bool> isConnected() async {
@@ -33,8 +32,7 @@ class ConnectivityService {
   static Future<bool> _isConnectedStandard() async {
     try {
       // Primeiro tentamos o ping do Google DNS
-      final result = await InternetAddress.lookup('google.com')
-          .timeout(_timeout);
+      final result = await InternetAddress.lookup('google.com');
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
         debugPrint('Conectividade confirmada via DNS (google.com)');
         return true;
@@ -43,8 +41,7 @@ class ConnectivityService {
       debugPrint('Erro ao verificar conectividade via DNS: $e');
       // Se falhar, tentamos uma requisição HTTP
       try {
-        final response = await http.get(Uri.parse(_googleUrl))
-            .timeout(_timeout);
+        final response = await http.get(Uri.parse(_googleUrl));
         if (response.statusCode == 200) {
           debugPrint('Conectividade confirmada via HTTP (Google)');
           return true;
@@ -64,8 +61,7 @@ class ConnectivityService {
     // Tentar múltiplas abordagens
     try {
       // 1. Tentar ping do Google DNS
-      final result = await InternetAddress.lookup('8.8.8.8')
-          .timeout(const Duration(seconds: 2));
+      final result = await InternetAddress.lookup('8.8.8.8');
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
         debugPrint('Conectividade confirmada via DNS (8.8.8.8)');
         return true;
@@ -76,8 +72,7 @@ class ConnectivityService {
 
     try {
       // 2. Tentar ping do Cloudflare DNS
-      final result = await InternetAddress.lookup('1.1.1.1')
-          .timeout(const Duration(seconds: 2));
+      final result = await InternetAddress.lookup('1.1.1.1');
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
         debugPrint('Conectividade confirmada via DNS (1.1.1.1)');
         return true;
@@ -88,8 +83,7 @@ class ConnectivityService {
 
     try {
       // 3. Tentar HTTP para Google
-      final response = await http.get(Uri.parse('https://www.google.com'))
-          .timeout(const Duration(seconds: 5));
+      final response = await http.get(Uri.parse('https://www.google.com'));
       if (response.statusCode == 200) {
         debugPrint('Conectividade confirmada via HTTP (Google)');
         return true;
@@ -100,8 +94,7 @@ class ConnectivityService {
 
     try {
       // 4. Tentar HTTP para Cloudflare
-      final response = await http.get(Uri.parse('https://www.cloudflare.com'))
-          .timeout(const Duration(seconds: 5));
+      final response = await http.get(Uri.parse('https://www.cloudflare.com'));
       if (response.statusCode == 200) {
         debugPrint('Conectividade confirmada via HTTP (Cloudflare)');
         return true;
@@ -128,8 +121,7 @@ class ConnectivityService {
       }
 
       // Abordagem padrão para outros dispositivos
-      final response = await http.get(Uri.parse(url))
-          .timeout(_timeout);
+      final response = await http.get(Uri.parse(url));
       final bool isReachable = response.statusCode >= 200 && response.statusCode < 400;
       debugPrint('Serviço $url ${isReachable ? "acessível" : "inacessível"}: ${response.statusCode}');
       return isReachable;
@@ -152,8 +144,7 @@ class ConnectivityService {
     // Tentar múltiplas abordagens
     try {
       // 1. Tentar HTTP GET
-      final response = await http.get(Uri.parse(url))
-          .timeout(const Duration(seconds: 10));
+      final response = await http.get(Uri.parse(url));
       if (response.statusCode >= 200 && response.statusCode < 400) {
         debugPrint('Serviço acessível via HTTP GET: $url (${response.statusCode})');
         return true;
@@ -169,8 +160,7 @@ class ConnectivityService {
 
     try {
       // 2. Tentar HTTP HEAD
-      final response = await http.head(Uri.parse(url))
-          .timeout(const Duration(seconds: 10));
+      final response = await http.head(Uri.parse(url));
       if (response.statusCode >= 200 && response.statusCode < 400) {
         debugPrint('Serviço acessível via HTTP HEAD: $url (${response.statusCode})');
         return true;
@@ -187,8 +177,7 @@ class ConnectivityService {
     try {
       // 3. Verificar se o domínio é resolvível
       final uri = Uri.parse(url);
-      final result = await InternetAddress.lookup(uri.host)
-          .timeout(const Duration(seconds: 5));
+      final result = await InternetAddress.lookup(uri.host);
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
         debugPrint('Domínio do serviço resolvível: ${uri.host}');
         // Se o domínio é resolvível, assumir que o serviço está acessível

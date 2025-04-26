@@ -46,7 +46,7 @@ class BottomNavigationWidget extends StatelessWidget {
                 Navigator.pushNamed(
                   context,
                   '/cargo/select',
-                  arguments: {'editalId': editalId},
+                  arguments: editalId,
                 );
               },
               icon: const Icon(Icons.check_circle),

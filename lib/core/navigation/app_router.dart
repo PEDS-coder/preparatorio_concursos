@@ -66,7 +66,36 @@ class AppRouter {
       case '/edital/edit':
         return MaterialPageRoute(builder: (_) => EditalEditScreen(editalId: args as String));
       case '/cargo/select':
-        return MaterialPageRoute(builder: (_) => CargoSelectScreen(editalId: (args as Map<String, dynamic>)['editalId']));
+        if (args is Map<String, dynamic> && args.containsKey('editalId')) {
+          return MaterialPageRoute(builder: (_) => CargoSelectScreen(editalId: args['editalId']));
+        } else if (args is String) {
+          // Suporte para passagem direta do editalId como string
+          return MaterialPageRoute(builder: (_) => CargoSelectScreen(editalId: args));
+        } else {
+          // Caso de erro - mostrar mensagem amigável
+          return MaterialPageRoute(
+            builder: (_) => Scaffold(
+              appBar: AppBar(title: const Text('Erro')),
+              body: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.error_outline, size: 80, color: Colors.red),
+                    const SizedBox(height: 16),
+                    const Text('Erro ao carregar tela de seleção de cargo', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 8),
+                    const Text('Parâmetros inválidos para a rota.'),
+                    const SizedBox(height: 24),
+                    ElevatedButton(
+                      onPressed: () => Navigator.pushReplacementNamed(_, '/dashboard'),
+                      child: const Text('Voltar para o Dashboard'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }
 
       // Rotas de plano de estudo
       case '/plano':

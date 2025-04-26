@@ -86,12 +86,6 @@ class GeminiService extends BaseIAService with IAServiceImplementations {
             Uri.parse(url),
             headers: {'Content-Type': 'application/json'},
             body: testBody,
-          ).timeout(
-            const Duration(seconds: 10),
-            onTimeout: () {
-              print('[GeminiService] Timeout ao testar modelo $modelo');
-              throw Exception('Timeout ao testar conexão com a API');
-            },
           );
 
           print('[GeminiService] Resposta do modelo $modelo: ${response.statusCode}');

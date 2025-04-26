@@ -37,11 +37,7 @@ class PdfUploadService {
   /// Tamanho máximo recomendado para arquivos PDF (20MB)
   static const int maxPdfSizeBytes = 20 * 1024 * 1024;
 
-  /// Timeout para seleção de arquivo (30 segundos)
-  static const Duration filePickerTimeout = Duration(seconds: 30);
 
-  /// Timeout para leitura de arquivo (2 minutos)
-  static const Duration fileReadTimeout = Duration(minutes: 2);
 
   /// Seleciona arquivos PDF e retorna seus nomes, caminhos e bytes
   Future<PdfUploadResult?> pickPdfFiles({
@@ -50,21 +46,12 @@ class PdfUploadService {
     VoidCallback? onCancel,
   }) async {
     try {
-      // Usar timeout para evitar que a aplicação fique travada indefinidamente
+      // Selecionar arquivos PDF
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['pdf'],
         allowMultiple: allowMultiple,
         withData: kIsWeb, // Carregar dados diretamente no web
-      ).timeout(
-        filePickerTimeout,
-        onTimeout: () {
-          AppLogger.e(_tag, 'Timeout ao selecionar arquivo PDF');
-          if (onError != null) {
-            onError('Tempo limite excedido ao selecionar arquivo. Tente novamente.');
-          }
-          return null;
-        },
       );
 
       if (result == null || result.files.isEmpty) {
@@ -138,14 +125,8 @@ class PdfUploadService {
                 throw PdfUploadException('Arquivo não encontrado: ${file.name}');
               }
 
-              // Ler os bytes do arquivo com timeout
-              final bytes = await fileObj.readAsBytes().timeout(
-                fileReadTimeout,
-                onTimeout: () {
-                  AppLogger.e(_tag, 'Timeout ao ler arquivo: ${file.path}');
-                  throw PdfUploadException('Tempo limite excedido ao ler o arquivo ${file.name}. O arquivo pode ser muito grande.');
-                },
-              );
+              // Ler os bytes do arquivo
+              final bytes = await fileObj.readAsBytes();
 
               bytesList.add(bytes);
               filePaths.add(file.path);
