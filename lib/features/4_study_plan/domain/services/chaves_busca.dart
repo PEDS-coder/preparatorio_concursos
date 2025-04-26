@@ -62,6 +62,7 @@ class ChavesBusca {
     chaveMetadados: 'criteriosReprovacao',
     chaveDadosOriginais: 'prova.criterios_reprovacao',
     eventoLog: 'buscar_criterios_reprovacao',
+    alternativasOriginais: ['concurso.prova.criterios_reprovacao'],
   );
 
   static const ChaveBusca CRITERIOS_DESEMPATE = ChaveBusca(
@@ -81,12 +82,14 @@ class ChavesBusca {
     chaveMetadados: 'valorInscricao',
     chaveDadosOriginais: 'inscricoes.taxa',
     eventoLog: 'buscar_valor_inscricao',
+    alternativasOriginais: ['concurso.inscricoes.taxa', 'taxa_inscricao'],
   );
 
   static const ChaveBusca PERIODO_INSCRICAO = ChaveBusca(
     chaveMetadados: 'periodoInscricao',
     chaveDadosOriginais: 'inscricoes.periodo',
     eventoLog: 'buscar_periodo_inscricao',
+    alternativasOriginais: ['concurso.inscricoes.periodo'],
   );
 
   static const ChaveBusca INICIO_INSCRICAO = ChaveBusca(

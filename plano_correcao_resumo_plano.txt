@@ -1,0 +1,55 @@
+# Plano de Correção para os Problemas na Tela de Resumo do Plano
+
+## Problema Identificado
+
+Após uma análise detalhada do código, identificamos o problema principal que estava causando a falta de exibição de algumas informações na tela de Resumo do Plano, especificamente o Período de Inscrições, Taxa de Inscrição e Critérios de Reprovação.
+
+O problema estava relacionado à estrutura do JSON retornado pela LLM e como ele é processado pelo aplicativo. O prompt `concurso_conteudo_prompt.txt` gera um JSON com uma estrutura aninhada onde as informações estão dentro da chave `concurso`, mas havia problemas na extração e mapeamento dessas informações para os campos corretos no modelo `DadosExtraidos`.
+
+## Solução Implementada
+
+Implementamos as seguintes correções:
+
+1. **Modificamos o DadosOriginaisExtractor para buscar corretamente os dados aninhados**:
+   - Adicionamos logs de depuração para verificar a estrutura dos dados
+   - Melhoramos o método `_buscarEmCaminho` para buscar dados em estruturas aninhadas
+   - Adicionamos suporte para busca case-insensitive de chaves
+
+2. **Modificamos o ExtratorDadosService para usar alternativas de chaves**:
+   - Implementamos um mecanismo para tentar múltiplas chaves alternativas quando a chave principal não retorna resultados
+   - Adicionamos alternativas para as chaves de busca de critérios de reprovação, valor de inscrição e período de inscrição
+
+3. **Atualizamos as chaves de busca para incluir alternativas**:
+   - Adicionamos alternativas para a chave `CRITERIOS_REPROVACAO` para buscar em `concurso.prova.criterios_reprovacao`
+   - Adicionamos alternativas para a chave `VALOR_INSCRICAO` para buscar em `concurso.inscricoes.taxa` e `taxa_inscricao`
+   - Adicionamos alternativas para a chave `PERIODO_INSCRICAO` para buscar em `concurso.inscricoes.periodo`
+
+4. **Melhoramos o DadosExtraidosExtractor para verificar a estrutura aninhada**:
+   - Adicionamos verificações para buscar dados em `concurso.inscricoes.taxa` e `concurso.prova.criterios_reprovacao`
+   - Adicionamos logs de depuração para verificar a estrutura dos dados extraídos
+
+5. **Atualizamos o LLMResponseProcessor para armazenar corretamente os dados aninhados**:
+   - Garantimos que os objetos `inscricoes` e `prova` completos sejam armazenados para acesso direto
+   - Adicionamos logs para verificar a estrutura dos dados extraídos
+   - Melhoramos a extração de dados aninhados para garantir que todos os campos sejam corretamente mapeados
+
+6. **Atualizamos o PlanoDadosService para extrair corretamente os dados da estrutura aninhada**:
+   - Adicionamos verificações para buscar dados em `concurso.inscricoes` e `concurso.prova`
+   - Adicionamos logs de depuração para verificar a estrutura dos dados extraídos
+
+## Resultado Esperado
+
+Com essas alterações, a tela de Resumo do Plano deve agora exibir corretamente todas as informações extraídas do edital, incluindo:
+
+- Período de Inscrições
+- Taxa de Inscrição
+- Critérios de Reprovação
+- Outros dados que estavam faltando devido à estrutura aninhada do JSON
+
+As alterações foram feitas de forma a manter a compatibilidade com o código existente e não afetar outras funcionalidades do aplicativo.
+
+## Próximos Passos
+
+1. Testar a aplicação com diferentes editais para garantir que todas as informações estão sendo exibidas corretamente
+2. Verificar se há outros campos que podem estar faltando devido à estrutura aninhada do JSON
+3. Considerar uma refatoração mais ampla do sistema de extração de dados para lidar melhor com estruturas aninhadas e diferentes formatos de JSON

@@ -210,9 +210,12 @@ class PlanoDadosService {
 
       // Extrair dados dos dados originais do edital
       if (edital.dadosOriginais != null) {
+        debugPrint('Verificando dados originais do edital...');
+
         // Verificar se há dados de prova nos dados originais
         if (edital.dadosOriginais!.containsKey('prova') && edital.dadosOriginais!['prova'] is Map) {
           final provaOriginal = edital.dadosOriginais!['prova'] as Map;
+          debugPrint('  Encontrado prova nos dados originais: ${provaOriginal.keys.toList()}');
 
           if (!plano.metadados.containsKey('prova')) {
             plano.metadados['prova'] = Map<String, dynamic>.from(provaOriginal);
@@ -226,6 +229,7 @@ class PlanoDadosService {
             } else if (formato is String) {
               plano.metadados['formatoProva'] = formato;
             }
+            debugPrint('  Extraído formatoProva: ${plano.metadados['formatoProva']}');
           }
 
           if (provaOriginal.containsKey('criterios_desempate') && !plano.metadados.containsKey('criteriosDesempate')) {
@@ -235,19 +239,66 @@ class PlanoDadosService {
             } else if (criterios is String) {
               plano.metadados['criteriosDesempate'] = criterios;
             }
+            debugPrint('  Extraído criteriosDesempate: ${plano.metadados['criteriosDesempate']}');
+          }
+
+          if (provaOriginal.containsKey('criterios_reprovacao') && !plano.metadados.containsKey('criteriosReprovacao')) {
+            plano.metadados['criteriosReprovacao'] = provaOriginal['criterios_reprovacao'].toString();
+            debugPrint('  Extraído criteriosReprovacao: ${plano.metadados['criteriosReprovacao']}');
+          }
+        }
+
+        // Verificar se há dados de prova na estrutura aninhada
+        if (edital.dadosOriginais!.containsKey('concurso') &&
+            edital.dadosOriginais!['concurso'] is Map &&
+            (edital.dadosOriginais!['concurso'] as Map).containsKey('prova')) {
+
+          final provaOriginal = edital.dadosOriginais!['concurso']['prova'] as Map;
+          debugPrint('  Encontrado concurso.prova nos dados originais: ${provaOriginal.keys.toList()}');
+
+          if (!plano.metadados.containsKey('prova')) {
+            plano.metadados['prova'] = Map<String, dynamic>.from(provaOriginal);
+          }
+
+          // Extrair campos específicos da prova
+          if (provaOriginal.containsKey('criterios_reprovacao') && !plano.metadados.containsKey('criteriosReprovacao')) {
+            plano.metadados['criteriosReprovacao'] = provaOriginal['criterios_reprovacao'].toString();
+            debugPrint('  Extraído criteriosReprovacao de concurso.prova: ${plano.metadados['criteriosReprovacao']}');
           }
         }
 
         // Verificar se há dados de inscrição nos dados originais
         if (edital.dadosOriginais!.containsKey('inscricoes') && edital.dadosOriginais!['inscricoes'] is Map) {
           final inscricoesOriginal = edital.dadosOriginais!['inscricoes'] as Map;
+          debugPrint('  Encontrado inscricoes nos dados originais: ${inscricoesOriginal.keys.toList()}');
 
           if (inscricoesOriginal.containsKey('taxa') && !plano.metadados.containsKey('valorInscricao')) {
             plano.metadados['valorInscricao'] = inscricoesOriginal['taxa'].toString();
+            debugPrint('  Extraído valorInscricao: ${plano.metadados['valorInscricao']}');
           }
 
           if (inscricoesOriginal.containsKey('periodo') && !plano.metadados.containsKey('periodoInscricao')) {
             plano.metadados['periodoInscricao'] = inscricoesOriginal['periodo'].toString();
+            debugPrint('  Extraído periodoInscricao: ${plano.metadados['periodoInscricao']}');
+          }
+        }
+
+        // Verificar se há dados de inscrição na estrutura aninhada
+        if (edital.dadosOriginais!.containsKey('concurso') &&
+            edital.dadosOriginais!['concurso'] is Map &&
+            (edital.dadosOriginais!['concurso'] as Map).containsKey('inscricoes')) {
+
+          final inscricoesOriginal = edital.dadosOriginais!['concurso']['inscricoes'] as Map;
+          debugPrint('  Encontrado concurso.inscricoes nos dados originais: ${inscricoesOriginal.keys.toList()}');
+
+          if (inscricoesOriginal.containsKey('taxa') && !plano.metadados.containsKey('valorInscricao')) {
+            plano.metadados['valorInscricao'] = inscricoesOriginal['taxa'].toString();
+            debugPrint('  Extraído valorInscricao de concurso.inscricoes: ${plano.metadados['valorInscricao']}');
+          }
+
+          if (inscricoesOriginal.containsKey('periodo') && !plano.metadados.containsKey('periodoInscricao')) {
+            plano.metadados['periodoInscricao'] = inscricoesOriginal['periodo'].toString();
+            debugPrint('  Extraído periodoInscricao de concurso.inscricoes: ${plano.metadados['periodoInscricao']}');
           }
         }
       }

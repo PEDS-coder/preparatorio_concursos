@@ -15,13 +15,36 @@ class ExtratorDadosService {
 
   /// Método genérico para busca de campos
   String buscarCampo(PlanoEstudo plano, Edital? edital, ChaveBusca chaveBusca) {
-    return _buscarComFallback(
+    // Primeiro, tentar com a chave principal
+    String resultado = _buscarComFallback(
       plano,
       edital,
       chaveBusca.chaveMetadados,
       chaveBusca.chaveDadosOriginais,
       chaveBusca.eventoLog
     );
+
+    // Se não encontrou e há alternativas de chaves originais, tentar com elas
+    if (resultado == 'Não informado' && chaveBusca.alternativasOriginais.isNotEmpty) {
+      debugPrint('  Tentando alternativas de chaves originais: ${chaveBusca.alternativasOriginais}');
+
+      for (final alternativa in chaveBusca.alternativasOriginais) {
+        final resultadoAlternativo = _buscarComFallback(
+          plano,
+          edital,
+          chaveBusca.chaveMetadados,
+          alternativa,
+          '${chaveBusca.eventoLog}_alternativa'
+        );
+
+        if (resultadoAlternativo != 'Não informado') {
+          debugPrint('  Encontrado com alternativa: $alternativa');
+          return resultadoAlternativo;
+        }
+      }
+    }
+
+    return resultado;
   }
 
   /// Método privado que implementa a lógica de busca com fallback
@@ -39,7 +62,7 @@ class ExtratorDadosService {
     debugPrint('\nVERIFICAÇÃO DE EXIBIÇÃO - Buscando: $chaveMetadados / $chaveDadosOriginais');
 
     // 1. Busca em metadados exatos ou alternativos
-    final resMeta = MetadadosExtractor.buscarExato(plano, chaveMetadados) ?? 
+    final resMeta = MetadadosExtractor.buscarExato(plano, chaveMetadados) ??
                    MetadadosExtractor.buscarAlternativo(plano, chaveMetadados);
     if (resMeta != null) {
       final valor = ExtratorUtils.formatarSeFormato(chaveMetadados, resMeta.valor);
@@ -75,10 +98,10 @@ class ExtratorDadosService {
         'origem': 'dados_extraidos',
       });
       debugPrint('  Encontrado nos dados extraídos (${resDadosExtraidos.caminho}): $valor');
-      
+
       // Armazenar nos metadados do plano para uso futuro
       plano.metadados[chaveMetadados] = valor;
-      
+
       return valor;
     }
 
@@ -92,10 +115,10 @@ class ExtratorDadosService {
         'origem': 'dados_prova',
       });
       debugPrint('  Encontrado nos dados da prova (${resDadosProva.caminho}): $valor');
-      
+
       // Armazenar nos metadados do plano para uso futuro
       plano.metadados[chaveMetadados] = valor;
-      
+
       return valor;
     }
 
@@ -109,10 +132,10 @@ class ExtratorDadosService {
         'origem': 'dados_originais',
       });
       debugPrint('  Encontrado nos dados originais (${resDadosOriginais.caminho}): $valor');
-      
+
       // Armazenar nos metadados do plano para uso futuro
       plano.metadados[chaveMetadados] = valor;
-      
+
       return valor;
     }
 

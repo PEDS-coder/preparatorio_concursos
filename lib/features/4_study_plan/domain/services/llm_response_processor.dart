@@ -151,14 +151,32 @@ class LLMResponseProcessor {
       // Extrair dados de inscrição
       if (concurso.containsKey('inscricoes') && concurso['inscricoes'] is Map) {
         Map<String, dynamic> inscricoes = concurso['inscricoes'];
+        logger.logProcessamentoLLM(planoId, 'dados_inscricoes_encontrados', {
+          'chaves_inscricoes': inscricoes.keys.toList(),
+          'valores_inscricoes': inscricoes,
+        });
+
         if (inscricoes.containsKey('inicio')) resultado['inicioInscricao'] = inscricoes['inicio'];
         if (inscricoes.containsKey('fim')) resultado['fimInscricao'] = inscricoes['fim'];
         if (inscricoes.containsKey('taxa')) resultado['valorInscricao'] = inscricoes['taxa'];
+
+        // Armazenar o objeto inscricoes completo para acesso direto
+        resultado['inscricoes'] = inscricoes;
+
+        // Verificar se há período formatado
+        if (inscricoes.containsKey('periodo')) {
+          resultado['periodoInscricao'] = inscricoes['periodo'];
+        }
       }
 
       // Extrair dados da prova
       if (concurso.containsKey('prova') && concurso['prova'] is Map) {
         Map<String, dynamic> prova = concurso['prova'];
+        logger.logProcessamentoLLM(planoId, 'dados_prova_encontrados', {
+          'chaves_prova': prova.keys.toList(),
+          'valores_prova': prova,
+        });
+
         if (prova.containsKey('data')) resultado['dataProva'] = prova['data'];
         if (prova.containsKey('local')) resultado['localProva'] = prova['local'];
         if (prova.containsKey('total_questoes')) resultado['totalQuestoes'] = prova['total_questoes'];
@@ -168,6 +186,9 @@ class LLMResponseProcessor {
         if (prova.containsKey('criterios_aprovacao')) resultado['criteriosAprovacao'] = prova['criterios_aprovacao'];
         if (prova.containsKey('criterios_reprovacao')) resultado['criteriosReprovacao'] = prova['criterios_reprovacao'];
         if (prova.containsKey('criterios_desempate')) resultado['criteriosDesempate'] = prova['criterios_desempate'];
+
+        // Armazenar o objeto prova completo para acesso direto
+        resultado['prova'] = prova;
       }
 
       // Extrair dados de cotas
@@ -383,6 +404,39 @@ class LLMResponseProcessor {
           'total_materias': materias.length,
           'materias': materias,
         });
+      }
+    }
+
+    // Garantir que os dados aninhados estejam disponíveis
+    if (resultado.containsKey('concurso')) {
+      logger.logProcessamentoLLM(planoId, 'concurso_encontrado', {
+        'chaves_concurso': (resultado['concurso'] as Map).keys.toList(),
+      });
+
+      // Verificar se há dados de inscrição
+      if (resultado['concurso'] is Map &&
+          (resultado['concurso'] as Map).containsKey('inscricoes')) {
+
+        final inscricoes = (resultado['concurso'] as Map)['inscricoes'];
+        if (inscricoes is Map) {
+          logger.logProcessamentoLLM(planoId, 'inscricoes_encontradas', {
+            'chaves_inscricoes': inscricoes.keys.toList(),
+            'valores_inscricoes': inscricoes,
+          });
+        }
+      }
+
+      // Verificar se há dados de prova
+      if (resultado['concurso'] is Map &&
+          (resultado['concurso'] as Map).containsKey('prova')) {
+
+        final prova = (resultado['concurso'] as Map)['prova'];
+        if (prova is Map) {
+          logger.logProcessamentoLLM(planoId, 'prova_encontrada', {
+            'chaves_prova': prova.keys.toList(),
+            'valores_prova': prova,
+          });
+        }
       }
     }
 

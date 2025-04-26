@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import '../../../../core/data/models/models.dart';
 import 'chaves_busca.dart';
 import 'extrator_dados_service.dart';
@@ -96,7 +97,86 @@ class ProvaService {
 
   /// Obtém os critérios de reprovação da prova
   static String obterCriteriosReprovacao(PlanoEstudo plano, Edital? edital) {
-    return _extrator.buscarCampo(plano, edital, ChavesBusca.CRITERIOS_REPROVACAO);
+    debugPrint('\nProvaService.obterCriteriosReprovacao - Buscando critérios de reprovação');
+
+    // Primeiro, tentar usar o extrator padrão
+    String resultado = _extrator.buscarCampo(plano, edital, ChavesBusca.CRITERIOS_REPROVACAO);
+
+    // Se não encontrou e temos um edital, tentar buscar diretamente
+    if (resultado == 'Não informado' && edital != null && edital.dadosOriginais != null) {
+      debugPrint('  Não encontrado pelo extrator padrão, tentando buscar diretamente...');
+
+      // Verificar se há dados da prova no objeto concurso
+      if (edital.dadosOriginais!.containsKey('concurso') &&
+          edital.dadosOriginais!['concurso'] is Map &&
+          (edital.dadosOriginais!['concurso'] as Map).containsKey('prova')) {
+
+        final prova = edital.dadosOriginais!['concurso']['prova'];
+        if (prova is Map) {
+          debugPrint('  Chaves em concurso.prova: ${prova.keys.toList()}');
+
+          if (prova.containsKey('criterios_reprovacao')) {
+            resultado = prova['criterios_reprovacao'].toString();
+            debugPrint('  Encontrado em concurso.prova.criterios_reprovacao: $resultado');
+
+            // Armazenar nos metadados do plano para uso futuro
+            plano.metadados['criteriosReprovacao'] = resultado;
+
+            return resultado;
+          }
+        }
+      }
+
+      // Verificar se há dados da prova diretamente nos dados originais
+      if (edital.dadosOriginais!.containsKey('prova') &&
+          edital.dadosOriginais!['prova'] is Map) {
+
+        final prova = edital.dadosOriginais!['prova'] as Map;
+        debugPrint('  Chaves em prova: ${prova.keys.toList()}');
+
+        if (prova.containsKey('criterios_reprovacao')) {
+          resultado = prova['criterios_reprovacao'].toString();
+          debugPrint('  Encontrado em prova.criterios_reprovacao: $resultado');
+
+          // Armazenar nos metadados do plano para uso futuro
+          plano.metadados['criteriosReprovacao'] = resultado;
+
+          return resultado;
+        }
+      }
+
+      // Verificar se há critérios de reprovação diretamente nos dados extraídos
+      if (edital.dadosExtraidos.criteriosReprovacao != null) {
+        resultado = edital.dadosExtraidos.criteriosReprovacao!;
+        debugPrint('  Encontrado em dadosExtraidos.criteriosReprovacao: $resultado');
+
+        // Armazenar nos metadados do plano para uso futuro
+        plano.metadados['criteriosReprovacao'] = resultado;
+
+        return resultado;
+      }
+
+      // Verificar se há critérios de reprovação na estrutura aninhada
+      if (edital.dadosExtraidos.concurso != null &&
+          edital.dadosExtraidos.concurso!.containsKey('prova') &&
+          edital.dadosExtraidos.concurso!['prova'] is Map) {
+
+        final prova = edital.dadosExtraidos.concurso!['prova'] as Map;
+        debugPrint('  Verificando em dadosExtraidos.concurso.prova: ${prova.keys.toList()}');
+
+        if (prova.containsKey('criterios_reprovacao')) {
+          resultado = prova['criterios_reprovacao'].toString();
+          debugPrint('  Encontrado em dadosExtraidos.concurso.prova.criterios_reprovacao: $resultado');
+
+          // Armazenar nos metadados do plano para uso futuro
+          plano.metadados['criteriosReprovacao'] = resultado;
+
+          return resultado;
+        }
+      }
+    }
+
+    return resultado;
   }
 
   /// Obtém os critérios de desempate da prova
