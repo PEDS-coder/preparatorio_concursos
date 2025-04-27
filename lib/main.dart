@@ -18,6 +18,7 @@ import 'core/services/connectivity_service.dart';
 import 'core/services/local_analytics_service.dart';
 import 'core/services/local_config_service.dart';
 import 'core/services/theme_service.dart';
+import 'core/services/api_quota_service.dart';
 import 'core/utils/cache_manager.dart';
 import 'core/utils/logger.dart';
 import 'app.dart';
@@ -117,6 +118,17 @@ void main() async {
     print('Cache do serviço de IA inicializado com sucesso');
   } catch (e) {
     print('ERRO ao inicializar cache do serviço de IA: $e');
+    // Continuar mesmo com erro
+  }
+
+  // Inicializar o serviço de cotas da API
+  print('Inicializando serviço de cotas da API...');
+  try {
+    final apiQuotaService = ApiQuotaService();
+    await apiQuotaService.init();
+    print('Serviço de cotas da API inicializado com sucesso');
+  } catch (e) {
+    print('ERRO ao inicializar serviço de cotas da API: $e');
     // Continuar mesmo com erro
   }
 

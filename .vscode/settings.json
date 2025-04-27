@@ -1,5 +1,52 @@
 {
     "java.configuration.updateBuildConfiguration": "automatic",
     "java.jdt.ls.vmargs": "-XX:+UseParallelGC -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Dsun.zip.disableMemoryMapping=true -Xmx2G -Xms100m -Xlog:disable",
-    "cmake.sourceDirectory": "C:/Users/plini/Desktop/preparatorio_concursos/linux"
+    "cmake.sourceDirectory": "C:/Users/plini/Desktop/preparatorio_concursos/linux",
+    "augment.advanced": {
+        "mcpServers": [
+            {
+                "name": "sequential-thinking",
+                "command": "npx",
+                "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
+            },
+            {
+                "name": "memory",
+                "command": "npx",
+                "args": ["-y", "@modelcontextprotocol/server-memory"]
+            },
+            {
+                "name": "json",
+                "command": "npx",
+                "args": ["-y", "@sylphlab/mcp-json"]
+            },
+            {
+                "name": "calculator",
+                "command": "C:\\Users\\plini\\AppData\\Roaming\\Python\\Python313\\Scripts\\mcp-server-calculator.exe"
+            },
+            {
+                "name": "time",
+                "command": "C:\\Users\\plini\\AppData\\Roaming\\Python\\Python313\\Scripts\\mcp-server-time.exe"
+            },
+            {
+                "name": "fetch",
+                "command": "C:\\Users\\plini\\AppData\\Roaming\\Python\\Python313\\Scripts\\mcp-server-fetch.exe"
+            },
+            {
+                "name": "searxng",
+                "command": "npx",
+                "args": ["-y", "mcp-searxng"],
+                "env": {
+                    "SEARXNG_URL": "https://searx.be"
+                }
+            },
+            {
+                "name": "obsidian",
+                "command": "C:\\Users\\plini\\AppData\\Roaming\\Python\\Python313\\Scripts\\mcp-obsidian.exe",
+                "env": {
+                    "OBSIDIAN_API_KEY": "your_api_key_here",
+                    "OBSIDIAN_VAULT_PATH": "path_to_your_obsidian_vault"
+                }
+            }
+        ]
+    }
 }

@@ -8,6 +8,8 @@ import '../../../../core/data/services/plano_estudo_service.dart';
 import '../../../../core/data/services/edital_service.dart';
 import '../../../../core/auth/auth_service.dart';
 import '../../../../core/widgets/gradient_button.dart';
+import '../../../../core/widgets/api_quota_indicator.dart';
+import '../../../../core/widgets/app_bar_with_quota.dart';
 
 import '../../domain/services/plano_data_validator.dart';
 import '../../domain/services/llm_response_processor.dart';
@@ -321,9 +323,9 @@ class _PlanoQuestionarioScreenState extends State<PlanoQuestionarioScreen> {
 
     return Scaffold(
       backgroundColor: const Color(0xFF13192b),
-      appBar: AppBar(
-        title: const Text('Questionário do Plano'),
-        backgroundColor: const Color(0xFFf43f7d),
+      appBar: const AppBarWithQuota(
+        title: 'Questionário do Plano',
+        backgroundColor: Color(0xFFf43f7d),
       ),
       body: _isLoading
           ? _buildLoadingView()

@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 import '../../data/models/flashcard.dart';
 import '../../services/prompt_service.dart';
 import '../../services/connectivity_service.dart';
+import '../../services/api_quota_service.dart';
 import '../../utils/api_response_logger.dart';
 import 'base_ia_service.dart';
 import 'ia_service_implementations.dart';
@@ -16,6 +17,7 @@ import 'interfaces/ia_service_interface.dart';
 /// Implementação oficial do serviço de IA para o Gemini
 class GeminiOfficialService extends BaseIAService with IAServiceImplementations implements IAServiceInterface {
   final PromptService _promptService = PromptService();
+  final ApiQuotaService _quotaService = ApiQuotaService();
   final String _geminiBaseUrl = 'https://generativelanguage.googleapis.com/v1beta/models';
   final String _geminiModel = 'gemini-2.5-pro-exp-03-25';
   final List<String> _geminiModelsAlternatives = [
@@ -149,6 +151,18 @@ class GeminiOfficialService extends BaseIAService with IAServiceImplementations 
     print('[GeminiOfficialService] Verificando disponibilidade do serviço Gemini no Windows...');
 
     try {
+      // Estimar o número de tokens para o teste de conectividade (valor mínimo)
+      final int estimatedTokens = 10; // Valor mínimo para teste de conectividade
+
+      // Registrar a requisição de teste de conectividade
+      try {
+        await _quotaService.registerApiRequest(estimatedTokens: estimatedTokens);
+        print('[GeminiOfficialService] Requisição de teste de conectividade registrada: $estimatedTokens tokens');
+      } catch (e) {
+        print('[GeminiOfficialService] Erro ao registrar requisição de teste de conectividade: $e');
+        // Continuar mesmo se houver erro no registro da cota
+      }
+
       // Tentar acessar a URL base do Gemini
       final response = await http.get(
         Uri.parse('https://generativelanguage.googleapis.com'),
@@ -204,6 +218,18 @@ class GeminiOfficialService extends BaseIAService with IAServiceImplementations 
 
       print('[GeminiOfficialService] Corpo da requisição: $testBody');
       print('[GeminiOfficialService] Enviando requisição para: ${url.replaceAll(apiKey, "API_KEY_HIDDEN")}');
+
+      // Estimar o número de tokens para o teste (valor pequeno, pois é apenas um teste)
+      final int estimatedTokens = 100; // Valor pequeno para teste
+
+      // Registrar a requisição de teste ANTES de fazer a chamada à API
+      try {
+        await _quotaService.registerApiRequest(estimatedTokens: estimatedTokens);
+        print('[GeminiOfficialService] Requisição de teste registrada no contador de cotas: $estimatedTokens tokens estimados');
+      } catch (e) {
+        print('[GeminiOfficialService] Erro ao registrar requisição de teste no contador de cotas: $e');
+        // Continuar mesmo se houver erro no registro da cota
+      }
 
       http.Response? response;
       try {
@@ -360,6 +386,18 @@ class GeminiOfficialService extends BaseIAService with IAServiceImplementations 
 
     print('[GeminiOfficialService] Enviando requisição para: $url');
     final body = jsonEncode(requestBody);
+
+    // Estimar o número de tokens com base no tamanho do prompt
+    final int estimatedTokens = (prompt.length / 4).round(); // Estimativa aproximada: 4 caracteres por token
+
+    // Registrar a requisição ANTES de fazer a chamada à API
+    try {
+      await _quotaService.registerApiRequest(estimatedTokens: estimatedTokens);
+      print('[GeminiOfficialService] Requisição registrada no contador de cotas: $estimatedTokens tokens estimados');
+    } catch (e) {
+      print('[GeminiOfficialService] Erro ao registrar requisição no contador de cotas: $e');
+      // Continuar mesmo se houver erro no registro da cota
+    }
 
     try {
       final response = await http.post(
@@ -1078,6 +1116,19 @@ class GeminiOfficialService extends BaseIAService with IAServiceImplementations 
         throw Exception('Erro ao processar o arquivo PDF: não foi possível preparar o arquivo para envio. Tente com um arquivo menor.');
       }
 
+      // Estimar o número de tokens com base no tamanho do prompt e do PDF
+      final int estimatedTokens = (prompt.length / 4).round() + (pdfBytes.length / 100).round();
+
+      // Registrar a requisição ANTES de fazer a chamada à API
+      // Isso garante que a requisição seja contabilizada mesmo se houver erros
+      try {
+        await _quotaService.registerApiRequest(estimatedTokens: estimatedTokens);
+        print('[GeminiOfficialService] Requisição registrada no contador de cotas: $estimatedTokens tokens estimados');
+      } catch (e) {
+        print('[GeminiOfficialService] Erro ao registrar requisição no contador de cotas: $e');
+        // Continuar mesmo se houver erro no registro da cota
+      }
+
       // Preparar o corpo da requisição conforme documentação da API Gemini
       print('[GeminiOfficialService] Preparando corpo da requisição...');
       final Map<String, dynamic> requestBody = {
@@ -1207,6 +1258,27 @@ class GeminiOfficialService extends BaseIAService with IAServiceImplementations 
           throw Exception('Erro na requisição: $errorMessage');
         } catch (_) {
           throw Exception('Requisição inválida. Verifique o formato do arquivo PDF.');
+        }
+      } else if (response.statusCode == 500) {
+        // Erro interno do servidor
+        print('[GeminiOfficialService] Erro 500 (Internal Server Error) na API Gemini');
+
+        // Tentar extrair mensagem de erro mais específica
+        try {
+          final errorJson = jsonDecode(response.body);
+          final errorMessage = errorJson['error']?['message'] ?? 'Erro interno do servidor';
+
+          // Verificar mensagens específicas
+          if (errorMessage.contains('quota') || errorMessage.contains('rate limit')) {
+            throw Exception('Você atingiu o limite de cotas gratuitas do Gemini. Tente novamente mais tarde ou gere uma nova chave API.');
+          } else if (errorMessage.contains('file too large') || errorMessage.contains('payload too large')) {
+            throw Exception('O arquivo PDF é muito grande. Tente usar um arquivo menor.');
+          } else {
+            throw Exception('Ocorreu um erro nos servidores Google ou você excedeu o limite de cotas gratuitas do Gemini. Tente novamente mais tarde ou gere uma nova chave API.');
+          }
+        } catch (e) {
+          if (e is Exception) rethrow;
+          throw Exception('Ocorreu um erro nos servidores Google ou você excedeu o limite de cotas gratuitas do Gemini. Tente novamente mais tarde ou gere uma nova chave API.');
         }
       } else {
         // Lançar uma exceção detalhada

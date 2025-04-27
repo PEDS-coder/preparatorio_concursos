@@ -34,7 +34,7 @@ class _MateriasSectionState extends State<MateriasSection> {
       edital: widget.edital,
       logger: widget.logger,
     );
-    
+
     final materias = planoDataService.obterMaterias();
     for (var materia in materias) {
       _expandedMaterias[materia.nome] = false;
@@ -48,7 +48,7 @@ class _MateriasSectionState extends State<MateriasSection> {
       edital: widget.edital,
       logger: widget.logger,
     );
-    
+
     final materias = planoDataService.obterMaterias();
 
     return Card(
@@ -72,9 +72,28 @@ class _MateriasSectionState extends State<MateriasSection> {
             ),
             const SizedBox(height: 16),
             if (materias.isEmpty)
-              const Text(
-                'Nenhuma matéria encontrada para este cargo.',
-                style: TextStyle(color: Colors.white70),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Nenhuma matéria encontrada para este cargo.',
+                    style: TextStyle(color: Colors.white70),
+                  ),
+                  const SizedBox(height: 8),
+                  ElevatedButton(
+                    onPressed: () {
+                      // Tentar recarregar as matérias
+                      setState(() {
+                        // Forçar reconstrução do widget
+                      });
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      foregroundColor: Colors.white,
+                    ),
+                    child: const Text('Tentar novamente'),
+                  ),
+                ],
               )
             else
               ...materias.map((materia) => _buildMateriaItem(context, materia)).toList(),
@@ -90,7 +109,7 @@ class _MateriasSectionState extends State<MateriasSection> {
     final questoesLabel = materia.numeroQuestoes != null ? '${materia.numeroQuestoes} questões' : '';
     final pesoLabel = materia.pesoMaior == true ? 'Peso maior' : '';
     final desempateLabel = materia.criterioDesempate == true ? 'Critério de desempate' : '';
-    
+
     // Combinar labels não vazios com vírgulas
     final List<String> labels = [tipoLabel, questoesLabel, pesoLabel, desempateLabel]
         .where((label) => label.isNotEmpty)

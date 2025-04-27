@@ -238,10 +238,36 @@ class CargoConverter {
     }
   }
 
-  /// Extrai a escolaridade do cargo
+  /// Extrai a escolaridade/requisitos do cargo
   static String _extrairEscolaridade(Map<String, dynamic> cargoJson) {
     try {
-      // Lista de possíveis campos para escolaridade
+      // Verificar primeiro o campo 'requisitos' que é o novo padrão
+      if (cargoJson.containsKey('requisitos')) {
+        var requisitos = cargoJson['requisitos'];
+
+        // Se for uma lista, formatar como string com itens numerados
+        if (requisitos is List) {
+          debugPrint('Requisitos encontrados como lista com ${requisitos.length} itens');
+
+          // Converter cada item da lista para string e juntar com ponto e vírgula
+          List<String> requisitosStrings = [];
+          for (int i = 0; i < requisitos.length; i++) {
+            requisitosStrings.add('${i + 1}. ${requisitos[i].toString().trim()}');
+          }
+
+          return requisitosStrings.join('; ');
+        }
+        // Se for uma string não vazia, retornar diretamente
+        else if (requisitos is String && requisitos.trim().isNotEmpty) {
+          return requisitos.trim();
+        }
+        // Se for um objeto dinâmico, tentar converter para string
+        else if (requisitos != null) {
+          return requisitos.toString().trim();
+        }
+      }
+
+      // Lista de possíveis campos para escolaridade (compatibilidade com formato antigo)
       final educationFields = ['escolaridade', 'nivel', 'formacao', 'requisito', 'nível', 'formação'];
 
       // Verificar cada campo possível
@@ -269,7 +295,7 @@ class CargoConverter {
       // Se não encontrou nada, retornar 'Não especificado'
       return 'Não especificado';
     } catch (e) {
-      debugPrint('Erro ao extrair escolaridade: $e');
+      debugPrint('Erro ao extrair escolaridade/requisitos: $e');
       return 'Não especificado';
     }
   }

@@ -8,6 +8,9 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/data/services/interfaces/ia_service_interface.dart';
 import '../../../../core/data/services/interfaces/secure_storage_service_interface.dart';
 import '../../../../core/services/api_config_service.dart';
+import '../../../../core/services/api_quota_service.dart';
+import '../../../../core/data/models/api_quota.dart';
+import '../../../../core/widgets/api_quota_indicator.dart';
 import '../../../../core/services/audio_explanation_service.dart';
 import 'api_info_screen.dart';
 
@@ -30,8 +33,12 @@ class _ApiKeyConfigScreenState extends State<ApiKeyConfigScreen> {
     super.initState();
     _loadSavedApiKey();
 
-    // Limpar o status de validação ao iniciar a tela
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    // Inicializar o serviço de cotas
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final apiQuotaService = ApiQuotaService();
+      await apiQuotaService.init();
+
+      // Limpar o status de validação ao iniciar a tela
       final apiConfigService = Provider.of<ApiConfigService>(context, listen: false);
       if (apiConfigService.validationStatus.isNotEmpty) {
         apiConfigService.resetValidationStatus();
@@ -349,6 +356,11 @@ class _ApiKeyConfigScreenState extends State<ApiKeyConfigScreen> {
           ),
         ),
         actions: [
+          // Indicador de uso de cotas
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 8.0),
+            child: ApiQuotaIndicator(),
+          ),
           IconButton(
             icon: const Icon(Icons.info_outline),
             onPressed: () {
@@ -796,10 +808,10 @@ class _ApiKeyConfigScreenState extends State<ApiKeyConfigScreen> {
                         ),
                         const SizedBox(height: 12),
                         _buildLimitItem(
-                          'gemini-2.5-pro-exp-03-25',
-                          '10 requisições por minuto',
-                          '65.536 tokens de saída (maxOutputTokens)',
-                          'Modelo experimental gratuito',
+                          'Limites da API Gemini (gratuita)',
+                          '5 Requisições por minuto',
+                          '250.000 Tokens por minuto',
+                          '25 Requisições por dia / 1.000.000 de Tokens por dia',
                           Colors.purple,
                           isDarkMode,
                         ),

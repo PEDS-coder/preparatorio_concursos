@@ -79,13 +79,7 @@ class ConcursoInfoWidget extends StatelessWidget {
 
 
 
-          // Informações em roxo (cotas e formato)
-          InfoCard(
-            label: 'Cotas',
-            value: CotasService.obterInformacoes(edital),
-            cardColor: extratoService.getColorForInfoType('Cotas'),
-            emoji: extratoService.getEmojiForInfoType('Cotas'),
-          ),
+          // Removido o card de cotas daqui (movido para ProvaInfoWidget)
 
         ] else ...[
           const InfoCard(

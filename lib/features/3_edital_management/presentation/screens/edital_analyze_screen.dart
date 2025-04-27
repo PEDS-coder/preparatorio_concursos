@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/data/services/interfaces/ia_service_interface.dart';
 import '../../../../core/utils/logger_static.dart';
+import '../../../../core/widgets/app_bar_with_quota.dart';
 import '../widgets/edital_analyze/pdf_upload_widget.dart';
 import '../widgets/edital_analyze/analysis_progress_widget.dart';
 import '../widgets/edital_analyze/instructions_widget.dart';
@@ -51,9 +52,8 @@ class _EditalAnalyzeScreenState extends State<EditalAnalyzeScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Analisar Edital'),
-        backgroundColor: AppTheme.primaryColor,
+      appBar: const AppBarWithQuota(
+        title: 'Analisar Edital',
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
@@ -177,9 +177,8 @@ class _EditalAnalyzeScreenState extends State<EditalAnalyzeScreen> {
 
   Widget _buildLoadingScreen() {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Analisando Edital'),
-        backgroundColor: AppTheme.primaryColor,
+      appBar: const AppBarWithQuota(
+        title: 'Analisando Edital',
       ),
       body: Center(
         child: Container(
@@ -313,6 +312,12 @@ class _EditalAnalyzeScreenState extends State<EditalAnalyzeScreen> {
         errorMessage = 'A chave da API não está configurada. Por favor, configure a API nas configurações.';
       } else if (e.toString().contains('Falha na chamada da API')) {
         errorMessage = 'Falha na comunicação com a API. Verifique sua conexão com a internet e tente novamente.';
+      } else if (e.toString().contains('500') || e.toString().contains('Internal Server Error')) {
+        errorMessage = 'Ocorreu um erro nos servidores Google ou você excedeu o limite de cotas gratuitas do Gemini. Tente novamente mais tarde ou gere uma nova chave API.';
+      } else if (e.toString().contains('muito grande')) {
+        errorMessage = 'O arquivo PDF é muito grande. Tente usar um arquivo menor.';
+      } else if (e.toString().contains('limite de requisições') || e.toString().contains('quota') || e.toString().contains('cotas')) {
+        errorMessage = 'Você atingiu o limite de cotas gratuitas do Gemini:\n• 5 Requisições por minuto\n• 25 Requisições por dia\n• 250.000 Tokens por minuto\n• 1.000.000 de Tokens por dia\n\nTente novamente mais tarde ou gere uma nova chave API.';
       } else {
         // Mensagem genérica para outros erros
         errorMessage = 'Ocorreu um erro durante a análise do edital: ${e.toString()}';

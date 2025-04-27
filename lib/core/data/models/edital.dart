@@ -66,7 +66,7 @@ class Cargo {
   final double taxaInscricao;
   final String nivel;
   final String escolaridade;
-  final String requisitos;
+  final dynamic requisitos; // Pode ser String ou List<String>
   final List<ConteudoProgramatico> conteudoProgramatico;
   final DateTime? dataProva;
   final String? horarioProva;
@@ -86,6 +86,25 @@ class Cargo {
   });
 
   Map<String, dynamic> toMap() {
+    // Processar o campo requisitos para garantir compatibilidade
+    dynamic requisitosProcessados = requisitos;
+    if (requisitos is List) {
+      // Se for uma lista, manter como está
+      requisitosProcessados = requisitos;
+    } else if (requisitos is String) {
+      // Se for uma string, verificar se precisa ser convertida para lista
+      if (requisitos.toString().contains(';')) {
+        // Se contiver ponto e vírgula, pode ser uma lista formatada como string
+        requisitosProcessados = requisitos.toString().split(';')
+            .map((item) => item.trim())
+            .where((item) => item.isNotEmpty)
+            .toList();
+      } else {
+        // Caso contrário, manter como string
+        requisitosProcessados = requisitos;
+      }
+    }
+
     return {
       'id': id,
       'nome': nome,
@@ -94,7 +113,7 @@ class Cargo {
       'taxaInscricao': taxaInscricao,
       'nivel': nivel,
       'escolaridade': escolaridade,
-      'requisitos': requisitos,
+      'requisitos': requisitosProcessados,
       'conteudoProgramatico': conteudoProgramatico.map((m) => m.toMap()).toList(),
       'dataProva': dataProva?.toIso8601String(),
       'horarioProva': horarioProva,
@@ -122,6 +141,18 @@ class Cargo {
       }
     }
 
+    // Processar o campo requisitos que pode ser uma string ou uma lista
+    dynamic requisitos = 'Não informado';
+    if (map['requisitos'] != null) {
+      if (map['requisitos'] is List) {
+        // Se for uma lista, manter como está
+        requisitos = map['requisitos'];
+      } else {
+        // Se for uma string ou outro tipo, converter para string
+        requisitos = map['requisitos'].toString();
+      }
+    }
+
     return Cargo(
       id: map['id'] ?? '',
       nome: map['nome'] ?? 'Não informado',
@@ -130,7 +161,7 @@ class Cargo {
       taxaInscricao: map['taxaInscricao'] is num ? (map['taxaInscricao'] as num).toDouble() : 0.0,
       nivel: map['nivel'] ?? 'Não informado',
       escolaridade: map['escolaridade'] ?? 'Não informado',
-      requisitos: map['requisitos'] ?? 'Não informado',
+      requisitos: requisitos,
       conteudoProgramatico: materias,
       dataProva: map['dataProva'] != null ? DateTime.parse(map['dataProva']) : null,
       horarioProva: map['horarioProva'],
@@ -313,10 +344,15 @@ class DadosExtraidos {
     // Extrair critérios de desempate
     List<String>? criteriosDesempateList;
     if (map['criterios_desempate'] != null) {
-      if (map['criterios_desempate'] is List) {
-        criteriosDesempateList = List<String>.from(map['criterios_desempate'].map((item) => item.toString()));
-      } else if (map['criterios_desempate'] is String) {
-        criteriosDesempateList = [(map['criterios_desempate'] as String)];
+      try {
+        if (map['criterios_desempate'] is List<dynamic>) {
+          criteriosDesempateList = List<String>.from(map['criterios_desempate'].map((item) => item.toString()));
+        } else if (map['criterios_desempate'] is String) {
+          criteriosDesempateList = [(map['criterios_desempate'] as String)];
+        }
+      } catch (e) {
+        print('Erro ao processar criterios_desempate: $e');
+        criteriosDesempateList = [];
       }
     }
 
@@ -428,19 +464,29 @@ class DadosProva {
   factory DadosProva.fromMap(Map<String, dynamic> map) {
     List<String>? formatoList;
     if (map['formato'] != null) {
-      if (map['formato'] is List) {
-        formatoList = List<String>.from(map['formato'].map((item) => item.toString()));
-      } else if (map['formato'] is String) {
-        formatoList = [(map['formato'] as String)];
+      try {
+        if (map['formato'] is List<dynamic>) {
+          formatoList = List<String>.from(map['formato'].map((item) => item.toString()));
+        } else if (map['formato'] is String) {
+          formatoList = [(map['formato'] as String)];
+        }
+      } catch (e) {
+        print('Erro ao processar formato: $e');
+        formatoList = [];
       }
     }
 
     List<String>? criteriosDesempateList;
     if (map['criterios_desempate'] != null) {
-      if (map['criterios_desempate'] is List) {
-        criteriosDesempateList = List<String>.from(map['criterios_desempate'].map((item) => item.toString()));
-      } else if (map['criterios_desempate'] is String) {
-        criteriosDesempateList = [(map['criterios_desempate'] as String)];
+      try {
+        if (map['criterios_desempate'] is List<dynamic>) {
+          criteriosDesempateList = List<String>.from(map['criterios_desempate'].map((item) => item.toString()));
+        } else if (map['criterios_desempate'] is String) {
+          criteriosDesempateList = [(map['criterios_desempate'] as String)];
+        }
+      } catch (e) {
+        print('Erro ao processar criterios_desempate: $e');
+        criteriosDesempateList = [];
       }
     }
 

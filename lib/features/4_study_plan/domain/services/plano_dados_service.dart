@@ -74,6 +74,42 @@ class PlanoDadosService {
       // Extrair conteúdo programático do LLM
       if (dadosJson.containsKey('conteudo_programatico')) {
         plano.metadados['conteudo_programatico'] = dadosJson['conteudo_programatico'];
+        debugPrint('Conteúdo programático extraído diretamente do JSON: ${(dadosJson['conteudo_programatico'] as List).length} itens');
+      }
+
+      // Extrair taxa de inscrição diretamente do JSON
+      if (dadosJson.containsKey('inscricoes') && dadosJson['inscricoes'] is Map) {
+        final inscricoes = dadosJson['inscricoes'] as Map;
+        if (inscricoes.containsKey('taxa')) {
+          plano.metadados['valorInscricao'] = inscricoes['taxa'].toString();
+          debugPrint('Taxa de inscrição extraída diretamente do JSON: ${plano.metadados['valorInscricao']}');
+        }
+      }
+
+      // Verificar se há dados aninhados em 'concurso'
+      if (dadosJson.containsKey('concurso') && dadosJson['concurso'] is Map) {
+        final concurso = dadosJson['concurso'] as Map;
+
+        // Extrair conteúdo programático aninhado
+        if (concurso.containsKey('conteudo_programatico')) {
+          // Se não temos conteúdo programático direto, usar o aninhado
+          if (!plano.metadados.containsKey('conteudo_programatico')) {
+            plano.metadados['conteudo_programatico'] = concurso['conteudo_programatico'];
+            debugPrint('Conteúdo programático extraído de concurso.conteudo_programatico: ${(concurso['conteudo_programatico'] as List).length} itens');
+          }
+        }
+
+        // Extrair taxa de inscrição aninhada
+        if (concurso.containsKey('inscricoes') && concurso['inscricoes'] is Map) {
+          final inscricoes = concurso['inscricoes'] as Map;
+          if (inscricoes.containsKey('taxa')) {
+            // Se não temos taxa de inscrição direta, usar a aninhada
+            if (!plano.metadados.containsKey('valorInscricao')) {
+              plano.metadados['valorInscricao'] = inscricoes['taxa'].toString();
+              debugPrint('Taxa de inscrição extraída de concurso.inscricoes.taxa: ${plano.metadados['valorInscricao']}');
+            }
+          }
+        }
       }
 
       // Extrair dados da prova
@@ -307,5 +343,204 @@ class PlanoDadosService {
     } catch (e) {
       debugPrint('Erro ao extrair dados do edital: $e');
     }
+  }
+
+  /// Extrai o conteúdo programático dos metadados do plano
+  List<ConteudoProgramatico> extrairConteudoProgramatico(PlanoEstudo plano) {
+    List<ConteudoProgramatico> resultado = [];
+
+    // Log das chaves disponíveis nos metadados para diagnóstico
+    _logger.logRecuperacao(plano.id, 'chaves_metadados_plano', {
+      'chaves_nivel_1': plano.metadados.keys.toList(),
+      'tem_concurso': plano.metadados.containsKey('concurso'),
+      'tem_conteudo_programatico': plano.metadados.containsKey('conteudo_programatico'),
+      'tem_conteudo_programatico_completo': plano.metadados.containsKey('conteudo_programatico_completo'),
+    });
+
+    // Se tiver a chave 'concurso', logar suas subchaves
+    if (plano.metadados.containsKey('concurso') && plano.metadados['concurso'] is Map) {
+      _logger.logRecuperacao(plano.id, 'chaves_concurso', {
+        'chaves_concurso': (plano.metadados['concurso'] as Map).keys.toList(),
+        'tem_conteudo_programatico_em_concurso': (plano.metadados['concurso'] as Map).containsKey('conteudo_programatico'),
+      });
+    }
+
+    // Verificar primeiro em metadados.conteudo_programatico
+    if (plano.metadados.containsKey('conteudo_programatico') &&
+        plano.metadados['conteudo_programatico'] is List) {
+
+      try {
+        final List conteudoList = plano.metadados['conteudo_programatico'] as List;
+        _logger.logRecuperacao(plano.id, 'conteudo_programatico_encontrado', {
+          'tamanho': conteudoList.length,
+          'primeiro_item_tipo': conteudoList.isNotEmpty ? conteudoList.first.runtimeType.toString() : 'vazio',
+        });
+
+        resultado = conteudoList
+            .map((item) => ConteudoProgramatico.fromMap(Map<String, dynamic>.from(item)))
+            .toList();
+
+        debugPrint('Conteúdo programático extraído de metadados.conteudo_programatico: ${resultado.length} matérias');
+        _logger.logRecuperacao(plano.id, 'conteudo_programatico_extraido', {
+          'fonte': 'metadados.conteudo_programatico',
+          'quantidade': resultado.length,
+          'materias': resultado.map((m) => m.nome).toList(),
+        });
+        return resultado;
+      } catch (e) {
+        debugPrint('Erro ao converter conteúdo programático de metadados.conteudo_programatico: $e');
+        _logger.logRecuperacao(plano.id, 'erro_converter_conteudo_programatico', {
+          'fonte': 'metadados.conteudo_programatico',
+          'erro': e.toString(),
+        });
+      }
+    }
+
+    // Verificar em metadados.concurso.conteudo_programatico
+    if (plano.metadados.containsKey('concurso') &&
+        plano.metadados['concurso'] is Map &&
+        (plano.metadados['concurso'] as Map).containsKey('conteudo_programatico') &&
+        (plano.metadados['concurso'] as Map)['conteudo_programatico'] is List) {
+
+      try {
+        final List conteudoList = (plano.metadados['concurso'] as Map)['conteudo_programatico'] as List;
+        _logger.logRecuperacao(plano.id, 'conteudo_programatico_concurso_encontrado', {
+          'tamanho': conteudoList.length,
+          'primeiro_item_tipo': conteudoList.isNotEmpty ? conteudoList.first.runtimeType.toString() : 'vazio',
+        });
+
+        resultado = conteudoList
+            .map((item) => ConteudoProgramatico.fromMap(Map<String, dynamic>.from(item)))
+            .toList();
+
+        debugPrint('Conteúdo programático extraído de metadados.concurso.conteudo_programatico: ${resultado.length} matérias');
+        _logger.logRecuperacao(plano.id, 'conteudo_programatico_extraido', {
+          'fonte': 'metadados.concurso.conteudo_programatico',
+          'quantidade': resultado.length,
+          'materias': resultado.map((m) => m.nome).toList(),
+        });
+        return resultado;
+      } catch (e) {
+        debugPrint('Erro ao converter conteúdo programático de metadados.concurso.conteudo_programatico: $e');
+        _logger.logRecuperacao(plano.id, 'erro_converter_conteudo_programatico', {
+          'fonte': 'metadados.concurso.conteudo_programatico',
+          'erro': e.toString(),
+        });
+      }
+    }
+
+    // Verificar em metadados.conteudo_programatico_completo
+    if (plano.metadados.containsKey('conteudo_programatico_completo') &&
+        plano.metadados['conteudo_programatico_completo'] is List) {
+
+      try {
+        final List conteudoList = plano.metadados['conteudo_programatico_completo'] as List;
+        _logger.logRecuperacao(plano.id, 'conteudo_programatico_completo_encontrado', {
+          'tamanho': conteudoList.length,
+          'primeiro_item_tipo': conteudoList.isNotEmpty ? conteudoList.first.runtimeType.toString() : 'vazio',
+        });
+
+        resultado = conteudoList
+            .map((item) => ConteudoProgramatico.fromMap(Map<String, dynamic>.from(item)))
+            .toList();
+
+        debugPrint('Conteúdo programático extraído de metadados.conteudo_programatico_completo: ${resultado.length} matérias');
+        _logger.logRecuperacao(plano.id, 'conteudo_programatico_extraido', {
+          'fonte': 'metadados.conteudo_programatico_completo',
+          'quantidade': resultado.length,
+          'materias': resultado.map((m) => m.nome).toList(),
+        });
+        return resultado;
+      } catch (e) {
+        debugPrint('Erro ao converter conteúdo programático de metadados.conteudo_programatico_completo: $e');
+        _logger.logRecuperacao(plano.id, 'erro_converter_conteudo_programatico', {
+          'fonte': 'metadados.conteudo_programatico_completo',
+          'erro': e.toString(),
+        });
+      }
+    }
+
+    // Verificar em metadados.materias (lista de matérias de proficiência)
+    if (plano.metadados.containsKey('materias') && plano.metadados['materias'] is List) {
+      try {
+        final List materiasList = plano.metadados['materias'] as List;
+        if (materiasList.isNotEmpty) {
+          debugPrint('Tentando criar conteúdo programático a partir de metadados.materias: ${materiasList.length} matérias');
+
+          // Converter cada matéria para ConteudoProgramatico
+          for (var item in materiasList) {
+            if (item is Map) {
+              final nome = item['nome'] ?? item['materia'] ?? '';
+              if (nome.isNotEmpty) {
+                resultado.add(ConteudoProgramatico(
+                  nome: nome.toString(),
+                  grupoMateria: 'Matérias do Concurso',
+                  tipo: 'comum',
+                  topicos: [],
+                  numeroQuestoes: null,
+                  criterioDesempate: false,
+                ));
+              }
+            } else if (item is String) {
+              resultado.add(ConteudoProgramatico(
+                nome: item,
+                grupoMateria: 'Matérias do Concurso',
+                tipo: 'comum',
+                topicos: [],
+                numeroQuestoes: null,
+                criterioDesempate: false,
+              ));
+            }
+          }
+
+          if (resultado.isNotEmpty) {
+            debugPrint('Conteúdo programático criado a partir de metadados.materias: ${resultado.length} matérias');
+            _logger.logRecuperacao(plano.id, 'conteudo_programatico_extraido', {
+              'fonte': 'metadados.materias',
+              'quantidade': resultado.length,
+              'materias': resultado.map((m) => m.nome).toList(),
+            });
+            return resultado;
+          }
+        }
+      } catch (e) {
+        debugPrint('Erro ao converter conteúdo programático de metadados.materias: $e');
+      }
+    }
+
+    // Verificar em materiasProficiencia do plano
+    if (plano.materiasProficiencia.isNotEmpty) {
+      try {
+        debugPrint('Tentando criar conteúdo programático a partir de materiasProficiencia: ${plano.materiasProficiencia.length} matérias');
+
+        // Converter cada matéria para ConteudoProgramatico
+        for (var materiaProficiencia in plano.materiasProficiencia) {
+          resultado.add(ConteudoProgramatico(
+            nome: materiaProficiencia.nomeMateria,
+            grupoMateria: 'Matérias do Concurso',
+            tipo: 'comum',
+            topicos: [],
+            numeroQuestoes: null,
+            criterioDesempate: false,
+          ));
+        }
+
+        if (resultado.isNotEmpty) {
+          debugPrint('Conteúdo programático criado a partir de materiasProficiencia: ${resultado.length} matérias');
+          _logger.logRecuperacao(plano.id, 'conteudo_programatico_extraido', {
+            'fonte': 'materiasProficiencia',
+            'quantidade': resultado.length,
+            'materias': resultado.map((m) => m.nome).toList(),
+          });
+          return resultado;
+        }
+      } catch (e) {
+        debugPrint('Erro ao converter conteúdo programático de materiasProficiencia: $e');
+      }
+    }
+
+    debugPrint('Nenhum conteúdo programático encontrado nos metadados do plano');
+    _logger.logRecuperacao(plano.id, 'conteudo_programatico_nao_encontrado', {});
+    return resultado;
   }
 }

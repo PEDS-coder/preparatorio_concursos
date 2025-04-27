@@ -10,6 +10,8 @@ import '../../../../core/navigation/navigation_service.dart';
 import '../../../../core/di/service_locator.dart';
 import '../../../../core/utils/logger_static.dart';
 import '../../../../core/widgets/matrix_rain_animation.dart';
+import '../../../../core/widgets/api_quota_indicator.dart';
+import '../../../../core/widgets/app_bar_with_quota.dart';
 import '../../../4_study_plan/presentation/screens/plano_questionario_screen.dart';
 import '../widgets/cargo_select/cargo_card_widget.dart';
 import '../widgets/cargo_select/error_message_widget.dart';
@@ -57,8 +59,8 @@ class _CargoSelectScreenState extends State<CargoSelectScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Selecionar Cargo'),
+      appBar: AppBarWithQuota(
+        title: 'Selecionar Cargo',
         backgroundColor: AppTheme.primaryColor,
         actions: [
           if (_cargosSelecionados.isNotEmpty)
@@ -135,8 +137,8 @@ class _CargoSelectScreenState extends State<CargoSelectScreen> {
 
   Widget _buildEditalNotFoundScreen() {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Selecionar Cargo'),
+      appBar: const AppBarWithQuota(
+        title: 'Selecionar Cargo',
         backgroundColor: AppTheme.primaryColor,
       ),
       body: Center(
@@ -167,8 +169,8 @@ class _CargoSelectScreenState extends State<CargoSelectScreen> {
 
   Widget _buildLoadingScreen() {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Processando'),
+      appBar: const AppBarWithQuota(
+        title: 'Processando',
         backgroundColor: AppTheme.primaryColor,
       ),
       body: Center(

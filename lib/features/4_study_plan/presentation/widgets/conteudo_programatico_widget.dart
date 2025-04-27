@@ -4,6 +4,7 @@ import '../../../../core/data/services/sessao_estudo_service.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../domain/services/extrator_dados_service.dart';
 import '../../domain/services/plano_resumo_service.dart';
+import '../../domain/services/plano_dados_service.dart';
 
 /// Widget para exibir o conteúdo programático
 class ConteudoProgramaticoWidget extends StatefulWidget {
@@ -71,18 +72,30 @@ class _ConteudoProgramaticoWidgetState extends State<ConteudoProgramaticoWidget>
   @override
   Widget build(BuildContext context) {
     if (widget.cargo == null) {
+      debugPrint('ERRO: Cargo é nulo, não é possível exibir conteúdo programático');
       return const SizedBox.shrink();
     }
 
-    // Selecionar lista de matérias: preferir dado da LLM se existir
-    List<ConteudoProgramatico> listaMaterias;
-    if (widget.plano.metadados.containsKey('conteudo_programatico') &&
-        widget.plano.metadados['conteudo_programatico'] is List) {
-      listaMaterias = (widget.plano.metadados['conteudo_programatico'] as List)
-          .map((item) => ConteudoProgramatico.fromMap(Map<String, dynamic>.from(item)))
-          .toList();
+    // Criar serviço para extrair dados do plano
+    final planoDadosService = PlanoDadosService();
+
+    // Extrair conteúdo programático usando o serviço
+    List<ConteudoProgramatico> listaMaterias = planoDadosService.extrairConteudoProgramatico(widget.plano);
+
+    // Se não encontrou conteúdo programático, usar uma lista vazia
+    if (listaMaterias.isEmpty) {
+      debugPrint('AVISO: Conteúdo programático não encontrado. Usando lista vazia.');
+
+      // Verificar se há metadados no plano para diagnóstico
+      if (widget.plano.metadados.isNotEmpty) {
+        debugPrint('Metadados disponíveis: ${widget.plano.metadados.keys.join(', ')}');
+
+        if (widget.plano.metadados.containsKey('concurso')) {
+          debugPrint('Chaves em concurso: ${(widget.plano.metadados['concurso'] as Map?)?.keys.join(', ') ?? 'nenhuma'}');
+        }
+      }
     } else {
-      listaMaterias = widget.cargo!.conteudoProgramatico;
+      debugPrint('Usando conteúdo programático: ${listaMaterias.length} matérias');
     }
     // Criar cargo temporário para agrupar usando as matérias corretas
     final cargoTemp = Cargo(
@@ -242,10 +255,10 @@ class _ConteudoProgramaticoWidgetState extends State<ConteudoProgramaticoWidget>
             ),
             child: ListTile(
               title: Text(
-                materia.nome,
-                style: const TextStyle(
+                materia.nome.toUpperCase(),
+                style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: materiaColor,
                   fontSize: 16,
                 ),
               ),
@@ -413,49 +426,49 @@ class _ConteudoProgramaticoWidgetState extends State<ConteudoProgramaticoWidget>
 
     // Mapeamento fixo de cores para garantir que grupos diferentes tenham cores diferentes
     if (grupoNormalizado.contains('módulo i') || grupoNormalizado.contains('modulo i')) {
-      return Colors.blue.shade700;
+      return Colors.blue.shade700; // Azul para Módulo I
     } else if (grupoNormalizado.contains('módulo ii') || grupoNormalizado.contains('modulo ii')) {
-      return Colors.pink.shade700;
+      return Colors.deepOrange.shade700; // Laranja para Módulo II
     } else if (grupoNormalizado.contains('módulo iii') || grupoNormalizado.contains('modulo iii')) {
-      return Colors.purple.shade700;
+      return Colors.purple.shade700; // Roxo para Módulo III
     } else if (grupoNormalizado.contains('módulo iv') || grupoNormalizado.contains('modulo iv')) {
-      return Colors.teal.shade700;
+      return Colors.teal.shade700; // Verde-azulado para Módulo IV
     } else if (grupoNormalizado.contains('conhecimentos básicos') || grupoNormalizado.contains('basicos')) {
-      return Colors.indigo.shade700;
+      return Colors.indigo.shade700; // Índigo para Conhecimentos Básicos
     } else if (grupoNormalizado.contains('conhecimentos específicos') || grupoNormalizado.contains('especificos')) {
-      return Colors.deepOrange.shade700;
+      return Colors.pink.shade700; // Rosa para Conhecimentos Específicos
     } else if (grupoNormalizado.contains('comum')) {
-      return Colors.green.shade700;
+      return Colors.green.shade700; // Verde para Comum
     } else if (grupoNormalizado.contains('direito constitucional')) {
-      return Colors.red.shade700;
+      return Colors.red.shade700; // Vermelho para Direito Constitucional
     } else if (grupoNormalizado.contains('direito administrativo')) {
-      return Colors.amber.shade800;
+      return Colors.amber.shade800; // Âmbar para Direito Administrativo
     } else if (grupoNormalizado.contains('direito civil')) {
-      return Colors.cyan.shade700;
+      return Colors.cyan.shade700; // Ciano para Direito Civil
     } else if (grupoNormalizado.contains('direito processual')) {
-      return Colors.deepPurple.shade700;
+      return Colors.deepPurple.shade700; // Roxo escuro para Direito Processual
     } else if (grupoNormalizado.contains('direito penal')) {
-      return Colors.brown.shade700;
+      return Colors.lightGreen.shade700; // Verde claro para Direito Penal
     } else if (grupoNormalizado.contains('português') || grupoNormalizado.contains('lingua portuguesa')) {
-      return Colors.blue.shade800;
+      return Colors.blue.shade800; // Azul escuro para Português
     } else if (grupoNormalizado.contains('raciocínio lógico') || grupoNormalizado.contains('matematica')) {
-      return Colors.green.shade800;
+      return Colors.green.shade800; // Verde escuro para Raciocínio Lógico
     } else {
-      // Cores para outros grupos - garantindo que sejam distintas
+      // Cores para outros grupos - garantindo que sejam distintas e vibrantes
       final int hashCode = grupo.hashCode;
       final List<Color> cores = [
-        Colors.blue.shade700,
-        Colors.purple.shade700,
-        Colors.teal.shade700,
-        Colors.deepOrange.shade700,
-        Colors.indigo.shade700,
-        Colors.green.shade700,
-        Colors.amber.shade800,
-        Colors.cyan.shade700,
-        Colors.pink.shade700,
-        Colors.red.shade700,
-        Colors.deepPurple.shade700,
-        Colors.brown.shade700,
+        Colors.blue.shade700,      // Azul
+        Colors.deepOrange.shade700, // Laranja
+        Colors.purple.shade700,     // Roxo
+        Colors.teal.shade700,       // Verde-azulado
+        Colors.pink.shade700,       // Rosa
+        Colors.indigo.shade700,     // Índigo
+        Colors.green.shade700,      // Verde
+        Colors.amber.shade800,      // Âmbar
+        Colors.cyan.shade700,       // Ciano
+        Colors.red.shade700,        // Vermelho
+        Colors.deepPurple.shade700, // Roxo escuro
+        Colors.lightGreen.shade700, // Verde claro
       ];
 
       return cores[hashCode.abs() % cores.length];

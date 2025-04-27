@@ -37,12 +37,14 @@ class CargoInfoItemWidget extends StatelessWidget {
                     text: '$label: ',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
+                      fontSize: 15,
                       color: Colors.grey.shade800,
                     ),
                   ),
                   TextSpan(
                     text: value,
                     style: const TextStyle(
+                      fontSize: 15,
                       color: Colors.black87,
                       fontWeight: FontWeight.w500,
                     ),

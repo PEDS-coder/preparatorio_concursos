@@ -302,12 +302,16 @@ class PlanoResumoService {
     String escolaridade = 'Não informado';
     String nivel = 'Não informado';
 
-    // Verificar se temos informações no próprio cargo
-    if (cargo.escolaridade != 'Não informado') {
+    // Verificar se temos requisitos no cargo (prioridade máxima)
+    if (cargo.requisitos != null && cargo.requisitos!.isNotEmpty) {
+      escolaridade = cargo.requisitos!;
+    }
+    // Se não tiver requisitos, usar escolaridade
+    else if (cargo.escolaridade != null && cargo.escolaridade != 'Não informado') {
       escolaridade = cargo.escolaridade;
     }
 
-    if (cargo.nivel != 'Não informado') {
+    if (cargo.nivel != null && cargo.nivel != 'Não informado') {
       nivel = cargo.nivel;
     }
 
@@ -327,15 +331,18 @@ class PlanoResumoService {
               if (cargoOriginal.containsKey('salario') && cargoOriginal['salario'] != null) {
                 salario = cargoOriginal['salario'].toString();
               }
-              if (cargoOriginal.containsKey('escolaridade') && cargoOriginal['escolaridade'] != null) {
+
+              // Priorizar requisitos sobre escolaridade
+              if (cargoOriginal.containsKey('requisitos') && cargoOriginal['requisitos'] != null) {
+                escolaridade = cargoOriginal['requisitos'].toString();
+              }
+              // Se não tiver requisitos, usar escolaridade
+              else if (cargoOriginal.containsKey('escolaridade') && cargoOriginal['escolaridade'] != null && escolaridade == 'Não informado') {
                 escolaridade = cargoOriginal['escolaridade'].toString();
               }
+
               if (cargoOriginal.containsKey('nivel') && cargoOriginal['nivel'] != null) {
                 nivel = cargoOriginal['nivel'].toString();
-              }
-              if (cargoOriginal.containsKey('requisitos') && cargoOriginal['requisitos'] != null) {
-                // Se temos requisitos específicos, usar no lugar da escolaridade
-                escolaridade = cargoOriginal['requisitos'].toString();
               }
               break;
             }

@@ -4,9 +4,152 @@
       "command": "npx",
       "args": [
         "-y",
-        "@smithery/cli@latest",
+        "@modelcontextprotocol/server-sequential-thinking"
+      ]
+    },
+    "memory": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-memory"
+      ]
+    },
+    "fetch": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-fetch"
+      ]
+    },
+    "searxng": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-searxng"
+      ],
+      "env": {
+        "SEARXNG_URL": "https://searx.be"
+      }
+    },
+    "scholarly": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@smithery/cli",
         "run",
-        "@smithery-ai/server-sequential-thinking",
+        "mcp-scholarly",
+        "--config",
+        "{}"
+      ]
+    },
+    "chroma": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@chroma-core/mcp"
+      ]
+    },
+    "time": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-time"
+      ]
+    },
+    "json": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-json"
+      ]
+    },
+    "calculator": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-calculator"
+      ]
+    },
+    "anki": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@smithery/cli",
+        "run",
+        "mcp-anki",
+        "--config",
+        "{}"
+      ]
+    },
+    "obsidian": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@smithery/cli",
+        "run",
+        "mcp-obsidian",
+        "--config",
+        "{}"
+      ]
+    },
+    "mindmap": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@smithery/cli",
+        "run",
+        "mcp-mindmap",
+        "--config",
+        "{}"
+      ]
+    },
+    "google-calendar": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-google-calendar"
+      ]
+    },
+    "apple-calendar": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@smithery/cli",
+        "run",
+        "mcp-apple-calendar",
+        "--config",
+        "{}"
+      ]
+    },
+    "todoist": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@smithery/cli",
+        "run",
+        "mcp-todoist",
+        "--config",
+        "{}"
+      ]
+    },
+    "ticktick": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@smithery/cli",
+        "run",
+        "mcp-ticktick",
+        "--config",
+        "{}"
+      ]
+    },
+    "vega-lite": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@smithery/cli",
+        "run",
+        "mcp-vegalite-server",
         "--config",
         "{}"
       ]

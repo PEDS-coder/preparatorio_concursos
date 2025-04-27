@@ -4,6 +4,7 @@ import '../../../../core/theme/app_theme.dart';
 import '../../domain/services/extrator_dados_service.dart';
 import '../../domain/services/formatador_service.dart';
 import '../../domain/services/prova_service.dart';
+import '../../domain/services/cotas_service.dart';
 import 'info_card.dart';
 import 'criterio_desempate_card.dart';
 
@@ -119,6 +120,14 @@ class ProvaInfoWidget extends StatelessWidget {
           value: FormatadorService.numerarItens(ProvaService.obterCriteriosDesempate(plano, edital)),
           cardColor: extratoService.getColorForInfoType('Critérios de Desempate'),
           emoji: extratoService.getEmojiForInfoType('Critérios de Desempate'),
+        ),
+
+        // Adicionado card de cotas (movido de ConcursoInfoWidget)
+        InfoCard(
+          label: 'Cotas',
+          value: FormatadorService.numerarItens(CotasService.obterInformacoes(edital)),
+          cardColor: extratoService.getColorForInfoType('Cotas'),
+          emoji: extratoService.getEmojiForInfoType('Cotas'),
         ),
       ],
     );

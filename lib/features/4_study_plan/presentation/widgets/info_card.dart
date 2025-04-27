@@ -52,14 +52,14 @@ class InfoCard extends StatelessWidget {
                         style: TextStyle(
                           color: cardColor,
                           fontWeight: FontWeight.bold,
-                          fontSize: 15,
+                          fontSize: 16,
                         ),
                       ),
                       TextSpan(
                         text: value,
                         style: const TextStyle(
                           color: Colors.white,
-                          fontSize: 15,
+                          fontSize: 16,
                         ),
                       ),
                     ],

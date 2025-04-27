@@ -95,6 +95,9 @@ class _CalendarioWidgetState extends State<CalendarioWidget> {
                     CalendarFormat.week: 'Semana',
                   },
                   locale: 'pt_BR',
+                  // Aumentar a altura das linhas e dos dias da semana para evitar sobreposição
+                  rowHeight: 60.0,
+                  daysOfWeekHeight: 30.0,
                   headerStyle: HeaderStyle(
                     titleCentered: true,
                     formatButtonVisible: true,
@@ -113,6 +116,26 @@ class _CalendarioWidgetState extends State<CalendarioWidget> {
                       return '${month[0].toUpperCase()}${month.substring(1)} de ${date.year}';
                     },
                   ),
+                  // Estilo dos dias da semana (DOM, SEG, TER, etc.)
+                  daysOfWeekStyle: const DaysOfWeekStyle(
+                    // Estilo para dias da semana (SEG a SEX)
+                    weekdayStyle: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
+                    // Estilo para fins de semana (SÁB e DOM)
+                    weekendStyle: TextStyle(
+                      color: Colors.red,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
+                    // Decoração para criar uma faixa branca atrás das iniciais
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      border: Border(bottom: BorderSide(color: Colors.grey, width: 1.0)),
+                    ),
+                  ),
                   calendarStyle: CalendarStyle(
                     todayDecoration: BoxDecoration(
                       color: AppTheme.primaryColor.withOpacity(0.5),
@@ -126,8 +149,37 @@ class _CalendarioWidgetState extends State<CalendarioWidget> {
                       color: Colors.red,
                       shape: BoxShape.circle,
                     ),
+                    // Adicionar padding para evitar sobreposição
+                    cellMargin: const EdgeInsets.all(4.0),
                   ),
                   calendarBuilders: CalendarBuilders(
+                    // Construtor personalizado para os dias da semana
+                    dowBuilder: (context, day) {
+                      // Obter a inicial do dia da semana em caixa alta
+                      final weekdayString = DateFormat.E('pt_BR').format(day);
+                      final weekdayUpper = weekdayString.substring(0, 3).toUpperCase();
+
+                      // Definir a cor com base no dia da semana (DOM e SÁB em vermelho)
+                      final isWeekend = day.weekday == DateTime.sunday || day.weekday == DateTime.saturday;
+                      final textColor = isWeekend ? Colors.red : Colors.black;
+
+                      return Center(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 4),
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                          ),
+                          child: Text(
+                            weekdayUpper,
+                            style: TextStyle(
+                              color: textColor,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
                     markerBuilder: (context, date, events) {
                       // Obter sessões para o dia
                       final normalizedDay = DateTime(date.year, date.month, date.day);

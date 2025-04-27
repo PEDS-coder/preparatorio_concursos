@@ -137,7 +137,7 @@ class _EditalUploadScreenState extends State<EditalUploadScreen> {
                 const SizedBox(height: 14),
                 Text(
                   'Selecionados: ${_selectedFiles.map((f) => f.name).join(", ")}',
-                  style: const TextStyle(color: Color(0xFFf43f7d), fontWeight: FontWeight.w600),
+                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),

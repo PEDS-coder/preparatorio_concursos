@@ -401,7 +401,7 @@ class PlanoDataService {
         return ConcursoService.obterOrgao(plano, edital);
       case 'banca':
         return ConcursoService.obterBanca(plano, edital);
-      
+
       // ProvaService
       case 'formatoProva':
         return ProvaService.obterFormato(plano, edital);
@@ -421,7 +421,7 @@ class PlanoDataService {
         return ProvaService.obterCriteriosDesempate(plano, edital);
       case 'temaProvaSubjetiva':
         return ProvaService.obterTemaProvaSubjetiva(plano, edital);
-      
+
       // InscricaoService
       case 'valorInscricao':
         return InscricaoService.obterValor(plano, edital);
@@ -430,12 +430,12 @@ class PlanoDataService {
           return InscricaoService.obterPeriodo(edital);
         }
         break;
-      
+
       // Outros casos
       default:
         break;
     }
-    
+
     return 'Não informado';
   }
 
@@ -489,7 +489,18 @@ class PlanoDataService {
 
   /// Obtém as matérias do plano
   List<ConteudoProgramatico> obterMaterias() {
+    // Primeiro, tentar extrair do plano de estudos (metadados)
+    List<ConteudoProgramatico> materias = extrairConteudoProgramatico(plano);
+
+    // Se encontrou matérias nos metadados, retornar
+    if (materias.isNotEmpty) {
+      logger.logRecuperacao(plano.id, 'materias_encontradas_metadados', {'quantidade': materias.length});
+      return materias;
+    }
+
+    // Se não encontrou nos metadados, tentar obter do edital
     if (edital == null || plano.cargoIds.isEmpty) {
+      logger.logRecuperacao(plano.id, 'edital_ou_cargo_nulo', {'edital_nulo': edital == null, 'cargos_vazios': plano.cargoIds.isEmpty});
       return [];
     }
 
@@ -498,9 +509,16 @@ class PlanoDataService {
       Cargo? cargo = edital!.dadosExtraidos.cargos.firstWhere(
         (c) => c.id == cargoId || c.nome.toLowerCase() == cargoId.toLowerCase()
       );
-      return cargo.conteudoProgramatico;
+
+      if (cargo.conteudoProgramatico.isNotEmpty) {
+        logger.logRecuperacao(plano.id, 'materias_encontradas_cargo', {'quantidade': cargo.conteudoProgramatico.length});
+        return cargo.conteudoProgramatico;
+      } else {
+        logger.logRecuperacao(plano.id, 'materias_vazias_cargo', {});
+        return [];
+      }
     } catch (e) {
-      logger.logRecuperacao(plano.id, 'erro_obter_materias', {'erro': e.toString()});
+      logger.logRecuperacao(plano.id, 'erro_obter_materias_cargo', {'erro': e.toString()});
       return [];
     }
   }

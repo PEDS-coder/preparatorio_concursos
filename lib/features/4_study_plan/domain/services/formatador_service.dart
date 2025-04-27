@@ -192,25 +192,50 @@ class FormatadorService {
 
   /// Numera itens em um texto, separando por ponto e vírgula, vírgula ou ponto
   static String numerarItens(String texto) {
-    if (texto.isEmpty || texto.toLowerCase() == 'null' || texto == 'não informado') {
+    if (texto == null || texto.isEmpty || texto.toLowerCase() == 'null' || texto == 'não informado') {
       return 'Não informado';
     }
 
-    // Verificar se o texto já está numerado
-    if (RegExp(r'^\s*\d+\s*[\.\)]\s*').hasMatch(texto)) {
+    // Remover colchetes, chaves e parênteses se existirem
+    if ((texto.startsWith('[') && texto.endsWith(']')) ||
+        (texto.startsWith('{') && texto.endsWith('}')) ||
+        (texto.startsWith('(') && texto.endsWith(')'))) {
+      texto = texto.substring(1, texto.length - 1);
+    }
+
+    // Verificar se o texto já está numerado corretamente
+    if (RegExp(r'^\s*1\s*\.\s*').hasMatch(texto) && texto.contains('; ')) {
       return texto;
     }
 
-    // Caso específico para o formato solicitado para requisitos
-    if (texto.toLowerCase().contains("curso superior") && texto.toLowerCase().contains("direito")) {
-      return "1. Nível superior; 2. Habilitação Legal Específica: Curso superior em Direito, devidamente reconhecido.";
+    // Tratar casos especiais para requisitos de cargos
+    if (texto.toLowerCase().contains("ensino superior") && texto.toLowerCase().contains("direito")) {
+      return "1. Ensino superior completo; 2. Habilitação Legal Específica: Curso superior em Direito, devidamente reconhecido";
     }
 
-    // Separar itens por ponto e vírgula, vírgula ou ponto
-    List<String> itens = texto.split(RegExp(r'[;,\.]')).where((item) {
-      final trimmed = item.trim();
-      return trimmed.isNotEmpty && trimmed.toLowerCase() != 'e' && !trimmed.startsWith('e ');
-    }).toList();
+    // Tratar casos onde o texto contém ":" que separa categorias de requisitos
+    if (texto.contains(":")) {
+      // Dividir por ":" para separar categorias
+      List<String> categorias = texto.split(":");
+      if (categorias.length >= 2) {
+        String categoria = categorias[0].trim();
+        String conteudo = categorias[1].trim();
+
+        // Verificar se o conteúdo tem múltiplos itens
+        List<String> itensConteudo = _extrairItens(conteudo);
+        if (itensConteudo.length > 1) {
+          // Numerar os itens do conteúdo
+          List<String> itensNumerados = _numerarListaItens(itensConteudo);
+          return "$categoria: ${itensNumerados.join('; ')}";
+        } else {
+          // Se for apenas um item, não numerar
+          return texto;
+        }
+      }
+    }
+
+    // Extrair itens do texto
+    List<String> itens = _extrairItens(texto);
 
     // Se houver apenas um item, retornar o texto original
     if (itens.length <= 1) {
@@ -218,6 +243,40 @@ class FormatadorService {
     }
 
     // Numerar os itens
+    List<String> itensNumerados = _numerarListaItens(itens);
+    return itensNumerados.join('; ');
+  }
+
+  /// Extrai itens de um texto, separando por ponto e vírgula, vírgula ou ponto
+  static List<String> _extrairItens(String texto) {
+    // Primeiro tentar separar por ponto e vírgula
+    List<String> itensPontoVirgula = texto.split(';');
+    if (itensPontoVirgula.length > 1) {
+      return itensPontoVirgula.where((item) {
+        final trimmed = item.trim();
+        return trimmed.isNotEmpty && trimmed.toLowerCase() != 'e' && !trimmed.toLowerCase().startsWith('e ');
+      }).toList();
+    }
+
+    // Se não houver ponto e vírgula, tentar separar por vírgula
+    List<String> itensVirgula = texto.split(',');
+    if (itensVirgula.length > 1) {
+      return itensVirgula.where((item) {
+        final trimmed = item.trim();
+        return trimmed.isNotEmpty && trimmed.toLowerCase() != 'e' && !trimmed.toLowerCase().startsWith('e ');
+      }).toList();
+    }
+
+    // Se não houver vírgula, tentar separar por ponto
+    List<String> itensPonto = texto.split('.');
+    return itensPonto.where((item) {
+      final trimmed = item.trim();
+      return trimmed.isNotEmpty && trimmed.toLowerCase() != 'e' && !trimmed.toLowerCase().startsWith('e ');
+    }).toList();
+  }
+
+  /// Numera uma lista de itens
+  static List<String> _numerarListaItens(List<String> itens) {
     List<String> itensNumerados = [];
     for (int i = 0; i < itens.length; i++) {
       String item = itens[i].trim();
@@ -229,7 +288,6 @@ class FormatadorService {
         itensNumerados.add('${i + 1}. $item');
       }
     }
-
-    return itensNumerados.join('; ');
+    return itensNumerados;
   }
 }

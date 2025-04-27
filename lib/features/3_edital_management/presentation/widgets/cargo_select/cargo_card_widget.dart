@@ -93,9 +93,11 @@ class CargoCardWidget extends StatelessWidget {
               ),
               CargoInfoItemWidget(
                 label: 'Requisitos',
-                value: cargo.escolaridade != 'Não informado' && cargo.escolaridade != 'Não especificado'
-                  ? _numerarRequisitos(cargo.escolaridade)
-                  : (cargo.nivel != 'Não informado' ? _numerarRequisitos(cargo.nivel) : 'Não informado'),
+                value: cargo.requisitos != 'Não informado'
+                  ? _formatarRequisitos(cargo.requisitos)
+                  : (cargo.escolaridade != 'Não informado' && cargo.escolaridade != 'Não especificado'
+                      ? _numerarRequisitos(cargo.escolaridade)
+                      : (cargo.nivel != 'Não informado' ? _numerarRequisitos(cargo.nivel) : 'Não informado')),
                 icon: Icons.school
               ),
               if (cargo.dataProva != null)
@@ -109,12 +111,6 @@ class CargoCardWidget extends StatelessWidget {
                   label: 'Horário da Prova',
                   value: cargo.horarioProva!,
                   icon: Icons.access_time
-                ),
-              if (cargo.requisitos != 'Não informado')
-                CargoInfoItemWidget(
-                  label: 'Requisitos',
-                  value: cargo.requisitos,
-                  icon: Icons.assignment_ind
                 ),
               const SizedBox(height: 16),
             ],
@@ -146,31 +142,86 @@ class CargoCardWidget extends StatelessWidget {
     return '$resultado,${valorDecimal.toString().padLeft(2, '0')}';
   }
 
-  /// Numera os requisitos separados por ponto e vírgula, vírgula ou ponto
-  String _numerarRequisitos(String texto) {
-    if (texto.isEmpty || texto.toLowerCase() == 'null' || texto == 'não informado') {
+  /// Formata os requisitos para exibição, lidando com string ou lista
+  String _formatarRequisitos(dynamic requisitos) {
+    if (requisitos == null) {
       return 'Não informado';
     }
 
+    // Se for uma lista, formatar como string com itens numerados
+    if (requisitos is List) {
+      if (requisitos.isEmpty) {
+        return 'Não informado';
+      }
+
+      // Numerar os itens da lista
+      List<String> itensNumerados = [];
+      for (int i = 0; i < requisitos.length; i++) {
+        String item = requisitos[i].toString().trim();
+        if (item.isNotEmpty) {
+          itensNumerados.add('${i + 1}. $item');
+        }
+      }
+
+      return itensNumerados.join('; ');
+    }
+
+    // Se for uma string, retornar diretamente
+    return requisitos.toString();
+  }
+
+  /// Numera os requisitos separados por ponto e vírgula, vírgula ou ponto
+  String _numerarRequisitos(dynamic texto) {
+    // Verificar se o texto é nulo ou vazio
+    if (texto == null ||
+        (texto is String && (texto.isEmpty || texto.toLowerCase() == 'null' || texto == 'não informado'))) {
+      return 'Não informado';
+    }
+
+    // Se for uma lista, processar cada item da lista
+    if (texto is List) {
+      if (texto.isEmpty) {
+        return 'Não informado';
+      }
+
+      // Numerar os itens da lista
+      List<String> itensNumerados = [];
+      for (int i = 0; i < texto.length; i++) {
+        String item = texto[i].toString().trim();
+        if (item.isNotEmpty) {
+          // Capitalizar a primeira letra do item
+          if (item.length > 1) {
+            item = item[0].toUpperCase() + item.substring(1);
+          }
+          itensNumerados.add('${i + 1}. $item');
+        }
+      }
+
+      return itensNumerados.join('; ');
+    }
+
+    // Converter para string se não for uma string
+    String textoStr = texto.toString();
+
     // Verificar se o texto já está numerado
-    if (RegExp(r'^\s*\d+\s*[\.\)]\s*').hasMatch(texto)) {
-      return texto;
+    if (RegExp(r'^\s*\d+\s*[\.\)]\s*').hasMatch(textoStr)) {
+      return textoStr;
     }
 
     // Caso específico para o formato solicitado
-    if (texto.contains("Curso superior") && texto.contains("Direito")) {
+    if (textoStr.contains("Curso superior") && textoStr.contains("Direito")) {
       return "1. Nível superior; 2. Habilitação Legal Específica: Curso superior em Direito, devidamente reconhecido.";
     }
 
     // Separar itens por ponto e vírgula, vírgula ou ponto
-    List<String> itens = texto.split(RegExp(r'[;,\.]')).where((item) {
+    List<String> itens = textoStr.split(RegExp(r'[;,\.]')).where((item) {
       final trimmed = item.trim();
       return trimmed.isNotEmpty && trimmed.toLowerCase() != 'e' && !trimmed.startsWith('e ');
     }).toList();
 
     // Se houver apenas um item, retornar o texto original
     if (itens.length <= 1) {
-      return texto;
+      return textoStr;
     }
 
     // Numerar os itens

@@ -160,7 +160,7 @@ class _PdfUploadWidgetState extends State<PdfUploadWidget> {
     final Color baseColor = isFileTooLarge ? Colors.red : AppTheme.primaryColor;
     final Color bgColor = baseColor.withOpacity(0.15);
     final Color borderColor = baseColor;
-    final Color textColor = isFileTooLarge ? Colors.red.shade700 : Colors.black87;
+    final Color textColor = isFileTooLarge ? Colors.red.shade700 : Colors.white;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 8),

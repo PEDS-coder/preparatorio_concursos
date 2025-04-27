@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 import 'dart:io';
+import 'dart:math';
 import 'package:http/http.dart' as http;
 import 'package:preparatorio_concursos/core/data/services/base_ia_service.dart';
 import 'package:preparatorio_concursos/core/data/services/interfaces/ia_service_interface.dart';
@@ -8,6 +9,7 @@ import '../../utils/app_logger.dart';
 import 'package:preparatorio_concursos/core/data/models/flashcard.dart';
 import 'package:preparatorio_concursos/core/services/prompt_service.dart';
 import 'package:preparatorio_concursos/core/services/connectivity_service.dart';
+import 'package:preparatorio_concursos/core/services/api_quota_service.dart';
 import 'ia_service_implementations.dart';
 
 /// Implementação do serviço de IA para o Gemini
@@ -21,6 +23,7 @@ class GeminiService extends BaseIAService with IAServiceImplementations {
   ];
 
   final PromptService _promptService = PromptService();
+  final ApiQuotaService _quotaService = ApiQuotaService();
 
   GeminiService() : super('gemini');
 
@@ -190,6 +193,15 @@ class GeminiService extends BaseIAService with IAServiceImplementations {
     if (!isConfigured) {
       throw Exception('API Key não configurada');
     }
+
+    // Verificar se a cota foi excedida
+    if (_quotaService.isQuotaExceeded()) {
+      throw Exception('Você atingiu o limite de cotas gratuitas do Gemini. Tente novamente mais tarde ou gere uma nova chave API.');
+    }
+
+    // Estimar o número de tokens com base no tamanho do prompt
+    final int estimatedTokens = (prompt.length / 4).round(); // Estimativa aproximada: 4 caracteres por token
+
     final url = '$_geminiBaseUrl/$_geminiModel:generateContent?key=$apiKey_';
     final Map<String, dynamic> requestBody = {
       'contents': [
@@ -212,27 +224,40 @@ class GeminiService extends BaseIAService with IAServiceImplementations {
       ]
     };
     final body = jsonEncode(requestBody);
-    final response = await http.post(
-      Uri.parse(url),
-      headers: {'Content-Type': 'application/json'},
-      body: body,
-    );
-    if (response.statusCode == 200) {
-      final jsonResponse = jsonDecode(response.body);
-      String text = '';
-      if (jsonResponse['candidates'] != null &&
-          jsonResponse['candidates'].isNotEmpty &&
-          jsonResponse['candidates'][0]['content'] != null &&
-          jsonResponse['candidates'][0]['content']['parts'] != null &&
-          jsonResponse['candidates'][0]['content']['parts'].isNotEmpty) {
-        text = jsonResponse['candidates'][0]['content']['parts'][0]['text'] ?? '';
+
+    try {
+      // Registrar a requisição antes de enviá-la
+      await _quotaService.registerApiRequest(estimatedTokens: estimatedTokens);
+
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {'Content-Type': 'application/json'},
+        body: body,
+      );
+
+      if (response.statusCode == 200) {
+        final jsonResponse = jsonDecode(response.body);
+        String text = '';
+        if (jsonResponse['candidates'] != null &&
+            jsonResponse['candidates'].isNotEmpty &&
+            jsonResponse['candidates'][0]['content'] != null &&
+            jsonResponse['candidates'][0]['content']['parts'] != null &&
+            jsonResponse['candidates'][0]['content']['parts'].isNotEmpty) {
+          text = jsonResponse['candidates'][0]['content']['parts'][0]['text'] ?? '';
+        }
+        if (text.isEmpty) {
+          throw Exception('Resposta vazia da API Gemini');
+        }
+        return text;
+      } else {
+        throw Exception('Falha na chamada da API Gemini: ${response.statusCode} ${response.body}');
       }
-      if (text.isEmpty) {
-        throw Exception('Resposta vazia da API Gemini');
+    } catch (e) {
+      // Se for um erro de cota, formatar a mensagem
+      if (e.toString().contains('quota') || e.toString().contains('rate limit')) {
+        throw Exception('Você atingiu o limite de cotas gratuitas do Gemini. Tente novamente mais tarde ou gere uma nova chave API.');
       }
-      return text;
-    } else {
-      throw Exception('Falha na chamada da API Gemini: ${response.statusCode} ${response.body}');
+      rethrow;
     }
   }
 
@@ -392,51 +417,161 @@ class GeminiService extends BaseIAService with IAServiceImplementations {
       throw Exception('API Key não configurada');
     }
 
-    // Verificar conectividade com a internet antes de fazer a chamada
-    final url = '$_geminiBaseUrl/$_geminiModel:generateContent?key=$apiKey_';
-    final String pdfBase64 = base64Encode(pdfBytes);
-    final String fileName = pdfName ?? 'edital.pdf';
+    // Configuração de retry
+    final int maxRetries = 3;
+    int retryCount = 0;
+    final List<int> retryStatusCodes = [429, 500, 502, 503, 504]; // Códigos que justificam retry
 
-    final Map<String, dynamic> requestBody = {
-      'contents': [
-        {
-          'parts': [
-            {'text': prompt},
-            {
-              'inline_data': {
-                'mime_type': 'application/pdf',
-                'data': pdfBase64
+    try {
+      // Verificar conectividade com a internet antes de fazer a chamada
+      final url = '$_geminiBaseUrl/$_geminiModel:generateContent?key=$apiKey_';
+      final String pdfBase64 = base64Encode(pdfBytes);
+      final String fileName = pdfName ?? 'edital.pdf';
+      final int pdfSizeKB = pdfBytes.length ~/ 1024;
+
+      print('[GeminiService] Enviando PDF para análise: $fileName ($pdfSizeKB KB)');
+
+      // Verificar se o PDF não é muito grande
+      if (pdfSizeKB > 20000) { // 20MB
+        print('[GeminiService] AVISO: O PDF é muito grande ($pdfSizeKB KB). Isso pode causar erros na API.');
+      }
+
+      // Estimar o número de tokens com base no tamanho do prompt e do PDF
+      final int estimatedTokens = (prompt.length / 4).round() + (pdfBytes.length / 100).round();
+
+      // Registrar a requisição ANTES de fazer a chamada à API
+      // Isso garante que a requisição seja contabilizada mesmo se houver erros
+      await _quotaService.registerApiRequest(estimatedTokens: estimatedTokens);
+
+      final Map<String, dynamic> requestBody = {
+        'contents': [
+          {
+            'parts': [
+              {'text': prompt},
+              {
+                'inline_data': {
+                  'mime_type': 'application/pdf',
+                  'data': pdfBase64
+                }
               }
-            }
-          ]
+            ]
+          }
+        ],
+        'generationConfig': {
+          'temperature': 0.0,
+          'maxOutputTokens': 65536,
+          'topP': 0.2,
         }
-      ],
-      'generationConfig': {
-        'temperature': 0.0,
-        'maxOutputTokens': 65536,
-        'topP': 0.2,
+      };
+      final body = jsonEncode(requestBody);
+
+      http.Response? response;
+
+      // Loop de retry
+      while (retryCount <= maxRetries) {
+        try {
+          print('[GeminiService] Enviando requisição para API Gemini' +
+                (retryCount > 0 ? ' (tentativa ${retryCount + 1}/$maxRetries)' : ''));
+
+          response = await http.post(
+            Uri.parse(url),
+            headers: {'Content-Type': 'application/json'},
+            body: body,
+          );
+
+          print('[GeminiService] Resposta recebida: ${response.statusCode}');
+
+          // Se recebemos uma resposta de sucesso ou um erro que não justifica retry, sair do loop
+          if (response.statusCode == 200 || !retryStatusCodes.contains(response.statusCode)) {
+            break;
+          }
+
+          // Se chegamos aqui, é um erro que justifica retry
+          retryCount++;
+
+          if (retryCount <= maxRetries) {
+            // Calcular tempo de espera com backoff exponencial (2^tentativa segundos)
+            final waitTime = Duration(seconds: pow(2, retryCount).toInt());
+            print('[GeminiService] Erro ${response.statusCode}, tentando novamente em ${waitTime.inSeconds} segundos...');
+            await Future.delayed(waitTime);
+          } else {
+            print('[GeminiService] Número máximo de tentativas excedido após erros consecutivos.');
+          }
+        } catch (e) {
+          print('[GeminiService] Erro de rede ao chamar API: $e');
+          retryCount++;
+
+          if (retryCount <= maxRetries) {
+            final waitTime = Duration(seconds: pow(2, retryCount).toInt());
+            print('[GeminiService] Tentando novamente em ${waitTime.inSeconds} segundos...');
+            await Future.delayed(waitTime);
+          } else {
+            print('[GeminiService] Número máximo de tentativas excedido após erros de rede.');
+            rethrow; // Relançar o erro de rede se excedemos as tentativas
+          }
+        }
       }
-    };
-    final body = jsonEncode(requestBody);
-    final response = await http.post(
-      Uri.parse(url),
-      headers: {'Content-Type': 'application/json'},
-      body: body,
-    );
-    if (response.statusCode == 200) {
-      final jsonResponse = jsonDecode(response.body);
-      if (jsonResponse.containsKey('candidates') &&
-          jsonResponse['candidates'].isNotEmpty &&
-          jsonResponse['candidates'][0].containsKey('content') &&
-          jsonResponse['candidates'][0]['content'].containsKey('parts') &&
-          jsonResponse['candidates'][0]['content']['parts'].isNotEmpty &&
-          jsonResponse['candidates'][0]['content']['parts'][0].containsKey('text')) {
-        return jsonResponse['candidates'][0]['content']['parts'][0]['text'];
+
+      // Verificar se temos uma resposta
+      if (response == null) {
+        throw Exception('Falha na comunicação com a API Gemini após $maxRetries tentativas.');
+      }
+
+      // Não é necessário registrar a requisição aqui, pois já foi registrada antes da chamada à API
+
+      if (response.statusCode == 200) {
+        final jsonResponse = jsonDecode(response.body);
+        if (jsonResponse.containsKey('candidates') &&
+            jsonResponse['candidates'].isNotEmpty &&
+            jsonResponse['candidates'][0].containsKey('content') &&
+            jsonResponse['candidates'][0]['content'].containsKey('parts') &&
+            jsonResponse['candidates'][0]['content']['parts'].isNotEmpty &&
+            jsonResponse['candidates'][0]['content']['parts'][0].containsKey('text')) {
+
+          final text = jsonResponse['candidates'][0]['content']['parts'][0]['text'];
+          print('[GeminiService] Resposta processada com sucesso: ${text.substring(0, text.length > 100 ? 100 : text.length)}...');
+          return text;
+        } else {
+          print('[GeminiService] Estrutura de resposta inesperada: ${jsonResponse.toString().substring(0, 200)}...');
+          throw Exception('Estrutura de resposta inesperada do Gemini.');
+        }
+      } else if (response.statusCode == 500) {
+        print('[GeminiService] Erro 500 (Internal Server Error) na API Gemini');
+
+        // Tentar extrair mensagem de erro mais específica
+        try {
+          final errorJson = jsonDecode(response.body);
+          final errorMessage = errorJson['error']?['message'] ?? 'Erro interno do servidor';
+
+          // Verificar mensagens específicas
+          if (errorMessage.contains('quota') || errorMessage.contains('rate limit')) {
+            throw Exception('Você atingiu o limite de cotas gratuitas do Gemini. Tente novamente mais tarde ou gere uma nova chave API.');
+          } else if (errorMessage.contains('file too large') || errorMessage.contains('payload too large')) {
+            throw Exception('O arquivo PDF é muito grande. Tente usar um arquivo menor.');
+          } else {
+            throw Exception('Ocorreu um erro nos servidores Google ou você excedeu o limite de cotas gratuitas do Gemini. Tente novamente mais tarde ou gere uma nova chave API.');
+          }
+        } catch (e) {
+          if (e is Exception) rethrow;
+          throw Exception('Ocorreu um erro nos servidores Google ou você excedeu o limite de cotas gratuitas do Gemini. Tente novamente mais tarde ou gere uma nova chave API.');
+        }
       } else {
-        throw Exception('Estrutura de resposta inesperada do Gemini.');
+        print('[GeminiService] Erro na chamada à API: ${response.statusCode}');
+        print('[GeminiService] Detalhes do erro: ${response.body}');
+
+        // Tentar extrair mensagem de erro mais específica
+        try {
+          final errorJson = jsonDecode(response.body);
+          final errorMessage = errorJson['error']?['message'] ?? 'Erro desconhecido';
+          throw Exception('Erro na chamada à API Gemini: $errorMessage');
+        } catch (e) {
+          if (e is Exception) rethrow;
+          throw Exception('Erro na chamada à API Gemini: ${response.statusCode}');
+        }
       }
-    } else {
-      throw Exception('Erro na chamada à API Gemini: ${response.statusCode}');
+    } catch (e) {
+      print('[GeminiService] Exceção ao processar PDF: $e');
+      rethrow;
     }
   }
 }

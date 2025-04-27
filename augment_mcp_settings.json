@@ -1,0 +1,64 @@
+{
+  "augment.advanced": {
+    "mcpServers": [
+      {
+        "name": "sequential-thinking",
+        "command": "npx",
+        "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
+      },
+      {
+        "name": "memory",
+        "command": "npx",
+        "args": ["-y", "@modelcontextprotocol/server-memory"]
+      },
+      {
+        "name": "json",
+        "command": "npx",
+        "args": ["-y", "@modelcontextprotocol/server-json"]
+      },
+      {
+        "name": "calculator",
+        "command": "npx",
+        "args": ["-y", "@modelcontextprotocol/server-calculator"]
+      },
+      {
+        "name": "time",
+        "command": "npx",
+        "args": ["-y", "@modelcontextprotocol/server-time"]
+      },
+      {
+        "name": "mindmap",
+        "command": "npx",
+        "args": ["-y", "@smithery/cli", "run", "mcp-mindmap", "--config", "{}"]
+      },
+      {
+        "name": "fetch",
+        "command": "npx",
+        "args": ["-y", "@modelcontextprotocol/server-fetch"]
+      },
+      {
+        "name": "searxng",
+        "command": "npx",
+        "args": ["-y", "mcp-searxng"],
+        "env": {
+          "SEARXNG_URL": "https://searx.be"
+        }
+      },
+      {
+        "name": "scholarly",
+        "command": "npx",
+        "args": ["-y", "@smithery/cli", "run", "mcp-scholarly", "--config", "{}"]
+      },
+      {
+        "name": "obsidian",
+        "command": "npx",
+        "args": ["-y", "@smithery/cli", "run", "mcp-obsidian", "--config", "{}"]
+      },
+      {
+        "name": "anki",
+        "command": "npx",
+        "args": ["-y", "@smithery/cli", "run", "mcp-anki", "--config", "{}"]
+      }
+    ]
+  }
+}

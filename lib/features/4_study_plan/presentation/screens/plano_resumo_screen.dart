@@ -8,6 +8,8 @@ import '../../../../core/data/services/plano_estudo_service.dart';
 import '../../../../core/data/services/sessao_estudo_service.dart';
 import '../../../../core/services/audio_explanation_service.dart';
 import '../../../../core/utils/plano_data_logger.dart';
+import '../../../../core/widgets/api_quota_indicator.dart';
+import '../../../../core/widgets/app_bar_with_quota.dart';
 import '../../domain/services/calendario_service.dart';
 import '../../domain/services/extrator_dados_service.dart';
 import '../../domain/services/plano_resumo_service.dart';
@@ -197,8 +199,8 @@ class _PlanoResumoScreenState extends State<PlanoResumoScreen> {
   Widget build(BuildContext context) {
     if (_isLoading) {
       return Scaffold(
-        appBar: AppBar(
-          title: const Text('Resumo do Plano'),
+        appBar: const AppBarWithQuota(
+          title: 'Resumo do Plano',
         ),
         body: const Center(
           child: CircularProgressIndicator(),
@@ -208,8 +210,8 @@ class _PlanoResumoScreenState extends State<PlanoResumoScreen> {
 
     if (_errorMessage != null || _plano == null) {
       return Scaffold(
-        appBar: AppBar(
-          title: const Text('Resumo do Plano'),
+        appBar: const AppBarWithQuota(
+          title: 'Resumo do Plano',
         ),
         body: Center(
           child: Column(
@@ -238,8 +240,8 @@ class _PlanoResumoScreenState extends State<PlanoResumoScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Resumo do Plano'),
+      appBar: AppBarWithQuota(
+        title: 'Resumo do Plano',
         actions: [
           IconButton(
             icon: const Icon(Icons.data_usage),

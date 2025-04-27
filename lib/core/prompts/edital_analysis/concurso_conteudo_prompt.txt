@@ -88,13 +88,14 @@ Você deve ser capaz de entender todas essas possibilidades e identificar a lóg
    - Identifique se alguma matéria tem peso maior que outras (se disponível no edital)
    - Identifique quais matérias são utilizadas como critério de desempate (se disponível no edital)
 
-2. **Informações sobre a Prova:**
+2. **Informações sobre Inscrições e Prova:**
+   - Período de inscrições (início e fim)
+   - Taxa de inscrição específica para o cargo [CARGO_ALVO]
    - Número total de questões
    - Formato da prova (objetiva, subjetiva, discursiva)
    - Tema da prova subjetiva/discursiva (se houver)
-   - Critérios de aprovação
-   - Critérios de reprovação
-   - Critérios de desempate
+   - Critérios de aprovação (liste cada critério separadamente)
+   - Critérios de desempate (liste cada critério separadamente)
 
 3. **Informações sobre Cotas e Reserva de Vagas:**
    - Identifique o número de vagas imediatas para o cargo [CARGO_ALVO], cadastro de reserva e cotas, se houver.
@@ -149,8 +150,16 @@ Esteja ciente de que a estrutura desses documentos varia enormemente. As informa
       "total_questoes": 100,
       "formato": ["objetiva", "discursiva"],
       "tema_discursiva": "Tema da prova discursiva (se houver)",
-      "criterios_aprovacao": "Descrição dos critérios de aprovação",
-      "criterios_desempate": ["Matéria 1", "Matéria 2", "Idade"]
+      "criterios_aprovacao": [
+        "Acertar pelo menos 50% das questões objetivas",
+        "Não zerar em nenhuma disciplina",
+        "Estar entre os 10 primeiros colocados"
+      ],
+      "criterios_desempate": [
+        "Maior nota na Matéria 1",
+        "Maior nota na Matéria 2",
+        "Maior idade"
+      ]
     },
     "vagas": {
       "imediatas": 10,
@@ -166,19 +175,31 @@ Esteja ciente de que a estrutura desses documentos varia enormemente. As informa
         "nome": "Negros (Pretos e Pardos)",
         "percentual": 20,
         "numero_vagas": 5,
-        "criterios": "Autodeclaração e procedimento de heteroidentificação"
+        "criterios": [
+          "Autodeclaração racial",
+          "Procedimento de heteroidentificação",
+          "Foto recente anexada ao formulário"
+        ]
       },
       {
         "nome": "Pessoas com Deficiência (PcD)",
         "percentual": 10,
         "numero_vagas": 2,
-        "criterios": "Laudo médico atestando a espécie e o grau da deficiência"
+        "criterios": [
+          "Laudo médico atestando a espécie da deficiência",
+          "Laudo médico atestando o grau da deficiência",
+          "CID da deficiência"
+        ]
       },
       {
         "nome": "Minorias Étnico-Raciais (população indígena, quilombolas, ciganos, povos/comunidades tradicionais)",
         "percentual": 5,
         "numero_vagas": 1,
-        "criterios": "Declaração de pertencimento étnico"
+        "criterios": [
+          "Declaração de pertencimento étnico",
+          "Documento da FUNAI (para indígenas)",
+          "Declaração da comunidade (para quilombolas)"
+        ]
       }
     ],
     "conteudo_programatico": [
@@ -247,6 +268,8 @@ Esteja ciente de que a estrutura desses documentos varia enormemente. As informa
 12. É ABSOLUTAMENTE ESSENCIAL preservar as nomenclaturas exatas das cotas conforme aparecem no edital. Não padronize ou simplifique os nomes das categorias de cotas.
 13. Para cada categoria de cota, inclua o percentual (quando disponível) e o número absoluto de vagas (quando disponível). Se apenas um deles estiver disponível, use null para o outro.
 14. Inclua os critérios específicos para concorrer a cada tipo de cota, exatamente como descritos no edital.
+15. IMPORTANTE: Para campos que podem conter listas de itens (como "criterios_aprovacao", "criterios_desempate", "criterios" nas cotas), SEMPRE forneça como arrays de strings, mesmo que haja apenas um item. Isso facilita a numeração no frontend.
+16. Para a taxa de inscrição ("taxa"), se houver valores diferentes para diferentes cargos, use APENAS o valor que se aplica ao cargo alvo [CARGO_ALVO]. Se o edital mencionar valores diferentes (ex: "R$ 100,00 para nível médio e R$ 150,00 para nível superior"), identifique qual se aplica ao cargo alvo e use apenas esse valor.
 
 **Exemplo de Distribuição de Questões:**
 Se o edital prevê 80 questões no total, com 10 questões para cada uma das matérias A, B, C e D (total de 40 questões explicitamente distribuídas), e há mais 6 matérias (E, F, G, H, I e J) sem número explícito de questões, você deve:
