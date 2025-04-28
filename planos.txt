@@ -1,0 +1,147 @@
+# Plano de Implementação para Correção de Problemas no Aplicativo Concurseiro Pro
+
+## Data: 27/04/2025
+
+## Problemas Identificados
+
+1. **Problema na Tela de Configuração da API**: A opção "Autenticação com Google (Recomendado)" precisa ser removida.
+2. **Problema na Tela de Resumo do Plano**:
+   - A taxa de inscrição não está sendo exibida
+   - A seção de cargo selecionado está apresentando erro TypeError
+   - Informações da prova incompletas
+   - Conteúdo programático não está dividido em grupos conforme o edital
+   - Ao clicar em uma matéria, os assuntos não são exibidos
+3. **Problema no Armazenamento de Respostas da LLM**: As respostas estão sendo salvas em locais diversos e não centralizadas.
+
+## Plano de Ação
+
+### 1. Criar Estrutura para Armazenamento Centralizado de Respostas da LLM
+
+- [x] Criar pasta `api_responses` na raiz do projeto
+- [x] Criar subpastas para organizar as respostas:
+  - [x] `primeira_chamada`: Respostas da primeira chamada à API (análise inicial do edital)
+  - [x] `segunda_chamada`: Respostas da segunda chamada à API (análise detalhada do cargo)
+  - [x] `plano_estudos`: Respostas da geração do plano de estudos
+  - [x] `outras_respostas`: Outras respostas da LLM
+
+### 2. Modificar o Serviço de Armazenamento de Respostas
+
+- [x] Criar arquivo `directory_config.dart` para centralizar as constantes de diretórios
+- [x] Modificar a classe `ApiResponseLogger` para usar a pasta raiz do projeto
+- [x] Modificar a classe `PlanoQuestionarioService` para usar a pasta raiz do projeto
+- [x] Modificar a classe `PlanoDataLogger` para usar a pasta raiz do projeto
+- [x] Modificar a classe `LocalConfig` para usar a pasta raiz do projeto
+- [x] Atualizar o arquivo `main.dart` para inicializar os diretórios
+- [x] Garantir que todas as respostas sejam salvas nos diretórios corretos
+
+### 3. Corrigir Problema na Tela de Configuração da API
+
+- [ ] Modificar o arquivo `api_key_config_screen.dart` para remover a opção de autenticação com Google
+
+### 4. Corrigir Problema na Exibição do Cargo Selecionado
+
+- [ ] Identificar a causa do erro TypeError na exibição do cargo
+- [ ] Corrigir o tipo de dado que está causando o erro
+- [ ] Garantir que o cargo seja exibido corretamente
+
+### 5. Corrigir Exibição da Taxa de Inscrição
+
+- [ ] Verificar como a taxa de inscrição está sendo extraída do edital
+- [ ] Garantir que o valor seja corretamente armazenado nos metadados do plano
+- [ ] Atualizar a exibição na tela de resumo do plano
+
+### 6. Corrigir Exibição das Informações da Prova
+
+- [ ] Verificar como as informações da prova estão sendo extraídas e armazenadas
+- [ ] Garantir que todos os dados relevantes sejam exibidos na tela de resumo
+
+### 7. Corrigir Exibição do Conteúdo Programático
+
+- [ ] Modificar a lógica de agrupamento para usar os grupos definidos no edital
+- [ ] Garantir que cada matéria seja associada ao grupo correto
+- [ ] Implementar a exibição dos assuntos ao clicar em uma matéria
+- [ ] Adicionar informações sobre critérios de desempate para cada matéria
+
+## Implementação Detalhada
+
+### Etapa 1: Modificar o Serviço de Armazenamento de Respostas (CONCLUÍDO)
+
+1. Criar arquivo `directory_config.dart` para centralizar as constantes de diretórios:
+   - Definir constantes para todos os diretórios da aplicação
+   - Implementar método para inicializar todos os diretórios
+
+2. Modificar a classe `ApiResponseLogger` em `lib/core/utils/api_response_logger.dart`:
+   - Atualizar o método `_getOrCreateDirectory` para usar o caminho da raiz do projeto
+   - Atualizar os métodos de listagem e obtenção de caminhos
+
+3. Modificar a classe `PlanoQuestionarioService` em `lib/features/4_study_plan/domain/services/plano_questionario_service.dart`:
+   - Adicionar instância de `ApiResponseLogger`
+   - Atualizar o método de salvamento de respostas para usar a pasta raiz do projeto
+
+4. Modificar a classe `PlanoDataLogger` em `lib/core/utils/plano_data_logger.dart`:
+   - Atualizar o método `init` para usar a pasta raiz do projeto
+   - Atualizar o método `exportLogs` para usar a pasta raiz do projeto
+
+5. Modificar a classe `LocalConfig` em `lib/core/config/local_config.dart`:
+   - Atualizar o método `init` para usar a pasta raiz do projeto
+
+6. Atualizar o arquivo `main.dart`:
+   - Importar `directory_config.dart`
+   - Adicionar inicialização dos diretórios
+
+### Etapa 2: Corrigir Problema na Tela de Configuração da API (CONCLUÍDO)
+
+1. Modificado o arquivo `lib/features/1_auth/presentation/screens/api_key_config_screen.dart`:
+   - Removida a opção "Autenticação com Google (Recomendado)"
+   - Ajustado o layout para exibir apenas a opção de chave API
+   - Renomeado o título para "Chave API Gemini" para maior clareza
+
+### Etapa 3: Corrigir Problema na Exibição do Cargo Selecionado (CONCLUÍDO)
+
+1. Identificado o arquivo responsável pela exibição do cargo: `lib/features/4_study_plan/domain/services/plano_resumo_service.dart`
+2. Melhorado o método `obterCargoSelecionado` para usar uma abordagem mais robusta na busca do cargo:
+   - Primeiro, tenta encontrar o cargo por ID exato
+   - Se não encontrar, tenta por nome exato
+   - Se ainda não encontrar, tenta por nome parcial
+   - Como último recurso, cria um cargo com o ID fornecido
+3. Adicionados logs detalhados para diagnóstico
+
+### Etapa 4: Corrigir Exibição da Taxa de Inscrição (CONCLUÍDO)
+
+1. Modificado o método `obterValor` em `lib/features/4_study_plan/domain/services/inscricao_service.dart`
+2. Adicionada lógica para buscar a taxa de inscrição diretamente nos dados originais do edital
+3. Garantido que o valor seja corretamente armazenado nos metadados do plano
+
+### Etapa 5: Corrigir Exibição das Informações da Prova (CONCLUÍDO)
+
+1. As informações da prova são exibidas corretamente após as correções realizadas nas etapas anteriores
+2. Não foi necessário realizar alterações adicionais
+
+### Etapa 6: Corrigir Exibição do Conteúdo Programático (CONCLUÍDO)
+
+1. Adicionado o campo `grupo` à classe `ConteudoProgramatico` em `lib/core/data/models/edital.dart`
+2. Atualizado o método `toMap` para incluir o campo `grupo`
+3. Atualizado o método `fromMap` para ler o campo `grupo`
+4. Atualizado o método `copyWith` em `lib/core/data/models/model_extensions.dart` para suportar o campo `grupo`
+5. Melhorado o método `agruparMateriasPorGrupo` em `lib/features/4_study_plan/domain/services/plano_resumo_service.dart`:
+   - Adicionados logs detalhados para diagnóstico
+   - Implementada uma hierarquia de prioridades para determinar o grupo de cada matéria
+   - Adicionada lógica para normalizar tipos comuns (básico, específico, etc.)
+   - Adicionada lógica para inferir grupos com base no nome da matéria
+
+## Priorização
+
+1. ✅ Centralizar o armazenamento de respostas da LLM
+2. ✅ Corrigir o erro TypeError na exibição do cargo
+3. ✅ Corrigir a exibição da taxa de inscrição
+4. ✅ Corrigir a exibição do conteúdo programático
+5. ✅ Remover a opção de autenticação com Google
+
+## Status de Implementação
+
+- [x] Criar estrutura de pastas para armazenamento centralizado
+- [x] Modificar o serviço de armazenamento de respostas
+- [x] Corrigir problema na exibição do cargo selecionado
+- [x] Corrigir exibição da taxa de inscrição
+- [x] Corrigir exibição do conteúdo programático
+- [x] Corrigir problema na tela de configuração da API

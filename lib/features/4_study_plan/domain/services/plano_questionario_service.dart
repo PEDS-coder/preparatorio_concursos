@@ -8,6 +8,8 @@ import '../../../../core/data/models/models.dart';
 import '../../../../core/data/services/interfaces/ia_service_interface.dart';
 import '../../../../core/data/services/plano_estudo_service.dart';
 import '../../../../core/auth/auth_service.dart';
+import '../../../../core/utils/api_response_logger.dart';
+import '../../../../core/config/directory_config.dart';
 import 'llm_response_processor.dart';
 import 'plano_data_validator.dart';
 
@@ -19,6 +21,7 @@ class PlanoQuestionarioService {
   final PlanoDataLogger logger;
   final PlanoDataValidator validator;
   final LLMResponseProcessor llmProcessor;
+  final ApiResponseLogger apiResponseLogger = ApiResponseLogger();
 
   PlanoQuestionarioService({
     required this.iaService,
@@ -94,23 +97,42 @@ class PlanoQuestionarioService {
           dadosCargo: dadosParaAPI,
         );
 
-        // Salvar a resposta completa em um arquivo de log para análise posterior
+        // Salvar a resposta usando o ApiResponseLogger centralizado
         try {
-          final directory = await getApplicationDocumentsDirectory();
-          final file = File('${directory.path}/llm_response_log.txt');
-          await file.writeAsString('${DateTime.now().toString()}\n$resultadoAPI\n\n', mode: FileMode.append);
-          logger.logProcessamentoLLM(planoId, 'resposta_salva_arquivo_log', {'caminho': file.path});
-        } catch (e) {
-          logger.logProcessamentoLLM(planoId, 'erro_salvar_arquivo_log', {'erro': e.toString()});
-        }
+          // Salvar a resposta bruta em outras_respostas
+          final caminhoRespostaBruta = await apiResponseLogger.salvarRespostaBruta(
+            tipo: 'plano_estudos',
+            resposta: resultadoAPI,
+            metadados: {
+              'plano_id': planoId,
+              'cargo': dadosCargo['cargo'],
+              'data_inicio': dataInicio != null ? '${dataInicio.day}/${dataInicio.month}/${dataInicio.year}' : '',
+              'data_fim': dataFim != null ? '${dataFim.day}/${dataFim.month}/${dataFim.year}' : '',
+            },
+          );
 
-        // Salvar a resposta em um arquivo específico para este plano
-        try {
-          final directory = await getApplicationDocumentsDirectory();
-          final file = File('${directory.path}/resposta_llm_$planoId.json');
+          // Usar o diretório definido em DirectoryConfig
+          final baseDir = Directory(DirectoryConfig.planoEstudosDir);
+
+          // Verificar se o diretório existe e criar se necessário
+          if (!await baseDir.exists()) {
+            debugPrint('Criando diretório para plano de estudos: ${baseDir.path}');
+            await baseDir.create(recursive: true);
+          }
+
+          // Salvar a resposta em um arquivo específico para este plano
+          final file = File('${baseDir.path}/resposta_llm_$planoId.json');
           await file.writeAsString(resultadoAPI);
-          logger.logProcessamentoLLM(planoId, 'resposta_salva_arquivo', {'caminho': file.path});
+          debugPrint('Resposta do plano de estudos salva em: ${file.path}');
+
+          logger.logProcessamentoLLM(planoId, 'resposta_salva_arquivo', {
+            'caminho_bruta': caminhoRespostaBruta,
+            'caminho_json': file.path,
+            'diretorio': baseDir.path,
+            'diretorio_existe': await baseDir.exists(),
+          });
         } catch (e) {
+          debugPrint('ERRO ao salvar resposta do plano de estudos: $e');
           logger.logProcessamentoLLM(planoId, 'erro_salvar_arquivo', {'erro': e.toString()});
         }
       } catch (e) {

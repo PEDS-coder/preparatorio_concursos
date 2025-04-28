@@ -472,70 +472,7 @@ class _ApiKeyConfigScreenState extends State<ApiKeyConfigScreen> {
                         const SizedBox(height: 16),
                         // Opções de autenticação
                         Text(
-                          'Método de Autenticação',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                            color: isDarkMode ? Colors.white : Colors.black87,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        // Opção de autenticação OAuth
-                        InkWell(
-                          onTap: () {
-                            Navigator.pushNamed(context, '/oauth_config');
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-                            decoration: BoxDecoration(
-                              color: Colors.blue.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: Colors.blue.withOpacity(0.3)),
-                            ),
-                            child: Row(
-                              children: [
-                                const Icon(Icons.account_circle, color: Colors.blue),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Autenticação com Google (Recomendado)',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          color: isDarkMode ? Colors.white : Colors.black87,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        'Use sua conta Google para autenticar com a API Gemini',
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          color: isDarkMode ? Colors.white70 : Colors.black54,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.blue),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          'OU',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: isDarkMode ? Colors.white70 : Colors.black54,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          'Chave API',
+                          'Chave API Gemini',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w500,

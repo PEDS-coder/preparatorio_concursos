@@ -25,8 +25,8 @@ class PlanoDataLogger {
 
     try {
       if (!kIsWeb) {
-        final directory = await getApplicationDocumentsDirectory();
-        final path = '${directory.path}/logs';
+        // Usar a pasta raiz do projeto em vez de getApplicationDocumentsDirectory()
+        final path = '${Directory.current.path}/logs';
         await Directory(path).create(recursive: true);
         _logFile = File('$path/plano_data_log.txt');
 
@@ -239,9 +239,10 @@ class PlanoDataLogger {
 
     try {
       await init();
-      final directory = await getApplicationDocumentsDirectory();
+      // Usar a pasta raiz do projeto em vez de getApplicationDocumentsDirectory()
+      final path = '${Directory.current.path}/logs';
       final timestamp = DateFormat('yyyyMMdd_HHmmss').format(DateTime.now());
-      final exportPath = '${directory.path}/plano_data_log_$timestamp.txt';
+      final exportPath = '$path/plano_data_log_$timestamp.txt';
 
       final exportFile = File(exportPath);
       await exportFile.writeAsString(await getLogs());

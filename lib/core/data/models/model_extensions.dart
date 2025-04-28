@@ -15,6 +15,7 @@ extension ConteudoProgramaticoExtension on ConteudoProgramatico {
     int? numeroQuestoes,
     int? totalQuestoesGrupo,
     String? grupoMateria,
+    String? grupo,
   }) {
     return ConteudoProgramatico(
       nome: nome ?? this.nome,
@@ -25,6 +26,7 @@ extension ConteudoProgramaticoExtension on ConteudoProgramatico {
       numeroQuestoes: numeroQuestoes ?? this.numeroQuestoes,
       totalQuestoesGrupo: totalQuestoesGrupo ?? this.totalQuestoesGrupo,
       grupoMateria: grupoMateria ?? this.grupoMateria,
+      grupo: grupo ?? this.grupo,
     );
   }
 }

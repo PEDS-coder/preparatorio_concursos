@@ -11,6 +11,7 @@ class ConteudoProgramatico {
   final bool? questoesEstimadas; // Indica se o número de questões foi estimado ou está explícito no edital
   final int? totalQuestoesGrupo; // Número total de questões do grupo (conhecimentos básicos/específicos)
   final String? grupoMateria; // Nome do grupo/módulo ao qual a matéria pertence (ex: "Módulo I", "Conhecimentos Básicos")
+  final String? grupo; // Campo adicional para compatibilidade com o campo 'grupo' usado em algumas partes do código
 
   ConteudoProgramatico({
     required this.nome,
@@ -22,6 +23,7 @@ class ConteudoProgramatico {
     this.questoesEstimadas,
     this.totalQuestoesGrupo,
     this.grupoMateria,
+    this.grupo,
   });
 
   Map<String, dynamic> toMap() {
@@ -35,6 +37,7 @@ class ConteudoProgramatico {
       'questoes_estimadas': questoesEstimadas,
       'total_questoes_grupo': totalQuestoesGrupo,
       'grupo_materia': grupoMateria,
+      'grupo': grupo,
     };
   }
 
@@ -49,6 +52,7 @@ class ConteudoProgramatico {
       questoesEstimadas: map['questoes_estimadas'],
       totalQuestoesGrupo: map['total_questoes_grupo'] is int ? map['total_questoes_grupo'] : null,
       grupoMateria: map['grupo_materia'],
+      grupo: map['grupo'],
     );
   }
 

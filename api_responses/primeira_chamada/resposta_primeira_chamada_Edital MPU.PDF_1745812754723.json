@@ -1,0 +1,360 @@
+{
+  "metadata": {
+    "timestamp": 1745812754723,
+    "data_hora": "27/04/2025 23:59:14",
+    "edital_id": "Edital MPU.PDF",
+    "tipo_resposta": "primeira_chamada"
+  },
+  "resposta": {
+    "titulo_concurso": "Concurso Público para provimento de vagas nos cargos de Analista e Técnico do MPU",
+    "orgao_responsavel": "Ministério Público da União",
+    "banca_organizadora": "Fundação Getulio Vargas (FGV)",
+    "cargos": [
+      {
+        "nome": "Analista do MPU - Arquivologia",
+        "vagas": 1,
+        "salario": 13994.78,
+        "requisitos": [
+          "Curso superior completo, em nível de graduação.",
+          "Curso superior em Arquivologia, devidamente reconhecido.",
+          "Registro na Delegacia Regional do Trabalho do Ministério do Trabalho e Emprego: É necessário."
+        ]
+      },
+      {
+        "nome": "Analista do MPU - Atuarial",
+        "vagas": 1,
+        "salario": 13994.78,
+        "requisitos": [
+          "Curso superior completo, em nível de graduação.",
+          "Curso superior em Ciências Contábeis e Atuariais ou Ciências Atuariais, devidamente reconhecido.",
+          "Registro Profissional no Órgão de Classe Competente: É necessário."
+        ]
+      },
+      {
+        "nome": "Analista do MPU - Biblioteconomia",
+        "vagas": 1,
+        "salario": 13994.78,
+        "requisitos": [
+          "Curso superior completo, em nível de graduação.",
+          "Curso superior em Biblioteconomia, devidamente reconhecido.",
+          "Registro Profissional na Delegacia Regional do Trabalho: É necessário."
+        ]
+      },
+      {
+        "nome": "Analista do MPU - Clínica Médica",
+        "vagas": 1,
+        "salario": 13994.78,
+        "requisitos": [
+          "Curso superior completo, em nível de graduação.",
+          "Curso superior em Medicina, com título ou certificado de especialização em Clínica Médica, devidamente reconhecidos.",
+          "Registro Profissional no Órgão de Classe Competente: É necessário."
+        ]
+      },
+      {
+        "nome": "Analista do MPU - Comunicação Social",
+        "vagas": 1,
+        "salario": 13994.78,
+        "requisitos": [
+          "Curso superior completo, em nível de graduação.",
+          "Curso superior em Comunicação Social (Jornalismo, Publicidade, Rádio e TV, Propaganda e Relações Públicas ou Comunicação Organizacional), devidamente reconhecido.",
+          "Registro Profissional na Delegacia Regional do Trabalho: É necessário."
+        ]
+      },
+      {
+        "nome": "Analista do MPU - Desenvolvimento de Sistemas",
+        "vagas": 1,
+        "salario": 13994.78,
+        "requisitos": [
+          "Curso superior completo, em nível de graduação.",
+          "Curso superior na área de Tecnologia da Informação, devidamente reconhecido."
+        ]
+      },
+      {
+        "nome": "Analista do MPU - Direito",
+        "vagas": 43,
+        "salario": 13994.78,
+        "requisitos": [
+          "Curso superior completo, em nível de graduação.",
+          "Curso superior em Direito, devidamente reconhecido."
+        ]
+      },
+      {
+        "nome": "Analista do MPU - Enfermagem",
+        "vagas": 1,
+        "salario": 13994.78,
+        "requisitos": [
+          "Curso superior completo, em nível de graduação.",
+          "Curso superior em Enfermagem, devidamente reconhecido.",
+          "Registro Profissional no Órgão de Classe Competente: É necessário."
+        ]
+      },
+      {
+        "nome": "Analista do MPU - Ginecologia",
+        "vagas": 1,
+        "salario": 13994.78,
+        "requisitos": [
+          "Curso superior completo, em nível de graduação.",
+          "Curso superior em Medicina, com título ou certificado de especialização em Ginecologia, devidamente reconhecidos.",
+          "Registro Profissional no Órgão de Classe Competente: É necessário."
+        ]
+      },
+      {
+        "nome": "Analista do MPU - Junta Médica em Psiquiatria",
+        "vagas": 1,
+        "salario": 13994.78,
+        "requisitos": [
+          "Curso superior completo, em nível de graduação.",
+          "Curso superior em Medicina, com título ou certificado de especialização em Psiquiatria, devidamente reconhecidos.",
+          "Registro Profissional no Órgão de Classe Competente: É necessário."
+        ]
+      },
+      {
+        "nome": "Analista do MPU - Odontologia",
+        "vagas": 1,
+        "salario": 13994.78,
+        "requisitos": [
+          "Curso superior completo, em nível de graduação.",
+          "Curso superior em Odontologia, devidamente reconhecido.",
+          "Registro Profissional no Órgão de Classe Competente: É necessário."
+        ]
+      },
+      {
+        "nome": "Analista do MPU - Oftalmologia",
+        "vagas": 1,
+        "salario": 13994.78,
+        "requisitos": [
+          "Curso superior completo, em nível de graduação.",
+          "Curso superior em Medicina, com título ou certificado de especialização em Oftalmologia, devidamente reconhecidos.",
+          "Registro Profissional no Órgão de Classe Competente: É necessário."
+        ]
+      },
+      {
+        "nome": "Analista do MPU - Perito em Antropologia",
+        "vagas": 1,
+        "salario": 13994.78,
+        "requisitos": [
+          "Curso superior completo, em nível de graduação.",
+          "Curso superior em antropologia ou em ciências sociais, com habilitação em antropologia, devidamente reconhecidos; ou mestrado ou doutorado em antropologia ou antropologia social, devidamente reconhecidos."
+        ]
+      },
+      {
+        "nome": "Analista do MPU - Perito em Arquitetura",
+        "vagas": 1,
+        "salario": 13994.78,
+        "requisitos": [
+          "Curso superior completo, em nível de graduação.",
+          "Curso superior em Arquitetura ou em Arquitetura e Urbanismo, devidamente reconhecido.",
+          "Registro Profissional no Órgão de Classe Competente: É necessário."
+        ]
+      },
+      {
+        "nome": "Analista do MPU - Perito em Biologia",
+        "vagas": 1,
+        "salario": 13994.78,
+        "requisitos": [
+          "Curso superior completo, em nível de graduação.",
+          "Curso superior em Biologia, devidamente reconhecido.",
+          "Registro Profissional no Órgão de Classe Competente: É necessário."
+        ]
+      },
+      {
+        "nome": "Analista do MPU - Perito em Contabilidade",
+        "vagas": 1,
+        "salario": 13994.78,
+        "requisitos": [
+          "Curso superior completo, em nível de graduação.",
+          "Curso superior em Ciências Contábeis, devidamente reconhecido.",
+          "Registro Profissional no Órgão de Classe Competente: É necessário."
+        ]
+      },
+      {
+        "nome": "Analista do MPU - Perito em Economia",
+        "vagas": 1,
+        "salario": 13994.78,
+        "requisitos": [
+          "Curso superior completo, em nível de graduação.",
+          "Curso superior em Economia, devidamente reconhecido.",
+          "Registro Profissional no Órgão de Classe Competente: É necessário."
+        ]
+      },
+      {
+        "nome": "Analista do MPU - Perito em Engenharia Agronômica",
+        "vagas": 1,
+        "salario": 13994.78,
+        "requisitos": [
+          "Curso superior completo, em nível de graduação.",
+          "Curso superior em Engenharia Agronômica, devidamente reconhecido.",
+          "Registro Profissional no Órgão de Classe Competente: É necessário."
+        ]
+      },
+      {
+        "nome": "Analista do MPU - Perito em Engenharia Civil",
+        "vagas": 1,
+        "salario": 13994.78,
+        "requisitos": [
+          "Curso superior completo, em nível de graduação.",
+          "Curso superior em Engenharia Civil, devidamente reconhecido.",
+          "Registro Profissional no Órgão de Classe Competente: É necessário."
+        ]
+      },
+      {
+        "nome": "Analista do MPU - Perito em Engenharia de Segurança do Trabalho",
+        "vagas": 1,
+        "salario": 13994.78,
+        "requisitos": [
+          "Curso superior completo, em nível de graduação.",
+          "Curso superior em Engenharia ou Arquitetura, com especialização em Segurança do Trabalho, devidamente reconhecidos.",
+          "Registro Profissional no Órgão de Classe Competente: É necessário."
+        ]
+      },
+      {
+        "nome": "Analista do MPU - Perito em Engenharia Elétrica",
+        "vagas": 1,
+        "salario": 13994.78,
+        "requisitos": [
+          "Curso superior completo, em nível de graduação.",
+          "Curso superior em Engenharia Elétrica, devidamente reconhecido.",
+          "Registro Profissional no Órgão de Classe Competente: É necessário."
+        ]
+      },
+      {
+        "nome": "Analista do MPU - Perito em Engenharia Florestal",
+        "vagas": 1,
+        "salario": 13994.78,
+        "requisitos": [
+          "Curso superior completo, em nível de graduação.",
+          "Curso superior em Engenharia Florestal, devidamente reconhecido.",
+          "Registro Profissional no Órgão de Classe Competente: É necessário."
+        ]
+      },
+      {
+        "nome": "Analista do MPU - Perito em Engenharia Mecânica",
+        "vagas": 1,
+        "salario": 13994.78,
+        "requisitos": [
+          "Curso superior completo, em nível de graduação.",
+          "Curso superior em Engenharia Mecânica, devidamente reconhecido.",
+          "Registro Profissional no Órgão de Classe Competente: É necessário."
+        ]
+      },
+      {
+        "nome": "Analista do MPU - Perito em Engenharia Sanitária",
+        "vagas": 1,
+        "salario": 13994.78,
+        "requisitos": [
+          "Curso superior completo, em nível de graduação.",
+          "Curso superior em Engenharia Sanitária ou em Engenharia Sanitária e Ambiental, devidamente reconhecido.",
+          "Registro Profissional no Órgão de Classe Competente: É necessário."
+        ]
+      },
+      {
+        "nome": "Analista do MPU - Perito em Geografia",
+        "vagas": 1,
+        "salario": 13994.78,
+        "requisitos": [
+          "Curso superior completo, em nível de graduação.",
+          "Curso superior em Geografia, devidamente reconhecido.",
+          "Registro Profissional no Órgão de Classe Competente: É necessário."
+        ]
+      },
+      {
+        "nome": "Analista do MPU - Perito em Geologia",
+        "vagas": 1,
+        "salario": 13994.78,
+        "requisitos": [
+          "Curso superior completo, em nível de graduação.",
+          "Curso superior em Geologia ou Engenharia Geológica, devidamente reconhecido.",
+          "Registro Profissional no Órgão de Classe Competente: É necessário."
+        ]
+      },
+      {
+        "nome": "Analista do MPU - Perito em Medicina do Trabalho",
+        "vagas": 1,
+        "salario": 13994.78,
+        "requisitos": [
+          "Curso superior completo, em nível de graduação.",
+          "Curso superior em Medicina, com título de especialista em Medicina do Trabalho emitido pela AMB/ANAMT ou residência médica em Medicina do Trabalho, devidamente registrados no Órgão de Classe competente.",
+          "Registro Profissional no Órgão de Classe Competente: É necessário."
+        ]
+      },
+      {
+        "nome": "Analista do MPU - Perito em Oceanografia",
+        "vagas": 1,
+        "salario": 13994.78,
+        "requisitos": [
+          "Curso superior completo, em nível de graduação.",
+          "Curso superior em Oceanografia, devidamente reconhecido."
+        ]
+      },
+      {
+        "nome": "Analista do MPU - Perito em Tecnologia da Informação e Comunicação",
+        "vagas": 1,
+        "salario": 13994.78,
+        "requisitos": [
+          "Curso superior completo, em nível de graduação.",
+          "Curso superior na área de Tecnologia da Informação, devidamente reconhecido."
+        ]
+      },
+      {
+        "nome": "Analista do MPU - Psicologia",
+        "vagas": 1,
+        "salario": 13994.78,
+        "requisitos": [
+          "Curso superior completo, em nível de graduação.",
+          "Curso superior em Psicologia, devidamente reconhecido.",
+          "Registro Profissional no Órgão de Classe Competente: É necessário."
+        ]
+      },
+      {
+        "nome": "Analista do MPU - Serviço Social",
+        "vagas": 1,
+        "salario": 13994.78,
+        "requisitos": [
+          "Curso superior completo, em nível de graduação.",
+          "Curso superior em Serviço Social, devidamente reconhecido.",
+          "Registro Profissional no Órgão de Classe Competente: É necessário."
+        ]
+      },
+      {
+        "nome": "Analista do MPU - Suporte e Infraestrutura",
+        "vagas": 1,
+        "salario": 13994.78,
+        "requisitos": [
+          "Curso superior completo, em nível de graduação.",
+          "Curso superior na área de Tecnologia da Informação, devidamente reconhecido."
+        ]
+      },
+      {
+        "nome": "Técnico do MPU - Administração",
+        "vagas": 43,
+        "salario": 8529.65,
+        "requisitos": [
+          "Ensino superior completo, em nível de graduação.",
+          "Qualquer curso superior, devidamente reconhecido."
+        ]
+      },
+      {
+        "nome": "Técnico do MPU - Enfermagem",
+        "vagas": 1,
+        "salario": 8529.65,
+        "requisitos": [
+          "Ensino superior completo, em nível de graduação.",
+          "Qualquer curso superior, devidamente reconhecido.",
+          "Curso Técnico de Enfermagem, devidamente reconhecido.",
+          "Registro Profissional no Órgão de Classe Competente: É necessário."
+        ]
+      },
+      {
+        "nome": "Técnico do MPU - Polícia Institucional",
+        "vagas": 8,
+        "salario": 8529.65,
+        "requisitos": [
+          "Ensino superior completo, em nível de graduação.",
+          "Qualquer curso superior, devidamente reconhecido.",
+          "Aprovação, como etapa do concurso público, em curso na área de segurança com habilitação para manuseio e tiro com arma de fogo (Lei nº 12.694, de 24/7/2012).",
+          "Carteira Nacional de Habilitação categoria \"B\"."
+        ]
+      }
+    ]
+  }
+}

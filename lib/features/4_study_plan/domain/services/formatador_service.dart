@@ -190,58 +190,51 @@ class FormatadorService {
     return duracao;
   }
 
-  /// Numera itens em um texto, separando por ponto e vírgula, vírgula ou ponto
-  static String numerarItens(String texto) {
-    if (texto == null || texto.isEmpty || texto.toLowerCase() == 'null' || texto == 'não informado') {
+  /// Numera itens em um texto ou lista, separando por ponto e vírgula, vírgula ou ponto
+  static String numerarItens(dynamic textoOuLista) {
+    if (textoOuLista == null ||
+        (textoOuLista is String && (textoOuLista.isEmpty || textoOuLista.toLowerCase() == 'null' || textoOuLista.trim().toLowerCase() == 'não informado')) ||
+        (textoOuLista is List && textoOuLista.isEmpty)) {
       return 'Não informado';
     }
 
-    // Remover colchetes, chaves e parênteses se existirem
-    if ((texto.startsWith('[') && texto.endsWith(']')) ||
-        (texto.startsWith('{') && texto.endsWith('}')) ||
-        (texto.startsWith('(') && texto.endsWith(')'))) {
-      texto = texto.substring(1, texto.length - 1);
-    }
-
-    // Verificar se o texto já está numerado corretamente
-    if (RegExp(r'^\s*1\s*\.\s*').hasMatch(texto) && texto.contains('; ')) {
-      return texto;
-    }
-
-    // Tratar casos especiais para requisitos de cargos
-    if (texto.toLowerCase().contains("ensino superior") && texto.toLowerCase().contains("direito")) {
-      return "1. Ensino superior completo; 2. Habilitação Legal Específica: Curso superior em Direito, devidamente reconhecido";
-    }
-
-    // Tratar casos onde o texto contém ":" que separa categorias de requisitos
-    if (texto.contains(":")) {
-      // Dividir por ":" para separar categorias
-      List<String> categorias = texto.split(":");
-      if (categorias.length >= 2) {
-        String categoria = categorias[0].trim();
-        String conteudo = categorias[1].trim();
-
-        // Verificar se o conteúdo tem múltiplos itens
-        List<String> itensConteudo = _extrairItens(conteudo);
-        if (itensConteudo.length > 1) {
-          // Numerar os itens do conteúdo
-          List<String> itensNumerados = _numerarListaItens(itensConteudo);
-          return "$categoria: ${itensNumerados.join('; ')}";
-        } else {
-          // Se for apenas um item, não numerar
-          return texto;
+    List<String> itens = [];
+    // Se for lista, usar diretamente
+    if (textoOuLista is List) {
+      itens = textoOuLista.map((e) => e.toString().trim()).where((e) => e.isNotEmpty && e.toLowerCase() != 'não informado').toList();
+    } else if (textoOuLista is String) {
+      // Remover colchetes, chaves e parênteses se existirem
+      String texto = textoOuLista;
+      if ((texto.startsWith('[') && texto.endsWith(']')) ||
+          (texto.startsWith('{') && texto.endsWith('}')) ||
+          (texto.startsWith('(') && texto.endsWith(')'))) {
+        texto = texto.substring(1, texto.length - 1);
+      }
+      // Tratar casos onde o texto contém ":" que separa categorias de requisitos
+      if (texto.contains(":")) {
+        List<String> categorias = texto.split(":");
+        if (categorias.length >= 2) {
+          String categoria = categorias[0].trim();
+          String conteudo = categorias[1].trim();
+          List<String> itensConteudo = conteudo.split(RegExp(r'[;\n,]'))
+              .map((e) => e.trim())
+              .where((e) => e.isNotEmpty && e.toLowerCase() != 'não informado')
+              .toList();
+          if (itensConteudo.length > 1) {
+            List<String> itensNumerados = _numerarListaItens(itensConteudo);
+            return "$categoria: ${itensNumerados.join('; ')}";
+          } else {
+            return texto;
+          }
         }
       }
+      // Extrair itens do texto
+      itens = texto.split(RegExp(r'[;\n,]')).map((e) => e.trim()).where((e) => e.isNotEmpty && e.toLowerCase() != 'não informado').toList();
     }
-
-    // Extrair itens do texto
-    List<String> itens = _extrairItens(texto);
-
-    // Se houver apenas um item, retornar o texto original
+    // Se houver apenas um item, retornar o texto original (ou o único item)
     if (itens.length <= 1) {
-      return texto;
+      return itens.isNotEmpty ? itens.first : 'Não informado';
     }
-
     // Numerar os itens
     List<String> itensNumerados = _numerarListaItens(itens);
     return itensNumerados.join('; ');

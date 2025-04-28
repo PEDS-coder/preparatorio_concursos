@@ -14,7 +14,6 @@ class LLMResponseProcessor {
       'inicio_resposta': resposta.substring(0, resposta.length > 100 ? 100 : resposta.length),
     });
 
-    // Salvar a resposta completa da LLM para referência
     logger.logProcessamentoLLM(planoId, 'resposta_completa_referencia', 'RESPOSTA_LLM_COMPLETA_$planoId');
 
     try {
@@ -40,6 +39,16 @@ class LLMResponseProcessor {
 
       // Tentar decodificar o JSON
       Map<String, dynamic> resultadoJSON = json.decode(jsonString);
+
+      // Detecta se é resposta do concurso_conteudo_prompt.txt e extrai campos
+      if (resultadoJSON['resposta']?['concurso'] != null) {
+        resultadoJSON = _extrairCamposConteudoConcurso(resultadoJSON);
+      } else {
+        resultadoJSON = _normalizarCamposPadrao(resultadoJSON);
+      }
+
+      // Função utilitária para normalizar campos do JSON para o padrão dos metadados
+      // resultadoJSON = _normalizarCamposPadrao(resultadoJSON);
 
       // Verificar a estrutura do JSON
       _verificarEstruturaJSON(resultadoJSON, planoId);
@@ -67,6 +76,13 @@ class LLMResponseProcessor {
           });
 
           Map<String, dynamic> resultadoJSON = json.decode(jsonStr);
+
+          // Detecta se é resposta do concurso_conteudo_prompt.txt e extrai campos
+          if (resultadoJSON['resposta']?['concurso'] != null) {
+            resultadoJSON = _extrairCamposConteudoConcurso(resultadoJSON);
+          } else {
+            resultadoJSON = _normalizarCamposPadrao(resultadoJSON);
+          }
 
           // Verificar a estrutura do JSON
           _verificarEstruturaJSON(resultadoJSON, planoId);
@@ -100,6 +116,13 @@ class LLMResponseProcessor {
 
             Map<String, dynamic> resultadoJSON = json.decode(maiorJsonStr);
 
+            // Detecta se é resposta do concurso_conteudo_prompt.txt e extrai campos
+            if (resultadoJSON['resposta']?['concurso'] != null) {
+              resultadoJSON = _extrairCamposConteudoConcurso(resultadoJSON);
+            } else {
+              resultadoJSON = _normalizarCamposPadrao(resultadoJSON);
+            }
+
             // Verificar a estrutura do JSON
             _verificarEstruturaJSON(resultadoJSON, planoId);
 
@@ -122,6 +145,63 @@ class LLMResponseProcessor {
         return _gerarDadosSimulados();
       }
     }
+  }
+
+  /// Busca recursivamente o objeto que contém a chave "concurso"
+  static Map<String, dynamic>? _encontrarObjetoConcurso(Map<String, dynamic> json) {
+    if (json.containsKey('concurso')) return json;
+    if (json.containsKey('resposta') && json['resposta'] is Map<String, dynamic>) {
+      return _encontrarObjetoConcurso(json['resposta']);
+    }
+    return null;
+  }
+
+  /// Extrai e normaliza campos relevantes de JSONs aninhados vindos de prompts como concurso_conteudo_prompt.txt
+  static Map<String, dynamic> _extrairCamposConteudoConcurso(Map<String, dynamic> json) {
+    final obj = _encontrarObjetoConcurso(json);
+    if (obj == null) return {};
+    final concurso = obj['concurso'];
+    final cotas = concurso?['cotas'];
+    final inscricoes = concurso?['inscricoes'];
+    final prova = concurso?['prova'];
+    final metadados = <String, dynamic>{};
+    // Extração dos campos principais
+    if (prova != null) {
+      metadados['dataProva'] = prova['dataProva'] ?? prova['data'] ?? prova['data_prova'];
+      metadados['localProva'] = prova['localProva'] ?? prova['local'] ?? prova['local_prova'];
+      metadados['valorInscricao'] = inscricoes?['taxa'] ?? inscricoes?['valor'] ?? inscricoes?['taxa_inscricao'];
+      metadados['totalQuestoes'] = prova['totalQuestoes'] ?? prova['total_questoes'];
+      metadados['duracaoProva'] = prova['duracaoProva'] ?? prova['duracao'] ?? prova['duracao_prova'];
+      metadados['temaProvaSubjetiva'] = prova['temaProvaSubjetiva'] ?? prova['tema_discursiva'] ?? prova['temaProva'];
+      metadados['criteriosAprovacao'] = prova['criteriosAprovacao'] ?? prova['criterios_aprovacao'];
+      metadados['criteriosDesempate'] = prova['criteriosDesempate'] ?? prova['criterios_desempate'];
+    }
+    // Vagas
+    if (concurso?['vagas'] != null) {
+      final vagas = concurso['vagas'];
+      metadados['vagas_imediatas'] = vagas['imediatas'] ?? vagas['vagas_imediatas'];
+      metadados['cadastro_reserva'] = vagas['cadastro_reserva'] ?? vagas['cadastroReserva'];
+      metadados['total_vagas'] = vagas['total_consolidado'] ?? vagas['total'] ?? vagas['totalVagas'];
+      metadados['distribuicao_geografica'] = vagas['distribuicao_geografica'] ?? vagas['distribuicaoGeografica'];
+    }
+    // Cotas
+    if (cotas != null) {
+      metadados['cotas'] = cotas;
+    }
+    // Extração do conteúdo programático (garantido)
+    // Procura em vários formatos possíveis
+    final conteudo = concurso?['conteudo_programatico'] ??
+        concurso?['conteudoProgramatico'] ??
+        concurso?['conteudo_programaticos'] ??
+        concurso?['conteudos_programaticos'];
+    if (conteudo != null) {
+      metadados['conteudo_programatico'] = conteudo;
+    }
+    // Também verifica se já veio na raiz (caso algum fluxo use isso)
+    if (json['conteudo_programatico'] != null && metadados['conteudo_programatico'] == null) {
+      metadados['conteudo_programatico'] = json['conteudo_programatico'];
+    }
+    return metadados;
   }
 
   /// Extrai dados do concurso e cargo se presentes no JSON
@@ -306,7 +386,7 @@ class LLMResponseProcessor {
           ];
         }
       }
-        }
+    }
 
     // Verificar se há dados de prova diretamente no JSON
     if (json.containsKey('prova') && json['prova'] is Map) {
@@ -807,5 +887,28 @@ class LLMResponseProcessor {
     } catch (e) {
       return 14; // Em caso de erro, retornar 14 como padrão
     }
+  }
+
+  /// Função utilitária para normalizar campos do JSON para o padrão dos metadados
+  static Map<String, dynamic> _normalizarCamposPadrao(Map<String, dynamic> json) {
+    final mapeamento = {
+      'data_prova': 'dataProva',
+      'local_provas': 'localProva',
+      'formato': 'formatoProva',
+      'total_questoes': 'totalQuestoes',
+      'duracao': 'duracaoProva',
+      'tema_prova_subjetiva': 'temaProvaSubjetiva',
+      'criterios_aprovacao': 'criteriosAprovacao',
+      'criterios_desempate': 'criteriosDesempate',
+      'cotas': 'cotas',
+      'valor_inscricao': 'valorInscricao',
+      // Adicione outros mapeamentos conforme necessário
+    };
+    final novoJson = <String, dynamic>{};
+    json.forEach((key, value) {
+      final novoKey = mapeamento[key] ?? key;
+      novoJson[novoKey] = value;
+    });
+    return novoJson;
   }
 }

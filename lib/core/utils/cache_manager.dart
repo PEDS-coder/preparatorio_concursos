@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
+import '../config/directory_config.dart';
 
 /// Classe para gerenciar o cache de resultados de análises
 class CacheManager {
@@ -17,10 +18,8 @@ class CacheManager {
   /// Retorna o diretório de cache
   static Future<Directory> _getCacheDirectory() async {
     try {
-      // Tentar usar o diretório temporário em vez do diretório de documentos
-      // para evitar problemas de permissão
-      final tempDir = await getTemporaryDirectory();
-      final cacheDir = Directory('${tempDir.path}/$_cacheDir');
+      // Usar o diretório definido em DirectoryConfig
+      final cacheDir = Directory(DirectoryConfig.analysisCacheDir);
 
       if (!await cacheDir.exists()) {
         await cacheDir.create(recursive: true);
@@ -28,9 +27,10 @@ class CacheManager {
 
       return cacheDir;
     } catch (e) {
-      // Fallback para o diretório de documentos
-      final appDir = await getApplicationDocumentsDirectory();
-      final cacheDir = Directory('${appDir.path}/$_cacheDir');
+      debugPrint('Erro ao obter diretório de cache: $e');
+      // Fallback para o diretório temporário
+      final tempDir = await getTemporaryDirectory();
+      final cacheDir = Directory('${tempDir.path}/$_cacheDir');
 
       if (!await cacheDir.exists()) {
         await cacheDir.create(recursive: true);
@@ -172,8 +172,7 @@ class CacheManager {
 
         // 3. Limpar cache de imagens (se houver)
         try {
-          final appDir = await getApplicationDocumentsDirectory();
-          final imagesCacheDir = Directory('${appDir.path}/images_cache');
+          final imagesCacheDir = Directory('${Directory.current.path}/images_cache');
           if (await imagesCacheDir.exists()) {
             await imagesCacheDir.delete(recursive: true);
             debugPrint('Cache de imagens limpo com sucesso');

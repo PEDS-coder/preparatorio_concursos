@@ -1,0 +1,396 @@
+```json
+{
+  "ciclo_estudos": [
+    {
+      "dia": 1,
+      "blocos": [
+        {
+          "ordem": 1,
+          "materia": "LÍNGUA PORTUGUESA",
+          "duracao_minutos": 60,
+          "ferramenta": "Videoaulas"
+        },
+        {
+          "ordem": 2,
+          "materia": "Direito Constitucional",
+          "duracao_minutos": 60,
+          "ferramenta": "Lei Seca"
+        },
+        {
+          "ordem": 3,
+          "materia": "NOÇÕES DE SUSTENTABILIDADE",
+          "duracao_minutos": 60,
+          "ferramenta": "Videoaulas"
+        },
+        {
+          "ordem": 4,
+          "materia": "Direito Administrativo",
+          "duracao_minutos": 60,
+          "ferramenta": "Questões"
+        },
+        {
+          "ordem": 5,
+          "materia": "Direito Penal",
+          "duracao_minutos": 60,
+          "ferramenta": "Flashcards"
+        },
+        {
+          "ordem": 6,
+          "materia": "LEGISLAÇÃO INSTITUCIONAL",
+          "duracao_minutos": 60,
+          "ferramenta": "Videoaulas"
+        }
+      ]
+    },
+    {
+      "dia": 2,
+      "blocos": [
+        {
+          "ordem": 1,
+          "materia": "Direito Civil",
+          "duracao_minutos": 60,
+          "ferramenta": "Videoaulas"
+        },
+        {
+          "ordem": 2,
+          "materia": "LÍNGUA PORTUGUESA",
+          "duracao_minutos": 60,
+          "ferramenta": "Questões"
+        },
+        {
+          "ordem": 3,
+          "materia": "Direito Processual Penal",
+          "duracao_minutos": 60,
+          "ferramenta": "Lei Seca"
+        },
+        {
+          "ordem": 4,
+          "materia": "NOÇÕES DE DIREITOS HUMANOS E FUNDAMENTAIS E DE ACESSIBILIDADE",
+          "duracao_minutos": 60,
+          "ferramenta": "Videoaulas"
+        },
+        {
+          "ordem": 5,
+          "materia": "Direito do Trabalho",
+          "duracao_minutos": 60,
+          "ferramenta": "Videoaulas"
+        },
+        {
+          "ordem": 6,
+          "materia": "Direito Ambiental",
+          "duracao_minutos": 60,
+          "ferramenta": "Questões"
+        }
+      ]
+    },
+    {
+      "dia": 3,
+      "blocos": [
+        {
+          "ordem": 1,
+          "materia": "Direito Processual Civil",
+          "duracao_minutos": 60,
+          "ferramenta": "Videoaulas"
+        },
+        {
+          "ordem": 2,
+          "materia": "NOÇÕES DE ADMINISTRAÇÃO PÚBLICA",
+          "duracao_minutos": 60,
+          "ferramenta": "Videoaulas"
+        },
+        {
+          "ordem": 3,
+          "materia": "Direito Penal Militar",
+          "duracao_minutos": 60,
+          "ferramenta": "Videoaulas"
+        },
+        {
+          "ordem": 4,
+          "materia": "LÍNGUA PORTUGUESA",
+          "duracao_minutos": 60,
+          "ferramenta": "Resumos"
+        },
+        {
+          "ordem": 5,
+          "materia": "Direito Administrativo",
+          "duracao_minutos": 60,
+          "ferramenta": "Lei Seca"
+        },
+        {
+          "ordem": 6,
+          "materia": "Direito Penal",
+          "duracao_minutos": 60,
+          "ferramenta": "Questões"
+        }
+      ]
+    },
+    {
+      "dia": 4,
+      "blocos": [
+        {
+          "ordem": 1,
+          "materia": "Direito Processual Penal Militar",
+          "duracao_minutos": 60,
+          "ferramenta": "Videoaulas"
+        },
+        {
+          "ordem": 2,
+          "materia": "Direito Constitucional",
+          "duracao_minutos": 60,
+          "ferramenta": "Questões"
+        },
+        {
+          "ordem": 3,
+          "materia": "NOÇÕES DE SUSTENTABILIDADE",
+          "duracao_minutos": 60,
+          "ferramenta": "Questões"
+        },
+        {
+          "ordem": 4,
+          "materia": "Direito Processual do Trabalho",
+          "duracao_minutos": 60,
+          "ferramenta": "Videoaulas"
+        },
+        {
+          "ordem": 5,
+          "materia": "LEGISLAÇÃO INSTITUCIONAL",
+          "duracao_minutos": 60,
+          "ferramenta": "Lei Seca"
+        },
+        {
+          "ordem": 6,
+          "materia": "Direito Civil",
+          "duracao_minutos": 60,
+          "ferramenta": "Questões"
+        }
+      ]
+    },
+    {
+      "dia": 5,
+      "blocos": [
+        {
+          "ordem": 1,
+          "materia": "LÍNGUA PORTUGUESA",
+          "duracao_minutos": 60,
+          "ferramenta": "Flashcards"
+        },
+        {
+          "ordem": 2,
+          "materia": "NOÇÕES DE DIREITOS HUMANOS E FUNDAMENTAIS E DE ACESSIBILIDADE",
+          "duracao_minutos": 60,
+          "ferramenta": "Questões"
+        },
+        {
+          "ordem": 3,
+          "materia": "Direito Processual Penal",
+          "duracao_minutos": 60,
+          "ferramenta": "Questões"
+        },
+        {
+          "ordem": 4,
+          "materia": "Direito Administrativo",
+          "duracao_minutos": 60,
+          "ferramenta": "Videoaulas"
+        },
+        {
+          "ordem": 5,
+          "materia": "Direito Ambiental",
+          "duracao_minutos": 60,
+          "ferramenta": "Videoaulas"
+        },
+        {
+          "ordem": 6,
+          "materia": "Direito do Trabalho",
+          "duracao_minutos": 60,
+          "ferramenta": "Lei Seca"
+        }
+      ]
+    },
+    {
+      "dia": 6,
+      "blocos": [
+        {
+          "ordem": 1,
+          "materia": "Direito Processual Civil",
+          "duracao_minutos": 60,
+          "ferramenta": "Lei Seca"
+        },
+        {
+          "ordem": 2,
+          "materia": "NOÇÕES DE ADMINISTRAÇÃO PÚBLICA",
+          "duracao_minutos": 60,
+          "ferramenta": "Questões"
+        },
+        {
+          "ordem": 3,
+          "materia": "Direito Penal Militar",
+          "duracao_minutos": 60,
+          "ferramenta": "Lei Seca"
+        },
+        {
+          "ordem": 4,
+          "materia": "NOÇÕES DE SUSTENTABILIDADE",
+          "duracao_minutos": 60,
+          "ferramenta": "Flashcards"
+        },
+        {
+          "ordem": 5,
+          "materia": "Direito Processual Penal Militar",
+          "duracao_minutos": 60,
+          "ferramenta": "Questões"
+        },
+        {
+          "ordem": 6,
+          "materia": "Direito Civil",
+          "duracao_minutos": 60,
+          "ferramenta": "Lei Seca"
+        },
+        {
+          "ordem": 7,
+          "materia": "Direito Processual do Trabalho",
+          "duracao_minutos": 60,
+          "ferramenta": "Questões"
+        },
+        {
+          "ordem": 8,
+          "materia": "LEGISLAÇÃO INSTITUCIONAL",
+          "duracao_minutos": 60,
+          "ferramenta": "Questões"
+        }
+      ]
+    },
+    {
+      "dia": 7,
+      "blocos": [
+        {
+          "ordem": 1,
+          "materia": "NOÇÕES DE DIREITOS HUMANOS E FUNDAMENTAIS E DE ACESSIBILIDADE",
+          "duracao_minutos": 60,
+          "ferramenta": "Lei Seca"
+        },
+        {
+          "ordem": 2,
+          "materia": "Direito Ambiental",
+          "duracao_minutos": 60,
+          "ferramenta": "Lei Seca"
+        },
+        {
+          "ordem": 3,
+          "materia": "Direito do Trabalho",
+          "duracao_minutos": 60,
+          "ferramenta": "Questões"
+        },
+        {
+          "ordem": 4,
+          "materia": "Direito Penal Militar",
+          "duracao_minutos": 60,
+          "ferramenta": "Questões"
+        },
+        {
+          "ordem": 5,
+          "materia": "Direito Processual Civil",
+          "duracao_minutos": 60,
+          "ferramenta": "Questões"
+        },
+        {
+          "ordem": 6,
+          "materia": "NOÇÕES DE ADMINISTRAÇÃO PÚBLICA",
+          "duracao_minutos": 60,
+          "ferramenta": "Flashcards"
+        },
+        {
+          "ordem": 7,
+          "materia": "Direito Processual Penal Militar",
+          "duracao_minutos": 60,
+          "ferramenta": "Lei Seca"
+        },
+        {
+          "ordem": 8,
+          "materia": "Direito Processual do Trabalho",
+          "duracao_minutos": 60,
+          "ferramenta": "Lei Seca"
+        }
+      ]
+    }
+  ],
+  "duracao_total_ciclo": 7,
+  "total_blocos_ciclo": 46,
+  "materias_prioritarias": [
+    {
+      "nome": "LÍNGUA PORTUGUESA",
+      "pontuacao_prioridade": 8
+    },
+    {
+      "nome": "NOÇÕES DE SUSTENTABILIDADE",
+      "pontuacao_prioridade": 8
+    },
+    {
+      "nome": "NOÇÕES DE DIREITOS HUMANOS E FUNDAMENTAIS E DE ACESSIBILIDADE",
+      "pontuacao_prioridade": 8
+    },
+    {
+      "nome": "LEGISLAÇÃO INSTITUCIONAL",
+      "pontuacao_prioridade": 8
+    },
+    {
+      "nome": "Direito Civil",
+      "pontuacao_prioridade": 8
+    },
+    {
+      "nome": "Direito Processual Civil",
+      "pontuacao_prioridade": 8
+    },
+    {
+      "nome": "Direito Ambiental",
+      "pontuacao_prioridade": 8
+    },
+    {
+      "nome": "Direito Penal Militar",
+      "pontuacao_prioridade": 8
+    },
+    {
+      "nome": "Direito Processual Penal Militar",
+      "pontuacao_prioridade": 8
+    },
+    {
+      "nome": "Direito do Trabalho",
+      "pontuacao_prioridade": 8
+    },
+    {
+      "nome": "Direito Processual do Trabalho",
+      "pontuacao_prioridade": 8
+    },
+    {
+      "nome": "NOÇÕES DE ADMINISTRAÇÃO PÚBLICA",
+      "pontuacao_prioridade": 7
+    },
+    {
+      "nome": "Direito Administrativo",
+      "pontuacao_prioridade": 7
+    },
+    {
+      "nome": "Direito Constitucional",
+      "pontuacao_prioridade": 6
+    },
+    {
+      "nome": "Direito Penal",
+      "pontuacao_prioridade": 6
+    },
+    {
+      "nome": "Direito Processual Penal",
+      "pontuacao_prioridade": 6
+    }
+  ],
+  "recomendacoes_gerais": [
+    "Siga o ciclo de estudos com disciplina. A consistência é chave para cobrir todo o conteúdo.",
+    "Priorize a resolução de questões (ferramenta mais eficaz) para todas as matérias, especialmente as da banca FGV, para entender o estilo de cobrança.",
+    "Utilize Flashcards para memorização ativa de conceitos-chave, prazos e detalhes da Lei Seca.",
+    "Para as matérias em que é iniciante, comece com Videoaulas para ter uma base teórica sólida antes de aprofundar com Lei Seca e Questões.",
+    "Faça revisões periódicas do conteúdo estudado. O próprio ciclo já intercala as matérias, mas reserve um tempo extra (talvez no fim de semana) para revisar os pontos de maior dificuldade.",
+    "Ajuste o ciclo se necessário. Se perceber que está avançando mais rápido ou mais devagar em alguma matéria, redistribua o tempo, mas mantenha a proporcionalidade baseada na prioridade.",
+    "Faça pausas curtas (5-10 minutos) entre os blocos de estudo para descanso mental.",
+    "Monitore seu desempenho através das questões. Foque nos tópicos com maior índice de erro.",
+    "À medida que a data da prova se aproxima (último mês), aumente a frequência de simulados completos para gerenciar o tempo e a pressão da prova."
+  ]
+}
+```

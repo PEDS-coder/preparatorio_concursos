@@ -94,15 +94,15 @@ Você deve ser capaz de entender todas essas possibilidades e identificar a lóg
    - Número total de questões
    - Formato da prova (objetiva, subjetiva, discursiva)
    - Tema da prova subjetiva/discursiva (se houver)
-   - Critérios de aprovação (liste cada critério separadamente)
-   - Critérios de desempate (liste cada critério separadamente)
+   - Critérios de aprovação (liste cada critério separadamente, separe por ponto e vírgula)
+   - Critérios de desempate (liste cada critério separadamente, separe por ponto e vírgula)
 
 3. **Informações sobre Cotas e Reserva de Vagas:**
    - Identifique o número de vagas imediatas para o cargo [CARGO_ALVO], cadastro de reserva e cotas, se houver.
    - Identifique TODAS as categorias de cotas mencionadas no edital
    - PRESERVE EXATAMENTE as nomenclaturas originais usadas no edital para cada tipo de cota
-   - Extraia os percentuais ou números absolutos de vagas reservadas para cada categoria
-   - Inclua quaisquer condições especiais ou critérios para concorrer às cotas
+   - Extraia os percentuais ou números absolutos de vagas reservadas para cada categoria, indicando qual informação está disponível (ex: "20% das vagas" ou "5 vagas")
+   - Inclua quaisquer condições especiais ou critérios para concorrer às cotas, separe por ponto e vírgula
    - Exemplos de nomenclaturas que devem ser preservadas exatamente como aparecem no edital:
      * "Negros (Pretos e Pardos)"
      * "Minorias Étnico-Raciais (população indígena, quilombolas, ciganos, povos/comunidades tradicionais)"
@@ -144,18 +144,18 @@ Esteja ciente de que a estrutura desses documentos varia enormemente. As informa
       "taxa": 150.00
     },
     "prova": {
-      "data": "DD/MM/AAAA",
-      "local": "Cidade(s) ou 'A definir'",
-      "duracao": "X horas",
-      "total_questoes": 100,
-      "formato": ["objetiva", "discursiva"],
-      "tema_discursiva": "Tema da prova discursiva (se houver)",
-      "criterios_aprovacao": [
+      "dataProva": "DD/MM/AAAA",
+      "localProva": "Cidade(s) ou 'A definir'",
+      "duracaoProva": "X horas",
+      "totalQuestoes": 100,
+      "formatoProva": ["objetiva", "discursiva"],
+      "temaProvaSubjetiva": "Tema da prova discursiva (se houver)",
+      "criteriosAprovacao": [
         "Acertar pelo menos 50% das questões objetivas",
         "Não zerar em nenhuma disciplina",
         "Estar entre os 10 primeiros colocados"
       ],
-      "criterios_desempate": [
+      "criteriosDesempate": [
         "Maior nota na Matéria 1",
         "Maior nota na Matéria 2",
         "Maior idade"
@@ -253,6 +253,10 @@ Esteja ciente de que a estrutura desses documentos varia enormemente. As informa
 }
 ```
 
+# IMPORTANTE: Use sempre os seguintes nomes de campo no JSON de resposta:
+# dataProva, localProva, formatoProva, totalQuestoes, duracaoProva, temaProvaSubjetiva, criteriosAprovacao, criteriosDesempate, cotas, valorInscricao
+# Exemplo de uso correto: "dataProva": "04/05/2025"
+
 **Instruções Importantes:**
 1. Forneça sua resposta EXCLUSIVAMENTE em formato JSON válido.
 2. Não inclua texto introdutório, explicações ou comentários fora do JSON.
@@ -268,8 +272,8 @@ Esteja ciente de que a estrutura desses documentos varia enormemente. As informa
 12. É ABSOLUTAMENTE ESSENCIAL preservar as nomenclaturas exatas das cotas conforme aparecem no edital. Não padronize ou simplifique os nomes das categorias de cotas.
 13. Para cada categoria de cota, inclua o percentual (quando disponível) e o número absoluto de vagas (quando disponível). Se apenas um deles estiver disponível, use null para o outro.
 14. Inclua os critérios específicos para concorrer a cada tipo de cota, exatamente como descritos no edital.
-15. IMPORTANTE: Para campos que podem conter listas de itens (como "criterios_aprovacao", "criterios_desempate", "criterios" nas cotas), SEMPRE forneça como arrays de strings, mesmo que haja apenas um item. Isso facilita a numeração no frontend.
-16. Para a taxa de inscrição ("taxa"), se houver valores diferentes para diferentes cargos, use APENAS o valor que se aplica ao cargo alvo [CARGO_ALVO]. Se o edital mencionar valores diferentes (ex: "R$ 100,00 para nível médio e R$ 150,00 para nível superior"), identifique qual se aplica ao cargo alvo e use apenas esse valor.
+15. IMPORTANTE: Para campos que podem conter listas de itens (como "criterios_aprovacao", "criterios_desempate", "criterios" nas cotas), SEMPRE forneça como arrays de strings, mesmo que haja apenas um item. Isso facilita a numeração no frontend. Se não houver critérios, retorne uma lista vazia.
+16. Para a taxa de inscrição ("taxa"), se houver valores diferentes para diferentes cargos, use APENAS o valor que se aplica ao cargo alvo [CARGO_ALVO]. Se o edital mencionar valores diferentes (ex: "R$ 100,00 para nível médio e R$ 150,00 para nível superior"), identifique qual se aplica ao cargo alvo e use apenas esse valor. Se não houver valor específico para o cargo alvo, retorne null.
 
 **Exemplo de Distribuição de Questões:**
 Se o edital prevê 80 questões no total, com 10 questões para cada uma das matérias A, B, C e D (total de 40 questões explicitamente distribuídas), e há mais 6 matérias (E, F, G, H, I e J) sem número explícito de questões, você deve:
@@ -277,3 +281,59 @@ Se o edital prevê 80 questões no total, com 10 questões para cada uma das mat
 2. Dividir igualmente: 40 ÷ 6 = 6 questões para cada matéria, com resto 4
 3. Distribuir o resto: matérias E, F, G e H recebem +1 questão cada
 4. Resultado final: A=10, B=10, C=10, D=10, E=7 (estimado), F=7 (estimado), G=7 (estimado), H=7 (estimado), I=6 (estimado), J=6 (estimado)
+
+# ATENÇÃO: O campo "resposta" deve aparecer apenas UMA vez, no topo do JSON. Não aninhe múltiplos níveis de "resposta".
+
+# EXEMPLO DE RESPOSTA JSON PADRÃO (use exatamente estes nomes de campo, mesmo dentro de objetos):
+```json
+{
+  "resposta": {
+    "concurso": {
+      "inscricoes": {
+        "inicio": "13/01/2025",
+        "fim": "27/02/2025",
+        "taxa": 120.0
+      },
+      "prova": {
+        "dataProva": "04/05/2025",
+        "localProva": "Todas as capitais do País",
+        "duracaoProva": "4 horas e 30 minutos",
+        "totalQuestoes": 80,
+        "formatoProva": ["objetiva", "discursiva"],
+        "temaProvaSubjetiva": "Redação dissertativo-argumentativa",
+        "criteriosAprovacao": [
+          "Acertar, no mínimo, 12 (doze) questões do Módulo I",
+          "Acertar, no mínimo, 25 (vinte e cinco) questões do Módulo II"
+        ],
+        "criteriosDesempate": [
+          "Tiver idade igual ou superior a 60 anos",
+          "Obtiver a maior nota na Prova Objetiva"
+        ]
+      },
+      "cotas": [
+        {
+          "nome": "Pessoas com Deficiência",
+          "percentual": 10,
+          "numero_vagas": null,
+          "criterios": [
+            "Declarar-se PcD no ato da inscrição",
+            "Enviar laudo médico"
+          ]
+        }
+      ],
+      "vagas": {
+        "imediatas": 35,
+        "cadastro_reserva": true,
+        "total_consolidado": 35
+      },
+      "conteudo_programatico": [
+        { "nome": "Língua Portuguesa", "tipo": "comum", "peso_maior": false, "criterio_desempate": false, "topicos": ["Ortografia", "Gramática"] }
+      ]
+    }
+  }
+}
+```
+
+# IMPORTANTE: Use sempre os seguintes nomes de campo no JSON de resposta, mesmo dentro de objetos aninhados:
+# dataProva, localProva, formatoProva, totalQuestoes, duracaoProva, temaProvaSubjetiva, criteriosAprovacao, criteriosDesempate, cotas, valorInscricao
+# Exemplo de uso correto: "dataProva": "04/05/2025"

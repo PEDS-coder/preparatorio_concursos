@@ -28,6 +28,10 @@ Crie um plano de estudo personalizado com ciclos de estudo para concurso públic
 - Critérios de desempate: {{criterios_desempate}}
 - Número de questões por matéria: {{numero_questoes}}
 
+# IMPORTANTE: Use sempre os seguintes nomes de campo no JSON de resposta:
+# ciclo_estudos, duracao_total_ciclo, total_blocos_ciclo, materias_prioritarias, recomendacoes_gerais
+# Exemplo de uso correto: "ciclo_estudos": [...]
+
 Crie um ciclo de estudos detalhado em formato JSON com a seguinte estrutura:
 
 ```json

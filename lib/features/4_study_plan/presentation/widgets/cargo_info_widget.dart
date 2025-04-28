@@ -58,14 +58,14 @@ class CargoInfoWidget extends StatelessWidget {
         // Informações em laranja (requisitos)
         InfoCard(
           label: 'Requisitos',
-          value: FormatadorService.numerarItens(infoDetalhadas['escolaridade'] ?? 'Não informado'),
-          cardColor: extratoService.getColorForInfoType('Escolaridade'),
-          emoji: extratoService.getEmojiForInfoType('Escolaridade'),
+          value: FormatadorService.numerarItens(infoDetalhadas?['requisitos']),
+          cardColor: extratoService.getColorForInfoType('Requisitos'),
+          emoji: extratoService.getEmojiForInfoType('Requisitos'),
         ),
-        if (infoDetalhadas['nivel'] != 'Não informado')
+        if (infoDetalhadas?['nivel']?.toString() != 'Não informado')
           InfoCard(
             label: 'Nível',
-            value: infoDetalhadas['nivel'] ?? 'Não informado',
+            value: infoDetalhadas?['nivel']?.toString() ?? 'Não informado',
             cardColor: extratoService.getColorForInfoType('Nível'),
             emoji: extratoService.getEmojiForInfoType('Nível'),
           ),
@@ -73,7 +73,7 @@ class CargoInfoWidget extends StatelessWidget {
         // Informações em verde (valores)
         InfoCard(
           label: 'Salário',
-          value: FormatadorService.formatarValor(infoDetalhadas['salario']),
+          value: FormatadorService.formatarValor(infoDetalhadas?['salario']?.toString() ?? 'Não informado'),
           cardColor: extratoService.getColorForInfoType('Salário'),
           emoji: extratoService.getEmojiForInfoType('Salário'),
         ),

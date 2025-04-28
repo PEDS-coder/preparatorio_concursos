@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:preparatorio_concursos/core/utils/logger.dart';
+import 'package:preparatorio_concursos/core/config/directory_config.dart';
 
 /// Classe que representa um item no cache com metadados
 ///
@@ -227,8 +228,7 @@ class AdvancedCacheService {
       throw UnsupportedError('Web não suporta armazenamento em disco');
     }
 
-    final appDir = await getApplicationDocumentsDirectory();
-    final cacheDir = Directory('${appDir.path}/cache');
+    final cacheDir = Directory('${DirectoryConfig.analysisCacheDir}');
 
     if (!await cacheDir.exists()) {
       await cacheDir.create(recursive: true);

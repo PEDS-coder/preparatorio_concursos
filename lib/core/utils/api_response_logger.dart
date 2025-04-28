@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:intl/intl.dart';
+import '../config/local_config.dart';
 
 /// Serviço para registrar e armazenar respostas da API para referência futura
 class ApiResponseLogger {
@@ -14,13 +15,13 @@ class ApiResponseLogger {
 
   // Diretório para armazenar as respostas da API
   static const String _apiResponsesDir = 'api_responses';
-  
+
   // Diretório para armazenar as respostas da segunda chamada
   static const String _segundaChamadaDir = 'segunda_chamada';
-  
+
   // Diretório para armazenar as respostas da primeira chamada
   static const String _primeiraChamadaDir = 'primeira_chamada';
-  
+
   // Diretório para armazenar outras respostas
   static const String _outrasRespostasDir = 'outras_respostas';
 
@@ -38,7 +39,7 @@ class ApiResponseLogger {
       final directory = await _getOrCreateDirectory(_segundaChamadaDir);
       final fileName = 'resposta_segunda_chamada_${editalId}_${cargoId}_$timestamp.json';
       final filePath = '${directory.path}/$fileName';
-      
+
       // Adicionar metadados à resposta
       final respostaComMetadados = {
         'metadata': {
@@ -51,14 +52,14 @@ class ApiResponseLogger {
         },
         'resposta': resposta,
       };
-      
+
       // Salvar a resposta em um arquivo JSON
       final file = File(filePath);
       await file.writeAsString(
         const JsonEncoder.withIndent('  ').convert(respostaComMetadados),
         flush: true,
       );
-      
+
       debugPrint('Resposta da segunda chamada salva em: $filePath');
       return filePath;
     } catch (e) {
@@ -79,7 +80,7 @@ class ApiResponseLogger {
       final directory = await _getOrCreateDirectory(_primeiraChamadaDir);
       final fileName = 'resposta_primeira_chamada_${editalId}_$timestamp.json';
       final filePath = '${directory.path}/$fileName';
-      
+
       // Adicionar metadados à resposta
       final respostaComMetadados = {
         'metadata': {
@@ -90,14 +91,14 @@ class ApiResponseLogger {
         },
         'resposta': resposta,
       };
-      
+
       // Salvar a resposta em um arquivo JSON
       final file = File(filePath);
       await file.writeAsString(
         const JsonEncoder.withIndent('  ').convert(respostaComMetadados),
         flush: true,
       );
-      
+
       debugPrint('Resposta da primeira chamada salva em: $filePath');
       return filePath;
     } catch (e) {
@@ -117,31 +118,33 @@ class ApiResponseLogger {
     try {
       final timestamp = DateTime.now().millisecondsSinceEpoch;
       final directory = await _getOrCreateDirectory(_outrasRespostasDir);
+      // Print do caminho absoluto do diretório
+      debugPrint('[ApiResponseLogger] Salvando resposta bruta em: ' + directory.path);
       final fileName = 'resposta_${tipo}_$timestamp.txt';
       final filePath = '${directory.path}/$fileName';
-      
+
       // Criar conteúdo do arquivo
       final buffer = StringBuffer();
-      
+
       // Adicionar metadados
       buffer.writeln('--- METADADOS ---');
       buffer.writeln('Timestamp: $timestamp');
       buffer.writeln('Data/Hora: ${DateFormat('dd/MM/yyyy HH:mm:ss').format(DateTime.now())}');
       buffer.writeln('Tipo: $tipo');
-      
+
       if (metadados != null) {
         metadados.forEach((key, value) {
           buffer.writeln('$key: $value');
         });
       }
-      
+
       buffer.writeln('--- RESPOSTA ---');
       buffer.writeln(resposta);
-      
+
       // Salvar a resposta em um arquivo de texto
       final file = File(filePath);
       await file.writeAsString(buffer.toString(), flush: true);
-      
+
       debugPrint('Resposta bruta salva em: $filePath');
       return filePath;
     } catch (e) {
@@ -152,18 +155,18 @@ class ApiResponseLogger {
 
   /// Obtém ou cria o diretório para armazenar as respostas
   Future<Directory> _getOrCreateDirectory(String subdir) async {
-    final appDir = await getApplicationDocumentsDirectory();
-    final baseDir = Directory('${appDir.path}/$_apiResponsesDir');
-    
+    // Usar a pasta raiz do projeto em vez de getApplicationDocumentsDirectory()
+    final baseDir = Directory('${Directory.current.path}/$_apiResponsesDir');
+
     if (!await baseDir.exists()) {
       await baseDir.create(recursive: true);
     }
-    
+
     final targetDir = Directory('${baseDir.path}/$subdir');
     if (!await targetDir.exists()) {
       await targetDir.create(recursive: true);
     }
-    
+
     return targetDir;
   }
 
@@ -185,16 +188,15 @@ class ApiResponseLogger {
           break;
         default:
           // Listar todas as respostas
-          final appDir = await getApplicationDocumentsDirectory();
-          final baseDir = Directory('${appDir.path}/$_apiResponsesDir');
-          
+          final baseDir = Directory('${Directory.current.path}/$_apiResponsesDir');
+
           if (!await baseDir.exists()) {
             return [];
           }
-          
+
           return baseDir.listSync(recursive: true);
       }
-      
+
       final directory = await _getOrCreateDirectory(subdir);
       return directory.listSync();
     } catch (e) {
@@ -208,13 +210,12 @@ class ApiResponseLogger {
     if (kIsWeb) return null;
 
     try {
-      final appDir = await getApplicationDocumentsDirectory();
-      final baseDir = Directory('${appDir.path}/$_apiResponsesDir');
-      
+      final baseDir = Directory('${Directory.current.path}/$_apiResponsesDir');
+
       if (!await baseDir.exists()) {
         await baseDir.create(recursive: true);
       }
-      
+
       return baseDir.path;
     } catch (e) {
       debugPrint('Erro ao obter caminho do diretório de respostas: $e');

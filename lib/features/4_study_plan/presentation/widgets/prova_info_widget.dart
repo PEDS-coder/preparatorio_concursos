@@ -3,8 +3,7 @@ import '../../../../core/data/models/models.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../domain/services/extrator_dados_service.dart';
 import '../../domain/services/formatador_service.dart';
-import '../../domain/services/prova_service.dart';
-import '../../domain/services/cotas_service.dart';
+import '../../domain/services/plano_metadados_service.dart';
 import 'info_card.dart';
 import 'criterio_desempate_card.dart';
 
@@ -27,37 +26,6 @@ class ProvaInfoWidget extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    // Obter critérios de desempate usando o ProvaService
-    String criteriosDesempateStr = ProvaService.obterCriteriosDesempate(plano, edital);
-    List<String>? criteriosDesempate;
-
-    // Verificar se os critérios foram encontrados
-    if (criteriosDesempateStr != 'Não informado') {
-      // Verificar se os critérios estão em formato de lista (separados por quebra de linha)
-      if (criteriosDesempateStr.contains('\n')) {
-        criteriosDesempate = criteriosDesempateStr.split('\n');
-      } else {
-        criteriosDesempate = [criteriosDesempateStr];
-      }
-    } else {
-      // Tentar obter dos dados extraídos diretamente
-      if (edital!.dadosExtraidos.dadosProva != null &&
-          edital!.dadosExtraidos.dadosProva!.criteriosDesempate != null &&
-          edital!.dadosExtraidos.dadosProva!.criteriosDesempate!.isNotEmpty) {
-        criteriosDesempate = edital!.dadosExtraidos.dadosProva!.criteriosDesempate;
-      } else if (edital!.dadosOriginais != null &&
-                edital!.dadosOriginais!.containsKey('prova') &&
-                edital!.dadosOriginais!['prova'] is Map &&
-                (edital!.dadosOriginais!['prova'] as Map).containsKey('criterios_desempate')) {
-        final criterios = edital!.dadosOriginais!['prova']['criterios_desempate'];
-        if (criterios is List) {
-          criteriosDesempate = criterios.map((c) => c.toString()).toList();
-        } else if (criterios is String) {
-          criteriosDesempate = [criterios];
-        }
-      }
-    }
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -74,62 +42,84 @@ class ProvaInfoWidget extends StatelessWidget {
         ),
         InfoCard(
           label: 'Data da Prova',
-          value: ProvaService.obterData(plano, edital),
+          value: PlanoMetadadosService.getDataProva(plano),
           cardColor: extratoService.getColorForInfoType('Data da Prova'),
           emoji: extratoService.getEmojiForInfoType('Data da Prova'),
         ),
         InfoCard(
           label: 'Local das Provas',
-          value: ProvaService.obterLocal(plano, edital),
+          value: PlanoMetadadosService.getLocalProvas(plano),
           cardColor: extratoService.getColorForInfoType('Local das Provas'),
           emoji: extratoService.getEmojiForInfoType('Local das Provas'),
         ),
         InfoCard(
           label: 'Formato',
-          value: ProvaService.obterFormato(plano, edital),
+          value: PlanoMetadadosService.getFormatoProva(plano),
           cardColor: extratoService.getColorForInfoType('Formato'),
           emoji: extratoService.getEmojiForInfoType('Formato'),
         ),
         InfoCard(
           label: 'Total de Questões',
-          value: ProvaService.obterTotalQuestoes(plano, edital),
+          value: PlanoMetadadosService.getTotalQuestoes(plano),
           cardColor: extratoService.getColorForInfoType('Total de Questões'),
           emoji: extratoService.getEmojiForInfoType('Total de Questões'),
         ),
         InfoCard(
           label: 'Duração',
-          value: ProvaService.obterDuracao(plano, edital),
+          value: PlanoMetadadosService.getDuracaoProva(plano),
           cardColor: extratoService.getColorForInfoType('Duração'),
           emoji: extratoService.getEmojiForInfoType('Duração'),
         ),
         InfoCard(
           label: 'Tema da Prova Subjetiva',
-          value: ProvaService.obterTemaProvaSubjetiva(plano, edital),
+          value: PlanoMetadadosService.getTemaProvaSubjetiva(plano),
           cardColor: extratoService.getColorForInfoType('Tema da Prova Subjetiva'),
           emoji: extratoService.getEmojiForInfoType('Tema da Prova Subjetiva'),
         ),
         InfoCard(
           label: 'Critérios de Aprovação',
-          value: FormatadorService.numerarItens(ProvaService.obterCriteriosAprovacao(plano, edital)),
+          value: FormatadorService.numerarItens(PlanoMetadadosService.getCriteriosAprovacao(plano)),
           cardColor: extratoService.getColorForInfoType('Critérios de Aprovação'),
           emoji: extratoService.getEmojiForInfoType('Critérios de Aprovação'),
         ),
-
         InfoCard(
           label: 'Critérios de Desempate',
-          value: FormatadorService.numerarItens(ProvaService.obterCriteriosDesempate(plano, edital)),
+          value: FormatadorService.numerarItens(PlanoMetadadosService.getCriteriosDesempate(plano)),
           cardColor: extratoService.getColorForInfoType('Critérios de Desempate'),
           emoji: extratoService.getEmojiForInfoType('Critérios de Desempate'),
         ),
-
-        // Adicionado card de cotas (movido de ConcursoInfoWidget)
         InfoCard(
           label: 'Cotas',
-          value: FormatadorService.numerarItens(CotasService.obterInformacoes(edital)),
+          value: _formatarCotas(PlanoMetadadosService.getCotas(plano)),
           cardColor: extratoService.getColorForInfoType('Cotas'),
           emoji: extratoService.getEmojiForInfoType('Cotas'),
         ),
+        InfoCard(
+          label: 'Taxa de Inscrição',
+          value: PlanoMetadadosService.getTaxaInscricao(plano),
+          cardColor: extratoService.getColorForInfoType('Taxa de Inscrição'),
+          emoji: extratoService.getEmojiForInfoType('Taxa de Inscrição'),
+        ),
       ],
     );
+  }
+
+  String _formatarCotas(List<Map<String, dynamic>> cotas) {
+    if (cotas.isEmpty) return 'Não informado';
+    List<String> itens = [];
+    for (var cota in cotas) {
+      String tipo = cota['tipo'] ?? 'Cota';
+      String? percentual = cota['percentual']?.toString();
+      String? vagas = cota['vagas']?.toString();
+      String criterio = (cota['criterios'] is List)
+          ? (cota['criterios'] as List).join('; ')
+          : (cota['criterios']?.toString() ?? '');
+      String texto = '$tipo';
+      if (percentual != null && percentual.isNotEmpty && percentual != 'null') texto += ' ($percentual%)';
+      if (vagas != null && vagas.isNotEmpty && vagas != 'null') texto += ', $vagas vagas';
+      if (criterio.isNotEmpty) texto += ': $criterio';
+      itens.add(texto);
+    }
+    return itens.asMap().entries.map((e) => '${e.key + 1}. ${e.value}').join('; ');
   }
 }

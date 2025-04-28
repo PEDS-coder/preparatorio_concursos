@@ -21,6 +21,7 @@ import 'core/services/theme_service.dart';
 import 'core/services/api_quota_service.dart';
 import 'core/utils/cache_manager.dart';
 import 'core/utils/logger.dart';
+import 'core/config/directory_config.dart';
 import 'app.dart';
 
 void main() async {
@@ -33,6 +34,16 @@ void main() async {
     print('Configurando injeção de dependência...');
     configureDependencies();
     print('Injeção de dependência configurada com sucesso');
+
+    // Inicializar diretórios da aplicação
+    print('Inicializando diretórios da aplicação...');
+    try {
+      await DirectoryConfig.initializeAllDirectories();
+      print('Diretórios da aplicação inicializados com sucesso');
+    } catch (e) {
+      print('ERRO ao inicializar diretórios da aplicação: $e');
+      // Continuar mesmo com erro
+    }
 
   // Limpar o cache de análises de editais ao iniciar
   try {

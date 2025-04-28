@@ -1,42 +1,25 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../../../../core/data/models/models.dart';
-import '../../../../core/utils/plano_data_logger.dart';
 
 /// Serviço para extrair e armazenar dados do plano de estudos
 class PlanoDadosService {
-  final PlanoDataLogger _logger = PlanoDataLogger();
-
   /// Extrai dados do JSON retornado pela LLM e armazena nos metadados do plano
   Future<void> extrairDadosLLMParaPlano(PlanoEstudo plano, String jsonResponse) async {
     try {
       debugPrint('Extraindo dados da resposta LLM para o plano ${plano.id}');
-      _logger.logRecuperacao(plano.id, 'extraindo_dados_llm', {
-        'tamanho_resposta': jsonResponse.length,
-        'inicio_resposta': jsonResponse.substring(0, jsonResponse.length > 100 ? 100 : jsonResponse.length)
-      });
 
       // Verificar se a resposta é um JSON válido
       Map<String, dynamic> dadosJson;
       try {
         dadosJson = json.decode(jsonResponse);
-        _logger.logRecuperacao(plano.id, 'json_decodificado', {
-          'chaves_json': dadosJson.keys.toList(),
-          'tamanho_json': jsonResponse.length
-        });
       } catch (e) {
-        _logger.logRecuperacao(plano.id, 'erro_decodificar_json', {
-          'erro': e.toString(),
-          'resposta': jsonResponse.substring(0, jsonResponse.length > 200 ? 200 : jsonResponse.length)
-        });
+        debugPrint('Erro ao decodificar JSON: $e');
         return;
       }
 
       // Verificar campos presentes no JSON
-      _logger.logRecuperacao(plano.id, 'chaves_extraidas', {
-        'chaves_extraidas': dadosJson.keys.toList(),
-        'total_chaves': dadosJson.keys.length
-      });
+      debugPrint('Campos extraídos: ${dadosJson.keys.toList()}');
 
       // Extrair dados do ciclo de estudos
       if (dadosJson.containsKey('ciclo_estudos')) {
@@ -56,10 +39,7 @@ class PlanoDadosService {
         }
       }
 
-      _logger.logRecuperacao(plano.id, 'campos_presentes', {
-        'campos_presentes': camposPresentes.keys.toList(),
-        'total_campos': camposPresentes.keys.length
-      });
+      debugPrint('Campos presentes: ${camposPresentes.keys.toList()}');
 
       // Extrair matérias prioritárias
       if (dadosJson.containsKey('materias_prioritarias')) {
@@ -147,32 +127,9 @@ class PlanoDadosService {
         }
       }
 
-      // Registrar metadados atualizados
-      _logger.logRecuperacao(plano.id, 'planoEstudos_metadados', {
-        'cicloEstudos': plano.metadados.containsKey('planoEstudos') &&
-                        plano.metadados['planoEstudos'] is Map &&
-                        (plano.metadados['planoEstudos'] as Map).containsKey('cicloEstudos')
-                        ? 'presente' : 'ausente',
-        'materiasPrioritarias': plano.metadados.containsKey('planoEstudos') &&
-                               plano.metadados['planoEstudos'] is Map &&
-                               (plano.metadados['planoEstudos'] as Map).containsKey('materiasPrioritarias')
-                               ? 'presente' : 'ausente',
-        'grupos': plano.metadados.containsKey('planoEstudos') &&
-                 plano.metadados['planoEstudos'] is Map &&
-                 (plano.metadados['planoEstudos'] as Map).containsKey('grupos')
-                 ? 'presente' : 'ausente',
-        'calendario': plano.metadados.containsKey('planoEstudos') &&
-                     plano.metadados['planoEstudos'] is Map &&
-                     (plano.metadados['planoEstudos'] as Map).containsKey('calendario')
-                     ? 'presente' : 'ausente'
-      });
-
       debugPrint('Dados extraídos com sucesso para o plano ${plano.id}');
     } catch (e) {
       debugPrint('Erro ao extrair dados da resposta LLM: $e');
-      _logger.logRecuperacao(plano.id, 'erro_extrair_dados_llm', {
-        'erro': e.toString()
-      });
     }
   }
 
@@ -244,102 +201,10 @@ class PlanoDadosService {
         }
       }
 
-      // Extrair dados dos dados originais do edital
-      if (edital.dadosOriginais != null) {
-        debugPrint('Verificando dados originais do edital...');
-
-        // Verificar se há dados de prova nos dados originais
-        if (edital.dadosOriginais!.containsKey('prova') && edital.dadosOriginais!['prova'] is Map) {
-          final provaOriginal = edital.dadosOriginais!['prova'] as Map;
-          debugPrint('  Encontrado prova nos dados originais: ${provaOriginal.keys.toList()}');
-
-          if (!plano.metadados.containsKey('prova')) {
-            plano.metadados['prova'] = Map<String, dynamic>.from(provaOriginal);
-          }
-
-          // Extrair campos específicos da prova
-          if (provaOriginal.containsKey('formato') && !plano.metadados.containsKey('formatoProva')) {
-            var formato = provaOriginal['formato'];
-            if (formato is List) {
-              plano.metadados['formatoProva'] = formato.join(', ');
-            } else if (formato is String) {
-              plano.metadados['formatoProva'] = formato;
-            }
-            debugPrint('  Extraído formatoProva: ${plano.metadados['formatoProva']}');
-          }
-
-          if (provaOriginal.containsKey('criterios_desempate') && !plano.metadados.containsKey('criteriosDesempate')) {
-            var criterios = provaOriginal['criterios_desempate'];
-            if (criterios is List) {
-              plano.metadados['criteriosDesempate'] = criterios.join('\n');
-            } else if (criterios is String) {
-              plano.metadados['criteriosDesempate'] = criterios;
-            }
-            debugPrint('  Extraído criteriosDesempate: ${plano.metadados['criteriosDesempate']}');
-          }
-
-          if (provaOriginal.containsKey('criterios_reprovacao') && !plano.metadados.containsKey('criteriosReprovacao')) {
-            plano.metadados['criteriosReprovacao'] = provaOriginal['criterios_reprovacao'].toString();
-            debugPrint('  Extraído criteriosReprovacao: ${plano.metadados['criteriosReprovacao']}');
-          }
-        }
-
-        // Verificar se há dados de prova na estrutura aninhada
-        if (edital.dadosOriginais!.containsKey('concurso') &&
-            edital.dadosOriginais!['concurso'] is Map &&
-            (edital.dadosOriginais!['concurso'] as Map).containsKey('prova')) {
-
-          final provaOriginal = edital.dadosOriginais!['concurso']['prova'] as Map;
-          debugPrint('  Encontrado concurso.prova nos dados originais: ${provaOriginal.keys.toList()}');
-
-          if (!plano.metadados.containsKey('prova')) {
-            plano.metadados['prova'] = Map<String, dynamic>.from(provaOriginal);
-          }
-
-          // Extrair campos específicos da prova
-          if (provaOriginal.containsKey('criterios_reprovacao') && !plano.metadados.containsKey('criteriosReprovacao')) {
-            plano.metadados['criteriosReprovacao'] = provaOriginal['criterios_reprovacao'].toString();
-            debugPrint('  Extraído criteriosReprovacao de concurso.prova: ${plano.metadados['criteriosReprovacao']}');
-          }
-        }
-
-        // Verificar se há dados de inscrição nos dados originais
-        if (edital.dadosOriginais!.containsKey('inscricoes') && edital.dadosOriginais!['inscricoes'] is Map) {
-          final inscricoesOriginal = edital.dadosOriginais!['inscricoes'] as Map;
-          debugPrint('  Encontrado inscricoes nos dados originais: ${inscricoesOriginal.keys.toList()}');
-
-          if (inscricoesOriginal.containsKey('taxa') && !plano.metadados.containsKey('valorInscricao')) {
-            plano.metadados['valorInscricao'] = inscricoesOriginal['taxa'].toString();
-            debugPrint('  Extraído valorInscricao: ${plano.metadados['valorInscricao']}');
-          }
-
-          if (inscricoesOriginal.containsKey('periodo') && !plano.metadados.containsKey('periodoInscricao')) {
-            plano.metadados['periodoInscricao'] = inscricoesOriginal['periodo'].toString();
-            debugPrint('  Extraído periodoInscricao: ${plano.metadados['periodoInscricao']}');
-          }
-        }
-
-        // Verificar se há dados de inscrição na estrutura aninhada
-        if (edital.dadosOriginais!.containsKey('concurso') &&
-            edital.dadosOriginais!['concurso'] is Map &&
-            (edital.dadosOriginais!['concurso'] as Map).containsKey('inscricoes')) {
-
-          final inscricoesOriginal = edital.dadosOriginais!['concurso']['inscricoes'] as Map;
-          debugPrint('  Encontrado concurso.inscricoes nos dados originais: ${inscricoesOriginal.keys.toList()}');
-
-          if (inscricoesOriginal.containsKey('taxa') && !plano.metadados.containsKey('valorInscricao')) {
-            plano.metadados['valorInscricao'] = inscricoesOriginal['taxa'].toString();
-            debugPrint('  Extraído valorInscricao de concurso.inscricoes: ${plano.metadados['valorInscricao']}');
-          }
-
-          if (inscricoesOriginal.containsKey('periodo') && !plano.metadados.containsKey('periodoInscricao')) {
-            plano.metadados['periodoInscricao'] = inscricoesOriginal['periodo'].toString();
-            debugPrint('  Extraído periodoInscricao de concurso.inscricoes: ${plano.metadados['periodoInscricao']}');
-          }
-        }
+      // Extrair informações sobre cotas
+      if (dadosExtraidos.cotas != null && dadosExtraidos.cotas!.isNotEmpty) {
+        plano.metadados['cotas'] = dadosExtraidos.cotas!.map((cota) => cota.toMap()).toList();
       }
-
-      debugPrint('Dados do edital extraídos com sucesso para o plano ${plano.id}');
     } catch (e) {
       debugPrint('Erro ao extrair dados do edital: $e');
     }
@@ -349,50 +214,20 @@ class PlanoDadosService {
   List<ConteudoProgramatico> extrairConteudoProgramatico(PlanoEstudo plano) {
     List<ConteudoProgramatico> resultado = [];
 
-    // Log das chaves disponíveis nos metadados para diagnóstico
-    _logger.logRecuperacao(plano.id, 'chaves_metadados_plano', {
-      'chaves_nivel_1': plano.metadados.keys.toList(),
-      'tem_concurso': plano.metadados.containsKey('concurso'),
-      'tem_conteudo_programatico': plano.metadados.containsKey('conteudo_programatico'),
-      'tem_conteudo_programatico_completo': plano.metadados.containsKey('conteudo_programatico_completo'),
-    });
-
-    // Se tiver a chave 'concurso', logar suas subchaves
-    if (plano.metadados.containsKey('concurso') && plano.metadados['concurso'] is Map) {
-      _logger.logRecuperacao(plano.id, 'chaves_concurso', {
-        'chaves_concurso': (plano.metadados['concurso'] as Map).keys.toList(),
-        'tem_conteudo_programatico_em_concurso': (plano.metadados['concurso'] as Map).containsKey('conteudo_programatico'),
-      });
-    }
-
     // Verificar primeiro em metadados.conteudo_programatico
     if (plano.metadados.containsKey('conteudo_programatico') &&
         plano.metadados['conteudo_programatico'] is List) {
 
       try {
         final List conteudoList = plano.metadados['conteudo_programatico'] as List;
-        _logger.logRecuperacao(plano.id, 'conteudo_programatico_encontrado', {
-          'tamanho': conteudoList.length,
-          'primeiro_item_tipo': conteudoList.isNotEmpty ? conteudoList.first.runtimeType.toString() : 'vazio',
-        });
-
         resultado = conteudoList
             .map((item) => ConteudoProgramatico.fromMap(Map<String, dynamic>.from(item)))
             .toList();
 
         debugPrint('Conteúdo programático extraído de metadados.conteudo_programatico: ${resultado.length} matérias');
-        _logger.logRecuperacao(plano.id, 'conteudo_programatico_extraido', {
-          'fonte': 'metadados.conteudo_programatico',
-          'quantidade': resultado.length,
-          'materias': resultado.map((m) => m.nome).toList(),
-        });
         return resultado;
       } catch (e) {
         debugPrint('Erro ao converter conteúdo programático de metadados.conteudo_programatico: $e');
-        _logger.logRecuperacao(plano.id, 'erro_converter_conteudo_programatico', {
-          'fonte': 'metadados.conteudo_programatico',
-          'erro': e.toString(),
-        });
       }
     }
 
@@ -404,28 +239,14 @@ class PlanoDadosService {
 
       try {
         final List conteudoList = (plano.metadados['concurso'] as Map)['conteudo_programatico'] as List;
-        _logger.logRecuperacao(plano.id, 'conteudo_programatico_concurso_encontrado', {
-          'tamanho': conteudoList.length,
-          'primeiro_item_tipo': conteudoList.isNotEmpty ? conteudoList.first.runtimeType.toString() : 'vazio',
-        });
-
         resultado = conteudoList
             .map((item) => ConteudoProgramatico.fromMap(Map<String, dynamic>.from(item)))
             .toList();
 
         debugPrint('Conteúdo programático extraído de metadados.concurso.conteudo_programatico: ${resultado.length} matérias');
-        _logger.logRecuperacao(plano.id, 'conteudo_programatico_extraido', {
-          'fonte': 'metadados.concurso.conteudo_programatico',
-          'quantidade': resultado.length,
-          'materias': resultado.map((m) => m.nome).toList(),
-        });
         return resultado;
       } catch (e) {
         debugPrint('Erro ao converter conteúdo programático de metadados.concurso.conteudo_programatico: $e');
-        _logger.logRecuperacao(plano.id, 'erro_converter_conteudo_programatico', {
-          'fonte': 'metadados.concurso.conteudo_programatico',
-          'erro': e.toString(),
-        });
       }
     }
 
@@ -435,28 +256,14 @@ class PlanoDadosService {
 
       try {
         final List conteudoList = plano.metadados['conteudo_programatico_completo'] as List;
-        _logger.logRecuperacao(plano.id, 'conteudo_programatico_completo_encontrado', {
-          'tamanho': conteudoList.length,
-          'primeiro_item_tipo': conteudoList.isNotEmpty ? conteudoList.first.runtimeType.toString() : 'vazio',
-        });
-
         resultado = conteudoList
             .map((item) => ConteudoProgramatico.fromMap(Map<String, dynamic>.from(item)))
             .toList();
 
         debugPrint('Conteúdo programático extraído de metadados.conteudo_programatico_completo: ${resultado.length} matérias');
-        _logger.logRecuperacao(plano.id, 'conteudo_programatico_extraido', {
-          'fonte': 'metadados.conteudo_programatico_completo',
-          'quantidade': resultado.length,
-          'materias': resultado.map((m) => m.nome).toList(),
-        });
         return resultado;
       } catch (e) {
         debugPrint('Erro ao converter conteúdo programático de metadados.conteudo_programatico_completo: $e');
-        _logger.logRecuperacao(plano.id, 'erro_converter_conteudo_programatico', {
-          'fonte': 'metadados.conteudo_programatico_completo',
-          'erro': e.toString(),
-        });
       }
     }
 
@@ -495,11 +302,6 @@ class PlanoDadosService {
 
           if (resultado.isNotEmpty) {
             debugPrint('Conteúdo programático criado a partir de metadados.materias: ${resultado.length} matérias');
-            _logger.logRecuperacao(plano.id, 'conteudo_programatico_extraido', {
-              'fonte': 'metadados.materias',
-              'quantidade': resultado.length,
-              'materias': resultado.map((m) => m.nome).toList(),
-            });
             return resultado;
           }
         }
@@ -527,11 +329,6 @@ class PlanoDadosService {
 
         if (resultado.isNotEmpty) {
           debugPrint('Conteúdo programático criado a partir de materiasProficiencia: ${resultado.length} matérias');
-          _logger.logRecuperacao(plano.id, 'conteudo_programatico_extraido', {
-            'fonte': 'materiasProficiencia',
-            'quantidade': resultado.length,
-            'materias': resultado.map((m) => m.nome).toList(),
-          });
           return resultado;
         }
       } catch (e) {
@@ -540,7 +337,6 @@ class PlanoDadosService {
     }
 
     debugPrint('Nenhum conteúdo programático encontrado nos metadados do plano');
-    _logger.logRecuperacao(plano.id, 'conteudo_programatico_nao_encontrado', {});
     return resultado;
   }
 }

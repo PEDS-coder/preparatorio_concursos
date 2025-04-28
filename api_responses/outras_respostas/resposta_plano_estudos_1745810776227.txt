@@ -1,0 +1,404 @@
+--- METADADOS ---
+Timestamp: 1745810776227
+Data/Hora: 27/04/2025 23:26:16
+Tipo: plano_estudos
+plano_id: 1745810703120
+cargo: Analista do MPU - Direito
+data_inicio: 28/4/2025
+data_fim: 30/9/2025
+--- RESPOSTA ---
+```json
+{
+  "ciclo_estudos": [
+    {
+      "dia": 1,
+      "blocos": [
+        {
+          "ordem": 1,
+          "materia": "Língua Portuguesa",
+          "duracao_minutos": 60,
+          "ferramenta": "Videoaulas"
+        },
+        {
+          "ordem": 2,
+          "materia": "Direito Constitucional",
+          "duracao_minutos": 60,
+          "ferramenta": "Questões"
+        },
+        {
+          "ordem": 3,
+          "materia": "Noções de Sustentabilidade",
+          "duracao_minutos": 60,
+          "ferramenta": "Videoaulas"
+        },
+        {
+          "ordem": 4,
+          "materia": "Direito Administrativo",
+          "duracao_minutos": 60,
+          "ferramenta": "Lei Seca"
+        },
+        {
+          "ordem": 5,
+          "materia": "Direito Penal Militar",
+          "duracao_minutos": 60,
+          "ferramenta": "Videoaulas"
+        },
+        {
+          "ordem": 6,
+          "materia": "Língua Portuguesa",
+          "duracao_minutos": 60,
+          "ferramenta": "Questões"
+        }
+      ]
+    },
+    {
+      "dia": 2,
+      "blocos": [
+        {
+          "ordem": 1,
+          "materia": "Noções de Direitos Humanos e Fundamentais e de Acessibilidade",
+          "duracao_minutos": 60,
+          "ferramenta": "Videoaulas"
+        },
+        {
+          "ordem": 2,
+          "materia": "Direito Processual Civil",
+          "duracao_minutos": 60,
+          "ferramenta": "Questões"
+        },
+        {
+          "ordem": 3,
+          "materia": "Legislação Institucional",
+          "duracao_minutos": 60,
+          "ferramenta": "Videoaulas"
+        },
+        {
+          "ordem": 4,
+          "materia": "Direito Civil",
+          "duracao_minutos": 60,
+          "ferramenta": "Lei Seca"
+        },
+        {
+          "ordem": 5,
+          "materia": "Direito do Trabalho",
+          "duracao_minutos": 60,
+          "ferramenta": "Videoaulas"
+        },
+        {
+          "ordem": 6,
+          "materia": "Noções de Administração Pública",
+          "duracao_minutos": 60,
+          "ferramenta": "Questões"
+        }
+      ]
+    },
+    {
+      "dia": 3,
+      "blocos": [
+        {
+          "ordem": 1,
+          "materia": "Direito Penal",
+          "duracao_minutos": 60,
+          "ferramenta": "Questões"
+        },
+        {
+          "ordem": 2,
+          "materia": "Direito Ambiental",
+          "duracao_minutos": 60,
+          "ferramenta": "Videoaulas"
+        },
+        {
+          "ordem": 3,
+          "materia": "Língua Portuguesa",
+          "duracao_minutos": 60,
+          "ferramenta": "Flashcards"
+        },
+        {
+          "ordem": 4,
+          "materia": "Direito Processual Penal Militar",
+          "duracao_minutos": 60,
+          "ferramenta": "Videoaulas"
+        },
+        {
+          "ordem": 5,
+          "materia": "Direito Constitucional",
+          "duracao_minutos": 60,
+          "ferramenta": "Lei Seca"
+        },
+        {
+          "ordem": 6,
+          "materia": "Noções de Sustentabilidade",
+          "duracao_minutos": 60,
+          "ferramenta": "Questões"
+        }
+      ]
+    },
+    {
+      "dia": 4,
+      "blocos": [
+        {
+          "ordem": 1,
+          "materia": "Direito Processual Penal",
+          "duracao_minutos": 60,
+          "ferramenta": "Questões"
+        },
+        {
+          "ordem": 2,
+          "materia": "Direito Processual do Trabalho",
+          "duracao_minutos": 60,
+          "ferramenta": "Videoaulas"
+        },
+        {
+          "ordem": 3,
+          "materia": "Noções de Direitos Humanos e Fundamentais e de Acessibilidade",
+          "duracao_minutos": 60,
+          "ferramenta": "Questões"
+        },
+        {
+          "ordem": 4,
+          "materia": "Direito Administrativo",
+          "duracao_minutos": 60,
+          "ferramenta": "Videoaulas"
+        },
+        {
+          "ordem": 5,
+          "materia": "Direito Penal Militar",
+          "duracao_minutos": 60,
+          "ferramenta": "Lei Seca"
+        },
+        {
+          "ordem": 6,
+          "materia": "Legislação Institucional",
+          "duracao_minutos": 60,
+          "ferramenta": "Lei Seca"
+        }
+      ]
+    },
+    {
+      "dia": 5,
+      "blocos": [
+        {
+          "ordem": 1,
+          "materia": "Direito Civil",
+          "duracao_minutos": 60,
+          "ferramenta": "Videoaulas"
+        },
+        {
+          "ordem": 2,
+          "materia": "Direito do Trabalho",
+          "duracao_minutos": 60,
+          "ferramenta": "Lei Seca"
+        },
+        {
+          "ordem": 3,
+          "materia": "Língua Portuguesa",
+          "duracao_minutos": 60,
+          "ferramenta": "Resumos"
+        },
+        {
+          "ordem": 4,
+          "materia": "Noções de Administração Pública",
+          "duracao_minutos": 60,
+          "ferramenta": "Videoaulas"
+        },
+        {
+          "ordem": 5,
+          "materia": "Direito Ambiental",
+          "duracao_minutos": 60,
+          "ferramenta": "Lei Seca"
+        },
+        {
+          "ordem": 6,
+          "materia": "Direito Processual Civil",
+          "duracao_minutos": 60,
+          "ferramenta": "Lei Seca"
+        }
+      ]
+    },
+    {
+      "dia": 6,
+      "blocos": [
+        {
+          "ordem": 1,
+          "materia": "Direito Penal",
+          "duracao_minutos": 60,
+          "ferramenta": "Lei Seca"
+        },
+        {
+          "ordem": 2,
+          "materia": "Direito Processual Penal Militar",
+          "duracao_minutos": 60,
+          "ferramenta": "Lei Seca"
+        },
+        {
+          "ordem": 3,
+          "materia": "Noções de Sustentabilidade",
+          "duracao_minutos": 60,
+          "ferramenta": "Flashcards"
+        },
+        {
+          "ordem": 4,
+          "materia": "Direito Processual do Trabalho",
+          "duracao_minutos": 60,
+          "ferramenta": "Lei Seca"
+        },
+        {
+          "ordem": 5,
+          "materia": "Direito Administrativo",
+          "duracao_minutos": 60,
+          "ferramenta": "Questões"
+        },
+        {
+          "ordem": 6,
+          "materia": "Direito Civil",
+          "duracao_minutos": 60,
+          "ferramenta": "Questões"
+        },
+        {
+          "ordem": 7,
+          "materia": "Noções de Direitos Humanos e Fundamentais e de Acessibilidade",
+          "duracao_minutos": 60,
+          "ferramenta": "Flashcards"
+        },
+        {
+          "ordem": 8,
+          "materia": "Direito Penal Militar",
+          "duracao_minutos": 60,
+          "ferramenta": "Questões"
+        }
+      ]
+    },
+    {
+      "dia": 7,
+      "blocos": [
+        {
+          "ordem": 1,
+          "materia": "Legislação Institucional",
+          "duracao_minutos": 60,
+          "ferramenta": "Questões"
+        },
+        {
+          "ordem": 2,
+          "materia": "Direito do Trabalho",
+          "duracao_minutos": 60,
+          "ferramenta": "Questões"
+        },
+        {
+          "ordem": 3,
+          "materia": "Direito Ambiental",
+          "duracao_minutos": 60,
+          "ferramenta": "Questões"
+        },
+        {
+          "ordem": 4,
+          "materia": "Direito Processual Penal",
+          "duracao_minutos": 60,
+          "ferramenta": "Lei Seca"
+        },
+        {
+          "ordem": 5,
+          "materia": "Direito Processual do Trabalho",
+          "duracao_minutos": 60,
+          "ferramenta": "Questões"
+        },
+        {
+          "ordem": 6,
+          "materia": "Direito Processual Penal Militar",
+          "duracao_minutos": 60,
+          "ferramenta": "Questões"
+        },
+        {
+          "ordem": 7,
+          "materia": "Noções de Administração Pública",
+          "duracao_minutos": 60,
+          "ferramenta": "Resumos"
+        },
+        {
+          "ordem": 8,
+          "materia": "Direito Civil",
+          "duracao_minutos": 60,
+          "ferramenta": "Flashcards"
+        }
+      ]
+    }
+  ],
+  "duracao_total_ciclo": 7,
+  "total_blocos_ciclo": 46,
+  "materias_prioritarias": [
+    {
+      "nome": "Língua Portuguesa",
+      "pontuacao_prioridade": 8
+    },
+    {
+      "nome": "Noções de Sustentabilidade",
+      "pontuacao_prioridade": 8
+    },
+    {
+      "nome": "Noções de Direitos Humanos e Fundamentais e de Acessibilidade",
+      "pontuacao_prioridade": 8
+    },
+    {
+      "nome": "Legislação Institucional",
+      "pontuacao_prioridade": 8
+    },
+    {
+      "nome": "Direito Civil",
+      "pontuacao_prioridade": 8
+    },
+    {
+      "nome": "Direito Ambiental",
+      "pontuacao_prioridade": 8
+    },
+    {
+      "nome": "Direito Penal Militar",
+      "pontuacao_prioridade": 8
+    },
+    {
+      "nome": "Direito Processual Penal Militar",
+      "pontuacao_prioridade": 8
+    },
+    {
+      "nome": "Direito do Trabalho",
+      "pontuacao_prioridade": 8
+    },
+    {
+      "nome": "Direito Processual do Trabalho",
+      "pontuacao_prioridade": 8
+    },
+    {
+      "nome": "Noções de Administração Pública",
+      "pontuacao_prioridade": 7
+    },
+    {
+      "nome": "Direito Administrativo",
+      "pontuacao_prioridade": 7
+    },
+    {
+      "nome": "Direito Constitucional",
+      "pontuacao_prioridade": 6
+    },
+    {
+      "nome": "Direito Processual Civil",
+      "pontuacao_prioridade": 6
+    },
+    {
+      "nome": "Direito Penal",
+      "pontuacao_prioridade": 6
+    },
+    {
+      "nome": "Direito Processual Penal",
+      "pontuacao_prioridade": 6
+    }
+  ],
+  "recomendacoes_gerais": [
+    "Mantenha a consistência: Cumpra o ciclo de estudos rigorosamente para garantir a cobertura de todas as matérias.",
+    "Revisão Ativa: Utilize os blocos de 'Questões' e 'Flashcards' para praticar a recuperação ativa da informação, o que fortalece a memória.",
+    "Adaptação Contínua: Monitore seu progresso (percentual de acertos em questões, facilidade em lembrar conceitos). Se sentir muita dificuldade ou facilidade em alguma matéria, ajuste levemente a distribuição de blocos no próximo ciclo.",
+    "Lei Seca Estratégica: Nos blocos de 'Lei Seca', foque nos artigos mais cobrados pela FGV para o MPU (pesquise provas anteriores). Grife e faça anotações.",
+    "Simulados Periódicos: A cada 2 ou 3 ciclos completos, substitua um dia de estudo (preferencialmente Sábado ou Domingo) por um simulado completo no estilo da FGV para avaliar seu desempenho geral e identificar pontos fracos.",
+    "Intervalos e Descanso: Faça pausas curtas (5-10 minutos) entre os blocos de estudo e garanta horas de sono adequadas para a consolidação do aprendizado.",
+    "Entenda a Banca (FGV): Resolva o máximo de questões anteriores da FGV, especialmente de Língua Portuguesa e Direito, para se familiarizar com o estilo de cobrança.",
+    "Materiais Complementares: Use os 'Resumos' principalmente para revisão rápida antes de resolver questões ou para tópicos que já domina parcialmente. As 'Videoaulas' são ideais para o primeiro contato com matérias 'Iniciante'."
+  ]
+}
+```

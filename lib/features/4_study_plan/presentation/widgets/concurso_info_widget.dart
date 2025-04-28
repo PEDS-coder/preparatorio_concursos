@@ -7,6 +7,7 @@ import '../../domain/services/concurso_service.dart';
 import '../../domain/services/prova_service.dart';
 import '../../domain/services/inscricao_service.dart';
 import '../../domain/services/cotas_service.dart';
+import '../../domain/services/plano_metadados_service.dart';
 import 'info_card.dart';
 
 /// Widget para exibir informações do concurso
@@ -72,7 +73,7 @@ class ConcursoInfoWidget extends StatelessWidget {
           // Informações em verde (valores)
           InfoCard(
             label: 'Taxa de Inscrição',
-            value: InscricaoService.obterValor(plano, edital),
+            value: PlanoMetadadosService.getTaxaInscricao(plano),
             cardColor: extratoService.getColorForInfoType('Taxa de Inscrição'),
             emoji: extratoService.getEmojiForInfoType('Taxa de Inscrição'),
           ),
