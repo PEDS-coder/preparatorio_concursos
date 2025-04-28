@@ -215,89 +215,214 @@ class CargoSelectionService {
 
       // Log para inspecionar a resposta bruta da API
       Logger.debug('Resultado da segunda chamada API: $resultado');
+      Logger.debug('Chaves no resultado: ${resultado.keys.join(', ')}');
 
-      // Verificar se a resposta contém o objeto 'concurso' e, dentro dele, 'conteudo_programatico'
-      if (resultado.containsKey('concurso') &&
-          resultado['concurso'] is Map<String, dynamic> &&
-          (resultado['concurso'] as Map<String, dynamic>).containsKey('conteudo_programatico') &&
-          (resultado['concurso'] as Map<String, dynamic>)['conteudo_programatico'] is List) {
-        // Atualizar progresso
-        onProgress('Processando dados recebidos da API e atualizando conteúdo programático...', 0.9);
+      // Verificar se a resposta contém a estrutura aninhada correta
+      List<dynamic>? conteudoRaw;
 
-        // Obter o edital atual
-        final editalAtual = editalService.getEditalById(edital.id);
-        if (editalAtual == null) {
-          throw Exception('Edital não encontrado após atualização');
+      // Função auxiliar para extrair conteúdo programático de um mapa
+      List<dynamic>? extrairConteudoProgramatico(Map<String, dynamic> mapa) {
+        if (mapa.containsKey('conteudo_programatico') && mapa['conteudo_programatico'] is List) {
+          return mapa['conteudo_programatico'] as List;
+        } else if (mapa.containsKey('materias') && mapa['materias'] is List) {
+          return mapa['materias'] as List;
+        } else if (mapa.containsKey('conteudoProgramatico') && mapa['conteudoProgramatico'] is List) {
+          return mapa['conteudoProgramatico'] as List;
+        } else if (mapa.containsKey('conteudos_programaticos') && mapa['conteudos_programaticos'] is List) {
+          return mapa['conteudos_programaticos'] as List;
         }
-
-        // Atualizar informações gerais do concurso no edital
-        final dadosConcurso = resultado['concurso'] as Map<String, dynamic>; // Já verificado acima
-        _atualizarInformacoesEdital(editalAtual, dadosConcurso);
-
-        // Encontrar o cargo a ser atualizado
-        Cargo? cargoAtualizado;
-        for (var c in editalAtual.dadosExtraidos.cargos) {
-          if (c.id == cargo.id) {
-            cargoAtualizado = c;
-            break;
-          }
-        }
-
-        if (cargoAtualizado == null) {
-          throw Exception('Cargo não encontrado no edital');
-        }
-
-        // Processar o conteúdo programático
-        List<ConteudoProgramatico> conteudoProgramatico = [];
-        final List<dynamic> conteudoRaw = dadosConcurso['conteudo_programatico'] as List;
-        for (var item in conteudoRaw) {
-          if (item is Map<String, dynamic>) {
-            conteudoProgramatico.add(ConteudoProgramatico.fromMap(item));
-          }
-        }
-
-        // Atualizar o edital com o novo conteúdo programático
-        // Encontrar o índice do cargo no edital
-        int cargoIndex = -1;
-        for (int i = 0; i < editalAtual.dadosExtraidos.cargos.length; i++) {
-          if (editalAtual.dadosExtraidos.cargos[i].id == cargo.id) {
-            cargoIndex = i;
-            break;
-          }
-        }
-
-        if (cargoIndex == -1) {
-          throw Exception('Cargo não encontrado no edital');
-        }
-
-        // Criar um novo cargo com o conteúdo programático atualizado
-        final Cargo novoCargo = Cargo(
-          id: cargo.id,
-          nome: cargo.nome,
-          vagas: cargo.vagas,
-          salario: cargo.salario,
-          taxaInscricao: cargo.taxaInscricao,
-          nivel: cargo.nivel,
-          escolaridade: cargo.escolaridade,
-          requisitos: cargo.requisitos,
-          conteudoProgramatico: conteudoProgramatico,
-          dataProva: cargo.dataProva,
-          horarioProva: cargo.horarioProva,
-        );
-
-        // Atualizar o cargo no edital
-        editalAtual.dadosExtraidos.cargos[cargoIndex] = novoCargo;
-
-        // Salvar o edital atualizado
-        await editalService.updateEdital(editalAtual);
-
-        // Atualizar progresso
-        onProgress('Preparando dados para o questionário do plano de estudo...', 0.95);
-
-        return true;
-      } else {
-        throw Exception('Resposta da API não contém conteúdo programático');
+        return null;
       }
+
+      // Verificar acesso direto primeiro (formato antigo)
+      if (resultado.containsKey('concurso') && resultado['concurso'] is Map<String, dynamic>) {
+        final concurso = resultado['concurso'] as Map<String, dynamic>;
+        Logger.debug('Chaves em concurso: ${concurso.keys.join(', ')}');
+        conteudoRaw = extrairConteudoProgramatico(concurso);
+      }
+
+      // Se não encontrou no formato antigo, verificar estrutura aninhada com um nível (formato novo)
+      if (conteudoRaw == null && resultado.containsKey('resposta') && resultado['resposta'] is Map<String, dynamic>) {
+        final respostaObj = resultado['resposta'] as Map<String, dynamic>;
+        Logger.debug('Chaves em resposta: ${respostaObj.keys.join(', ')}');
+
+        // Verificar se há um nível de aninhamento
+        if (respostaObj.containsKey('concurso') && respostaObj['concurso'] is Map<String, dynamic>) {
+          final concurso = respostaObj['concurso'] as Map<String, dynamic>;
+          Logger.debug('Chaves em resposta.concurso: ${concurso.keys.join(', ')}');
+          conteudoRaw = extrairConteudoProgramatico(concurso);
+        }
+
+        // Verificar se há dois níveis de aninhamento
+        else if (respostaObj.containsKey('resposta') && respostaObj['resposta'] is Map<String, dynamic>) {
+          final respostaInterna = respostaObj['resposta'] as Map<String, dynamic>;
+          Logger.debug('Chaves em resposta.resposta: ${respostaInterna.keys.join(', ')}');
+
+          if (respostaInterna.containsKey('concurso') && respostaInterna['concurso'] is Map<String, dynamic>) {
+            final concurso = respostaInterna['concurso'] as Map<String, dynamic>;
+            Logger.debug('Chaves em resposta.resposta.concurso: ${concurso.keys.join(', ')}');
+            conteudoRaw = extrairConteudoProgramatico(concurso);
+          } else {
+            // Tentar extrair diretamente da resposta interna
+            conteudoRaw = extrairConteudoProgramatico(respostaInterna);
+          }
+        } else {
+          // Tentar extrair diretamente da resposta
+          conteudoRaw = extrairConteudoProgramatico(respostaObj);
+        }
+      }
+
+      // Verificar se o conteúdo está diretamente no resultado (último recurso)
+      if (conteudoRaw == null) {
+        conteudoRaw = extrairConteudoProgramatico(resultado);
+      }
+
+      // Adicionar log para depuração
+      Logger.debug('Estrutura da resposta: ${resultado.keys.join(', ')}');
+      if (resultado.containsKey('resposta')) {
+        final respostaObj = resultado['resposta'];
+        if (respostaObj is Map<String, dynamic>) {
+          Logger.debug('Estrutura da resposta.resposta: ${respostaObj.keys.join(', ')}');
+        }
+      }
+
+      // Verificar se encontramos o conteúdo programático
+      if (conteudoRaw == null) {
+        // Tentar criar um conteúdo programático mínimo para não quebrar o fluxo
+        Logger.warning('Não foi possível encontrar conteúdo programático na resposta da API. Criando conteúdo mínimo para continuar o fluxo.');
+
+        // Criar um conteúdo programático mínimo
+        conteudoRaw = [
+          {
+            'nome': 'Conteúdo Programático',
+            'tipo': 'comum',
+            'topicos': ['Conteúdo não encontrado na resposta da API. Por favor, consulte o edital para obter o conteúdo programático completo.']
+          }
+        ];
+      }
+
+      // Atualizar progresso
+      onProgress('Processando dados recebidos da API e atualizando conteúdo programático...', 0.9);
+
+      // Obter o edital atual
+      final editalAtual = editalService.getEditalById(edital.id);
+      if (editalAtual == null) {
+        throw Exception('Edital não encontrado após atualização');
+      }
+
+      // Atualizar informações gerais do concurso no edital
+      Map<String, dynamic> dadosConcurso = <String, dynamic>{};
+
+      // Função auxiliar para encontrar o objeto concurso
+      Map<String, dynamic> encontrarObjetoConcurso(Map<String, dynamic> obj) {
+        // Verificar se o concurso está diretamente no resultado
+        if (obj.containsKey('concurso') && obj['concurso'] is Map<String, dynamic>) {
+          return obj['concurso'] as Map<String, dynamic>;
+        }
+        // Verificar se há um nível de aninhamento
+        else if (obj.containsKey('resposta') && obj['resposta'] is Map<String, dynamic>) {
+          final respostaObj = obj['resposta'] as Map<String, dynamic>;
+
+          // Verificar se o concurso está no primeiro nível de aninhamento
+          if (respostaObj.containsKey('concurso') && respostaObj['concurso'] is Map<String, dynamic>) {
+            return respostaObj['concurso'] as Map<String, dynamic>;
+          }
+          // Verificar se há dois níveis de aninhamento
+          else if (respostaObj.containsKey('resposta') && respostaObj['resposta'] is Map<String, dynamic>) {
+            final respostaInterna = respostaObj['resposta'] as Map<String, dynamic>;
+            if (respostaInterna.containsKey('concurso') && respostaInterna['concurso'] is Map<String, dynamic>) {
+              return respostaInterna['concurso'] as Map<String, dynamic>;
+            }
+          }
+        }
+        // Retornar um mapa vazio se não encontrar
+        return <String, dynamic>{};
+      }
+
+      // Encontrar o objeto concurso
+      dadosConcurso = encontrarObjetoConcurso(resultado);
+
+      // Log para depuração
+      Logger.debug('Dados do concurso encontrados: ${dadosConcurso.keys.join(', ')}');
+      _atualizarInformacoesEdital(editalAtual, dadosConcurso);
+
+      // Encontrar o cargo a ser atualizado
+      Cargo? cargoAtualizado;
+      for (var c in editalAtual.dadosExtraidos.cargos) {
+        if (c.id == cargo.id) {
+          cargoAtualizado = c;
+          break;
+        }
+      }
+
+      if (cargoAtualizado == null) {
+        throw Exception('Cargo não encontrado no edital');
+      }
+
+      // Processar o conteúdo programático
+      List<ConteudoProgramatico> conteudoProgramatico = [];
+      for (var item in conteudoRaw) {
+        if (item is Map<String, dynamic>) {
+          try {
+            conteudoProgramatico.add(ConteudoProgramatico.fromMap(item));
+          } catch (e) {
+            Logger.error('Erro ao processar item do conteúdo programático: $e');
+            Logger.debug('Item com erro: $item');
+            // Continuar processando os outros itens
+          }
+        }
+      }
+
+      // Se não conseguiu processar nenhum item, criar um item padrão
+      if (conteudoProgramatico.isEmpty) {
+        conteudoProgramatico.add(
+          ConteudoProgramatico(
+            nome: 'Conteúdo Programático',
+            tipo: 'comum',
+            topicos: ['Conteúdo não processado corretamente. Por favor, consulte o edital para obter o conteúdo programático completo.']
+          )
+        );
+      }
+
+      // Atualizar o edital com o novo conteúdo programático
+      // Encontrar o índice do cargo no edital
+      int cargoIndex = -1;
+      for (int i = 0; i < editalAtual.dadosExtraidos.cargos.length; i++) {
+        if (editalAtual.dadosExtraidos.cargos[i].id == cargo.id) {
+          cargoIndex = i;
+          break;
+        }
+      }
+
+      if (cargoIndex == -1) {
+        throw Exception('Cargo não encontrado no edital');
+      }
+
+      // Criar um novo cargo com o conteúdo programático atualizado
+      final Cargo novoCargo = Cargo(
+        id: cargo.id,
+        nome: cargo.nome,
+        vagas: cargo.vagas,
+        salario: cargo.salario,
+        taxaInscricao: cargo.taxaInscricao,
+        nivel: cargo.nivel,
+        escolaridade: cargo.escolaridade,
+        requisitos: cargo.requisitos,
+        conteudoProgramatico: conteudoProgramatico,
+        dataProva: cargo.dataProva,
+        horarioProva: cargo.horarioProva,
+      );
+
+      // Atualizar o cargo no edital
+      editalAtual.dadosExtraidos.cargos[cargoIndex] = novoCargo;
+
+      // Salvar o edital atualizado
+      await editalService.updateEdital(editalAtual);
+
+      // Atualizar progresso
+      onProgress('Preparando dados para o questionário do plano de estudo...', 0.95);
+
+      return true;
     } catch (e) {
       Logger.error('Erro ao realizar segunda chamada à API: $e');
       rethrow;

@@ -134,25 +134,6 @@ mixin IAServiceImplementations {
         pdfName: edital.nomeArquivo,
       );
 
-      // Salvar a resposta para referência futura
-      try {
-        final apiResponseLogger = ApiResponseLogger();
-        await apiResponseLogger.salvarRespostaSegundaChamada(
-          editalId: editalId,
-          cargoId: cargoId,
-          cargoNome: cargoNome,
-          resposta: resultado,
-        );
-
-        // Obter o caminho do diretório de respostas para exibir no log
-        final String? diretorioRespostas = await apiResponseLogger.obterCaminhoDiretorioRespostas();
-        if (diretorioRespostas != null) {
-          print('[IAServiceImplementations] Resposta da segunda chamada salva em: $diretorioRespostas');
-        }
-      } catch (e) {
-        print('[IAServiceImplementations] Erro ao salvar resposta da segunda chamada: $e');
-      }
-
       // Informar progresso
       onProgress('Processando resultados da análise...', 0.7);
 

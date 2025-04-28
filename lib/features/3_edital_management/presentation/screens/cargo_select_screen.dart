@@ -326,6 +326,7 @@ class _CargoSelectScreenState extends State<CargoSelectScreen> {
     });
 
     try {
+      debugPrint('[DEBUG] Iniciando segunda chamada de API...');
       // Realizar a segunda chamada à API para obter informações detalhadas do cargo
       final bool sucesso = await CargoSelectionService.realizarSegundaChamadaAPI(
         context: context,
@@ -339,6 +340,8 @@ class _CargoSelectScreenState extends State<CargoSelectScreen> {
         },
       );
 
+      debugPrint('[DEBUG] Segunda chamada de API finalizada. Sucesso: '
+          '[32m$sucesso[0m');
       if (!sucesso) {
         throw Exception('Falha ao processar os dados do cargo');
       }
@@ -354,6 +357,7 @@ class _CargoSelectScreenState extends State<CargoSelectScreen> {
       // Obter o cargo atualizado
       final editalAtualizado = editalService.getEditalById(widget.editalId);
       if (editalAtualizado == null) {
+        debugPrint('[DEBUG] Edital não encontrado após atualização');
         throw Exception('Edital não encontrado após atualização');
       }
 
@@ -367,8 +371,12 @@ class _CargoSelectScreenState extends State<CargoSelectScreen> {
       }
 
       if (cargoAtualizado == null) {
+        debugPrint('[DEBUG] Cargo não encontrado após atualização');
         throw Exception('Cargo não encontrado após atualização');
       }
+
+      debugPrint('[DEBUG] Preparando navegação para Questionário... Context válido: '
+        '${context.mounted}');
 
       // Preparar dados do cargo
       final Map<String, dynamic> dadosCargo = {
@@ -386,11 +394,13 @@ class _CargoSelectScreenState extends State<CargoSelectScreen> {
           ),
         ),
       );
-    } catch (e) {
-      Logger.error('Erro ao continuar para plano de estudo: $e');
+      debugPrint('[DEBUG] Navegação para Questionário realizada.');
+    } catch (e, stack) {
+      Logger.error('Erro ao continuar para plano de estudo: $e\n$stack');
+      debugPrint('[DEBUG][CATCH] Erro: $e\n$stack');
       setState(() {
         _isLoading = false;
-        _errorMessage = 'Erro ao processar o cargo: ${e.toString()}';
+        _errorMessage = 'Erro ao processar o cargo: [31m${e.toString()}[0m';
       });
     }
   }
